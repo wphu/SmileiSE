@@ -313,14 +313,26 @@ import sys
 sys.path.append("../post_process")
 import normalization_units as nu
 
-l0 = 1.0e-5 / nu.norm_l     # nu.norm_l is reference time, the value's unit before / is m (SI)
+l0 = 2.0e-5 / nu.norm_l     # nu.norm_l is reference time, the value's unit before / is m (SI)
 t0 = 1.0e-12 / nu.norm_t
-Lsim = [100.*l0]	# length of the simulation
-Tsim = 300.*t0			# duration of the simulation
+Lsim = [500.*l0]	# length of the simulation
+
 resx = 20.				# nb of cells in on laser wavelength
 rest = 30.				# time of timestep in one optical cycle
 
 wavelength_SI = 1.e-6
+
+
+
+#Tsim = 10000.*t0			# duration of the simulation
+Tsim = 10.*t0			# duration of the simulation
+
+#> number of timestep of incrementing averaged electromagnetic fields
+ntime_step_avg = 10000
+
+#> Timestep to output some fields into hdf5 file
+#dump_step = 10000
+dump_step = 2
 
 
 # dim: Geometry of the simulation
@@ -348,7 +360,7 @@ sim_length  = Lsim
 #
 timestep = t0
 sim_time = Tsim
-print sim_time / timestep
+#print sim_time / timestep
 # ELECTROMAGNETIC BOUNDARY CONDITIONS
 # bc_em_type_x/y/z : boundary conditions used for EM fields
 #                    periodic = periodic BC (using MPI topology)
@@ -362,7 +374,7 @@ bc_em_value_x = [0.0, 0.0]
 #Topology:
 #number_of_procs: Number of MPI processes in each direction.
 #clrw: width of a cluster in number of cell. Warning: clrw must divide nspace_win_x.
-number_of_procs = [4]
+number_of_procs = [5]
 
 
 # RANDOM seed
@@ -388,49 +400,51 @@ random_seed = 0
 # temperature        = list of floats or functions, temperature in units of m_e c^2
 # Predefined functions: constant, trapezoidal, gaussian, polygonal, cosine
 #
-Species(
-	species_type = 'ion',
-	initPosition_type = 'random',
-	initMomentum_type = 'maxwell-juettner',
-	ionization_model = 'none',
-	n_part_per_cell = 80,
-	c_part_max = 1.0,
-	mass = 1836.0,
-	charge = 1.0,
-	nb_density = 1.0e19 / nu.norm_n,
-	temperature = [10 / nu.norm_temp],
-	time_frozen = 0.0,
-	bc_part_type_west  = 'supp',
-	bc_part_type_east  = 'supp',
-)
+
 Species(
 	species_type = 'eon',
 	initPosition_type = 'random',
-	initMomentum_type = 'maxwell-juettner',
+	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 80,
+	n_part_per_cell = 400,
 	c_part_max = 1.0,
 	mass = 1.0,
 	charge = -1.0,
 	nb_density = 1.0e19 / nu.norm_n,
-	temperature = [10 / nu.norm_temp],
+	temperature = [20 / nu.norm_temp],
 	time_frozen = 0.,
 	bc_part_type_west  = 'supp',
 	bc_part_type_east  = 'supp',
 )
 
+Species(
+	species_type = 'ion',
+	initPosition_type = 'random',
+	initMomentum_type = 'maxwell',
+	ionization_model = 'none',
+	n_part_per_cell = 200,
+	c_part_max = 1.0,
+	mass = 2.0*1836.0,
+	charge = 1.0,
+	nb_density = 0.5e19 / nu.norm_n,
+	temperature = [20 / nu.norm_temp],
+	time_frozen = 0.0,
+	bc_part_type_west  = 'supp',
+	bc_part_type_east  = 'supp',
+)
+
 
 Species(
-	species_type = 'neutral',
+	species_type = 'ion2',
 	initPosition_type = 'random',
-	initMomentum_type = 'maxwell-juettner',
+	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 80,
+	n_part_per_cell = 200,
 	c_part_max = 1.0,
-	mass = 1836.0,
-	charge = 0.0,
-	nb_density = 1.0e19 / nu.norm_n,
-	temperature = [10 / nu.norm_temp],
+	mass = 3*1836.0,
+	charge = 1.0,
+	nb_density = 0.5e19 / nu.norm_n,
+	temperature = [20 / nu.norm_temp],
 	time_frozen = 0.0,
 	bc_part_type_west  = 'supp',
 	bc_part_type_east  = 'supp',
@@ -462,21 +476,6 @@ Collisions(
 	coulomb_log = 1,
 	collisions_type = "coulomb"
 )
-
-
-
-# ---------------------
-# DIAGNOSTIC PARAMETERS
-# ---------------------
-
-# print_every (on screen text output)
-# print_every = 60
-
-#> number of timestep of incrementing averaged electromagnetic fields
-ntime_step_avg = 50
-
-#> Timestep to output some fields into hdf5 file
-dump_step = 100
 
 ################ END USER NAMELISTS ################
 """@package pycontrol

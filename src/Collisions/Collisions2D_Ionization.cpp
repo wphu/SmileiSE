@@ -224,7 +224,7 @@ void Collisions2D_Ionization::collide(PicParams& params, vector<Species*>& vecSp
     } // end loop on bins
 
     //>delete ionized neutrals
-    idNew = p3->size() - totNCollision;
+    idNew = p2->size() - totNCollision;
     p2->erase_particle_trail(idNew);
     //>update the bmax, because created particles are put the end of species1 and species3
     //>then sort_part to move the particles to the bins which they belong to

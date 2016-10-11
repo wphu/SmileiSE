@@ -257,6 +257,14 @@ public:
 	return emSize;
     }
 
+    // emitted charge from boundary
+    std::vector<double> emitCharge[2];
+
+    // depositted charge from boundary
+    std::vector<double> depCharge[2];
+
+    // total charge from boundary
+    std::vector<double> totCharge[2];
 
 protected:
     //! Vector of boundary-condition per side for the fields

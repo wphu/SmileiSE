@@ -6,12 +6,6 @@ PSI2D class
 #define PSI2D_H
 
 #include <vector>
-
-#include "Tools.h"
-#include "PicParams.h"
-#include "InputData.h"
-#include "Species.h"
-#include "H5.h"
 #include "PSI.h"
 
 class PSI2D : public PSI
@@ -19,7 +13,7 @@ class PSI2D : public PSI
 
 public:
     //! Constructor for PSI between two species
-    PSI2D(){};
+    PSI2D(PicParams& params, SmileiMPI* smpi) : PSI(params, smpi){};
     virtual ~PSI2D(){};
 
 

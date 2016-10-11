@@ -36,6 +36,7 @@
 #include "SolverFactory.h"
 #include "SmileiIOFactory.h"
 #include "PSIFactory.h"
+#include "ElectroMagnBC_Factory.h"
 
 #include "Timer.h"
 #include <omp.h>
@@ -128,6 +129,8 @@ int main (int argc, char* argv[])
     ElectroMagn* EMfields = ElectroMagnFactory::create(params, input_data, smpi);
     smpi->barrier();
 
+    vector<ElectroMagnBC*> vecEmBC = ElectroMagnBCFactory::create(params);
+
     //Create mpi i/o environment
     TITLE("input output environment");
     SmileiIO*  sio  = SmileiIOFactory::create(params, smpi, EMfields);
@@ -185,7 +188,8 @@ int main (int argc, char* argv[])
     // ------------------------------------------------------------------
     TITLE("Time-Loop is started: number of time-steps n_time = " << params.n_time);
 
-    for (unsigned int itime=stepStart+1 ; itime <= stepStop ; itime++) {
+    for (unsigned int itime=stepStart+1 ; itime <= stepStop ; itime++)
+    {
 
         //MESSAGE("timestep = " << itime);
         // calculate new times
@@ -218,7 +222,8 @@ int main (int argc, char* argv[])
 
         int tid(0);
         timer[1].restart();
-        for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++) {
+        for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
+        {
             if (1 ){
                 EMfields->restartRhoJs(ispec, 0);
                 vecSpecies[ispec]->dynamics(time_dual, ispec, EMfields, Interp, Proj, smpi, params);
@@ -229,23 +234,28 @@ int main (int argc, char* argv[])
         }
         timer[1].update();
 
-
         //> perform PSI (Plasma Surface Interaction) processes, such as injection, sputtering, secondary electron emission
+        // PSIs usually create new particles, insert new particles to the end of particles,
+        // not affect the indexes_of_particles_to_exchange before exchanging particles using MPI
         for (unsigned int ipsi=0 ; ipsi<vecPSI.size(); ipsi++)
         {
-            vecPSI[ipsi]->performPSI(params,vecSpecies,itime);
+            vecPSI[ipsi]->performPSI(params,vecSpecies,itime, EMfields);
         }
 
-
         timer[2].restart();
-        for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++) {
+        for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
+        {
             if ( 1){
                 // Loop on dims to manage exchange in corners
                 for ( int iDim = 0 ; iDim<(int)params.nDim_particle ; iDim++ )
+                {
                     smpi->exchangeParticles(vecSpecies[ispec], ispec, params, tid, iDim);
-                    vecSpecies[ispec]->sort_part(); // Should we sort test particles ?? (JD)
+                }
+                vecSpecies[ispec]->sort_part(); // Should we sort test particles ?? (JD)
             }
         }
+
+
         timer[2].update();
         smpi->barrier();
 

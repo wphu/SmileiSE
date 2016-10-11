@@ -14,7 +14,11 @@ using namespace std;
 
 
 // Constructor
-PSI2D_Injection::PSI2D_Injection()
+PSI2D_Injection::PSI2D_Injection(
+    PicParams& params,
+    SmileiMPI* smpi
+    ):
+PSI2D(params, smpi)
 {
 
 

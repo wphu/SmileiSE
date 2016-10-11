@@ -15,11 +15,23 @@ import normalization_units as nu
 l0 = 2.0e-5 / nu.norm_l     # nu.norm_l is reference time, the value's unit before / is m (SI)
 t0 = 1.0e-12 / nu.norm_t
 Lsim = [500.*l0]	# length of the simulation
-Tsim = 10000.*t0			# duration of the simulation
+
 resx = 20.				# nb of cells in on laser wavelength
 rest = 30.				# time of timestep in one optical cycle
 
 wavelength_SI = 1.e-6
+
+
+
+#Tsim = 10000.*t0			# duration of the simulation
+Tsim = 10.*t0			# duration of the simulation
+
+#> number of timestep of incrementing averaged electromagnetic fields
+ntime_step_avg = 10000
+
+#> Timestep to output some fields into hdf5 file
+#dump_step = 10000
+dump_step = 2
 
 
 # dim: Geometry of the simulation
@@ -163,18 +175,3 @@ Collisions(
 	coulomb_log = 1,
 	collisions_type = "coulomb"
 )
-
-
-
-# ---------------------
-# DIAGNOSTIC PARAMETERS
-# ---------------------
-
-# print_every (on screen text output)
-# print_every = 60
-
-#> number of timestep of incrementing averaged electromagnetic fields
-ntime_step_avg = 10000
-
-#> Timestep to output some fields into hdf5 file
-dump_step = 10000

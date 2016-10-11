@@ -108,17 +108,6 @@ public:
     }
     std::vector< std::vector<int> > indexes_of_particles_to_exchange_per_thd;
 
-    //> iDirection = 0,1,2,3,4,5 ==> west, east, north, south, front, back
-    inline void clearPsiList(int iDirection) {
-	    indexes_of_particles_to_perform_psi[iDirection].clear();
-    }
-    inline void addPartInPsiList(int iDirection, int iPart) {
-        indexes_of_particles_to_perform_psi[iDirection].push_back(iPart);
-    }
-    std::vector< std::vector<int> > indexes_of_particles_to_perform_psi;
-
-
-
     //Copy of the species parameters from picparams
     SpeciesStructure species_param;
 
@@ -145,6 +134,22 @@ public:
     }
 
     void printAvgVelocity();
+
+    // record the particles reaching boundary to perform psi
+    std::vector< std::vector<int> > indexes_of_particles_to_perform_psi;
+    //> iDirection = 0,1,2,3,4,5 ==> west, east, north, south, front, back
+    inline void clearPsiList(int iDirection) {
+	    indexes_of_particles_to_perform_psi[iDirection].clear();
+    }
+    inline void addPartInPsiList(int iDirection, int iPart) {
+        indexes_of_particles_to_perform_psi[iDirection].push_back(iPart);
+    }
+
+    // after particle pushing, calculate the depositted charge on the boundary
+    void calDepCharge(ElectroMagn* EMfields, PicParams& params, SmileiMPI* smpi);
+
+
+
 
 private:
 

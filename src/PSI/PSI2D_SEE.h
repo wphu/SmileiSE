@@ -16,7 +16,7 @@ class PSI2D_SEE : public PSI2D
 
 public:
     //! Constructor for Collisions between two species
-    PSI2D_SEE();
+    PSI2D_SEE(PicParams& params, SmileiMPI* smpi);
     ~PSI2D_SEE();
 
 

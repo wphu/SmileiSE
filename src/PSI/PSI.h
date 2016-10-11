@@ -6,29 +6,57 @@ PSI class
 #define PSI_H
 
 #include <vector>
+#include <string>
 
-#include "Tools.h"
 #include "PicParams.h"
-#include "InputData.h"
+#include "SmileiMPI.h"
 #include "Species.h"
-#include "H5.h"
 
+using namespace std;
 class PSI
 {
 
 public:
     //! Constructor for PSI between two species
-    PSI(){};
+    PSI(PicParams&, SmileiMPI*){};
     virtual ~PSI(){};
 
+
+    //! Identification number of the PSI object
+    int n_PSI;
+
+    // PSI position : only left and right for 1D case
+    string psiPos;
+
+    // emit kind, regular or fieldEmit for injection PSI
+    string emitKind;
+
+    // relevant PSI, emitting number of two species may be relevant
+    // such as nPartEmit(A) = relCoff * nPartEmit(B)
+    PSI *relPsi;
+    string relSpecies;
+
+    // position offset of injected or sputtered particles
+    double posOffset;
+    // the energy/temperature of the new particles
+    double emitTemp;
+    double weight_const;
+
+    void setRelPsi(PSI* relevantPsi)
+    {
+        relPsi = relevantPsi;
+    }
+
     //! Group of the species numbers that are associated for PSI.
+    //> actually, each species gourp only contains one species for PSI
     //> for PSI_Injection, only species1 is used;
     //> for sputtering and secondary electron emission, species1 is the incident particle.
     unsigned int species1, species2;
 
-
     //! Method called in the main smilei loop to apply PSI at each timestep
-    virtual void performPSI(PicParams&,std::vector<Species*>&,int){};
+    virtual void performPSI(PicParams&,std::vector<Species*>&,int, ElectroMagn* ){};
+
+    Particles new_particles;
 
 
 private:

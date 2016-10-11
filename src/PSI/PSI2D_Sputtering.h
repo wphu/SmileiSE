@@ -16,7 +16,7 @@ class PSI2D_Sputtering : public PSI2D
 
 public:
     //! Constructor
-    PSI2D_Sputtering();
+    PSI2D_Sputtering(PicParams& params, SmileiMPI* smpi);
     ~PSI2D_Sputtering();
 
 

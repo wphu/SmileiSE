@@ -26,6 +26,11 @@ public:
     virtual void initSLU(){};
     virtual void solve_Exy(Field* phi, Field* Ex, Field* Ey){};
 
+    // boundary condition of electric field for Dirichlet condition
+    double bc_e_value[3][2];
+    // boundary condition of electric field for Neumann condition
+    double bc_e_derivative[3][2];
+
 protected:
 
 };//END class

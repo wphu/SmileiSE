@@ -32,6 +32,16 @@ oversize(params.oversize)
     poynting_inst[0].resize(nDim_field,0.0);
     poynting_inst[1].resize(nDim_field,0.0);
 
+    // initialize charge vector: the charge is scalar, not field
+    emitCharge[0].resize(nDim_field, 0.0);
+    emitCharge[1].resize(nDim_field, 0.0);
+    depCharge[0].resize(nDim_field, 0.0);
+    depCharge[1].resize(nDim_field, 0.0);
+    totCharge[0].resize(nDim_field, 0.0);
+    totCharge[1].resize(nDim_field, 0.0);
+
+
+
     // take useful things from params
     for (unsigned int i=0; i<3; i++) {
         DEBUG("____________________ OVERSIZE: " <<i << " " << oversize[i]);

@@ -15,21 +15,17 @@ using namespace std;
 
 // Constructor
 Collisions1D_ChargeExchange::Collisions1D_ChargeExchange(PicParams& param, vector<Species*>& vecSpecies, SmileiMPI* smpi,
-                       unsigned int n_collisions,
-                       vector<unsigned int> species_group1,
-                       vector<unsigned int> species_group2,
-                       double coulomb_log,
-                       bool intra_collisions,
-                       int debug_every)
+                       unsigned int n_col,
+                       vector<unsigned int> sg1,
+                       vector<unsigned int> sg2,
+                       string CS_fileName)
 {
 
-    n_collisions    = (n_collisions    );
-    species_group1  = (species_group1  );
-    species_group2  = (species_group2  );
-    coulomb_log     = (coulomb_log     );
-    intra_collisions= (intra_collisions);
-    debug_every     = (debug_every     );
-    start           = (0               );
+    n_collisions    = n_col;
+    species_group1  = sg1;
+    species_group2  = sg2;
+    crossSection_fileName = CS_fileName;
+
 
 
 
@@ -39,7 +35,7 @@ Collisions1D_ChargeExchange::Collisions1D_ChargeExchange(PicParams& param, vecto
     //MPI_Allreduce( smpi->isMaster()?MPI_IN_PLACE:&totbins, &totbins, 1, MPI_INTEGER, MPI_SUM, MPI_COMM_WORLD);
     MPI_Reduce( smpi->isMaster()?MPI_IN_PLACE:&totbins, &totbins, 1, MPI_INTEGER, MPI_SUM, 0, MPI_COMM_WORLD);
 
-    // if debug requested, prepare hdf5 file
+    readCrossSection();
 
 
 
@@ -54,12 +50,165 @@ Collisions1D_ChargeExchange::~Collisions1D_ChargeExchange()
 // Calculates the collisions for a given Collisions1D object
 void Collisions1D_ChargeExchange::collide(PicParams& params, vector<Species*>& vecSpecies, int itime)
 {
+    unsigned int nbins = vecSpecies[0]->bmin.size(); // number of bins
+    vector<unsigned int> *sg1, *sg2;
 
+    vector<int> index1, index2;
+    vector<int> n1, n2;
+    vector<double> density1, density2;
+    double n1_max, n2_max;
+    vector<double> temp(3, 0.0);
+    int idNew;
+    int totNCollision = 0;
+    vector<int> bmin1, bmax1, bmin2, bmax2, bmin3, bmax3;
+    unsigned int npairs; // number of pairs of macro-particles
+    unsigned int i1, i2;
+    Species   *s1, *s2;
+    Particles *p1, *p2;
+    double m1, m2, m12, W1, W2;
+
+    double  sigma_cr, sigma_cr_max, v_square, v_magnitude, ke1, ke_primary, ke_secondary,
+            ran, P_collision, ran_P;
+
+
+    sg1 = &species_group1;
+    sg2 = &species_group2;
+
+    // ions                          atoms
+    s1 = vecSpecies[(*sg1)[0]];      s2 = vecSpecies[(*sg2)[0]];
+    p1 = &(s1->particles);           p2 = &(s2->particles);
+    m1 = s1->species_param.mass;     m2 = s2->species_param.mass;
+    W1 = p1->weight(0);              W2 = p2->weight(0);
+    bmin1 = s1->bmin;                bmin2 = s2->bmin;
+    bmax1 = s1->bmax;                bmax2 = s2->bmax;
+    // Loop on bins
+    n1.resize(bmin1.size());
+    density1.resize(bmin1.size());
+    n1_max = 0.0;
+    for(unsigned int ibin=0 ; ibin<nbins ; ibin++)
+    {
+        n1[ibin] = bmax1[ibin] - bmin1[ibin];
+    }
+
+    n2.resize(bmin2.size());
+    density2.resize(bmin2.size());
+    n2_max = 0.0;
+    for(unsigned int ibin=0 ; ibin<nbins ; ibin++)
+    {
+        n2[ibin] = bmax2[ibin] - bmin2[ibin];
+        density2[ibin] = n2[ibin] * W2;
+        if( density2[ibin] > n2_max ) { n2_max = density2[ibin]; };
+    }
+
+    for (unsigned int ibin=0 ; ibin<nbins ; ibin++) {
+
+        //>calculate the particle number of species1 in each cell, and the indexs of particles in the cell
+        index1.resize( n1[ibin] );
+
+        for(int iPart = 0; iPart < n1[ibin]; iPart++)
+        {
+            index1[iPart] = iPart;
+        }
+        random_shuffle(index1.begin(), index1.end());
+
+        //>calculate the particle number of species2 in each cell, and the indexs of particles in the cell
+        index2.resize( n2[ibin] );
+
+        for(int iPart = 0; iPart < n2[ibin]; iPart++)
+        {
+            index2[iPart] = iPart;
+        }
+        random_shuffle(index2.begin(), index2.end());
+
+
+        // Now start the real loop
+        // See equations in http://dx.doi.org/10.1063/1.4742167
+        // ----------------------------------------------------
+
+        sigma_cr_max = maxCV(s1, s2);
+        npairs = n1[ibin] * (1 - exp(-density2[ibin] * sigma_cr_max * timestep) );
+        for(int i = 0; i < npairs; i++)
+        {
+            i1 = index1[i];
+            i2 = index2[i];
+
+            v_square = ( p1->momentum(0,i1) - p2->momentum(0,i2) ) * ( p1->momentum(0,i1) - p2->momentum(0,i2) ) +
+                       ( p1->momentum(1,i1) - p2->momentum(1,i2) ) * ( p1->momentum(1,i1) - p2->momentum(1,i2) ) +
+                       ( p1->momentum(2,i1) - p2->momentum(2,i2) ) * ( p1->momentum(2,i1) - p2->momentum(2,i2) );
+            v_magnitude = sqrt(v_square);
+            //>kinetic energy of species1 (electrons)
+            ke1 = 0.5 * m1 * v_square;
+
+            sigma_cr = v_magnitude * interpCrossSection( ke1 * norm_temperature );
+            P_collision = sigma_cr / sigma_cr_max;
+            // Generate a random number between 0 and 1
+            double ran_p = (double)rand() / RAND_MAX;
+
+            if(ran_P < P_collision){
+                temp[0] = p2->momentum(0, i2);
+                temp[1] = p2->momentum(1, i2);
+                temp[2] = p2->momentum(2, i2);
+                p2->momentum(0, i2) = p1->momentum(0, i1);
+                p2->momentum(1, i2) = p1->momentum(1, i1);
+                p2->momentum(2, i2) = p1->momentum(2, i1);
+                p1->momentum(0,i1) = temp[0];
+                p1->momentum(1,i1) = temp[1];
+                p1->momentum(2,i1) = temp[2];
+
+
+                temp[0] = p2->position(0, i2);
+                temp[1] = p2->position(1, i2);
+                temp[2] = p2->position(2, i2);
+                p2->position(0, i2) = p1->position(0, i1);
+                p2->position(1, i2) = p1->position(1, i1);
+                p2->position(2, i2) = p1->position(2, i1);
+                p1->position(0,i1) = temp[0];
+                p1->position(1,i1) = temp[1];
+                p1->position(2,i1) = temp[2];
+
+                totNCollision++;
+
+            }
+        }
+
+
+    } // end loop on bins
 }
-
 
 
 double  Collisions1D_ChargeExchange::cross_section(double ke)
 {
 
+}
+
+double Collisions1D_ChargeExchange::maxCV(Species* s1, Species* s2){
+    int nPart1, nPart2, npairs;
+    Particles *p1, *p2;
+
+    p1 = &(s1->particles);
+    p2 = &(s2->particles);
+    nPart1 = p1->size();
+    nPart2 = p2->size();
+
+    double v_square;
+    double v_magnitude;
+    double mass;
+    double ke;
+    double maxCrossSectionV;
+    double crossSectionV;
+
+    maxCrossSectionV = 0.0;
+    mass = s1->species_param.mass;
+    npairs = (nPart1 < nPart2) ? nPart1 : nPart2;
+    for(unsigned int iPart = 0; iPart < npairs; iPart++)
+    {
+        v_square = ( p1->momentum(0,iPart) - p2->momentum(0,iPart) ) * ( p1->momentum(0,iPart) - p2->momentum(0,iPart) ) +
+                   ( p1->momentum(1,iPart) - p2->momentum(1,iPart) ) * ( p1->momentum(1,iPart) - p2->momentum(1,iPart) ) +
+                   ( p1->momentum(2,iPart) - p2->momentum(2,iPart) ) * ( p1->momentum(2,iPart) - p2->momentum(2,iPart) );
+        v_magnitude = sqrt(v_square);
+        ke = 0.5 * mass * v_square;
+        crossSectionV = v_magnitude * interpCrossSection( ke * norm_temperature );
+        if(crossSectionV > maxCrossSectionV) {maxCrossSectionV = crossSectionV;};
+    }
+    return maxCrossSectionV;
 }

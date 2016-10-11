@@ -82,6 +82,8 @@ class Species(SmileiComponent):
     bc_part_type_south = None
     ionization_model = "none"
     atomic_number = None
+    atomic_mass = None
+    surface_binding_energy = None
     isTest = False
 
 
@@ -104,6 +106,7 @@ class Laser(SmileiComponent):
 
 class Collisions(SmileiComponent):
     """Collisions parameters"""
+    // species1 and species2 are list of unsigned integer
     species1 = None
     species2 = None
     coulomb_log = 0.
@@ -112,9 +115,19 @@ class Collisions(SmileiComponent):
 
 class PSI(SmileiComponent):
     """PSI parameters"""
+    # species1 and species2 are unsigned integer type
     species1 = None
     species2 = None
     PSI_type = None
+    posEmit = None
+    nPartEmit = 0
+    tempEmit = 0.0
+    jEmit = 0.0
+    weight_const = 1.0
+    emitOffset = 0.0
+    a_FN = 1.5414e-6
+    b_FN = 6.8309e9
+    work_function = 4.5
 
 
 

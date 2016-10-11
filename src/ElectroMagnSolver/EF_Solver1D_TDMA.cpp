@@ -16,20 +16,20 @@ EF_Solver1D_TDMA::EF_Solver1D_TDMA(PicParams &params, SmileiMPI* smpi)
 
     if(params.bc_em_type_x[0] == "Dirichlet"){
         bc_x_left = 1;
-        field_left = params.bc_em_value_x[0];
+        bc_e_value[0][0] = params.bc_em_value_x[0];
     }
     else if(params.bc_em_type_x[0] == "Neumann"){
         bc_x_left = 2;
-        field_derivative_left = params.bc_em_value_x[0];
+        bc_e_derivative[0][0] = params.bc_em_value_x[0];
     }
 
     if(params.bc_em_type_x[1] == "Dirichlet"){
         bc_x_right = 1;
-        field_right = params.bc_em_value_x[1];
+        bc_e_value[0][1] = params.bc_em_value_x[1];
     }
     else if(params.bc_em_type_x[1] == "Neumann"){
         bc_x_right = 2;
-        field_derivative_right = params.bc_em_value_x[1];
+        bc_e_derivative[0][1] = params.bc_em_value_x[1];
     }
 
 
@@ -132,17 +132,17 @@ void EF_Solver1D_TDMA::solve_TDMA(Field* rho, Field* phi)
     }
 
     if(bc_x_left == 1){
-        f[0] = field_left;
+        f[0] = bc_e_value[0][0];
     }
     else if(bc_x_left == 2){
-        f[0] = field_derivative_left;
+        f[0] = bc_e_derivative[0][0];
     }
 
     if(bc_x_right == 1){
-        f[nx-1] = field_right;
+        f[nx-1] = bc_e_value[0][1];
     }
     else if(bc_x_right == 2){
-        f[nx-1] = -field_derivative_right;
+        f[nx-1] = -bc_e_derivative[0][1];
     }
 
     e[0] = c[0] / b[0];

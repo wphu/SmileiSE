@@ -1,9 +1,9 @@
 /*
-Collisions1D_Ionization class
+Collisions1D_Ionization_Simple class
 */
 
-#ifndef COLLISIONS1D_IONIZATION_H
-#define COLLISIONS1D_IONIZATION_H
+#ifndef COLLISIONS1D_IONIZATION_SIMPLE_H
+#define COLLISIONS1D_IONIZATION_SIMPLE_H
 
 #include <vector>
 
@@ -16,18 +16,13 @@ Collisions1D_Ionization class
 
 using namespace std;
 
-class Particles;
-
-class Collisions1D_Ionization : public Collisions1D
+class Collisions1D_Ionization_Simple : public Collisions1D
 {
 
 public:
     //! Constructor for Collisions1D between two species
-    Collisions1D_Ionization(PicParams&,std::vector<Species*>&,SmileiMPI*,unsigned int,
-                            std::vector<unsigned int>,std::vector<unsigned int>,std::vector<unsigned int>,
-                            string );
-    ~Collisions1D_Ionization();
-
+    Collisions1D_Ionization_Simple(PicParams&,std::vector<Species*>&,SmileiMPI*,unsigned int,std::vector<unsigned int>,std::vector<unsigned int>,std::vector<unsigned int>,double,bool,int);
+    ~Collisions1D_Ionization_Simple();
 
     double cross_section(double ke);
     void calculate_scatter_velocity(double ke, double v_magnitude, double mass1, double mass2,
@@ -36,9 +31,6 @@ public:
 
     //! Method called in the main smilei loop to apply collisions at each timestep
     void collide(PicParams&,std::vector<Species*>&,int);
-
-    // get the maximum value of crossSection*velocity
-    double maxCV(Particles* particles, double eMass);
 
 private:
     //>the ionization threshold energy

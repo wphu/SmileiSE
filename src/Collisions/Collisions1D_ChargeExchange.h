@@ -19,7 +19,9 @@ class Collisions1D_ChargeExchange : public Collisions1D
 
 public:
     //! Constructor for Collisions1D between two species
-    Collisions1D_ChargeExchange(PicParams&,std::vector<Species*>&,SmileiMPI*,unsigned int,std::vector<unsigned int>,std::vector<unsigned int>,double,bool,int);
+    Collisions1D_ChargeExchange(PicParams&,std::vector<Species*>&,SmileiMPI*,unsigned int,
+                                std::vector<unsigned int>,std::vector<unsigned int>,
+                                string);
     ~Collisions1D_ChargeExchange();
 
     double cross_section(double ke);
@@ -27,6 +29,8 @@ public:
     //! Method called in the main smilei loop to apply collisions at each timestep
     void collide(PicParams&,std::vector<Species*>&,int);
 
+    // get the maximum value of crossSection*velocity
+    double maxCV(Species* s1, Species* s2);
 
 private:
     //>the ionization threshold energy

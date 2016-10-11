@@ -49,7 +49,11 @@ struct SpeciesStructure {
     double mass;
 
     //! atomic number
-    unsigned int atomic_number;
+    unsigned int atomic_number;     // H 1; D 1; C 6; Ar 18;
+    // atomic mass
+    double atomic_mass;             // unit is amu, H 1.008; D 2.016; T 3.024; Be 9.012182; Ar 39.95
+    // surface_binding_energy
+    double surface_binding_energy;
 
     //! thermalizing temperature [\f$m_e c^2\f$]
     std::vector<double> thermT;
@@ -102,6 +106,12 @@ struct SpeciesStructure {
 
     ProfileStructure ppc_profile;
 
+    // parameters for DSMC
+    double diameter;
+    double ref_temperature;        // reference temperature
+    double visc_temp_index;
+    double vss_scat_inv;
+
 };
 
 
@@ -128,6 +138,9 @@ public:
 
     //! compute species-related parameters & apply normalization
     void computeSpecies();
+
+    // compute normalization factor of some variable
+    void computeNormalization();
 
     //! print a summary of the values in txt
     void print();
@@ -164,10 +177,14 @@ public:
     std::vector<double> res_space;
 
     //! local simulation box size in \f$2\pi/k_N \f$
+    // should be global simulation size ------by wphu
     std::vector<double> sim_length;
 
     //! time during which the Maxwell's equations are not solved
     double time_fields_frozen;
+
+    // boundary condition type: constant or externCircuit
+    std::string bcType;
 
     //! Boundary conditions for ElectroMagnetic Fields
     std::vector<std::string> bc_em_type_x;
@@ -251,6 +268,24 @@ public:
 
     //! Method to find the numbers of requested species, sorted, and duplicates removed
     std::vector<unsigned int> FindSpecies(std::vector<std::string>);
+
+    // some physics constants
+    double const_c;
+    double const_e;
+    double const_emass;
+    double const_ephi0;
+    double const_pi;
+    double const_boltz;
+
+    // some normalization factor
+    double norm_omiga0;     // frequency
+    double norm_time;
+    double norm_length;
+    double norm_density;
+    double norm_temperature;
+    double norm_voltage;
+    double norm_efield;     // electric field
+    double norm_j;          // current density
 
 };
 

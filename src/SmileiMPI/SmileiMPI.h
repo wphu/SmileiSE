@@ -175,6 +175,8 @@ public:
     std::vector <int> recv_cnt, recv_disp;
     std::vector <int> send_cnt, send_disp;
 
+    virtual void reduceDoubleVector( double* src, double* des, int n);
+
 protected:
     //! Global MPI Communicator
     MPI_Comm SMILEI_COMM_WORLD;

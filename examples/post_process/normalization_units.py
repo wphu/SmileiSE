@@ -13,6 +13,7 @@ value,unit,precision=const.physical_constants["electric constant"]
 ephi0=value
 
 #> the reference frequency: s^-1
+# this means the normalization factor of length is 1 m
 omiga0 = c/1.0
 
 #> normalized temerature unit: eV

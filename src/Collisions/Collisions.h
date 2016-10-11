@@ -30,12 +30,17 @@ Several collision types can be defined. For each type, add a group "Collisions()
 #define COLLISIONS_H
 
 #include <vector>
+#include <string>
+#include <fstream>
+
 
 #include "Tools.h"
 #include "PicParams.h"
 #include "InputData.h"
 #include "Species.h"
 #include "H5.h"
+
+using namespace std;
 
 class Collisions
 {
@@ -62,16 +67,53 @@ public:
     //! Method called in the main smilei loop to apply collisions at each timestep
     virtual void collide(PicParams&,std::vector<Species*>&,int){};
 
+    virtual void readCrossSection(){
+        ifstream inFile;
+        double energy, cross_section;
+        crossSection.resize(2);
+        inFile.open(crossSection_fileName.c_str());
+        while(inFile >> energy && inFile >> cross_section){
+            crossSection[0].push_back(energy);
+            crossSection[1].push_back(cross_section);
+        }
+        inFile.close();
+    };
+    // interplate cross section with energy (eV)
+    double interpCrossSection(double energy){
+        int low = 0;
+        int high = crossSection[0].size() - 1;
+        int mid = 0;
+        while(low <= high){
+            mid = (low + high) / 2;
+            if(crossSection[0][mid] < energy){
+                low = mid + 1;
+            }
+            else if(crossSection[0][mid] > energy){
+                high = mid - 1;
+            }
+            else {
+                return crossSection[1][mid];
+            }
+        }
+        // now low is 1 larger than high
+        double dEnergy_inv = 1.0 / (crossSection[0][low] - crossSection[0][high]);
+        return crossSection[1][high] * (crossSection[0][low] - energy) * dEnergy_inv +
+               crossSection[1][low] * (energy - crossSection[0][high]) * dEnergy_inv;
+    };
+
+
     int totbins;
     int start;
+    double norm_temperature;
+    double timestep;
 
-
+    string crossSection_fileName;
+    vector< vector<double> > crossSection;
 
 
 
 
 private:
-
 
 
 

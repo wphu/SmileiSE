@@ -478,7 +478,7 @@ void Species::dynamics(double time_dual, unsigned int ispec, ElectroMagn* EMfiel
                     addPartInExchList( tid, iPart );
                     nrj_lost_per_thd[tid] += params.species_param[ispec].mass * ener_iPart;
                     if(iDirection >= 0){
-                        //addPartInPsiList( iDirection, iPart );
+                        addPartInPsiList( iDirection, iPart );
                     }
                 }
 
@@ -973,5 +973,54 @@ void Species::printAvgVelocity()
     vz_avg /= particles.size();
 
     MESSAGE("Average velocity of "<<species_param.species_type << "  " << vx_avg << vy_avg << vz_avg);
+
+}
+
+
+void Species::calDepCharge(ElectroMagn* EMfields, PicParams& params, SmileiMPI* smpi)
+{
+    unsigned int iPart;
+    double depCharge[3][2];
+    double depCharge_temp[3][2];
+    for ( int iDim = 0 ; iDim<(int)params.nDim_particle ; iDim++ )
+    {
+        for (int i=0 ; i<indexes_of_particles_to_exchange_per_thd[0].size() ; i++) {
+            iPart = indexes_of_particles_to_exchange_per_thd[0][i];
+            if ( particles.position(iDim,iPart) < smpi->getDomainLocalMin(iDim) ) {
+                depCharge_temp[iDim][0] += ( particles.charge(iPart) + particles.weight(iPart) );
+            }
+            else if ( particles.position(iDim,iPart) > smpi->getDomainLocalMax(iDim) ) {
+                depCharge_temp[iDim][1] += ( particles.charge(iPart) + particles.weight(iPart) );
+            }
+            else { // particle will be deleted, if supp_particle particles still in the domain
+            }
+        }
+
+    }
+
+    if( !smpi->isWestern() ) {
+        depCharge_temp[0][0] = 0.0;
+    }
+
+    if( !smpi->isEastern() ) {
+        depCharge_temp[0][1] = 0.0;
+    }
+
+    if( params.nDim_particle >= 2 ) {
+        if( !smpi->isSouthern() ) {
+            depCharge_temp[1][0] = 0.0;
+        }
+
+        if( !smpi->isNorthern() ) {
+            depCharge_temp[1][1] = 0.0;
+        }
+    }
+
+    smpi->reduceDoubleVector( depCharge_temp[0], depCharge[0], 6 );
+    for ( int iDim = 0 ; iDim<(int)params.nDim_particle ; iDim++ )
+    {
+        EMfields->depCharge[iDim][0] += depCharge[iDim][0];
+        EMfields->depCharge[iDim][1] += depCharge[iDim][1];
+    }
 
 }

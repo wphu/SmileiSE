@@ -14,12 +14,15 @@ Collisions2D_ChargeExchange class
 #include "Collisions2D.h"
 #include "H5.h"
 
+
 class Collisions2D_ChargeExchange : public Collisions2D
 {
 
 public:
     //! Constructor
-    Collisions2D_ChargeExchange(PicParams&,std::vector<Species*>&,SmileiMPI*,unsigned int,std::vector<unsigned int>,std::vector<unsigned int>,double,bool,int);
+    Collisions2D_ChargeExchange(PicParams&,std::vector<Species*>&,SmileiMPI*,unsigned int,
+                                std::vector<unsigned int>,std::vector<unsigned int>,
+                                string);
     ~Collisions2D_ChargeExchange();
 
     double cross_section(double ke);

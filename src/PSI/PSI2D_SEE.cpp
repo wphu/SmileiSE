@@ -14,7 +14,11 @@ using namespace std;
 
 
 // Constructor
-PSI2D_SEE::PSI2D_SEE()
+PSI2D_SEE::PSI2D_SEE(
+    PicParams& params,
+    SmileiMPI* smpi
+    ):
+PSI2D(params, smpi)        
 {
 
 

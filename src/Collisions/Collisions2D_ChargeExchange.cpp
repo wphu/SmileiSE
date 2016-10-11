@@ -15,21 +15,17 @@ using namespace std;
 
 // Constructor
 Collisions2D_ChargeExchange::Collisions2D_ChargeExchange(PicParams& param, vector<Species*>& vecSpecies, SmileiMPI* smpi,
-                       unsigned int n_collisions,
-                       vector<unsigned int> species_group1,
-                       vector<unsigned int> species_group2,
-                       double coulomb_log,
-                       bool intra_collisions,
-                       int debug_every)
+                       unsigned int n_col,
+                       vector<unsigned int> sg1,
+                       vector<unsigned int> sg2,
+                       string CS_fileName)
 {
 
-    n_collisions    = (n_collisions    );
-    species_group1  = (species_group1  );
-    species_group2  = (species_group2  );
-    coulomb_log     = (coulomb_log     );
-    intra_collisions= (intra_collisions);
-    debug_every     = (debug_every     );
-    start           = (0               );
+    n_collisions    = n_col;
+    species_group1  = sg1;
+    species_group2  = sg2;
+    crossSection_fileName = CS_fileName;
+
 
 
 
