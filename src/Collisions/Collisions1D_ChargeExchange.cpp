@@ -139,7 +139,7 @@ void Collisions1D_ChargeExchange::collide(PicParams& params, vector<Species*>& v
             //>kinetic energy of species1 (electrons)
             ke1 = 0.5 * m1 * v_square;
 
-            sigma_cr = v_magnitude * interpCrossSection( ke1 * norm_temperature );
+            sigma_cr = v_magnitude * interpCrossSection( ke1 / const_e );
             P_collision = sigma_cr / sigma_cr_max;
             // Generate a random number between 0 and 1
             double ran_p = (double)rand() / RAND_MAX;
@@ -207,7 +207,7 @@ double Collisions1D_ChargeExchange::maxCV(Species* s1, Species* s2){
                    ( p1->momentum(2,iPart) - p2->momentum(2,iPart) ) * ( p1->momentum(2,iPart) - p2->momentum(2,iPart) );
         v_magnitude = sqrt(v_square);
         ke = 0.5 * mass * v_square;
-        crossSectionV = v_magnitude * interpCrossSection( ke * norm_temperature );
+        crossSectionV = v_magnitude * interpCrossSection( ke / const_e);
         if(crossSectionV > maxCrossSectionV) {maxCrossSectionV = crossSectionV;};
     }
     return maxCrossSectionV;

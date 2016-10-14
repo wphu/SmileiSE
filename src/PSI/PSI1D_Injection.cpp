@@ -50,6 +50,10 @@ work_function (work_function)
     ySqrt_factor = pow(params.const_e, 3.0) / (4.0 * params.const_pi * params.const_ephi0 * work_function *work_function);
     a_factor = a_FN * params.const_e * params.const_e / work_function;
     b_factor = -b_FN * pow(work_function, 1.5) / params.const_e;
+
+    if(weight_const == 0.0) {
+        weight_const = nominalDensity * pow(params.cell_length[0], 3) / nomPtclsPerCell;
+    }
 }
 
 PSI1D_Injection::~PSI1D_Injection()
@@ -75,10 +79,10 @@ void PSI1D_Injection::performPSI(PicParams& params, SmileiMPI* smpi, vector<Spec
         // from "modelling vacuum arcs: from plasma initiation to surface interactions"
         Field1D* Ex1D = static_cast<Field1D*>(fields->Ex_);
         emitField = (*Ex1D)(0);
-        emitField *= params.norm_efield;
+        //emitField *= params.norm_efield;
         emitJ = (a_factor * emitField * emitField / t_y2(emitField)) /
                 exp(b_factor * v_y(emitField) / emitField);
-        emitJ /= params.norm_j;
+        //emitJ /= params.norm_j;
         nPartEmit = emitJ * dt_ov_dx * weight_const;
     }
     else if(emitKind == "relEmit"){

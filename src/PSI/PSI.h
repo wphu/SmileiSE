@@ -57,6 +57,7 @@ public:
     virtual void performPSI(PicParams&,std::vector<Species*>&,int, ElectroMagn* ){};
 
     Particles new_particles;
+    double const_e;
 
 
 private:

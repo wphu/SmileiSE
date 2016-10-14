@@ -261,7 +261,7 @@ void Species::initPosition(unsigned int nPart, unsigned int iPart, double *index
 //   - using random distribution (init_momentum_type = maxwell-juettner)
 // ---------------------------------------------------------------------------------------------------------------------
 void Species::initMomentum(unsigned int nPart, unsigned int iPart, double *temp, double *vel, string initMomentum_type,
-                           vector<double>& max_jutt_cumul)
+                           vector<double>& max_jutt_cumul, PicParams& params)
 {
 
     // average mean-momentum (used to center the distribution)
@@ -281,14 +281,21 @@ void Species::initMomentum(unsigned int nPart, unsigned int iPart, double *temp,
 
         for (unsigned int p= iPart; p<iPart+nPart; p++)
         {
-            double psm = sqrt(2.0 * temp[0] / species_param.mass) * sqrt(-log((double)rand() / RAND_MAX));
+            double psm = sqrt(2.0 * temp[0] * params.const_e / species_param.mass) * sqrt(-log((double)rand() / RAND_MAX));
 
             double theta = M_PI*(double)rand() / RAND_MAX;
             double phi   = 2.0 * M_PI*(double)rand() / RAND_MAX;
-
             particles.momentum(0,p) = psm*sin(theta)*cos(phi);
-            particles.momentum(1,p) = psm*sin(theta)*sin(phi);
-            particles.momentum(2,p) = psm*cos(theta);
+            //particles.momentum(1,p) = psm*sin(theta)*sin(phi);
+            //particles.momentum(2,p) = psm*cos(theta);
+
+            theta = M_PI*(double)rand() / RAND_MAX;
+            phi   = 2.0 * M_PI*(double)rand() / RAND_MAX;
+            particles.momentum(1,p) = psm*sin(theta)*cos(phi);
+
+            theta = M_PI*(double)rand() / RAND_MAX;
+            phi   = 2.0 * M_PI*(double)rand() / RAND_MAX;
+            particles.momentum(2,p) = psm*sin(theta)*cos(phi);
         }
 
 
@@ -909,7 +916,7 @@ int Species::createParticles(vector<unsigned int> n_space_to_create, vector<doub
                                  cell_length, species_param.initPosition_type);
 
                     initMomentum(nPart,iPart, temp, vel,
-                                 species_param.initMomentum_type, max_jutt_cumul);
+                                 species_param.initMomentum_type, max_jutt_cumul, params);
 
                     initWeight(nPart, speciesNumber, iPart, density(i,j,k));
                     initCharge(nPart, speciesNumber, iPart, charge(i,j,k));

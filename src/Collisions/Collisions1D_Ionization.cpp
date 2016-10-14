@@ -144,7 +144,7 @@ void Collisions1D_Ionization::collide(PicParams& params, vector<Species*>& vecSp
             //> the energy of the primary electron
             ke_primary -= ke_secondary;
 
-            sigma_cr = v_magnitude * interpCrossSection( ke1 * norm_temperature );
+            sigma_cr = v_magnitude * interpCrossSection( ke1 / const_e );
             P_collision = sigma_cr / sigma_cr_max;
             // Generate a random number between 0 and 1
             double ran_p = (double)rand() / RAND_MAX;
@@ -227,7 +227,7 @@ double Collisions1D_Ionization::maxCV(Particles* particles, double eMass){
                           particles->momentum(2,iPart) * particles->momentum(2,iPart);
         v_magnitude = sqrt(v_square);
         ke = 0.5 * eMass * v_square;
-        crossSectionV = v_magnitude * interpCrossSection( ke * norm_temperature );
+        crossSectionV = v_magnitude * interpCrossSection( ke / const_e);
         if(crossSectionV > maxCrossSectionV) {maxCrossSectionV = crossSectionV;};
     }
     return maxCrossSectionV;

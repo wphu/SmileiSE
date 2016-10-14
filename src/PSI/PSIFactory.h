@@ -77,7 +77,7 @@ public:
 
 				// Number of timesteps between each debug output (if 0 or unset, no debug)
 		        weight_const = 0.0; // default
-		        ifile.extract("weight_const",weight_const,"PSI",n_PSI);
+		        if( !ifile.extract("weight_const",weight_const,"PSI",n_PSI) ) {};
 
 				// Number of timesteps between each debug output (if 0 or unset, no debug)
 		        ifile.extract("a_FN",a_FN,"PSI",n_PSI);
@@ -90,11 +90,11 @@ public:
 
 				// Number of timesteps between each debug output (if 0 or unset, no debug)
 				emitJ = 0;		// default
-		        ifile.extract("emitJ",emitJ,"PSI",n_PSI);
+		        if( !ifile.extract("emitJ",emitJ,"PSI",n_PSI) );
 
 				// Number of timesteps between each debug output (if 0 or unset, no debug)
 				nPartEmit = 0;		// default
-		        ifile.extract("nPartEmit",nPartEmit,"PSI",n_PSI);
+		        if( !ifile.extract("nPartEmit",nPartEmit,"PSI",n_PSI) );
 
 				// Number of timesteps between each debug output (if 0 or unset, no debug)
 				relSpecies = "";		// default

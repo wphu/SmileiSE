@@ -51,7 +51,7 @@ Collisions1D_Coulomb::~Collisions1D_Coulomb()
 
 
 // Calculates the debye length squared in each cluster
-// The formula for the inverse debye length squared is sumOverSpecies(density*charge^2/temperature)
+// The formula for the inverse debye length squared is sumOverSpecies(density*charge^2/(ephi0*temperature))
 void Collisions1D_Coulomb::calculate_debye_length(PicParams& params, vector<Species*>& vecSpecies)
 {
 
@@ -93,10 +93,10 @@ void Collisions1D_Coulomb::calculate_debye_length(PicParams& params, vector<Spec
             }
             if (density <= 0.) continue;
             charge /= density; // average charge
-            temperature *= (s->species_param.mass) / (3.*density); // Te in units of me*c^2
+            temperature *= (s->species_param.mass) / (3.*density); // Te in units of eV
             density /= params.n_cell_per_cluster; // density in units of critical density
             // compute inverse debye length squared
-            if (temperature>0.) debye_length_squared[ibin] += density*charge*charge/temperature;
+            if (temperature>0.) debye_length_squared[ibin] += density*charge*charge/(const_ephi0*temperature);
             // compute maximum density of species
             if (density>density_max) density_max = density;
         }
@@ -106,8 +106,9 @@ void Collisions1D_Coulomb::calculate_debye_length(PicParams& params, vector<Spec
             // compute debye length squared in code units
             debye_length_squared[ibin] = 1./(debye_length_squared[ibin]);
             // apply lower limit to the debye length (minimum interatomic distance)
-            rmin2 = pow(coeff*density_max, -2./3.);
-            if (debye_length_squared[ibin] < rmin2) debye_length_squared[ibin] = rmin2;
+            // I do not know the meanming of below code, so I comment them ......
+            //rmin2 = pow(coeff*density_max, -2./3.);
+            //if (debye_length_squared[ibin] < rmin2) debye_length_squared[ibin] = rmin2;
         }
 
     }
@@ -127,6 +128,7 @@ void Collisions1D_Coulomb::calculate_debye_length(PicParams& params, vector<Spec
 
 
 // Calculates the collisions for a given Collisions1D object
+// the code corresponds to the ref: improved modeing of relativistic collisions and collisional ionization in paritcle in cell codes
 void Collisions1D_Coulomb::collide(PicParams& params, vector<Species*>& vecSpecies, int itime)
 {
 
@@ -140,9 +142,9 @@ void Collisions1D_Coulomb::collide(PicParams& params, vector<Species*>& vecSpeci
     unsigned int i1, i2, ispec1, ispec2;
     Species   *s1, *s2;
     Particles *p1, *p2;
-    double m1, m2, m12, W1, W2, qqm, qqm2, gamma1, gamma2, gamma12, gamma12_inv,
+    double m1, m2, m12, W1, W2, qqm, qqm2, qq2mm, qq12, gamma1, gamma2, gamma_m12, gamma_m12_inv,
            COM_vx, COM_vy, COM_vz, COM_vsquare, COM_gamma,
-           term1, term2, term3, term4, term5, term6, coeff1, coeff2, coeff3, coeff4, twoPi,
+           term1, term2, term3, term4, term5, term6, coeff1, coeff2, coeff3, coeff4, coeff5, twoPi,
            vcv1, vcv2, px_COM, py_COM, pz_COM, p2_COM, p_COM, gamma1_COM, gamma2_COM,
            logL, bmin, s, vrel, smax,
            cosX, sinX, phi, sinXcosPhi, sinXsinPhi, p_perp, inv_p_perp,
@@ -265,10 +267,11 @@ void Collisions1D_Coulomb::collide(PicParams& params, vector<Species*>& vecSpeci
         // Pre-calculate some numbers before the big loop
         n123 = pow(n1,2./3.); n223 = pow(n2,2./3.);
         twoPi = 2. * M_PI;
-        coeff1 = M_PI*6.62606957e-34/(9.10938215e-31*299792458.*params.wavelength_SI); // h/(2*me*c*normLength) = pi*h/(me*c*wavelength)
-        coeff2 = 2*M_PI*2.817940327e-15/params.wavelength_SI; // re/normLength = 2*pi*re/wavelength
-        coeff3 = coeff2 * params.timestep * n1*n2/n12;
-        coeff4 = pow( 3.*coeff2 , -1./3. ) * params.timestep * n1*n2/n12;
+        coeff1 = 0.5*const_h; // h/2
+        coeff2 = 1.0 / (4.0*const_pi*const_ephi0*const_c*const_c); //
+        coeff3 = params.timestep * n1*n2/n12;
+        coeff4 = pow( 4.0*const_pi/3.0 , 1./3. ) * coeff3;
+        coeff5 = 1.0 / (4.0 * const_pi * const_ephi0 * pow(const_c,4));     //paraters in equation (17)
 
         if( debug ) {
             smean      ->data_2D[ibin][0] = 0.;
@@ -306,56 +309,65 @@ void Collisions1D_Coulomb::collide(PicParams& params, vector<Species*>& vecSpeci
             // Calculate stuff
             m12  = m1 / m2; // mass ratio
             qqm  = p1->charge(i1) * p2->charge(i2) / m1;
-            qqm2 = qqm * qqm;
+            //qqm2 = qqm * qqm;
+            qq12 = p1->charge(i1) * p2->charge(i2);
+            qq2mm = qq12*qq12 / (m1*m2);
+
 
             // Get momenta and calculate gammas
-            gamma1 = sqrt(1. + pow(p1->momentum(0,i1),2) + pow(p1->momentum(1,i1),2) + pow(p1->momentum(2,i1),2));
-            gamma2 = sqrt(1. + pow(p2->momentum(0,i2),2) + pow(p2->momentum(1,i2),2) + pow(p2->momentum(2,i2),2));
-            gamma12 = m12 * gamma1 + gamma2;
-            gamma12_inv = 1./gamma12;
+            double const_c2 = const_c * const_c;
+            double const_c2_inv = 1.0 / const_c2;
+            gamma1 = 1.0 / sqrt(1. - (pow(p1->momentum(0,i1),2) + pow(p1->momentum(1,i1),2) + pow(p1->momentum(2,i1),2))*const_c2_inv);
+            gamma2 = 1.0 / sqrt(1. + (pow(p2->momentum(0,i2),2) + pow(p2->momentum(1,i2),2) + pow(p2->momentum(2,i2),2))*const_c2_inv);
+            gamma_m12 = gamma1*m1 + gamma2*m2;
+            gamma_m12_inv = 1./gamma_m12;
 
-            // Calculate the center-of-mass (COM) frame
+            // Calculate the center-of-mass (COM) frame ==> equation (1)
             // Quantities starting with "COM" are those of the COM itself, expressed in the lab frame.
             // They are NOT quantities relative to the COM.
-            COM_vx = ( m12 * (p1->momentum(0,i1)) + p2->momentum(0,i2) ) * gamma12_inv;
-            COM_vy = ( m12 * (p1->momentum(1,i1)) + p2->momentum(1,i2) ) * gamma12_inv;
-            COM_vz = ( m12 * (p1->momentum(2,i1)) + p2->momentum(2,i2) ) * gamma12_inv;
+            // COM_v is Vc in equation (1)
+            COM_vx = ( m1 * (p1->momentum(0,i1)) + m2 * (p2->momentum(0,i2)) ) * gamma_m12_inv;
+            COM_vy = ( m1 * (p1->momentum(1,i1)) + m2 * (p2->momentum(1,i2)) ) * gamma_m12_inv;
+            COM_vz = ( m1 * (p1->momentum(2,i1)) + m2 * (p2->momentum(2,i2)) ) * gamma_m12_inv;
             COM_vsquare = COM_vx*COM_vx + COM_vy*COM_vy + COM_vz*COM_vz;
-            COM_gamma = pow( 1.-COM_vsquare , -0.5);
+            COM_gamma = pow( 1.-COM_vsquare*const_c2_inv , -0.5);
 
             // Change the momentum to the COM frame (we work only on particle 1)
             // Quantities ending with "COM" are quantities of the particle expressed in the COM frame.
+            //some terms in equation (2)
             term1 = (COM_gamma - 1.) / COM_vsquare;
             vcv1  = (COM_vx*(p1->momentum(0,i1)) + COM_vy*(p1->momentum(1,i1)) + COM_vz*(p1->momentum(2,i1)))/gamma1;
             vcv2  = (COM_vx*(p2->momentum(0,i2)) + COM_vy*(p2->momentum(1,i2)) + COM_vz*(p2->momentum(2,i2)))/gamma2;
-            term2 = (term1*vcv1 - COM_gamma) * gamma1;
+            term2 = (term1*vcv1 - COM_gamma) * m1 * gamma1;
             px_COM = (p1->momentum(0,i1)) + term2*COM_vx;
             py_COM = (p1->momentum(1,i1)) + term2*COM_vy;
             pz_COM = (p1->momentum(2,i1)) + term2*COM_vz;
             p2_COM = px_COM*px_COM + py_COM*py_COM + pz_COM*pz_COM;
             p_COM  = sqrt(p2_COM);
-            gamma1_COM = (1.-vcv1)*COM_gamma*gamma1;
-            gamma2_COM = (1.-vcv2)*COM_gamma*gamma2;
+            gamma1_COM = (1.-vcv1*const_c2_inv)*COM_gamma*gamma1;
+            gamma2_COM = (1.-vcv2*const_c2_inv)*COM_gamma*gamma2;
 
-            // Calculate some intermediate quantities
-            term3 = COM_gamma * gamma12_inv;
+            // Calculate some intermediate quantities in equation (17)
+            term3 = COM_gamma * gamma_m12_inv;        // before p1*
             term4 = gamma1_COM * gamma2_COM;
-            term5 = term4/p2_COM + m12;
+            term5 = term4*m1*m2*const_c2/p2_COM + 1.0;
 
             // Calculate coulomb log if necessary
+            // equation (22) and (23)
             logL = coulomb_log;
             if( logL <= 0. ) { // if auto-calculation requested
-                bmin = max( coeff1/m1/p_COM , abs(coeff2*qqm*term3*term5) ); // min impact parameter
+                bmin = max( coeff1/p_COM , abs(coeff2*qq12*term3*term5*term5) ); // min impact parameter
                 logL = 0.5*log(1.+debye_length_squared[ibin]/pow(bmin,2));
                 if (logL < 2.) logL = 2.;
             }
 
             // Calculate the collision parameter s12 (similar to number of real collisions)
-            s = coeff3 * logL * qqm2 * term3 * p_COM * term5*term5 / (gamma1*gamma2);
+            s = coeff3 * coeff5 * logL * qq2mm * term3 * p_COM * term5*term5 / (gamma1*gamma2);
 
-            // Low-temperature correction
-            vrel = p_COM/term3/term4; // relative velocity
-            smax = coeff4 * (m12+1.) * vrel / max(m12*n123,n223);
+            // Low-temperature correction       // equation (21)
+            // !!!not sure vrel is the equation (8), or vrel is the relative velocity in laboratory frame
+            vrel = p_COM/ (m1*m2*term3*term4); // relative velocity
+            smax = coeff4 * (m1+m2) * vrel / max(m12*n123,n223);
             if (s>smax) s = smax;
 
             // Pick the deflection angles according to Nanbu's theory

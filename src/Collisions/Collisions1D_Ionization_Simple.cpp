@@ -154,7 +154,7 @@ void Collisions1D_Ionization_Simple::collide(PicParams& params, vector<Species*>
                 idNew = p3->size() - 1;
 
                 s3->initMomentum(1,idNew, temp, vel,
-                             s2->species_param.initMomentum_type, max_jutt_cumul);
+                             s2->species_param.initMomentum_type, max_jutt_cumul, params);
 
                 p3->position(0, idNew) = p1->position(0, iPart);
                 p3->position(1, idNew) = p1->position(1, iPart);

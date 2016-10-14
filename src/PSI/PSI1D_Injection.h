@@ -57,6 +57,10 @@ private:
     double emitJ;
     // weight of emitting particles
     double weight_const;
+    // nominalDensity and nomPtclsPerCell is used to set the weight_const
+    // weight_cosnt = nominalDensity * CellVolume / nomPtclsPerCell
+    double nominalDensity;
+    double nomPtclsPerCell;
     // emitting tempreature
     double emitOffset;
 

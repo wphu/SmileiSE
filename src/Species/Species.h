@@ -60,7 +60,7 @@ public:
     void initPosition(unsigned int, unsigned int, double *, unsigned int, std::vector<double>, std::string);
 
     //! Method used to initialize the Particle 3d momentum in a given cell
-    void initMomentum(unsigned int, unsigned int, double *, double *, std::string, std::vector<double>&);
+    void initMomentum(unsigned int, unsigned int, double *, double *, std::string, std::vector<double>&, PicParams&);
 
     //! Method used to initialize the Particle weight (equivalent to a charge density) in a given cell
     void initWeight(unsigned int, unsigned int, unsigned int, double);

@@ -275,7 +275,8 @@ public:
     double const_emass;
     double const_ephi0;
     double const_pi;
-    double const_boltz;
+    double const_boltz;     // Boltzmann constant
+    double const_h;         // Planck constant
 
     // some normalization factor
     double norm_omiga0;     // frequency

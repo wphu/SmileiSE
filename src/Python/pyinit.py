@@ -106,9 +106,10 @@ class Laser(SmileiComponent):
 
 class Collisions(SmileiComponent):
     """Collisions parameters"""
-    // species1 and species2 are list of unsigned integer
+    #species1 and species2 are list of unsigned integer
     species1 = None
     species2 = None
+    species3 = None
     coulomb_log = 0.
     debug_every = 0
 

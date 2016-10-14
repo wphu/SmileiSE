@@ -28,6 +28,8 @@ PSI1D(params, smpi)
     species2 = psi_species2;
     psiPos = psiPosition;
     emitTemp = emitTemperature;
+
+    const_e = params.const_e;
 }
 
 PSI1D_Sputtering::~PSI1D_Sputtering()
@@ -92,8 +94,8 @@ void PSI1D_Sputtering::performPSI(PicParams& params, SmileiMPI* smpi, vector<Spe
             theta = abs( p1->momentum(0,iPart) ) / sqrt( v_square );
             theta *= ( 180.0 / params.const_pi );
             ke = 0.5 * s1->species_param.mass * v_square;
-            ke *= params.norm_temperature;
-            pSput = phy_sput_yield( theta, ke );
+            //ke *= params.norm_temperature;
+            pSput = phy_sput_yield( theta, ke/const_e );
             double ran_p = (double)rand() / RAND_MAX;
             if( pSput > ran_p ) {
                 nPartEmit++;

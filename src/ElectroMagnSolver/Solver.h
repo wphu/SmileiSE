@@ -31,6 +31,9 @@ public:
     // boundary condition of electric field for Neumann condition
     double bc_e_derivative[3][2];
 
+    // reciprocal of dielectric constant
+    double const_ephi0_inv;
+
 protected:
 
 };//END class

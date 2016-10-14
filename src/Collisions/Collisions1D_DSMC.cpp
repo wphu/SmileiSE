@@ -42,6 +42,7 @@ Collisions1D_DSMC::Collisions1D_DSMC(PicParams& params, vector<Species*>& vecSpe
     PI = params.const_pi;
     SPI = sqrt(PI);
     BOLTZ = params.const_boltz;
+    CellVolume = pow(params.cell_length[0], 3);
 
     INIT0(vecSpecies);
     SAMPLE_INIT();

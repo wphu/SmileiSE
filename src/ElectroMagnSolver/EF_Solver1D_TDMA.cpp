@@ -13,6 +13,7 @@ EF_Solver1D_TDMA::EF_Solver1D_TDMA(PicParams &params, SmileiMPI* smpi)
     dx_inv_ = 1.0 / dx;
     dx_sq = dx * dx;
     nx = params.n_space_global[0]+1;
+    const_ephi0_inv = params.const_ephi0;
 
     if(params.bc_em_type_x[0] == "Dirichlet"){
         bc_x_left = 1;
@@ -128,7 +129,7 @@ void EF_Solver1D_TDMA::solve_TDMA(Field* rho, Field* phi)
     //> The boundary value can be changed with time
     for(int i = 1; i < nx-1; i++)
     {
-        f[i] = -dx_sq * (*rho1D)(i);
+        f[i] = -dx_sq * const_ephi0_inv * (*rho1D)(i);
     }
 
     if(bc_x_left == 1){

@@ -465,6 +465,7 @@ void PicParams::computeNormalization()
     const_ephi0 = 8.854187817620389e-12;
     const_pi = 3.1415926;
     const_boltz = 1.3806e-23;
+    const_h = 6.62606957e-34;
 
     norm_omiga0 = const_c / wavelength_SI;
     norm_density = const_ephi0*const_emass*norm_omiga0*norm_omiga0 / (const_e*const_e);

@@ -82,6 +82,8 @@ class Species(SmileiComponent):
     bc_part_type_south = None
     ionization_model = "none"
     atomic_number = None
+    atomic_mass = None
+    surface_binding_energy = None
     isTest = False
 
 
@@ -104,17 +106,29 @@ class Laser(SmileiComponent):
 
 class Collisions(SmileiComponent):
     """Collisions parameters"""
+    #species1 and species2 are list of unsigned integer
     species1 = None
     species2 = None
+    species3 = None
     coulomb_log = 0.
     debug_every = 0
 
 
 class PSI(SmileiComponent):
     """PSI parameters"""
+    # species1 and species2 are unsigned integer type
     species1 = None
     species2 = None
     PSI_type = None
+    posEmit = None
+    nPartEmit = 0
+    tempEmit = 0.0
+    jEmit = 0.0
+    weight_const = 1.0
+    emitOffset = 0.0
+    a_FN = 1.5414e-6
+    b_FN = 6.8309e9
+    work_function = 4.5
 
 
 
@@ -313,9 +327,9 @@ import sys
 sys.path.append("../post_process")
 import normalization_units as nu
 
-l0 = 2.0e-5 / nu.norm_l     # nu.norm_l is reference time, the value's unit before / is m (SI)
-t0 = 1.0e-12 / nu.norm_t
-Lsim = [500.*l0]	# length of the simulation
+l0 = 2.0e-5     # nu.norm_l is reference time, the value's unit before / is m (SI)
+t0 = 1.0e-12
+Lsim = [100.*l0]	# length of the simulation
 
 resx = 20.				# nb of cells in on laser wavelength
 rest = 30.				# time of timestep in one optical cycle
@@ -374,7 +388,7 @@ bc_em_value_x = [0.0, 0.0]
 #Topology:
 #number_of_procs: Number of MPI processes in each direction.
 #clrw: width of a cluster in number of cell. Warning: clrw must divide nspace_win_x.
-number_of_procs = [5]
+number_of_procs = [4]
 
 
 # RANDOM seed
@@ -408,26 +422,26 @@ Species(
 	ionization_model = 'none',
 	n_part_per_cell = 400,
 	c_part_max = 1.0,
-	mass = 1.0,
-	charge = -1.0,
-	nb_density = 1.0e19 / nu.norm_n,
-	temperature = [20 / nu.norm_temp],
+	mass = 9.109382616e-31,
+	charge = -1.6021766208e-19,
+	nb_density = 1.0e19,
+	temperature = [20.0],
 	time_frozen = 0.,
 	bc_part_type_west  = 'supp',
 	bc_part_type_east  = 'supp',
 )
 
 Species(
-	species_type = 'ion',
+	species_type = 'D1',
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
 	n_part_per_cell = 200,
 	c_part_max = 1.0,
-	mass = 2.0*1836.0,
-	charge = 1.0,
-	nb_density = 0.5e19 / nu.norm_n,
-	temperature = [20 / nu.norm_temp],
+	mass = 2.0 * 1.67262158e-27,
+	charge = 1.6021766208e-19,
+	nb_density = 0.5e19,
+	temperature = [20.0],
 	time_frozen = 0.0,
 	bc_part_type_west  = 'supp',
 	bc_part_type_east  = 'supp',
@@ -435,16 +449,16 @@ Species(
 
 
 Species(
-	species_type = 'ion2',
+	species_type = 'T1',
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
 	n_part_per_cell = 200,
 	c_part_max = 1.0,
-	mass = 3*1836.0,
-	charge = 1.0,
-	nb_density = 0.5e19 / nu.norm_n,
-	temperature = [20 / nu.norm_temp],
+	mass = 3 * 1.67262158e-27,
+	charge = 1.6021766208e-19,
+	nb_density = 0.5e19,
+	temperature = [20.0],
 	time_frozen = 0.0,
 	bc_part_type_west  = 'supp',
 	bc_part_type_east  = 'supp',
@@ -460,7 +474,7 @@ Species(
 # coulomb_log = float, Coulomb logarithm. If negative or zero, then automatically computed.
 Collisions(
 	species1 = ["eon"],
-	species2 = ["ion"],
+	species2 = ["D1"],
 	coulomb_log = 5,
 	collisions_type = "coulomb"
 )
@@ -471,8 +485,8 @@ Collisions(
 	collisions_type = "coulomb"
 )
 Collisions(
-	species1 = ["ion"],
-	species2 = ["ion"],
+	species1 = ["D1"],
+	species2 = ["D1"],
 	coulomb_log = 1,
 	collisions_type = "coulomb"
 )

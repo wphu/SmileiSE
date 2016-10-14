@@ -105,6 +105,11 @@ public:
     int totbins;
     int start;
     double norm_temperature;
+    double const_e;
+    double const_c;
+    double const_pi;
+    double const_ephi0;
+    double const_h;
     double timestep;
 
     string crossSection_fileName;
