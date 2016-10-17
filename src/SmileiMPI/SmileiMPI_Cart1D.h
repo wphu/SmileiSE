@@ -5,8 +5,8 @@
 #include <string>
 
 #include <mpi.h>
-
 #include "SmileiMPI.h"
+#include "Array4D.h"
 
 class Species;
 
@@ -68,6 +68,7 @@ public:
     void gatherRho( Field* field_global ,Field* field  );
     void gatherField( Field* field_global ,Field* field  );
     void scatterField( Field* field_global ,Field* field );
+    void gatherVDF( Array4D* array_global, Array4D* array );
 
 
 protected:

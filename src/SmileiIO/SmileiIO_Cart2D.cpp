@@ -19,20 +19,20 @@ SmileiIO_Cart2D::SmileiIO_Cart2D( PicParams& params, SmileiMPI* smpi, ElectroMag
 : SmileiIO( params, smpi )
 {
     if(smpi->isMaster()) createPattern(params, smpi, fields);
-    offset[0] = 0;
-    offset[1] = 0;
-    offset[2] = 0;
-    offset[3] = 0;
+    fieldsGroup.offset[0] = 0;
+    fieldsGroup.offset[1] = 0;
+    fieldsGroup.offset[2] = 0;
+    fieldsGroup.offset[3] = 0;
 
-    stride[0] = 1;
-    stride[1] = 1;
-    stride[2] = 1;
-    stride[3] = 1;
+    fieldsGroup.stride[0] = 1;
+    fieldsGroup.stride[1] = 1;
+    fieldsGroup.stride[2] = 1;
+    fieldsGroup.stride[3] = 1;
 
-    block[0] = 1;
-    block[1] = 1;
-    block[2] = 1;
-    block[3] = 1;
+    fieldsGroup.block[0] = 1;
+    fieldsGroup.block[1] = 1;
+    fieldsGroup.block[2] = 1;
+    fieldsGroup.block[3] = 1;
 
 }
 
@@ -45,36 +45,36 @@ void SmileiIO_Cart2D::createPattern( PicParams& params, SmileiMPI* smpi, Electro
 {
     hsize_t     dims;
 
-    dims_global[3] = params.n_space_global[1] + 1;
-    dims_global[2] = params.n_space_global[0] + 1;
-    dims_global[1] = 1;
-    dims_global[0] = params.n_time / params.dump_step;
+    fieldsGroup.dims_global[3] = params.n_space_global[1] + 1;
+    fieldsGroup.dims_global[2] = params.n_space_global[0] + 1;
+    fieldsGroup.dims_global[1] = 1;
+    fieldsGroup.dims_global[0] = params.n_time / params.dump_step;
 
-    ndims_[0] = dims_global[0];
-    ndims_[1] = dims_global[1];
-    ndims_[2] = dims_global[2];
-    ndims_[3] = dims_global[3];
+    fieldsGroup.ndims_[0] = fieldsGroup.dims_global[0];
+    fieldsGroup.ndims_[1] = fieldsGroup.dims_global[1];
+    fieldsGroup.ndims_[2] = fieldsGroup.dims_global[2];
+    fieldsGroup.ndims_[3] = fieldsGroup.dims_global[3];
 
 
-    data_ =  (double*)malloc(dims_global[3] * dims_global[2] * dims_global[1] * dims_global[0] * sizeof(double));
-    for( int i = 0; i < dims_global[3] * dims_global[2] * dims_global[1] * dims_global[0]; i++)
+    data_ =  (double*)malloc(fieldsGroup.dims_global[3] * fieldsGroup.dims_global[2] * fieldsGroup.dims_global[1] * fieldsGroup.dims_global[0] * sizeof(double));
+    for( int i = 0; i < fieldsGroup.dims_global[3] * fieldsGroup.dims_global[2] * fieldsGroup.dims_global[1] * fieldsGroup.dims_global[0]; i++)
     {
       data_[i] = 20.0;
     }
 
 
     H5Gcreate(global_file_id_, "/1d_global", H5P_DEFAULT, H5P_DEFAULT,H5P_DEFAULT);
-    group_id = H5Gcreate(global_file_id_, "/2d_global", H5P_DEFAULT, H5P_DEFAULT,H5P_DEFAULT);
+    fieldsGroup.group_id = H5Gcreate(global_file_id_, "/2d_global", H5P_DEFAULT, H5P_DEFAULT,H5P_DEFAULT);
 
     /* Create a datagroup attribute. */
     dims = 4;
-    dataspace_id = H5Screate_simple(1, &dims, NULL);
-    attribute_id = H5Acreate2 (group_id, "dims_global", H5T_STD_I32BE, dataspace_id,
+    fieldsGroup.dataspace_id = H5Screate_simple(1, &dims, NULL);
+    fieldsGroup.attribute_id = H5Acreate2 (fieldsGroup.group_id, "dims_global", H5T_STD_I32BE, fieldsGroup.dataspace_id,
                                  H5P_DEFAULT, H5P_DEFAULT);
     /* Write the attribute data. */
-    status = H5Awrite(attribute_id, H5T_NATIVE_INT, ndims_);
+    fieldsGroup.status = H5Awrite(fieldsGroup.attribute_id, H5T_NATIVE_INT, fieldsGroup.ndims_);
     /* Close the attribute. */
-    status = H5Aclose(attribute_id);
+    fieldsGroup.status = H5Aclose(fieldsGroup.attribute_id);
 
 
     addField(fields->rho_global);
@@ -86,15 +86,15 @@ void SmileiIO_Cart2D::createPattern( PicParams& params, SmileiMPI* smpi, Electro
 
     //> if without below process, the method write() will go wrong, no ideas now!!!
     //> output initial 1d_global data===========================================
-    data_ =  (double*)malloc(dims_global[3] * dims_global[2] * dims_global[1] * dims_global[0] * sizeof(double));
-    for( int i = 0; i < dims_global[3] * dims_global[2] * dims_global[1] * dims_global[0]; i++)
+    data_ =  (double*)malloc(fieldsGroup.dims_global[3] * fieldsGroup.dims_global[2] * fieldsGroup.dims_global[1] * fieldsGroup.dims_global[0] * sizeof(double));
+    for( int i = 0; i < fieldsGroup.dims_global[3] * fieldsGroup.dims_global[2] * fieldsGroup.dims_global[1] * fieldsGroup.dims_global[0]; i++)
     {
       data_[i] = 20.0;
     }
     /* Create the second dataset in group "Group_A". */
-    for(int i = 0; i < dataset_id.size(); i++)
+    for(int i = 0; i < fieldsGroup.dataset_id.size(); i++)
     {
-        status = H5Dwrite(dataset_id[i], H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data_);
+        fieldsGroup.status = H5Dwrite(fieldsGroup.dataset_id[i], H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data_);
     }
     free(data_);
 

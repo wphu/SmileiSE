@@ -41,44 +41,60 @@ void SmileiIO::addField(Field* field)
 {
     string fieldName = field->name;
     const char* name = fieldName.c_str();
-    dataset_name.push_back(name);
+    fieldsGroup.dataset_name.push_back(name);
 
     /* Create the data space for the dataset. */
-    dataspace_id = H5Screate_simple(4, dims_global, NULL);
-    int dataset_size = dataset_id.size();
-    hid_t id = H5Dcreate2(group_id, name, H5T_NATIVE_DOUBLE, dataspace_id,
+    fieldsGroup.dataspace_id = H5Screate_simple(4, fieldsGroup.dims_global, NULL);
+    int dataset_size = fieldsGroup.dataset_id.size();
+    hid_t id = H5Dcreate2(fieldsGroup.group_id, name, H5T_NATIVE_DOUBLE, fieldsGroup.dataspace_id,
                                   H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
-    dataset_id.push_back(id);
+    fieldsGroup.dataset_id.push_back(id);
 
-    dataset_field.push_back(field);
+    fieldsGroup.dataset_data.push_back(field->data_);
 }
 
 //! write potential, rho and so on into hdf5 file every some timesteps
-void SmileiIO::write(  ElectroMagn* fields, SmileiMPI* smpi )
+void SmileiIO::write( PicParams& params,  ElectroMagn* fields, SmileiMPI* smpi ,vector<Species*>& vecSpecies)
 {
-    offset[0] = ndims_t;
+    fieldsGroup.offset[0] = ndims_t;
 
 
-    count[0]  = 1;
-    count[1]  = dims_global[1];
-    count[2]  = dims_global[2];
-    count[3]  = dims_global[3];
+    fieldsGroup.count[0]  = 1;
+    fieldsGroup.count[1]  = fieldsGroup.dims_global[1];
+    fieldsGroup.count[2]  = fieldsGroup.dims_global[2];
+    fieldsGroup.count[3]  = fieldsGroup.dims_global[3];
 
 
-    //>write the ===global potential=== in time ndims_t to the file
-    for(int i = 0; i < dataset_id.size(); i++)
+    //>write fields
+    for(int i = 0; i < fieldsGroup.dataset_id.size(); i++)
     {
-        memspace_id = H5Screate_simple (4, count, NULL);
-        dataspace_id = H5Dget_space (dataset_id[i]);
-        status = H5Sselect_hyperslab (dataspace_id, H5S_SELECT_SET, offset,
-                                          stride, count, block);
-        status = H5Dwrite (dataset_id[i], H5T_NATIVE_DOUBLE, memspace_id,
-                             dataspace_id, H5P_DEFAULT, dataset_field[i]->data_);
+        fieldsGroup.memspace_id = H5Screate_simple (4, fieldsGroup.count, NULL);
+        fieldsGroup.dataspace_id = H5Dget_space (fieldsGroup.dataset_id[i]);
+        fieldsGroup.status = H5Sselect_hyperslab (fieldsGroup.dataspace_id, H5S_SELECT_SET, fieldsGroup.offset,
+                                          fieldsGroup.stride, fieldsGroup.count, fieldsGroup.block);
+        fieldsGroup.status = H5Dwrite (fieldsGroup.dataset_id[i], H5T_NATIVE_DOUBLE, fieldsGroup.memspace_id,
+                             fieldsGroup.dataspace_id, H5P_DEFAULT, fieldsGroup.dataset_data[i]);
 
-        status = H5Sclose (memspace_id);
-        status = H5Sclose (dataspace_id);
+        fieldsGroup.status = H5Sclose (fieldsGroup.memspace_id);
+        fieldsGroup.status = H5Sclose (fieldsGroup.dataspace_id);
     }
+
+        calVDF( params, smpi, fields, vecSpecies);
+    // write particle velocity distribution function
+    for(int i = 0; i < ptclsGroup.dataset_id.size(); i++)
+    {
+        ptclsGroup.memspace_id = H5Screate_simple (4, ptclsGroup.count, NULL);
+        ptclsGroup.dataspace_id = H5Dget_space (ptclsGroup.dataset_id[i]);
+        ptclsGroup.status = H5Sselect_hyperslab (ptclsGroup.dataspace_id, H5S_SELECT_SET, ptclsGroup.offset,
+                                          ptclsGroup.stride, ptclsGroup.count, ptclsGroup.block);
+        ptclsGroup.status = H5Dwrite (ptclsGroup.dataset_id[i], H5T_NATIVE_DOUBLE, ptclsGroup.memspace_id,
+                             ptclsGroup.dataspace_id, H5P_DEFAULT, ptclsGroup.dataset_data[i]);
+
+        ptclsGroup.status = H5Sclose (fieldsGroup.memspace_id);
+        ptclsGroup.status = H5Sclose (fieldsGroup.dataspace_id);
+    }
+
 
     ndims_t++;
 

@@ -155,17 +155,24 @@ void SmileiMPI_Cart1D::createTopology(PicParams& params)
     recv_cnt.resize(smilei_sz);
     send_disp.resize(smilei_sz);
     send_cnt.resize(smilei_sz);
+
+    recv_disp_VDF.resize(smilei_sz);
+    recv_cnt_VDF.resize(smilei_sz);
+
     for(int i = 0; i < smilei_sz; i++)
     {
         recv_cnt[i] = dims_gather[i];
         send_cnt[i] = dims_gather[i];
+        recv_cnt_VDF[i] = dims_gather[i] - 1 - 2*params.oversize[0];
         if(i == 0){
             recv_disp[i] = 0;
             send_disp[i] = 0;
+            recv_disp_VDF[i] = 0;
         }
         else{
             recv_disp[i] = recv_disp[i-1] + recv_cnt[i-1];
             send_disp[i] = send_disp[i-1] + send_cnt[i-1];
+            recv_disp_VDF[i] = recv_disp_VDF[i-1] + recv_cnt_VDF[i-1];
         }
     }
 
@@ -694,3 +701,42 @@ void SmileiMPI_Cart1D::scatterField( Field* field_global ,Field* field )
     MPI_Scatterv(field_global_gather, &send_cnt[0], &send_disp[0], MPI_DOUBLE, f1D->data_, recv_cnt[smilei_rk], MPI_DOUBLE, 0, SMILEI_COMM_1D);
 
 } // END scatterField
+
+
+
+void SmileiMPI_Cart1D::gatherVDF( Array4D* array_global, Array4D* array )
+{
+    int procs_rk;
+    int iGlobal, lGlobal;
+    int iGlobal_gather;
+    int i_gather;
+
+    double *array_global_gather = new double[array_global->globalDims_];
+
+    for(int i=0; i<recv_cnt.size(); i++)
+    {
+        recv_cnt_VDF[i] *= array->dims_[3];
+        recv_disp_VDF[i] *= array->dims_[3];
+    }
+
+    //nx = f1D_global->dims_[0];
+    array_global->put_to(0.0);
+    int send_cnt_VDF = send_cnt[smilei_rk] - 1 - 2*oversize[0];
+    MPI_Gatherv(array->data_, send_cnt_VDF, MPI_DOUBLE, array_global_gather, &recv_cnt_VDF[0], &recv_disp_VDF[0], MPI_DOUBLE, 0, SMILEI_COMM_1D);
+
+    for(int iProcs = 0; iProcs < number_of_procs[0]; iProcs++)
+    {
+        procs_rk = iProcs;
+        for(int i = 0; i < array->dims_[0]; i++)
+        {
+            iGlobal++;
+            for(int l = 0; l < array->dims_[3]; l++)
+            {
+                lGlobal = l;
+                i_gather = i * array->dims_[3] + l;
+                (*array_global)(iGlobal,0,0,lGlobal) = array_global_gather[i_gather];
+            }
+        }
+    }
+
+}

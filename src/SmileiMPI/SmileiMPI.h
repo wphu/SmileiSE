@@ -9,6 +9,7 @@
 #include "PicParams.h"
 #include "Tools.h"
 #include "GridFactory.h"
+#include "Array4D.h"
 
 class PicParams;
 class Species;
@@ -152,6 +153,7 @@ public:
     virtual void gatherRho( Field* field_global ,Field* field  ){};
     virtual void gatherField( Field* field_global ,Field* field  ){};
     virtual void scatterField( Field* field_global ,Field* field ){};
+    virtual void gatherVDF( Array4D* array_global, Array4D* array ){};
 
 
     //! Real (exclunding oversize) global number of cells (res_space x sim_length)
@@ -174,6 +176,7 @@ public:
 
     std::vector <int> recv_cnt, recv_disp;
     std::vector <int> send_cnt, send_disp;
+    std::vector <int> recv_cnt_VDF, recv_disp_VDF;
 
     virtual void reduceDoubleVector( double* src, double* des, int n);
 
