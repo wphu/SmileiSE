@@ -176,7 +176,8 @@ public:
 
     std::vector <int> recv_cnt, recv_disp;
     std::vector <int> send_cnt, send_disp;
-    std::vector <int> recv_cnt_VDF, recv_disp_VDF;
+    std::vector <int> recv_cnt_VDF, recv_disp_VDF, recv_cnt_VDF_temp;
+        std::vector <int> send_cnt_VDF;
 
     virtual void reduceDoubleVector( double* src, double* des, int n);
 

@@ -16,12 +16,14 @@
 
 using namespace std;
 
-SmileiIO_Cart1D::SmileiIO_Cart1D( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields )
+SmileiIO_Cart1D::SmileiIO_Cart1D( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies  )
 : SmileiIO( params, smpi )
 {
-    if(smpi->isMaster()) createFieldsPattern(params, smpi, fields);
-
-
+    initVDF(params, smpi, fields, vecSpecies);
+    if(smpi->isMaster()) {
+        createFieldsPattern(params, smpi, fields);
+        createPartsPattern(params, smpi, fields, vecSpecies);
+    }
 }
 
 SmileiIO_Cart1D::~SmileiIO_Cart1D()
@@ -109,12 +111,10 @@ void SmileiIO_Cart1D::createPartsPattern( PicParams& params, SmileiMPI* smpi, El
 {
     hsize_t     dims;
 
-    vx_dim = 200;
-
     // For particles, size ofdims_global should be 5: dims_global[nx][ny][nz][nvelocity][ntime]
     // But to be simple, the size is set 4, nz dimension is deleted.
     ptclsGroup.dims_global[3] = vx_dim;
-    ptclsGroup.dims_global[2] = params.n_space_global[0] + 1;
+    ptclsGroup.dims_global[2] = params.n_space_global[0];
     ptclsGroup.dims_global[1] = 1;
     ptclsGroup.dims_global[0] = params.n_time / params.dump_step;
 
@@ -143,48 +143,25 @@ void SmileiIO_Cart1D::createPartsPattern( PicParams& params, SmileiMPI* smpi, El
     Species *s;
     Particles *p;
 
-    vector<unsigned int> dims_VDF;
-    vector<unsigned int> dims_VDF_global;
-    dims_VDF.resize(4);
-    dims_VDF_global.resize(4);
-
-    dims_VDF[0] = params.n_space[0];
-    dims_VDF[1] = 0;
-    dims_VDF[2] = 0;
-    dims_VDF[3] = vx_dim;
-
-    dims_VDF[0] = params.n_space_global[0];
-    dims_VDF[1] = 0;
-    dims_VDF[2] = 0;
-    dims_VDF[3] = vx_dim;
-
-    vx_VDF.resize(vecSpecies.size());
-    vx_VDF_global.resize(vecSpecies.size());
 
     for(int isp=0; isp<vx_VDF.size(); isp++)
     {
-        vx_VDF.push_back(new Array4D());
-        vx_VDF[isp]->allocateDims(dims_VDF);
-
-        vx_VDF_global.push_back(new Array4D());
-        vx_VDF_global[isp]->allocateDims(dims_VDF_global);
-
         s = vecSpecies[isp];
         p = &(s->particles);
 
         string fieldName = "VDF_" + s->species_param.species_type;
         const char* name = fieldName.c_str();
-        fieldsGroup.dataset_name.push_back(name);
+        ptclsGroup.dataset_name.push_back(name);
 
         /* Create the data space for the dataset. */
-        fieldsGroup.dataspace_id = H5Screate_simple(4, fieldsGroup.dims_global, NULL);
-        int dataset_size = fieldsGroup.dataset_id.size();
-        hid_t id = H5Dcreate2(fieldsGroup.group_id, name, H5T_NATIVE_DOUBLE, fieldsGroup.dataspace_id,
+        ptclsGroup.dataspace_id = H5Screate_simple(4, ptclsGroup.dims_global, NULL);
+        int dataset_size = ptclsGroup.dataset_id.size();
+        hid_t id = H5Dcreate2(ptclsGroup.group_id, name, H5T_NATIVE_DOUBLE, ptclsGroup.dataspace_id,
                                       H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
-        fieldsGroup.dataset_id.push_back(id);
+        ptclsGroup.dataset_id.push_back(id);
 
-        fieldsGroup.dataset_data.push_back(vx_VDF_global[isp]->data_);
+        ptclsGroup.dataset_data.push_back(vx_VDF_global[isp]->data_);
 
     }
 
@@ -205,6 +182,36 @@ void SmileiIO_Cart1D::createPartsPattern( PicParams& params, SmileiMPI* smpi, El
 }
 
 
+void SmileiIO_Cart1D::initVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies )
+{
+    vx_dim = 200;
+
+    vector<unsigned int> dims_VDF;
+    vector<unsigned int> dims_VDF_global;
+    dims_VDF.resize(4);
+    dims_VDF_global.resize(4);
+
+    dims_VDF[0] = params.n_space[0];
+    dims_VDF[1] = 1;
+    dims_VDF[2] = 1;
+    dims_VDF[3] = vx_dim;
+
+    dims_VDF_global[0] = params.n_space_global[0];
+    dims_VDF_global[1] = 1;
+    dims_VDF_global[2] = 1;
+    dims_VDF_global[3] = vx_dim;
+
+    for(int isp=0; isp<vecSpecies.size(); isp++)
+    {
+        vx_VDF.push_back(new Array4D());
+        vx_VDF[isp]->allocateDims(dims_VDF);
+
+        vx_VDF_global.push_back(new Array4D());
+        vx_VDF_global[isp]->allocateDims(dims_VDF_global);
+    }
+
+}
+
 
 
 void SmileiIO_Cart1D::calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies)
@@ -218,19 +225,31 @@ void SmileiIO_Cart1D::calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* f
         s = vecSpecies[isp];
         p = &(s->particles);
 
-        vxMax = 3*sqrt(2.0 * s->species_param.thermalVelocity[0] * params.const_e / s->species_param.mass);
+        vector<double> x_cell(3,0);
+        x_cell[0] = 0;
+        x_cell[1] = 0;
+        x_cell[2] = 0;
+        vxMax = 3*sqrt(2.0 * s->species_param.thermT[0] * params.const_e / s->species_param.mass);
+        //WARNING("thermalVelocity" <<  s->species_param.thermT[0] );
         vxMin = -vxMax;
         vx_d = (vxMax - vxMin) / vx_dim;
-        double vx_dim2 = vx_dim / 2;
+        int vx_dim2 = vx_dim / 2;
 
+        vx_VDF[isp]->put_to(0.0);
         for(int ibin=0; ibin < ( s->bmin.size() ); ibin++)
         {
             for(int iPart = s->bmin[ibin]; iPart < s->bmax[ibin]; iPart++)
             {
                 int ivx = p->momentum(0,iPart) / vx_d + vx_dim2;
-                (*vx_VDF[isp])(ibin,0,0,ivx) += p->weight(iPart);
+                if( ivx < 0 ) {
+                    ivx = 0;
+                }
+                if( ivx >= vx_dim ) {
+                    ivx = vx_dim - 1;
+                }
+                (*vx_VDF[isp])(ibin,0,0,ivx) += 1.0;
             }
         }
-        smpi->gatherVDF(vx_VDF[isp], vx_VDF_global[isp]);
+        smpi->gatherVDF(vx_VDF_global[isp], vx_VDF[isp]);
     }
 }

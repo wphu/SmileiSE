@@ -156,23 +156,17 @@ void SmileiMPI_Cart1D::createTopology(PicParams& params)
     send_disp.resize(smilei_sz);
     send_cnt.resize(smilei_sz);
 
-    recv_disp_VDF.resize(smilei_sz);
-    recv_cnt_VDF.resize(smilei_sz);
-
     for(int i = 0; i < smilei_sz; i++)
     {
         recv_cnt[i] = dims_gather[i];
         send_cnt[i] = dims_gather[i];
-        recv_cnt_VDF[i] = dims_gather[i] - 1 - 2*params.oversize[0];
         if(i == 0){
             recv_disp[i] = 0;
             send_disp[i] = 0;
-            recv_disp_VDF[i] = 0;
         }
         else{
             recv_disp[i] = recv_disp[i-1] + recv_cnt[i-1];
             send_disp[i] = send_disp[i-1] + send_cnt[i-1];
-            recv_disp_VDF[i] = recv_disp_VDF[i-1] + recv_cnt_VDF[i-1];
         }
     }
 
@@ -711,31 +705,84 @@ void SmileiMPI_Cart1D::gatherVDF( Array4D* array_global, Array4D* array )
     int iGlobal_gather;
     int i_gather;
 
+    recv_disp_VDF.resize(smilei_sz);
+    recv_cnt_VDF.resize(smilei_sz);
+    recv_cnt_VDF_temp.resize(smilei_sz);
+    send_cnt_VDF.resize(smilei_sz);
     double *array_global_gather = new double[array_global->globalDims_];
 
-    for(int i=0; i<recv_cnt.size(); i++)
+    for (unsigned int i=0;i< smilei_sz ; i++)
     {
-        recv_cnt_VDF[i] *= array->dims_[3];
-        recv_disp_VDF[i] *= array->dims_[3];
+    	if(i==smilei_rk){
+    		recv_cnt_VDF_temp[i]     = array->globalDims_;
+    	}
+    	else {
+    		dims_gather_temp[i]     = 0;
+    	}
     }
 
-    //nx = f1D_global->dims_[0];
-    array_global->put_to(0.0);
-    int send_cnt_VDF = send_cnt[smilei_rk] - 1 - 2*oversize[0];
-    MPI_Gatherv(array->data_, send_cnt_VDF, MPI_DOUBLE, array_global_gather, &recv_cnt_VDF[0], &recv_disp_VDF[0], MPI_DOUBLE, 0, SMILEI_COMM_1D);
+    MPI_Allreduce(&recv_cnt_VDF_temp[0], &recv_cnt_VDF[0], smilei_sz, MPI_INT,MPI_SUM, SMILEI_COMM_1D);
 
+    for(int i = 0; i < smilei_sz; i++)
+    {
+        send_cnt_VDF[i] = recv_cnt_VDF[i];
+        if(i == 0){
+            recv_disp_VDF[i] = 0;
+        }
+        else{
+            recv_disp_VDF[i] = recv_disp_VDF[i-1] + recv_cnt_VDF[i-1];
+        }
+    }
+
+    vector< vector<int> > dims_, dims_temp;
+    dims_.resize(4);
+    dims_temp.resize(4);
+
+    for(int iDim = 0; iDim < dims_.size(); iDim++)
+    {
+        dims_temp[iDim].resize(smilei_sz);
+        dims_[iDim].resize(smilei_sz);
+        for (unsigned int i=0;i< smilei_sz ; i++)
+        {
+            if(i==smilei_rk){
+                dims_temp[iDim][i] = array->dims_[iDim];
+            }
+            else {
+                dims_gather_temp[i]     = 0;
+            }
+        }
+
+        MPI_Allreduce(&dims_temp[iDim][0], &dims_[iDim][0], smilei_sz, MPI_INT,MPI_SUM, SMILEI_COMM_1D);
+    }
+
+
+
+    array_global->put_to(0.0);
+    MPI_Gatherv(array->data_, send_cnt_VDF[smilei_rk], MPI_DOUBLE, array_global_gather, &recv_cnt_VDF[0], &recv_disp_VDF[0], MPI_DOUBLE, 0, SMILEI_COMM_1D);
+
+    iGlobal = 0;
+    i_gather = 0;
     for(int iProcs = 0; iProcs < number_of_procs[0]; iProcs++)
     {
         procs_rk = iProcs;
-        for(int i = 0; i < array->dims_[0]; i++)
+        for(int i = 0; i < dims_[0][iProcs]; i++)
         {
-            iGlobal++;
-            for(int l = 0; l < array->dims_[3]; l++)
+            for(int l = 0; l < dims_[3][iProcs]; l++)
             {
                 lGlobal = l;
-                i_gather = i * array->dims_[3] + l;
-                (*array_global)(iGlobal,0,0,lGlobal) = array_global_gather[i_gather];
+                if( iGlobal >= (array_global->dims_[0]) || lGlobal >= (array_global->dims_[3])) {
+                    MESSAGE("gatherVDF warning: "<< iGlobal << lGlobal);
+                }
+                else {
+                    (*array_global)(iGlobal,0,0,lGlobal) = array_global_gather[i_gather];
+                    if( (*array_global)(iGlobal,0,0,lGlobal) > 0.0 ) {
+                        MESSAGE( "VDF: "<< (*array_global)(iGlobal,0,0,lGlobal) <<"  " << iGlobal <<"  " << lGlobal );
+                    }
+                }
+
+                i_gather++;
             }
+            iGlobal++;
         }
     }
 

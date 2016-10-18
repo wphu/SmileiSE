@@ -39,7 +39,7 @@ public:
 
     void addField(Field* field);
     //! Basic write field on its own file (debug)
-    void write( PicParams& params, ElectroMagn* fields, SmileiMPI* smpi, vector<Species*>& vecSpecies);
+    void write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies);
     virtual void calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies){};
 
 

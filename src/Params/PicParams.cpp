@@ -115,6 +115,7 @@ PicParams::PicParams(InputData &ifile) {
         ERROR("Dimension of sim_length ("<< sim_length.size() << ") != " << nDim_field << " for geometry " << geometry);
     }
 
+    bcType = "constant";
     ifile.extract("bcType", bcType);
 
     //! Boundary conditions for ElectroMagnetic Fields
@@ -175,6 +176,7 @@ PicParams::PicParams(InputData &ifile) {
     // Compute usefull quantities and introduce normalizations
     // also defines defaults values for the species lengths
     // -------------------------------------------------------
+    computeNormalization();
     compute();
     computeSpecies();
 
@@ -319,6 +321,8 @@ void PicParams::readSpecies(InputData &ifile) {
         tmpSpec.temp_y_profile = *(vecTemp[1]);
         tmpSpec.temp_z_profile = *(vecTemp[2]);
 
+        //ifile.extract("temperature",tmpSpec.thermT);
+        ifile.extract("temperature", tmpSpec.thermT, "Species",ispec);
 
         // Save the Species params
         // -----------------------
@@ -446,7 +450,7 @@ void PicParams::computeSpecies()
         species_param[ispec].thermalVelocity.resize(3);
         species_param[ispec].thermalMomentum.resize(3);
         for (unsigned int i=0; i<3; i++) {
-            species_param[ispec].thermalVelocity[i]=sqrt(2.0*species_param[ispec].thermT[i]/species_param[ispec].mass);
+            species_param[ispec].thermalVelocity[i]=sqrt(2.0*species_param[ispec].thermT[i]*const_e/species_param[ispec].mass);
             species_param[ispec].thermalMomentum[i]=species_param[ispec].mass * species_param[ispec].thermalVelocity[i];
         }
 

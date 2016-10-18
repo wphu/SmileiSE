@@ -107,12 +107,9 @@ int main (int argc, char* argv[])
     // ---------------------------
 
 
-    TITLE("Initializing particles, fields");
-
-
+    TITLE("Initializing particles");
     // Initialize the vecSpecies object containing all information of the different Species
     // ------------------------------------------------------------------------------------
-
     // vector of Species (virtual)
     vector<Species*> vecSpecies = SpeciesFactory::createVector(params, smpi);
     smpi->barrier();
@@ -125,16 +122,19 @@ int main (int argc, char* argv[])
     // according to the simulation geometry
     // ----------------------------------------------------------------------------
 
+    TITLE("Initializing ElectroMagn Fields");
     // object containing the electromagnetic fields (virtual)
     ElectroMagn* EMfields = ElectroMagnFactory::create(params, input_data, smpi);
     smpi->barrier();
 
+    TITLE("Initializing Fields Bounary Condition");
     vector<ElectroMagnBC*> vecEmBC = ElectroMagnBCFactory::create(params);
+    smpi->barrier();
 
     //Create mpi i/o environment
-    TITLE("input output environment");
-    SmileiIO*  sio  = SmileiIOFactory::create(params, smpi, EMfields);
-
+    TITLE("Output environment");
+    SmileiIO*  sio  = SmileiIOFactory::create(params, smpi, EMfields, vecSpecies);
+    smpi->barrier();
 
     TITLE("Creating Solver");
     Solver* solver = SolverFactory::create(params, grid, smpi);
@@ -277,7 +277,7 @@ int main (int argc, char* argv[])
         if(itime % params.dump_step == 0){
             //> gather time-average fields to process 0 to output
             EMfields->gatherAvgFields(smpi);
-            if(smpi->isMaster()) sio->write(EMfields, smpi);
+            sio->write(params,smpi,EMfields,vecSpecies);
         }
         smpi->barrier();
 

@@ -22,27 +22,8 @@ public:
 
     //! Constructor for Array4D: with no input argument
     Array4D() {
-        ;
+        data_ = NULL;
     };
-
-    //! Constructor for Array4D: with the Array4D dimensions as input argument
-    Array4D( std::vector<unsigned int> dims ) {
-        ;
-    };
-    //! Constructor, isPrimal define if mainDim is Primal or Dual
-    Array4D( std::vector<unsigned int> dims, unsigned int mainDim, bool isPrimal ) {
-        ;
-    };
-
-    //! Constructor for Array4D: with the Array4D dimensions and dump file name as input argument
-    Array4D( std::vector<unsigned int> dims, std::string name_in ) : name(name_in) {
-        ;
-    } ;
-
-    //! Constructor for Array4D: isPrimal define if mainDim is Primal or Dual
-    Array4D( std::vector<unsigned int> dims, unsigned int mainDim, bool isPrimal, std::string name_in ) : name(name_in) {
-        ;
-    } ;
 
     //! Destructor for Array4D
     ~Array4D() {
@@ -58,7 +39,7 @@ public:
 
         data_ = new double[dims_[0]*dims_[1]*dims_[2]*dims_[3]];
         //! \todo{check row major order!!!}
-        data_4D= new double***[dims_[0]*dims_[1]*dims_[2]];
+        data_4D= new double***[dims_[0]];
         for (unsigned int i=0; i<dims_[0]; i++)
         {
             data_4D[i]= new double**[dims_[1]];

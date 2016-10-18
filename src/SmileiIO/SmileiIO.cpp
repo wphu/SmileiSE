@@ -55,47 +55,52 @@ void SmileiIO::addField(Field* field)
 }
 
 //! write potential, rho and so on into hdf5 file every some timesteps
-void SmileiIO::write( PicParams& params,  ElectroMagn* fields, SmileiMPI* smpi ,vector<Species*>& vecSpecies)
+void SmileiIO::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies)
 {
-    fieldsGroup.offset[0] = ndims_t;
+
+    calVDF( params, smpi, fields, vecSpecies);
+
+    if(smpi->isMaster()) {
+        fieldsGroup.offset[0] = ndims_t;
+
+        fieldsGroup.count[0]  = 1;
+        fieldsGroup.count[1]  = fieldsGroup.dims_global[1];
+        fieldsGroup.count[2]  = fieldsGroup.dims_global[2];
+        fieldsGroup.count[3]  = fieldsGroup.dims_global[3];
 
 
-    fieldsGroup.count[0]  = 1;
-    fieldsGroup.count[1]  = fieldsGroup.dims_global[1];
-    fieldsGroup.count[2]  = fieldsGroup.dims_global[2];
-    fieldsGroup.count[3]  = fieldsGroup.dims_global[3];
+        //>write fields
+        for(int i = 0; i < fieldsGroup.dataset_id.size(); i++)
+        {
+            fieldsGroup.memspace_id = H5Screate_simple (4, fieldsGroup.count, NULL);
+            fieldsGroup.dataspace_id = H5Dget_space (fieldsGroup.dataset_id[i]);
+            fieldsGroup.status = H5Sselect_hyperslab (fieldsGroup.dataspace_id, H5S_SELECT_SET, fieldsGroup.offset,
+                                              fieldsGroup.stride, fieldsGroup.count, fieldsGroup.block);
+            fieldsGroup.status = H5Dwrite (fieldsGroup.dataset_id[i], H5T_NATIVE_DOUBLE, fieldsGroup.memspace_id,
+                                 fieldsGroup.dataspace_id, H5P_DEFAULT, fieldsGroup.dataset_data[i]);
+
+            fieldsGroup.status = H5Sclose (fieldsGroup.memspace_id);
+            fieldsGroup.status = H5Sclose (fieldsGroup.dataspace_id);
+        }
+
+        // write particle velocity distribution function
+        for(int i = 0; i < ptclsGroup.dataset_id.size(); i++)
+        //for(int i = 0; i < 0; i++)
+        {
+            ptclsGroup.memspace_id = H5Screate_simple (4, ptclsGroup.count, NULL);
+            ptclsGroup.dataspace_id = H5Dget_space (ptclsGroup.dataset_id[i]);
+            ptclsGroup.status = H5Sselect_hyperslab (ptclsGroup.dataspace_id, H5S_SELECT_SET, ptclsGroup.offset,
+                                              ptclsGroup.stride, ptclsGroup.count, ptclsGroup.block);
+            ptclsGroup.status = H5Dwrite (ptclsGroup.dataset_id[i], H5T_NATIVE_DOUBLE, ptclsGroup.memspace_id,
+                                 ptclsGroup.dataspace_id, H5P_DEFAULT, ptclsGroup.dataset_data[i]);
+
+            ptclsGroup.status = H5Sclose (fieldsGroup.memspace_id);
+            ptclsGroup.status = H5Sclose (fieldsGroup.dataspace_id);
+        }
 
 
-    //>write fields
-    for(int i = 0; i < fieldsGroup.dataset_id.size(); i++)
-    {
-        fieldsGroup.memspace_id = H5Screate_simple (4, fieldsGroup.count, NULL);
-        fieldsGroup.dataspace_id = H5Dget_space (fieldsGroup.dataset_id[i]);
-        fieldsGroup.status = H5Sselect_hyperslab (fieldsGroup.dataspace_id, H5S_SELECT_SET, fieldsGroup.offset,
-                                          fieldsGroup.stride, fieldsGroup.count, fieldsGroup.block);
-        fieldsGroup.status = H5Dwrite (fieldsGroup.dataset_id[i], H5T_NATIVE_DOUBLE, fieldsGroup.memspace_id,
-                             fieldsGroup.dataspace_id, H5P_DEFAULT, fieldsGroup.dataset_data[i]);
-
-        fieldsGroup.status = H5Sclose (fieldsGroup.memspace_id);
-        fieldsGroup.status = H5Sclose (fieldsGroup.dataspace_id);
+        ndims_t++;
     }
 
-        calVDF( params, smpi, fields, vecSpecies);
-    // write particle velocity distribution function
-    for(int i = 0; i < ptclsGroup.dataset_id.size(); i++)
-    {
-        ptclsGroup.memspace_id = H5Screate_simple (4, ptclsGroup.count, NULL);
-        ptclsGroup.dataspace_id = H5Dget_space (ptclsGroup.dataset_id[i]);
-        ptclsGroup.status = H5Sselect_hyperslab (ptclsGroup.dataspace_id, H5S_SELECT_SET, ptclsGroup.offset,
-                                          ptclsGroup.stride, ptclsGroup.count, ptclsGroup.block);
-        ptclsGroup.status = H5Dwrite (ptclsGroup.dataset_id[i], H5T_NATIVE_DOUBLE, ptclsGroup.memspace_id,
-                             ptclsGroup.dataspace_id, H5P_DEFAULT, ptclsGroup.dataset_data[i]);
-
-        ptclsGroup.status = H5Sclose (fieldsGroup.memspace_id);
-        ptclsGroup.status = H5Sclose (fieldsGroup.dataspace_id);
-    }
-
-
-    ndims_t++;
 
 } // END write

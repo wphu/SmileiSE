@@ -202,6 +202,14 @@ void Species::initCharge(unsigned int nPart, unsigned int ispec, unsigned int iP
     short Z = (short)q;
     double r = q-(double)Z;
 
+    // charges of all particles in a cell are the same
+    for (unsigned int p = iPart; p<iPart+nPart; p++)
+    {
+        particles.charge(p) = Z;
+    }
+
+
+    /*
     // if charge is integer, then all particles have the same charge
     if ( r == 0. ) {
         for (unsigned int p = iPart; p<iPart+nPart; p++)
@@ -227,6 +235,7 @@ void Species::initCharge(unsigned int nPart, unsigned int ispec, unsigned int iP
             WARNING("Could not match exactly charge="<<q<<" for species #"<<ispec<<" (difference of "<<diff<<"). Try to add particles.");
         }
     }
+    */
 }
 
 

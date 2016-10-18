@@ -15,7 +15,7 @@
 
 using namespace std;
 
-SmileiIO_Cart2D::SmileiIO_Cart2D( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields )
+SmileiIO_Cart2D::SmileiIO_Cart2D( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies )
 : SmileiIO( params, smpi )
 {
     if(smpi->isMaster()) createPattern(params, smpi, fields);

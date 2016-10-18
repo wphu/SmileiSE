@@ -20,7 +20,7 @@ using namespace std;
 class SmileiIO_Cart1D : public SmileiIO {
 public:
     //! Create // HDF5 environment
-    SmileiIO_Cart1D( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields );
+    SmileiIO_Cart1D( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies );
     //! Destructor for SmileiIO
     ~SmileiIO_Cart1D();
 
@@ -30,6 +30,7 @@ public:
     // Create particles h5 file pattern
     void createPartsPattern( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies );
 
+    void initVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies );
     // calculate velocity distribution function
     void calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies);
 
