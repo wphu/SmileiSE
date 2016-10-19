@@ -163,6 +163,22 @@ void SmileiIO_Cart1D::createPartsPattern( PicParams& params, SmileiMPI* smpi, El
 
         ptclsGroup.dataset_data.push_back(vx_VDF_global[isp]->data_);
 
+        // for VDF_tot_ the dimension is same with VDF_, but only [nx=0] is meaningful
+        fieldName = "VDF_tot_" + s->species_param.species_type;
+        name = fieldName.c_str();
+        ptclsGroup.dataset_name.push_back(name);
+
+        /* Create the data space for the dataset. */
+        ptclsGroup.dataspace_id = H5Screate_simple(4, ptclsGroup.dims_global, NULL);
+        dataset_size = ptclsGroup.dataset_id.size();
+        id = H5Dcreate2(ptclsGroup.group_id, name, H5T_NATIVE_DOUBLE, ptclsGroup.dataspace_id,
+                                      H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+
+        ptclsGroup.dataset_id.push_back(id);
+
+        ptclsGroup.dataset_data.push_back(vx_VDF_tot_global[isp]->data_);
+
+
     }
 
     ptclsGroup.offset[0] = 0;
@@ -208,6 +224,9 @@ void SmileiIO_Cart1D::initVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* 
 
         vx_VDF_global.push_back(new Array4D());
         vx_VDF_global[isp]->allocateDims(dims_VDF_global);
+
+        vx_VDF_tot_global.push_back(new Array4D());
+        vx_VDF_tot_global[isp]->allocateDims(dims_VDF_global);
     }
 
 }
@@ -236,7 +255,7 @@ void SmileiIO_Cart1D::calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* f
         int vx_dim2 = vx_dim / 2;
 
         vx_VDF[isp]->put_to(0.0);
-        for(int ibin=0; ibin < ( s->bmin.size() ); ibin++)
+        for(int ibin = 0; ibin < ( s->bmin.size() ); ibin++)
         {
             for(int iPart = s->bmin[ibin]; iPart < s->bmax[ibin]; iPart++)
             {
@@ -251,5 +270,17 @@ void SmileiIO_Cart1D::calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* f
             }
         }
         smpi->gatherVDF(vx_VDF_global[isp], vx_VDF[isp]);
+
+        vx_VDF_tot_global[isp]->put_to(0.0);
+        for (int ibin = 0; ibin < vx_VDF_global[isp]->dims_[0]; ibin++)
+        {
+            for (int ivx = 0; ivx < vx_VDF_global[isp]->dims_[3]; ivx++)
+            {
+                (*vx_VDF_tot_global[isp])(0,0,0,ivx) += (*vx_VDF_global[isp])(ibin,0,0,ivx);
+            }
+
+        }
+
+
     }
 }

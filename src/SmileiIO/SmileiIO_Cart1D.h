@@ -36,6 +36,7 @@ public:
 
     vector<Array4D*> vx_VDF;
     vector<Array4D*> vx_VDF_global;
+    vector<Array4D*> vx_VDF_tot_global;     // [1][1][1][nv] velocity distribution function for particles in all cells
     double vxMin,vxMax;
     double vx_d;
     int vx_dim;
