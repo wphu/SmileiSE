@@ -199,13 +199,13 @@ void Species::initWeight(unsigned int nPart, unsigned int ispec, unsigned int iP
 // ---------------------------------------------------------------------------------------------------------------------
 void Species::initCharge(unsigned int nPart, unsigned int ispec, unsigned int iPart, double q)
 {
-    short Z = (short)q;
-    double r = q-(double)Z;
+    //short Z = (short)q;
+    //double r = q-(double)Z;
 
     // charges of all particles in a cell are the same
     for (unsigned int p = iPart; p<iPart+nPart; p++)
     {
-        particles.charge(p) = Z;
+        particles.charge(p) = q;
     }
 
 

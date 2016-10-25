@@ -62,12 +62,17 @@ void SmileiIO::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, v
 
     if(smpi->isMaster()) {
         fieldsGroup.offset[0] = ndims_t;
+        ptclsGroup.offset[0] = ndims_t;
 
         fieldsGroup.count[0]  = 1;
         fieldsGroup.count[1]  = fieldsGroup.dims_global[1];
         fieldsGroup.count[2]  = fieldsGroup.dims_global[2];
         fieldsGroup.count[3]  = fieldsGroup.dims_global[3];
 
+        ptclsGroup.count[0]  = 1;
+        ptclsGroup.count[1]  = ptclsGroup.dims_global[1];
+        ptclsGroup.count[2]  = ptclsGroup.dims_global[2];
+        ptclsGroup.count[3]  = ptclsGroup.dims_global[3];
 
         //>write fields
         for(int i = 0; i < fieldsGroup.dataset_id.size(); i++)

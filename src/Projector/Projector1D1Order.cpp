@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <iomanip>
 
 #include "ElectroMagn.h"
 #include "Field1D.h"
@@ -71,7 +72,6 @@ void Projector1D1Order::operator() (Field* rho, Particles &particles, int ipart)
     int i;
     double xjn,xjmxi;
     double rho_j = particles.charge(ipart)*particles.weight(ipart);  // charge density of the macro-particle
-
 
     //Locate particle on the grid
     xjn    = particles.position(0, ipart) * dx_inv_;  // normalized distance to the first node

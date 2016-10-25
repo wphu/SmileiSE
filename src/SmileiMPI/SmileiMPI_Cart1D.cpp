@@ -776,7 +776,7 @@ void SmileiMPI_Cart1D::gatherVDF( Array4D* array_global, Array4D* array )
                 else {
                     (*array_global)(iGlobal,0,0,lGlobal) = array_global_gather[i_gather];
                     if( (*array_global)(iGlobal,0,0,lGlobal) > 0.0 ) {
-                        MESSAGE( "VDF: "<< (*array_global)(iGlobal,0,0,lGlobal) <<"  " << iGlobal <<"  " << lGlobal );
+                        //MESSAGE( "VDF: "<< (*array_global)(iGlobal,0,0,lGlobal) <<"  " << iGlobal <<"  " << lGlobal );
                     }
                 }
 

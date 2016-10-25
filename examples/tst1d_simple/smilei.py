@@ -339,14 +339,14 @@ wavelength_SI = 1.e-6
 
 
 #Tsim = 10000.*t0			# duration of the simulation
-Tsim = 10.*t0			# duration of the simulation
+Tsim = 20.*t0			# duration of the simulation
 
 #> number of timestep of incrementing averaged electromagnetic fields
 ntime_step_avg = 10000
 
 #> Timestep to output some fields into hdf5 file
 #dump_step = 10000
-dump_step = 2
+dump_step = 4
 
 
 # dim: Geometry of the simulation
@@ -416,11 +416,11 @@ random_seed = 0
 #
 
 Species(
-	species_type = 'eon',
+	species_type = 'e',
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 400,
+	n_part_per_cell = 200,
 	c_part_max = 1.0,
 	mass = 9.109382616e-31,
 	charge = -1.6021766208e-19,
@@ -436,7 +436,7 @@ Species(
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 200,
+	n_part_per_cell = 100,
 	c_part_max = 1.0,
 	mass = 2.0 * 1.67262158e-27,
 	charge = 1.6021766208e-19,
@@ -453,7 +453,7 @@ Species(
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 200,
+	n_part_per_cell = 100,
 	c_part_max = 1.0,
 	mass = 3 * 1.67262158e-27,
 	charge = 1.6021766208e-19,
@@ -473,14 +473,14 @@ Species(
 #               (can be the same as species1)
 # coulomb_log = float, Coulomb logarithm. If negative or zero, then automatically computed.
 Collisions(
-	species1 = ["eon"],
+	species1 = ["e"],
 	species2 = ["D1"],
 	coulomb_log = 5,
 	collisions_type = "coulomb"
 )
 Collisions(
-	species1 = ["eon"],
-	species2 = ["eon"],
+	species1 = ["e"],
+	species2 = ["e"],
 	coulomb_log = 1,
 	collisions_type = "coulomb"
 )

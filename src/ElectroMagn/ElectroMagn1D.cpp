@@ -478,4 +478,5 @@ void ElectroMagn1D::gatherAvgFields(SmileiMPI *smpi)
         smpi1D->gatherRho( static_cast<Field1D*>(rho_s_global[i]), static_cast<Field1D*>(rho_s[i]) );
     }
 
+    //WARNING("global_field "<< (*rho_s[0])(5) );
 }
