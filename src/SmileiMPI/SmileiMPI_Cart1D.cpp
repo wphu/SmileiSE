@@ -481,7 +481,7 @@ MPI_Datatype SmileiMPI_Cart1D::createMPIparticles( Particles* particles, int nbr
         disp[i] = address[i] - address[0];
     for (int i=0 ; i<nbrOfProp2 ; i++)
         partDataType[i] = MPI_DOUBLE;
-    partDataType[nbrOfProp-1] = MPI_SHORT;
+    partDataType[nbrOfProp-1] = MPI_DOUBLE;          // if charege is int, this should be MPI_SHORT
     if (particles->isTestParticles)
         partDataType[nbrOfProp2-1] = MPI_UNSIGNED;
 
