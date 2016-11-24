@@ -153,7 +153,9 @@ public:
     std::vector<Field*> Jy_s;
     std::vector<Field*> Jz_s;
     std::vector<Field*> rho_s;
+    std::vector<Field*> rho_s_avg;
     std::vector<Field*> rho_s_global;
+    std::vector<Field*> rho_s_global_avg;
 
     //! nDim_field (from params)
     const unsigned int nDim_field;

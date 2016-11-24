@@ -13,7 +13,6 @@ EF_Solver1D_TDMA::EF_Solver1D_TDMA(PicParams &params, SmileiMPI* smpi)
     dx_inv_ = 1.0 / dx;
     dx_sq = dx * dx;
     nx = params.n_space_global[0]+1;
-    const_ephi0_inv = 1.0 / params.const_ephi0;
 
     if(params.bc_em_type_x[0] == "Dirichlet"){
         bc_x_left = 1;

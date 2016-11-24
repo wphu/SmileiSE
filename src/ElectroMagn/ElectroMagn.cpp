@@ -75,13 +75,17 @@ oversize(params.oversize)
     Jy_s.resize(n_species);
     Jz_s.resize(n_species);
     rho_s.resize(n_species);
+    rho_s_avg.resize(n_species);
     rho_s_global.resize(n_species);
+    rho_s_global_avg.resize(n_species);
     for (unsigned int ispec=0; ispec<n_species; ispec++) {
-        Jx_s[ispec]         = NULL;
-        Jy_s[ispec]         = NULL;
-        Jz_s[ispec]         = NULL;
-        rho_s[ispec]        = NULL;
-        rho_s_global[ispec] = NULL;
+        Jx_s[ispec]             = NULL;
+        Jy_s[ispec]             = NULL;
+        Jz_s[ispec]             = NULL;
+        rho_s[ispec]            = NULL;
+        rho_s_avg[ispec]        = NULL;
+        rho_s_global[ispec]     = NULL;
+        rho_s_global_avg[ispec] = NULL;
     }
 
 

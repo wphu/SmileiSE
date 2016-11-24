@@ -29,6 +29,9 @@ SmileiMPI::SmileiMPI( int* argc, char*** argv )
     MPI_Comm_size( SMILEI_COMM_WORLD, &smilei_sz );
     MPI_Comm_rank( SMILEI_COMM_WORLD, &smilei_rk );
 
+    // make the random seed different
+    srand( (unsigned)time(NULL) + smilei_rk * smilei_sz * 10.0 );
+
 }
 
 SmileiMPI::SmileiMPI( SmileiMPI *smpi )

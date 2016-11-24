@@ -71,6 +71,8 @@ void SmileiIO_Cart1D::createFieldsPattern( PicParams& params, SmileiMPI* smpi, E
     for(int i = 0; i < fields->rho_s.size(); i++)
     {
         addField(fields->rho_s_global[i]);
+        addField(fields->rho_s_global_avg[i]);
+
     }
 
     //> if without below process, the method write() will go wrong, no ideas now!!!

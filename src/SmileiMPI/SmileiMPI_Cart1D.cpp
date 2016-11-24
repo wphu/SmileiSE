@@ -584,6 +584,13 @@ void SmileiMPI_Cart1D::gatherRho( Field* field_global ,Field* field  )
     int nx;
 
     Field1D* f1D =  static_cast<Field1D*>(field);
+
+    //for(int i = 0; i < f1D->dims_[0]; i++)
+    //{
+    //    (*f1D)(i) = i;
+    //}
+
+
     Field1D* f1D_global =  static_cast<Field1D*>(field_global);
     nx = f1D_global->dims_[0];
     f1D_global->put_to(0.0);

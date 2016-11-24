@@ -82,6 +82,8 @@ class Species(SmileiComponent):
     bc_part_type_south = None
     ionization_model = "none"
     atomic_number = None
+    atomic_mass = None
+    surface_binding_energy = None
     isTest = False
 
 
@@ -104,17 +106,29 @@ class Laser(SmileiComponent):
 
 class Collisions(SmileiComponent):
     """Collisions parameters"""
+    #species1 and species2 are list of unsigned integer
     species1 = None
     species2 = None
+    species3 = None
     coulomb_log = 0.
     debug_every = 0
 
 
 class PSI(SmileiComponent):
     """PSI parameters"""
+    # species1 and species2 are unsigned integer type
     species1 = None
     species2 = None
     PSI_type = None
+    posEmit = None
+    nPartEmit = 0
+    tempEmit = 0.0
+    jEmit = 0.0
+    weight_const = 1.0
+    emitOffset = 0.0
+    a_FN = 1.5414e-6
+    b_FN = 6.8309e9
+    work_function = 4.5
 
 
 
@@ -309,16 +323,12 @@ def cosine(base, amplitude=1.,
 #
 import math
 
-import sys
-sys.path.append("../post_process")
-import normalization_units as nu
-
-l0 = 1.0e-5 / nu.norm_l			# nu.norm_l is reference time, the value's unit before / is m (SI)
-t0 = 1.0e-12 / nu.norm_t
+l0 = 1.0e-5  #(SI)
+t0 = 1.0e-12
 Lsim = [50.*l0,20.*l0]	# length of the simulation
-Tsim = 200.*t0			# duration of the simulation
+Tsim = 10.*t0			# duration of the simulation
 resx = 20.				# nb of cells in on laser wavelength
-rest = 30.				# time of timestep in one optical cycle 
+rest = 30.				# time of timestep in one optical cycle
 
 wavelength_SI = 1.e-6
 
@@ -337,20 +347,20 @@ interpolation_order = 1
 
 # SIMULATION BOX : for all space directions (use vector)
 # cell_length: length of the cell
-# sim_length: length of the simulation in units of the normalization wavelength 
+# sim_length: length of the simulation in units of the normalization wavelength
 #
 cell_length = [l0,l0]
 sim_length  = Lsim
 
 # SIMULATION TIME
 # timestep: duration of the timestep
-# sim_time: duration of the simulation in units of the normalization period 
+# sim_time: duration of the simulation in units of the normalization period
 #
 timestep = t0
 sim_time = Tsim
- 
+
 # ELECTROMAGNETIC BOUNDARY CONDITIONS
-# bc_em_type_x/y/z : boundary conditions used for EM fields 
+# bc_em_type_x/y/z : boundary conditions used for EM fields
 #                    periodic = periodic BC (using MPI topology)
 #                    silver-muller = injecting/absorbing BC
 #                    reflective = consider the ghost-cells as a perfect conductor
@@ -366,7 +376,7 @@ bc_em_value_x = [0.0, 0.0]
 number_of_procs = [2, 2]
 
 
-# RANDOM seed 
+# RANDOM seed
 # this is used to randomize the random number generator
 random_seed = 0
 
@@ -380,7 +390,7 @@ random_seed = 0
 # mass               = float, particle mass in units of the electron mass
 # dynamics_type      = string, type of species dynamics = "norm" or "rrLL"
 # time_frozen        = float, time during which particles are frozen in units of the normalization time
-# radiating          = boolean, if true, incoherent radiation calculated using the Larmor formula 
+# radiating          = boolean, if true, incoherent radiation calculated using the Larmor formula
 # n_part_per_cell    = integer or function, number of particles/cell
 # charge             = float or function, particle charge in units of the electron charge
 # charge_density     = float or function, species charge density in units of the "critical" density
@@ -389,34 +399,18 @@ random_seed = 0
 # temperature        = list of floats or functions, temperature in units of m_e c^2
 # Predefined functions: constant, trapezoidal, gaussian, polygonal, cosine
 #
+
 Species(
-	species_type = 'ion',
+	species_type = 'e',
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 80,
+	n_part_per_cell = 100,
 	c_part_max = 1.0,
-	mass = 1836.0,
-	charge = 1.0,
-	nb_density = 1.0e19 / nu.norm_n,
-	temperature = [10 / nu.norm_temp],
-	time_frozen = 0.0,
-	bc_part_type_west  = 'supp',
-	bc_part_type_east  = 'supp',
-	bc_part_type_south = 'refl',
-	bc_part_type_north = 'refl'
-)
-Species(
-	species_type = 'eon',
-	initPosition_type = 'random',
-	initMomentum_type = 'maxwell',
-	ionization_model = 'none',
-	n_part_per_cell = 80,
-	c_part_max = 1.0,
-	mass = 1.0,
-	charge = -1.0,
-	nb_density = 1.0e19 / nu.norm_n,
-	temperature = [10 / nu.norm_temp],
+	mass = 9.109382616e-31,
+	charge = -1.6021766208e-19,
+	nb_density = 1.0e19,
+	temperature = [20],
 	time_frozen = 0.,
 	bc_part_type_west  = 'supp',
 	bc_part_type_east  = 'supp',
@@ -426,22 +420,45 @@ Species(
 
 
 Species(
-	species_type = 'neutral',
+	species_type = 'D1',
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 80,
+	n_part_per_cell = 100,
 	c_part_max = 1.0,
-	mass = 1836.0,
-	charge = 0.0,
-	nb_density = 1.0e19 / nu.norm_n,
-	temperature = [10 / nu.norm_temp],
+	mass = 2.0 * 1.67262158e-27,
+	charge = 1.6021766208e-19,
+	nb_density = 0.5e19,
+	temperature = [20],
 	time_frozen = 0.0,
 	bc_part_type_west  = 'supp',
 	bc_part_type_east  = 'supp',
 	bc_part_type_south = 'refl',
 	bc_part_type_north = 'refl'
 )
+
+
+
+Species(
+	species_type = 'T1',
+	initPosition_type = 'random',
+	initMomentum_type = 'maxwell',
+	ionization_model = 'none',
+	n_part_per_cell = 100,
+	c_part_max = 1.0,
+	mass = 3.0 * 1.67262158e-27,
+	charge = 1.6021766208e-19,
+	nb_density = 0.5e19,
+	temperature = [20],
+	time_frozen = 0.0,
+	bc_part_type_west  = 'supp',
+	bc_part_type_east  = 'supp',
+	bc_part_type_south = 'refl',
+	bc_part_type_north = 'refl'
+)
+
+
+
 
 
 
@@ -452,20 +469,20 @@ Species(
 #               (can be the same as species1)
 # coulomb_log = float, Coulomb logarithm. If negative or zero, then automatically computed.
 Collisions(
-	species1 = ["eon"],
-	species2 = ["ion"],
+	species1 = ["e"],
+	species2 = ["D1"],
 	coulomb_log = 5,
 	collisions_type = "coulomb"
 )
 Collisions(
-	species1 = ["eon"],
-	species2 = ["eon"],
+	species1 = ["e"],
+	species2 = ["e"],
 	coulomb_log = 1,
 	collisions_type = "coulomb"
 )
 Collisions(
-	species1 = ["ion"],
-	species2 = ["ion"],
+	species1 = ["D1"],
+	species2 = ["D1"],
 	coulomb_log = 1,
 	collisions_type = "coulomb"
 )
@@ -476,12 +493,11 @@ Collisions(
 # DIAGNOSTIC PARAMETERS
 # ---------------------
 
-# print_every (on screen text output) 
+# print_every (on screen text output)
 # print_every = 60
-ntime_step_avg = 50
+ntime_step_avg = 1000
 
-dump_step = 100
-
+dump_step = 1000
 
 ################ END USER NAMELISTS ################
 """@package pycontrol

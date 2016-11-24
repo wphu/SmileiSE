@@ -366,7 +366,7 @@ void EF_Solver2D_SLU::solve_SLU(Field* rho, Field* phi){
     {
       for ( int j=0; j<ny; j++) {
         if ( grid2D->iswall_global_2D[i][j] == 0 && grid2D->bndr_global_2D[i][j] == 0 ) {
-          rhsb[ii] = - dxy * (*rho2D)(i,j);
+          rhsb[ii] = - dxy * const_ephi0_inv * (*rho2D)(i,j);
           ii++;
         }
         else if ( grid2D->bndr_global_2D[i][j] == 1) {
@@ -378,7 +378,7 @@ void EF_Solver2D_SLU::solve_SLU(Field* rho, Field* phi){
           ii++;
         }
         else if ( grid2D->bndr_global_2D[i][j] == 8 && j == ny-1) {
-          rhsb[ii] = - dxy * (*rho2D)(i,j);
+          rhsb[ii] = - dxy * const_ephi0_inv * (*rho2D)(i,j);
           ii++;
         }
         else {

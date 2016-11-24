@@ -14,7 +14,9 @@ class Solver
 
 public:
     //! Creator for Solver
-    Solver(PicParams &params) {};
+    Solver(PicParams &params) {
+        const_ephi0_inv = 1.0 / params.const_ephi0;
+    };
     virtual ~Solver() {};
 
     //! Overloading of () operator

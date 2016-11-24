@@ -31,7 +31,7 @@ ntime_step_avg = 10000
 
 #> Timestep to output some fields into hdf5 file
 #dump_step = 10000
-dump_step = 4
+dump_step = ntime_step_avg
 
 
 # dim: Geometry of the simulation

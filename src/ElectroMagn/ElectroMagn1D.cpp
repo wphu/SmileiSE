@@ -128,12 +128,14 @@ isEastern(smpi->isEastern())
     // Charge currents currents and density for each species
 
     for (unsigned int ispec=0; ispec<n_species; ispec++) {
-        Jx_s[ispec]  = new Field1D(dimPrim, ("Jx_"+params.species_param[ispec].species_type).c_str());
-        Jy_s[ispec]  = new Field1D(dimPrim, ("Jy_"+params.species_param[ispec].species_type).c_str());
-        Jz_s[ispec]  = new Field1D(dimPrim, ("Jz_"+params.species_param[ispec].species_type).c_str());
-        rho_s[ispec] = new Field1D(dimPrim, ("Rho_"+params.species_param[ispec].species_type).c_str());
+        Jx_s[ispec]             = new Field1D(dimPrim, ("Jx_"+params.species_param[ispec].species_type).c_str());
+        Jy_s[ispec]             = new Field1D(dimPrim, ("Jy_"+params.species_param[ispec].species_type).c_str());
+        Jz_s[ispec]             = new Field1D(dimPrim, ("Jz_"+params.species_param[ispec].species_type).c_str());
+        rho_s[ispec]            = new Field1D(dimPrim, ("Rho_"+params.species_param[ispec].species_type).c_str());
+        rho_s_avg[ispec]        = new Field1D(dimPrim, ("Rho_"+params.species_param[ispec].species_type+"avg").c_str());
 
-        rho_s_global[ispec] = new Field1D(dim_global, ("Rho_global_"+params.species_param[ispec].species_type).c_str());
+        rho_s_global[ispec]     = new Field1D(dim_global, ("Rho_global_"+params.species_param[ispec].species_type).c_str());
+        rho_s_global_avg[ispec] = new Field1D(dim_global, ("Rho_global_"+params.species_param[ispec].species_type+"avg").c_str());
     }
 
     //    ostringstream file_name("");
@@ -323,6 +325,11 @@ void ElectroMagn1D::incrementAvgFields(unsigned int time_step, unsigned int ntim
         rho1D_avg->put_to(0.0);
         phi1D_avg->put_to(0.0);
         Ex1D_avg->put_to(0.0);
+        for (unsigned int ispec=0; ispec<n_species; ispec++) {
+            Field1D* rho1D_s_avg    = static_cast<Field1D*>(rho_s_avg[ispec]);
+            rho1D_s_avg->put_to(0.0);
+        }//END loop on species ispec
+
 
     }
 
@@ -331,6 +338,35 @@ void ElectroMagn1D::incrementAvgFields(unsigned int time_step, unsigned int ntim
         (*rho1D_avg)(i) += (*rho1D)(i);
         (*phi1D_avg)(i) += (*phi1D)(i);
         (*Ex1D_avg)(i)  += (*Ex1D)(i);
+
+    }
+
+    // for density of each species
+    for (unsigned int ispec=0; ispec<n_species; ispec++) {
+        Field1D* rho1D_s        = static_cast<Field1D*>(rho_s[ispec]);
+        Field1D* rho1D_s_avg    = static_cast<Field1D*>(rho_s_avg[ispec]);
+        // all fields are defined on the primal grid
+        for (unsigned int ix=0 ; ix<dimPrim[0] ; ix++) {
+            (*rho1D_s_avg)(ix) += (*rho1D_s)(ix);
+        }
+    }//END loop on species ispec
+
+
+
+    // reset the averaged fields for (time_step-1)%ntime_step_avg == 0
+    if ( time_step%ntime_step_avg==0 ){
+        for (unsigned int i=0 ; i<dimPrim[0] ; i++) {
+            (*rho1D_avg)(i) /= ntime_step_avg;
+            (*phi1D_avg)(i) /= ntime_step_avg;
+            (*Ex1D_avg)(i)  /= ntime_step_avg;
+
+        }
+        for (unsigned int ispec=0; ispec<n_species; ispec++) {
+            Field1D* rho1D_s_avg    = static_cast<Field1D*>(rho_s_avg[ispec]);
+            for (unsigned int ix=0 ; ix<dimPrim[0] ; ix++) {
+                (*rho1D_s_avg)(ix) /= ntime_step_avg;
+            }
+        }//END loop on species ispec
 
     }
 
@@ -476,6 +512,7 @@ void ElectroMagn1D::gatherAvgFields(SmileiMPI *smpi)
     for(int i = 0; i < rho_s.size(); i++)
     {
         smpi1D->gatherRho( static_cast<Field1D*>(rho_s_global[i]), static_cast<Field1D*>(rho_s[i]) );
+        smpi1D->gatherRho( static_cast<Field1D*>(rho_s_global_avg[i]), static_cast<Field1D*>(rho_s_avg[i]) );
     }
 
     //WARNING("global_field "<< (*rho_s[0])(5) );
