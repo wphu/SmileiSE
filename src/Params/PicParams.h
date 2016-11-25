@@ -45,8 +45,11 @@ struct SpeciesStructure {
     //! coefficient on the maximum number of particles for the species
     double c_part_max;
 
-    //! mass [electron mass]
+    //! mass [kg]
     double mass;
+
+    //! charge [C]
+    double charge;
 
     //! atomic number
     unsigned int atomic_number;     // H 1; D 1; C 6; Ar 18;

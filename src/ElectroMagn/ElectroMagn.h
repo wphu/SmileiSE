@@ -268,6 +268,9 @@ public:
     // total charge from boundary
     std::vector<double> totCharge[2];
 
+    //! parameters of the species
+    std::vector<SpeciesStructure> species_param;
+
 protected:
     //! Vector of boundary-condition per side for the fields
     //std::vector<ElectroMagnBC*> emBoundCond;

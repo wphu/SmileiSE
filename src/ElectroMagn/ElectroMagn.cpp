@@ -26,6 +26,8 @@ n_space(params.n_space),
 n_space_global(params.n_space_global),
 oversize(params.oversize)
 {
+    species_param = params.species_param;
+
     // initialize poynting vector
     poynting[0].resize(nDim_field,0.0);
     poynting[1].resize(nDim_field,0.0);

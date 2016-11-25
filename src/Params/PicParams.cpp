@@ -307,6 +307,11 @@ void PicParams::readSpecies(InputData &ifile) {
         if( !extractOneProfile(ifile, "charge", tmpSpec.charge_profile, ispec) )
             ERROR("For species #" << ispec << ", charge not found or not understood");
 
+        if( !ifile.extract("charge",tmpSpec.charge ,"Species",ispec) ) {
+            ERROR("For species #" << ispec << ", charge not defined.");
+        }
+
+
         // Mean velocity
         vector<ProfileStructure*> vecMvel;
         extractVectorOfProfiles(ifile, "mean_velocity", vecMvel, ispec);

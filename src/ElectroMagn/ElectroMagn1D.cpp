@@ -132,10 +132,10 @@ isEastern(smpi->isEastern())
         Jy_s[ispec]             = new Field1D(dimPrim, ("Jy_"+params.species_param[ispec].species_type).c_str());
         Jz_s[ispec]             = new Field1D(dimPrim, ("Jz_"+params.species_param[ispec].species_type).c_str());
         rho_s[ispec]            = new Field1D(dimPrim, ("Rho_"+params.species_param[ispec].species_type).c_str());
-        rho_s_avg[ispec]        = new Field1D(dimPrim, ("Rho_"+params.species_param[ispec].species_type+"avg").c_str());
+        rho_s_avg[ispec]        = new Field1D(dimPrim, ("Rho_"+params.species_param[ispec].species_type+"_avg").c_str());
 
         rho_s_global[ispec]     = new Field1D(dim_global, ("Rho_global_"+params.species_param[ispec].species_type).c_str());
-        rho_s_global_avg[ispec] = new Field1D(dim_global, ("Rho_global_"+params.species_param[ispec].species_type+"avg").c_str());
+        rho_s_global_avg[ispec] = new Field1D(dim_global, ("Rho_global_"+params.species_param[ispec].species_type+"_avg").c_str());
     }
 
     //    ostringstream file_name("");
@@ -458,7 +458,7 @@ void ElectroMagn1D::computeTotalRhoJ()
         for (unsigned int ix=0 ; ix<dimPrim[0] ; ix++) {
             (*Jy1D)(ix)  += (*Jy1D_s)(ix);
             (*Jz1D)(ix)  += (*Jz1D_s)(ix);
-            (*rho1D)(ix) += (*rho1D_s)(ix);
+            (*rho1D)(ix) += ( (*rho1D_s)(ix) * species_param[ispec].charge );
         }
     }//END loop on species ispec
 }

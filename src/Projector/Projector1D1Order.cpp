@@ -71,7 +71,7 @@ void Projector1D1Order::operator() (Field* rho, Particles &particles, int ipart)
     //Declaration of local variables
     int i;
     double xjn,xjmxi;
-    double rho_j = particles.charge(ipart)*particles.weight(ipart);  // charge density of the macro-particle
+    double rho_j = particles.weight(ipart);  // charge density of the macro-particle
 
     //Locate particle on the grid
     xjn    = particles.position(0, ipart) * dx_inv_;  // normalized distance to the first node
