@@ -51,6 +51,16 @@ struct SpeciesStructure {
     //! charge [C]
     double charge;
 
+    // number density when density is a constant
+    double density;
+
+    double n_part_per_cell;
+
+    // weight when all particles has the same weight
+    // weight = nb_density / n_part_per_cell; if n_part_per_cell = 0, weight = nb_density / 100
+    double weight;
+
+
     //! atomic number
     unsigned int atomic_number;     // H 1; D 1; C 6; Ar 18;
     // atomic mass

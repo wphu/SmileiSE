@@ -12,9 +12,8 @@
 #include "Array4D.h"
 
 class PicParams;
-class Species;
 class Particles;
-
+class Species;
 class ElectroMagn;
 class Field;
 
@@ -138,11 +137,7 @@ public:
     //! Number of MPI process in the current communicator
     int smilei_rk;
 
-    inline int globalNbrParticles(Species* species, int locNbrParticles) {
-	int nParticles(0);
-	MPI_Reduce( &locNbrParticles, &nParticles, 1, MPI_INT, MPI_SUM, 0, SMILEI_COMM_WORLD );
-	return nParticles;
-    }
+    int globalNbrParticles(Species* species);
 
     // Broadcast a string in current communicator
     void bcast( std::string& val );

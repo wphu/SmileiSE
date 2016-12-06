@@ -11,7 +11,6 @@
 
 #include "ElectroMagn.h"
 #include "Field.h"
-
 #include "Species.h"
 
 using namespace std;
@@ -111,4 +110,13 @@ void SmileiMPI::sumRhoJs( ElectroMagn* EMfields, int ispec, bool currents )
 void SmileiMPI::reduceDoubleVector( double* src, double* des, int n )
 {
     MPI_Allreduce( src, des, n, MPI_DOUBLE, MPI_SUM, SMILEI_COMM_WORLD );
+}
+
+
+int SmileiMPI::globalNbrParticles(Species* species) {
+    int nParticles(0);
+    int locNbrParticles(0);
+    locNbrParticles = species->getNbrOfParticles();
+    MPI_Reduce( &locNbrParticles, &nParticles, 1, MPI_INT, MPI_SUM, 0, SMILEI_COMM_WORLD );
+    return nParticles;
 }

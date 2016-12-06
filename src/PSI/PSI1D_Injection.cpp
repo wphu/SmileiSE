@@ -46,6 +46,8 @@ work_function (work_function)
     psiPos =psiPosition,
     emitTemp = emitTemperature,
     dt_ov_dx = params.timestep / params.cell_length[0];
+    dt = params.timestep;
+    YZArea = 1.0;
 
     ySqrt_factor = pow(params.const_e, 3.0) / (4.0 * params.const_pi * params.const_ephi0 * work_function *work_function);
     a_factor = a_FN * params.const_e * params.const_e / work_function;
@@ -83,22 +85,33 @@ void PSI1D_Injection::performPSI(PicParams& params, SmileiMPI* smpi, vector<Spec
         emitJ = (a_factor * emitField * emitField / t_y2(emitField)) /
                 exp(b_factor * v_y(emitField) / emitField);
         //emitJ /= params.norm_j;
-        nPartEmit = emitJ * dt_ov_dx * weight_const;
+        nPartEmit = emitJ * dt_ov_dx / (weight_const*s1->species_param.charge);
     }
     else if(emitKind == "relEmit"){
         PSI1D_Injection *relPsi_injection = static_cast<PSI1D_Injection*>(relPsi);
         nPartEmit = relPsi_injection->nPartEmit * relEmit_factor;
     }
+    else if(emitKind == "regular"){
+        if(emitJ != 0.0){
+            nPartEmit = emitJ * dt_ov_dx / (weight_const*s1->species_param.charge);
+            nPartEmit = abs((int)nPartEmit);
+            //MESSAGE("Injected number: "<<nPartEmit<<"  "<<emitJ<<"  "<<dt_ov_dx<<" "<<weight_const<<"  "<<s1->species_param.charge);
+        }
+    }
 
     // PSIs usually create new particles, insert new particles to the end of particles, no matter the boundary is left or right
     // not affect the indexes_of_particles_to_exchange before exchanging particles using MPI
-    if( smpi1D->isWestern() || smpi1D->isEastern() ) {
+    if( psiPos=="left" && smpi1D->isWestern() || psiPos=="right" && smpi1D->isEastern() ) {
+        //MESSAGE("Befor particle number: "<<s1->getNbrOfParticles());
         emit(params, vecSpecies);
         unsigned int iPart = s1->getNbrOfParticles();
         emit_particles.cp_particles(nPartEmit, *p1, iPart);
         emit_particles.clear();
-        unsigned int ibin = s1->bmin.size();
+        unsigned int ibin = s1->bmin.size()-1;
         s1->bmax[ibin] += nPartEmit;
+        //MESSAGE("Now particle number: "<<s1->getNbrOfParticles());
+        //MESSAGE("Now particle capacity: "<<s1->getParticlesCapacity());
+
     }
 }
 
@@ -116,7 +129,7 @@ void PSI1D_Injection::emit(PicParams& params, vector<Species*>& vecSpecies){
             emit_particles.position_old(0,iPart) = emit_particles.position(0,iPart);
 
             // initialize using the Maxwell distribution function in x-direction
-            double psm = sqrt(2.0 * emitTemp / s1->species_param.mass) * sqrt(-log((double)rand() / RAND_MAX));
+            double psm = sqrt(2.0 * params.const_e * emitTemp / s1->species_param.mass) * sqrt(-log((double)rand() / RAND_MAX));
             double theta = M_PI*(double)rand() / RAND_MAX;
             double phi   = 2.0 * M_PI*(double)rand() / RAND_MAX;
             emit_particles.momentum(0,iPart) = abs( psm*sin(theta)*cos(phi) );
@@ -124,7 +137,7 @@ void PSI1D_Injection::emit(PicParams& params, vector<Species*>& vecSpecies){
             emit_particles.momentum(2,iPart) = 0.0;
 
             emit_particles.weight(iPart) = weight_const;
-            emit_particles.charge(iPart) = s1->species_param.charge_profile.profile;
+            emit_particles.charge(iPart) = s1->species_param.charge;
         }
     }
     else if(psiPos == "right"){
@@ -142,7 +155,7 @@ void PSI1D_Injection::emit(PicParams& params, vector<Species*>& vecSpecies){
            emit_particles.momentum(2,iPart) = 0.0;
 
            emit_particles.weight(iPart) = weight_const;
-           emit_particles.charge(iPart) = s1->species_param.charge_profile.profile;
+           emit_particles.charge(iPart) = s1->species_param.charge;
        }
     }
     else {

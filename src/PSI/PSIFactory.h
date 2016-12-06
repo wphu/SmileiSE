@@ -57,11 +57,13 @@ public:
 
 
 		        ifile.extract("species1",sg1,"PSI",n_PSI);
-
 		        // Obtain the lists of species numbers from the lists of species names.
 		        sgroup1 = params.FindSpecies(sg1);
 		        // Each group of species sgroup1 and sgroup2 must not be empty
 		        if (sgroup1.size()==0) ERROR("No valid `species1` requested in PSI #" << n_PSI);
+
+
+				weight_const = vecSpecies[sgroup1[0]]->species_param.weight; // default
 
 				// Injection logarithm (if negative or unset, then automatically computed)
 		        emitKind = "fieldEmit"; // default
@@ -75,9 +77,8 @@ public:
 		        emitTemp = 0.0; // default
 		        ifile.extract("emitTemp",emitTemp,"PSI",n_PSI);
 
-				// Number of timesteps between each debug output (if 0 or unset, no debug)
-		        weight_const = 0.0; // default
-		        if( !ifile.extract("weight_const",weight_const,"PSI",n_PSI) ) {};
+				// emitOffset
+		        ifile.extract("emitOffset",emitOffset,"PSI",n_PSI);
 
 				// Number of timesteps between each debug output (if 0 or unset, no debug)
 		        ifile.extract("a_FN",a_FN,"PSI",n_PSI);

@@ -51,6 +51,8 @@ public:
 
 private:
     double dt_ov_dx;
+    double dt;
+    double YZArea;
     // electric field used for field emit, equal to electric field on the boundary
     double emitField;
     // Emitting current density from boundary

@@ -54,7 +54,7 @@ public:
     unsigned int species1, species2;
 
     //! Method called in the main smilei loop to apply PSI at each timestep
-    virtual void performPSI(PicParams&,std::vector<Species*>&,int, ElectroMagn* ){};
+    virtual void performPSI(PicParams&, SmileiMPI* smpi, std::vector<Species*>&,int, ElectroMagn* ){};
 
     Particles new_particles;
     double const_e;

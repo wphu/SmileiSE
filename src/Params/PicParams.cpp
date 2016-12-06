@@ -299,17 +299,27 @@ void PicParams::readSpecies(InputData &ifile) {
         if( ok1 ) tmpSpec.density_type = "nb";
         if( ok2 ) tmpSpec.density_type = "charge";
 
+        // number density which is a constant
+        if( !ifile.extract("nb_density",tmpSpec.density ,"Species",ispec) ) {
+            ERROR("For species #" << ispec << ", density not defined.");
+        }
+
         // Number of particles per cell
         if( !extractOneProfile(ifile, "n_part_per_cell", tmpSpec.ppc_profile, ispec) )
             ERROR("For species #" << ispec << ", n_part_per_cell not found or not understood");
 
+        if( !ifile.extract("n_part_per_cell",tmpSpec.n_part_per_cell ,"Species",ispec) ) {
+            ERROR("For species #" << ispec << ", n_part_per_cell not defined.");
+        }
+
         // Charge
         if( !extractOneProfile(ifile, "charge", tmpSpec.charge_profile, ispec) )
             ERROR("For species #" << ispec << ", charge not found or not understood");
-
+        // charge which is a constant
         if( !ifile.extract("charge",tmpSpec.charge ,"Species",ispec) ) {
             ERROR("For species #" << ispec << ", charge not defined.");
         }
+
 
 
         // Mean velocity
@@ -458,6 +468,13 @@ void PicParams::computeSpecies()
             species_param[ispec].thermalVelocity[i]=sqrt(2.0*species_param[ispec].thermT[i]*const_e/species_param[ispec].mass);
             species_param[ispec].thermalMomentum[i]=species_param[ispec].mass * species_param[ispec].thermalVelocity[i];
         }
+        if(species_param[ispec].n_part_per_cell == 0.0){
+            species_param[ispec].weight = species_param[ispec].density / 100;
+        }
+        else {
+            species_param[ispec].weight = species_param[ispec].density / species_param[ispec].n_part_per_cell;
+        }
+
 
     }//end loop on all species (ispec)
 

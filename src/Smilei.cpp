@@ -48,7 +48,7 @@ using namespace std;
 // ---------------------------------------------------------------------------------------------------------------------
 int main (int argc, char* argv[])
 {
-    cout.setf( ios::fixed,  ios::floatfield ); // floatfield set to fixed
+    //cout.setf( ios::fixed,  ios::floatfield ); // floatfield set to fixed
 
     // Define 2 MPI environments :
     //  - smpiData : to broadcast input data, unknown geometry
@@ -224,13 +224,14 @@ int main (int argc, char* argv[])
         timer[1].restart();
         for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
         {
-            if (1 ){
-                EMfields->restartRhoJs(ispec, 0);
-                vecSpecies[ispec]->dynamics(time_dual, ispec, EMfields, Interp, Proj, smpi, params);
-                smpi->barrier();
-                //MESSAGE("dynamics ===="<<ispec);
-                //cout<<"particle total number: "<<(vecSpecies[ispec]->particles).size()<<endl;
-            }
+            EMfields->restartRhoJs(ispec, 0);
+            vecSpecies[ispec]->dynamics(time_dual, ispec, EMfields, Interp, Proj, smpi, params);
+            smpi->barrier();
+            //int totalPtcNum;
+            //totalPtcNum = smpi->globalNbrParticles(vecSpecies[ispec]);
+            //MESSAGE(vecSpecies[ispec]->species_param.species_type<<" Number is: "<< totalPtcNum);
+            //MESSAGE("dynamics ===="<<ispec);
+            //cout<<"particle total number: "<<(vecSpecies[ispec]->particles).size()<<endl;
         }
         timer[1].update();
 
@@ -239,7 +240,7 @@ int main (int argc, char* argv[])
         // not affect the indexes_of_particles_to_exchange before exchanging particles using MPI
         for (unsigned int ipsi=0 ; ipsi<vecPSI.size(); ipsi++)
         {
-            vecPSI[ipsi]->performPSI(params,vecSpecies,itime, EMfields);
+            vecPSI[ipsi]->performPSI(params,smpi,vecSpecies,itime, EMfields);
         }
 
         timer[2].restart();

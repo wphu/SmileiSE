@@ -125,7 +125,7 @@ class PSI(SmileiComponent):
     tempEmit = 0.0
     jEmit = 0.0
     weight_const = 1.0
-    emitOffset = 0.0
+    emitOffset = 1.0
     a_FN = 1.5414e-6
     b_FN = 6.8309e9
     work_function = 4.5
