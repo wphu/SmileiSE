@@ -55,6 +55,8 @@ public:
 
     //! Insert first iPart particles at position dest_id in dest_parts
     void cp_particles(int nPart, Particles &dest_parts, int dest_id );
+    //! Insert iPart particles from source_id at position dest_id in dest_parts
+    void cp_particles(int source_id, int nPart, Particles &dest_parts, int dest_id );
 
     //! Suppress particle iPart
     void erase_particle(int iPart );
@@ -72,6 +74,12 @@ public:
 
     //! Exchange particles part1 & part2 memory location
     void swap_part(int part1,int part2, int N);
+
+    //! Overwrite particle part1 into part2 memory location for 1D and 2D
+    void overwrite_part(int part1,int part2);
+
+    //! Overwrite particle part1->part1+N into part2->part2+N memory location. Erasing part2->part2+N
+    void overwrite_part(int part1,int part2,int N);
 
     //! Overwrite particle part1 into part2 memory location. Erasing part2
     void overwrite_part1D(int part1,int part2);

@@ -1,4 +1,4 @@
-#include "PSI1D_Injection.h"
+#include "PartSource1D_Emit.h"
 #include "SmileiMPI_Cart1D.h"
 #include "Field1D.h"
 #include "H5.h"
@@ -14,12 +14,12 @@ using namespace std;
 
 
 // Constructor
-PSI1D_Injection::PSI1D_Injection(
+PartSource1D_Emit::PartSource1D_Emit(
     PicParams& params,
     SmileiMPI* smpi,
-    string psi_emitKind,
-    unsigned int psi_species1,
-    string psiPosition,
+    string emit_emitKind,
+    unsigned int emit_species1,
+    string emitPosition,
     unsigned int nPartEmit,
     double emitTemperature,
     double emitJ,
@@ -28,9 +28,9 @@ PSI1D_Injection::PSI1D_Injection(
     double a_FN,
     double b_FN,
     double work_function,
-    string psi_relSpecies
+    string emit_relSpecies
 ):
-PSI1D (params, smpi),
+PartSource1D (params, smpi),
 nPartEmit (nPartEmit),
 emitJ (emitJ),
 weight_const (weight_const),
@@ -40,10 +40,10 @@ b_FN (b_FN),
 work_function (work_function)
 
 {
-    emitKind = psi_emitKind;
-    species1 = psi_species1;
-    relSpecies = psi_relSpecies;
-    psiPos =psiPosition,
+    emitKind = emit_emitKind;
+    species1 = emit_species1;
+    relSpecies = emit_relSpecies;
+    emitPos =emitPosition,
     emitTemp = emitTemperature,
     dt_ov_dx = params.timestep / params.cell_length[0];
     dt = params.timestep;
@@ -60,7 +60,7 @@ work_function (work_function)
     count_of_particles_to_insert_s1.resize(params.n_space[0]);
 }
 
-PSI1D_Injection::~PSI1D_Injection()
+PartSource1D_Emit::~PartSource1D_Emit()
 {
 
 }
@@ -68,7 +68,7 @@ PSI1D_Injection::~PSI1D_Injection()
 
 
 // Calculates the PSI for a given PSI object
-void PSI1D_Injection::performPSI(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime, ElectroMagn* fields)
+void PartSource1D_Emit::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime, ElectroMagn* fields)
 {
     Species   *s1;
     Particles *p1;
@@ -95,20 +95,20 @@ void PSI1D_Injection::performPSI(PicParams& params, SmileiMPI* smpi, vector<Spec
         nPartEmit = emitJ * dt_ov_dx / (weight_const*s1->species_param.charge);
     }
     else if(emitKind == "relEmit"){
-        PSI1D_Injection *relPsi_injection = static_cast<PSI1D_Injection*>(relPsi);
-        nPartEmit = relPsi_injection->nPartEmit * relEmit_factor;
+        PartSource1D_Emit *relPartSource_Emit = static_cast<PartSource1D_Emit*>(relPartSource);
+        nPartEmit = relPartSource_Emit->nPartEmit * relEmit_factor;
     }
     else if(emitKind == "regular"){
         if(emitJ != 0.0){
             nPartEmit = emitJ * dt_ov_dx / (weight_const*s1->species_param.charge);
             nPartEmit = abs((int)nPartEmit);
-            //MESSAGE("Injected number: "<<nPartEmit<<"  "<<emitJ<<"  "<<dt_ov_dx<<" "<<weight_const<<"  "<<s1->species_param.charge);
         }
+        //MESSAGE("Injected number: "<<nPartEmit<<"  "<<emitJ<<"  "<<dt_ov_dx<<" "<<weight_const<<"  "<<s1->species_param.charge);
     }
 
     // PSIs usually create new particles, insert new particles to the end of particles, no matter the boundary is left or right
     // not affect the indexes_of_particles_to_exchange before exchanging particles using MPI
-    if( psiPos=="left" && smpi1D->isWestern() || psiPos=="right" && smpi1D->isEastern() ) {
+    if( emitPos=="left" && smpi1D->isWestern() || emitPos=="right" && smpi1D->isEastern() ) {
         //MESSAGE("Befor particle number: "<<s1->getNbrOfParticles());
         emit(params, vecSpecies);
         unsigned int iPart = s1->getNbrOfParticles();
@@ -121,13 +121,13 @@ void PSI1D_Injection::performPSI(PicParams& params, SmileiMPI* smpi, vector<Spec
 }
 
 
-void PSI1D_Injection::emit(PicParams& params, vector<Species*>& vecSpecies){
+void PartSource1D_Emit::emit(PicParams& params, vector<Species*>& vecSpecies){
     Species   *s1;
     Particles *p1;
     s1 = vecSpecies[species1];
 
     new_particles.initialize(nPartEmit, params);
-    if(psiPos == "left"){
+    if(emitPos == "left"){
         count_of_particles_to_insert_s1.front() = nPartEmit;
         for(int iPart=0; iPart<nPartEmit; iPart++)
         {
@@ -146,7 +146,7 @@ void PSI1D_Injection::emit(PicParams& params, vector<Species*>& vecSpecies){
             new_particles.charge(iPart) = s1->species_param.charge;
         }
     }
-    else if(psiPos == "right"){
+    else if(emitPos == "right"){
         count_of_particles_to_insert_s1.back() = nPartEmit;
         for(int iPart=0; iPart<nPartEmit; iPart++)
         {
@@ -166,7 +166,7 @@ void PSI1D_Injection::emit(PicParams& params, vector<Species*>& vecSpecies){
        }
     }
     else {
-        ERROR("no such emitPos: " << psiPos);
+        ERROR("no such emitPos: " << emitPos);
     }
 
 }

@@ -104,6 +104,24 @@ class Laser(SmileiComponent):
     int_params_transv = []
     double_params_transv = []
 
+class PartSource(SmileiComponent):
+    """PartSource parameters"""
+    # species1 and species2 are unsigned integer type
+    species1 = None
+    species2 = None
+    PartSource_type = None
+    posEmit = None
+    nPartEmit = 0
+    tempEmit = 0.0
+    jEmit = 0.0
+    weight_const = 1.0
+    emitOffset = 1.0
+    a_FN = 1.5414e-6
+    b_FN = 6.8309e9
+    work_function = 4.5
+
+
+
 class Collisions(SmileiComponent):
     """Collisions parameters"""
     #species1 and species2 are list of unsigned integer

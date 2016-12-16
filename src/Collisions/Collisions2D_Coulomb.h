@@ -32,7 +32,7 @@ public:
     void calculate_debye_length(PicParams&,std::vector<Species*>&);
 
     //! Method called in the main smilei loop to apply collisions at each timestep
-    void collide(PicParams&,std::vector<Species*>&,int);
+    void collide(PicParams&, SmileiMPI* smpi, std::vector<Species*>&,int);
 
     virtual double cos_chi(double);
 private:

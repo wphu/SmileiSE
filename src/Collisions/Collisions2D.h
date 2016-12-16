@@ -20,7 +20,10 @@ class Collisions2D : public Collisions
 
 public:
     //! Constructor for Collisions between two species
-    Collisions2D(){};
+    Collisions2D(PicParams &params)
+    : Collisions(params)
+    {
+    };
     virtual ~Collisions2D(){};
 
 protected:

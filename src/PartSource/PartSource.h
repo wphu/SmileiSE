@@ -2,8 +2,8 @@
 PSI class
 */
 
-#ifndef PSI_H
-#define PSI_H
+#ifndef PARTSOURCE_H
+#define PARTSOURCE_H
 
 #include <vector>
 #include <string>
@@ -13,27 +13,27 @@ PSI class
 #include "Species.h"
 
 using namespace std;
-class PSI
+class PartSource
 {
 
 public:
     //! Constructor for PSI between two species
-    PSI(PicParams&, SmileiMPI*){};
-    virtual ~PSI(){};
+    PartSource(PicParams&, SmileiMPI*){};
+    virtual ~PartSource(){};
 
 
     //! Identification number of the PSI object
-    int n_PSI;
-
-    // PSI position : only left and right for 1D case
-    string psiPos;
+    int n_PartSource;
 
     // emit kind, regular or fieldEmit for injection PSI
     string emitKind;
 
+    // PSI position : only left and right for 1D case
+    string emitPos;
+
     // relevant PSI, emitting number of two species may be relevant
     // such as nPartEmit(A) = relCoff * nPartEmit(B)
-    PSI *relPsi;
+    PartSource *relPartSource;
     string relSpecies;
 
     // position offset of injected or sputtered particles
@@ -42,9 +42,9 @@ public:
     double emitTemp;
     double weight_const;
 
-    void setRelPsi(PSI* relevantPsi)
+    void setRelPartSource(PartSource* relevantPartSource)
     {
-        relPsi = relevantPsi;
+        relPartSource = relevantPartSource;
     }
 
     //! Group of the species numbers that are associated for PSI.
@@ -54,7 +54,7 @@ public:
     unsigned int species1, species2;
 
     //! Method called in the main smilei loop to apply PSI at each timestep
-    virtual void performPSI(PicParams&, SmileiMPI* smpi, std::vector<Species*>&,int, ElectroMagn* ){};
+    virtual void emitLoad(PicParams&, SmileiMPI* smpi, std::vector<Species*>&,int, ElectroMagn* ){};
 
     Particles new_particles;
     vector<int> count_of_particles_to_insert_s1;

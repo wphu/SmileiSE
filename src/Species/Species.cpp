@@ -463,7 +463,7 @@ void Species::dynamics(double time_dual, unsigned int ispec, ElectroMagn* EMfiel
         b_Jz = b_Jy + size_proj_buffer ;
         b_rho = b_Jz + size_proj_buffer ;
 
-#pragma omp for schedule(runtime)
+        psi_particles.clear();
         for (ibin = 0 ; ibin < (unsigned int)bmin.size() ; ibin++) {
 
             // reset all current-buffers
@@ -576,6 +576,17 @@ void Species::dynamics(double time_dual, unsigned int ispec, ElectroMagn* EMfiel
             (*Proj)(EMfields->rho_s[ispec], particles, iPart);
         }
 
+        // copy PSI particles to psi_particles, because after MPi particle exchanging
+        // the PSI particles will be erased
+        for(int iDirection=0; iDirection<indexes_of_particles_to_perform_psi.size(); iDirection++)
+        {
+            for(int iPart=0; iPart<indexes_of_particles_to_perform_psi[iDirection].size(); iPart++)
+            {
+                int iPart_psi = indexes_of_particles_to_perform_psi[iDirection][iPart];
+                particles.cp_particle(iPart_psi, psi_particles);
+            }
+        }
+
         free(b_Jx);
 
         for (unsigned int ithd=0 ; ithd<nrj_lost_per_thd.size() ; ithd++)
@@ -613,6 +624,8 @@ void Species::dump(std::ofstream& ofile)
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Sort particles
+// This method assume the particle only moving length is less than one cell_length
+// When a particle loss in collision , can not directly move it to bin end and then sort_part
 // ---------------------------------------------------------------------------------------------------------------------
 void Species::sort_part()
 {
@@ -828,6 +841,7 @@ int Species::createParticles(vector<unsigned int> n_space_to_create, vector<doub
     //MESSAGE(1,"density__end");
     int n_existing_particles = particles.size();
     particles.initialize(n_existing_particles+npart_effective, params, speciesNumber);
+    psi_particles.initialize(0, params);
 
 
     // define Maxwell-Juettner related quantities
@@ -957,6 +971,78 @@ int Species::createParticles(vector<unsigned int> n_space_to_create, vector<doub
     return npart_effective;
 
 }
+
+
+void Species::insert_particles_to_bins(Particles &insert_Particles, std::vector<int> &count_in_bins)
+{
+    int n_part_insert;
+    int begin_id = 0;
+    for(int ibin=0; ibin<bmax.size(); ibin++)
+    {
+        n_part_insert = count_in_bins[ibin];
+        insert_Particles.cp_particles(begin_id, n_part_insert, particles, bmax[ibin]);
+        bmax[ibin] += n_part_insert;
+        for (int ibin_inLoop=ibin+1 ; ibin_inLoop < bmax.size() ; ibin_inLoop++ ) {
+            bmax[ibin_inLoop] += n_part_insert ;
+            bmin[ibin_inLoop] = bmax[ibin_inLoop-1] ;
+        }
+        begin_id += n_part_insert;
+    }
+}
+void Species::erase_particles_from_bins(std::vector<int> &indexs_to_erase)
+{
+    int ii, iPart;
+    for (unsigned int ibin = 0 ; ibin < bmax.size() ; ibin++ ) {
+        //        DEBUG(ibin << " bounds " << bmin[ibin] << " " << bmax[ibin]);
+        ii = indexs_to_erase.size()-1;
+        if (ii >= 0) { // Push lost particles to the end of the bin
+            iPart = indexs_to_erase[ii];
+            while (iPart >= bmax[ibin] && ii > 0) {
+                ii--;
+                iPart = indexs_to_erase[ii];
+            }
+            while (iPart == bmax[ibin]-1 && iPart >= bmin[ibin] && ii > 0) {
+                bmax[ibin]--;
+                ii--;
+                iPart = indexs_to_erase[ii];
+            }
+            while (iPart >= bmin[ibin] && ii > 0) {
+                particles.overwrite_part(bmax[ibin]-1, iPart );
+                bmax[ibin]--;
+                ii--;
+                iPart = indexs_to_erase[ii];
+            }
+            if (iPart >= bmin[ibin] && iPart < bmax[ibin]) { //On traite la dernière particule (qui peut aussi etre la premiere)
+                particles.overwrite_part(bmax[ibin]-1, iPart );
+                bmax[ibin]--;
+            }
+        }
+    }
+    //Shift the bins in memory
+    //Warning: this loop must be executed sequentially. Do not use openMP here.
+    for (int unsigned ibin = 1 ; ibin < bmax.size() ; ibin++ ) { //First bin don't need to be shifted
+        ii = bmin[ibin]-bmax[ibin-1]; // Shift the bin in memory by ii slots.
+        iPart = min(ii,bmax[ibin]-bmin[ibin]); // Number of particles we have to shift = min (Nshift, Nparticle in the bin)
+        if(iPart > 0) particles.overwrite_part(bmax[ibin]-iPart,bmax[ibin-1],iPart);
+        bmax[ibin] -= ii;
+        bmin[ibin] = bmax[ibin-1];
+    }
+
+
+    // Delete useless Particles
+    //Theoretically, not even necessary to do anything as long you use bmax as the end of your iterator on particles.
+    //Nevertheless, you might want to free memory and have the actual number of particles
+    //really equal to the size of the vector. So we do:
+    particles.erase_particle_trail(bmax.back());
+    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+}
+
+
+
+
+
+
+
 
 /*
 void Species::updateMvWinLimits(double x_moved) {

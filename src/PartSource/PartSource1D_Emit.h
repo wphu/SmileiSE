@@ -1,24 +1,24 @@
 
-#ifndef PSI1D_INJECTION_H
-#define PSI1D_INJECTION_H
+#ifndef PARTSOURCE1D_EMIT_H
+#define PARTSOURCE1D_EMIT_H
 
 #include <vector>
-#include "PSI1D.h"
+#include "PartSource1D.h"
 
 
 using namespace std;
 
-class PSI1D_Injection : public PSI1D
+class PartSource1D_Emit : public PartSource1D
 {
 
 public:
     //! Constructor for Collisions between two species
-    PSI1D_Injection(
+    PartSource1D_Emit(
         PicParams& params,
         SmileiMPI* smpi,
-        string emitKind,
-        unsigned int psi_species1,
-        string psiPosition,
+        string emit_emitKind,
+        unsigned int emit_species1,
+        string emitPosition,
         unsigned int nPartEmit,
         double emitTemperature,
         double emitJ,
@@ -27,14 +27,14 @@ public:
         double a_FN,
         double b_FN,
         double work_function,
-        string relSpecies);
+        string emit_relSpecies);
 
-    ~PSI1D_Injection();
+    ~PartSource1D_Emit();
 
 
 
     //! Method called in the main smilei loop to apply collisions at each timestep
-    void performPSI(PicParams&, SmileiMPI* smpi, std::vector<Species*>&,int, ElectroMagn* );
+    void emitLoad(PicParams&, SmileiMPI* smpi, std::vector<Species*>&,int, ElectroMagn* );
 
     // emit particles
     void emit(PicParams&, vector<Species*>&);

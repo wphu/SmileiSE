@@ -14,13 +14,14 @@ using namespace std;
 
 
 // Constructor
-Collisions1D_Elastic::Collisions1D_Elastic(PicParams& param, vector<Species*>& vecSpecies, SmileiMPI* smpi,
+Collisions1D_Elastic::Collisions1D_Elastic(PicParams& params, vector<Species*>& vecSpecies, SmileiMPI* smpi,
                        unsigned int n_collisions,
                        vector<unsigned int> species_group1,
                        vector<unsigned int> species_group2,
                        double coulomb_log,
                        bool intra_collisions,
                        int debug_every)
+: Collisions1D(params)
 {
 
     n_collisions    = (n_collisions    );
@@ -34,7 +35,7 @@ Collisions1D_Elastic::Collisions1D_Elastic(PicParams& param, vector<Species*>& v
 
 
     // Calculate total number of bins
-    int nbins = vecSpecies[0]->bmin.size();
+    nbins = vecSpecies[0]->bmin.size();
     totbins = nbins;
     //MPI_Allreduce( smpi->isMaster()?MPI_IN_PLACE:&totbins, &totbins, 1, MPI_INTEGER, MPI_SUM, MPI_COMM_WORLD);
     MPI_Reduce( smpi->isMaster()?MPI_IN_PLACE:&totbins, &totbins, 1, MPI_INTEGER, MPI_SUM, 0, MPI_COMM_WORLD);
@@ -51,7 +52,7 @@ Collisions1D_Elastic::~Collisions1D_Elastic()
 
 
 // Calculates the collisions for a given Collisions1D object
-void Collisions1D_Elastic::collide(PicParams& params, vector<Species*>& vecSpecies, int itime)
+void Collisions1D_Elastic::collide(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime)
 {
 
 

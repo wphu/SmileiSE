@@ -7,6 +7,7 @@ class PicParams;
 class ElectroMagn;
 class Solver;
 
+// EC: Extern Circuit
 class ElectroMagnBC1D_EC : public ElectroMagnBC {
 public:
 	ElectroMagnBC1D_EC(PicParams&);

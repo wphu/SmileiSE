@@ -13,6 +13,7 @@ t0 = 1.0e-12
 Lsim = [500.*l0]	# length of the simulation
 
 
+
 #Tsim = 10000.*t0			# duration of the simulation
 Tsim = 20000.*t0			# duration of the simulation
 
@@ -95,7 +96,7 @@ Species(
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 200,
+	n_part_per_cell = 0,
 	c_part_max = 1.0,
 	mass = 9.109382616e-31,
 	charge = -1.6021766208e-19,
@@ -111,7 +112,7 @@ Species(
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 100,
+	n_part_per_cell = 0,
 	c_part_max = 1.0,
 	mass = 2.0 * 1.67262158e-27,
 	charge = 1.6021766208e-19,
@@ -128,7 +129,7 @@ Species(
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 100,
+	n_part_per_cell = 0,
 	c_part_max = 1.0,
 	mass = 3 * 1.67262158e-27,
 	charge = 1.6021766208e-19,
@@ -142,42 +143,13 @@ Species(
 
 
 
-# COLLISIONS
-# species1    = list of strings, the names of the first species that collide
-# species2    = list of strings, the names of the second species that collide
-#               (can be the same as species1)
-# coulomb_log = float, Coulomb logarithm. If negative or zero, then automatically computed.
-'''
-Collisions(
-	species1 = ["e"],
-	species2 = ["D1"],
-	coulomb_log = 5,
-	collisions_type = "coulomb"
-)
-Collisions(
-	species1 = ["e"],
-	species2 = ["e"],
-	coulomb_log = 1,
-	collisions_type = "coulomb"mpiexec -genv I_MPI_DEVICE rdssm -n 10 ../../src/smilei tst1d_simple.py
-)
-Collisions(
-	species1 = ["D1"],
-	species2 = ["D1"],
-	coulomb_log = 1,
-	collisions_type = "coulomb"
-)
-'''
-
-
-
-# PSIs
+# PartSource
 # species1    = list of strings, the names of the first species that performPSI
 # species2    = list of strings, the names of the second species that performPSI
 #               (can be the same as species1)
-'''
-PSI(
+PartSource(
 	species1 = ["e"],
-	PSI_type = "Injection",
+	PartSource_type = "Emit",
 	emitKind = "regular",
 	emitPos = "left",
 	emitTemp = 1.0,
@@ -185,9 +157,25 @@ PSI(
 	a_FN = 0.0,
 	b_FN = 0.0,
 	work_function = 0.0,
-	emitJ = 5.0,
+	emitJ = 5.0e5,
 	#nPartEmit = 10,
 	relSpecies = "D1",
 
 )
-'''
+
+
+PartSource(
+	species1 = ["D1"],
+	PartSource_type = "Emit",
+	emitKind = "regular",
+	emitPos = "left",
+	emitTemp = 1.0,
+	emitOffset = 0.5,
+	a_FN = 0.0,
+	b_FN = 0.0,
+	work_function = 0.0,
+	emitJ = 5.0e5,
+	#nPartEmit = 10,
+	relSpecies = "D1",
+
+)

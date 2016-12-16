@@ -40,6 +40,8 @@ Several collision types can be defined. For each type, add a group "Collisions()
 #include "Species.h"
 #include "H5.h"
 
+class Particles;
+
 using namespace std;
 
 class Collisions
@@ -47,7 +49,15 @@ class Collisions
 
 public:
     //! Constructor for Collisions between two species
-    Collisions(){};
+    Collisions(PicParams &params)
+    {
+        const_e = params.const_e;
+        timestep = params.timestep;
+
+        new_particles1.initialize(0, params);
+        new_particles2.initialize(0, params);
+        new_particles3.initialize(0, params);
+    };
     virtual ~Collisions(){};
 
     //! Identification number of the Collisions object
@@ -58,6 +68,34 @@ public:
     //> species_group1 (2,3) only include one species for other collision.
     std::vector<unsigned int> species_group1, species_group2, species_group3;
 
+    // record the lost particle indexes because of collision,
+    // when all collisions are done, erase all lost particles at the same time
+    std::vector<int> indexes_of_particles_to_erase_s1;
+    std::vector<int> indexes_of_particles_to_erase_s2;
+    std::vector<int> indexes_of_particles_to_erase_s3;
+
+    std::vector<int> count_of_particles_to_erase_s1;
+    std::vector<int> count_of_particles_to_erase_s2;
+    std::vector<int> count_of_particles_to_erase_s3;
+
+
+    // record the insert particle indexes because of collision,
+    // when all collisions are done, insert all new particles to bins at the same time
+    std::vector<int> indexes_of_particles_to_insert_s1;
+    std::vector<int> indexes_of_particles_to_insert_s2;
+    std::vector<int> indexes_of_particles_to_insert_s3;
+
+    std::vector<int> count_of_particles_to_insert_s1;
+    std::vector<int> count_of_particles_to_insert_s2;
+    std::vector<int> count_of_particles_to_insert_s3;
+
+    //
+    Particles new_particles1;
+    Particles new_particles2;
+    Particles new_particles3;
+
+
+
     //! True if collisions inside a group of species, False if collisions between different groups of species
     bool intra_collisions;
 
@@ -65,7 +103,7 @@ public:
     int debug_every;
 
     //! Method called in the main smilei loop to apply collisions at each timestep
-    virtual void collide(PicParams&,std::vector<Species*>&,int){};
+    virtual void collide(PicParams&, SmileiMPI* smpi, std::vector<Species*>&,int){};
 
     virtual void readCrossSection(){
         ifstream inFile;
@@ -74,7 +112,8 @@ public:
         inFile.open(crossSection_fileName.c_str());
         while(inFile >> energy && inFile >> cross_section){
             crossSection[0].push_back(energy);
-            crossSection[1].push_back(cross_section);
+            crossSection[1].push_back(cross_section*2.0e4);
+            //crossSection[1].push_back(cross_section);
         }
         inFile.close();
     };
@@ -103,6 +142,7 @@ public:
 
 
     int totbins;
+    int nbins;
     int start;
     double norm_temperature;
     double const_e;

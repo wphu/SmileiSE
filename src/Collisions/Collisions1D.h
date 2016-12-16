@@ -20,7 +20,10 @@ class Collisions1D : public Collisions
 
 public:
     //! Constructor for Collisions between two species
-    Collisions1D(){};
+    Collisions1D(PicParams &params)
+    : Collisions(params)
+    {
+    };
     virtual ~Collisions1D(){};
 private:
     double dx_inv_;

@@ -14,13 +14,14 @@ using namespace std;
 
 
 // Constructor
-Collisions1D_Coulomb::Collisions1D_Coulomb(PicParams& param, vector<Species*>& vecSpecies, SmileiMPI* smpi,
+Collisions1D_Coulomb::Collisions1D_Coulomb(PicParams& params, vector<Species*>& vecSpecies, SmileiMPI* smpi,
                        unsigned int n_col,
                        vector<unsigned int> sg1,
                        vector<unsigned int> sg2,
                        double coulomb_logarithm,
                        bool intra_col,
                        int debug_every_temp)
+: Collisions1D(params)
 {
 
     n_collisions    = n_col;
@@ -129,7 +130,7 @@ void Collisions1D_Coulomb::calculate_debye_length(PicParams& params, vector<Spec
 
 // Calculates the collisions for a given Collisions1D object
 // the code corresponds to the ref: improved modeing of relativistic collisions and collisional ionization in paritcle in cell codes
-void Collisions1D_Coulomb::collide(PicParams& params, vector<Species*>& vecSpecies, int itime)
+void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime)
 {
 
     unsigned int nbins = vecSpecies[0]->bmin.size(); // number of bins

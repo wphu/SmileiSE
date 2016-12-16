@@ -29,6 +29,7 @@
 #include "GridFactory.h"
 
 #include "SpeciesFactory.h"
+#include "PartSourceFactory.h"
 #include "CollisionsFactory.h"
 #include "ElectroMagnFactory.h"
 #include "InterpolatorFactory.h"
@@ -140,6 +141,11 @@ int main (int argc, char* argv[])
     Solver* solver = SolverFactory::create(params, grid, smpi);
 
 
+    TITLE("Creating PartSource");
+    vector<PartSource*> vecPartSource = PartSourceFactory::create(params, input_data, vecSpecies, smpi);
+    smpi->barrier();
+
+
     // Initialize the collisions (vector of collisions)
     // ------------------------------------------------------------------------------------
     TITLE("Creating Collisions");
@@ -197,17 +203,17 @@ int main (int argc, char* argv[])
         time_prim += params.timestep;
         time_dual += params.timestep;
 
-        // send message at given time-steps
-        // --------------------------------
+        //> add Particle Source: emit from boundary or load in some region
+        for (unsigned int iPS=0 ; iPS<vecPartSource.size(); iPS++)
+        {
+            vecPartSource[iPS]->emitLoad(params,smpi,vecSpecies,itime, EMfields);
+        }
 
         // apply collisions if requested
         // -----------------------------
         for (unsigned int icoll=0 ; icoll<vecCollisions.size(); icoll++)
         {
-            //if (vecCollisions[icoll]->debye_length_required){
-            //    vecCollisions[icoll]->calculate_debye_length(params,vecSpecies);
-            //}
-            //vecCollisions[icoll]->collide(params,vecSpecies,itime);
+            vecCollisions[icoll]->collide(params, smpi, vecSpecies,itime);
         }
 
 
@@ -224,9 +230,11 @@ int main (int argc, char* argv[])
         timer[1].restart();
         for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
         {
+            //MESSAGE("move particle111 ===="<<ispec);
             EMfields->restartRhoJs(ispec, 0);
             vecSpecies[ispec]->dynamics(time_dual, ispec, EMfields, Interp, Proj, smpi, params);
             smpi->barrier();
+            //MESSAGE("move particle222 ===="<<ispec);
             //int totalPtcNum;
             //totalPtcNum = smpi->globalNbrParticles(vecSpecies[ispec]);
             //MESSAGE(vecSpecies[ispec]->species_param.species_type<<" Number is: "<< totalPtcNum);
@@ -235,27 +243,23 @@ int main (int argc, char* argv[])
         }
         timer[1].update();
 
+        timer[2].restart();
+        for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
+        {
+            // Loop on dims to manage exchange in corners
+            for ( int iDim = 0 ; iDim<(int)params.nDim_particle ; iDim++ )
+            {
+                smpi->exchangeParticles(vecSpecies[ispec], ispec, params, tid, iDim);
+            }
+            vecSpecies[ispec]->sort_part(); // Should we sort test particles ?? (JD)
+        }
+
         //> perform PSI (Plasma Surface Interaction) processes, such as injection, sputtering, secondary electron emission
-        // PSIs usually create new particles, insert new particles to the end of particles,
-        // not affect the indexes_of_particles_to_exchange before exchanging particles using MPI
+        // PSIs usually create new particles, insert new particles to the end of each bins,
         for (unsigned int ipsi=0 ; ipsi<vecPSI.size(); ipsi++)
         {
             vecPSI[ipsi]->performPSI(params,smpi,vecSpecies,itime, EMfields);
         }
-
-        timer[2].restart();
-        for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
-        {
-            if ( 1){
-                // Loop on dims to manage exchange in corners
-                for ( int iDim = 0 ; iDim<(int)params.nDim_particle ; iDim++ )
-                {
-                    smpi->exchangeParticles(vecSpecies[ispec], ispec, params, tid, iDim);
-                }
-                vecSpecies[ispec]->sort_part(); // Should we sort test particles ?? (JD)
-            }
-        }
-
 
         timer[2].update();
         smpi->barrier();

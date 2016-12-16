@@ -14,13 +14,14 @@ using namespace std;
 
 
 // Constructor
-Collisions2D_Ionization::Collisions2D_Ionization(PicParams& param, vector<Species*>& vecSpecies, SmileiMPI* smpi,
+Collisions2D_Ionization::Collisions2D_Ionization(PicParams& params, vector<Species*>& vecSpecies, SmileiMPI* smpi,
                        unsigned int n_collisions,
                        vector<unsigned int> species_group1,
                        vector<unsigned int> species_group2,
                        double coulomb_log,
                        bool intra_collisions,
                        int debug_every)
+: Collisions2D(params)
 {
 
     n_collisions    = (n_collisions    );
@@ -34,7 +35,7 @@ Collisions2D_Ionization::Collisions2D_Ionization(PicParams& param, vector<Specie
 
 
     // Calculate total number of bins
-    int nbins = vecSpecies[0]->bmin.size();
+    nbins = vecSpecies[0]->bmin.size();
     totbins = nbins;
     //MPI_Allreduce( smpi->isMaster()?MPI_IN_PLACE:&totbins, &totbins, 1, MPI_INTEGER, MPI_SUM, MPI_COMM_WORLD);
     MPI_Reduce( smpi->isMaster()?MPI_IN_PLACE:&totbins, &totbins, 1, MPI_INTEGER, MPI_SUM, 0, MPI_COMM_WORLD);
@@ -51,7 +52,7 @@ Collisions2D_Ionization::~Collisions2D_Ionization()
 
 
 // Calculates the collisions for a given Collisions2D object
-void Collisions2D_Ionization::collide(PicParams& params, vector<Species*>& vecSpecies, int itime)
+void Collisions2D_Ionization::collide(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime)
 {
 
     unsigned int nbins = vecSpecies[0]->bmin.size(); // number of bins

@@ -30,19 +30,19 @@ public:
 
 
     double cross_section(double ke);
-    void calculate_scatter_velocity(double ke, double v_magnitude, double mass1, double mass2,
+    void calculate_scatter_velocity(double v_magnitude, double mass1, double mass2,
                                     vector<double>& momentum_unit, vector<double>& momentum_temp);
 
 
     //! Method called in the main smilei loop to apply collisions at each timestep
-    void collide(PicParams&,std::vector<Species*>&,int);
+    void collide(PicParams&, SmileiMPI* smpi, std::vector<Species*>&,int);
 
     // get the maximum value of crossSection*velocity
     double maxCV(Particles* particles, double eMass);
 
 private:
     //>the ionization threshold energy
-    double energy_ion;
+    double energy_ionization_threshold;
 
 };
 

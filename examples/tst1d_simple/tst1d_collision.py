@@ -13,6 +13,7 @@ t0 = 1.0e-12
 Lsim = [500.*l0]	# length of the simulation
 
 
+
 #Tsim = 10000.*t0			# duration of the simulation
 Tsim = 20000.*t0			# duration of the simulation
 
@@ -95,7 +96,7 @@ Species(
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 200,
+	n_part_per_cell = 100,
 	c_part_max = 1.0,
 	mass = 9.109382616e-31,
 	charge = -1.6021766208e-19,
@@ -107,15 +108,15 @@ Species(
 )
 
 Species(
-	species_type = 'D1',
+	species_type = 'Cu',
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
 	n_part_per_cell = 100,
 	c_part_max = 1.0,
-	mass = 2.0 * 1.67262158e-27,
-	charge = 1.6021766208e-19,
-	nb_density = 0.5e19,
+	mass = 63.54 * 1.67262158e-27,
+	charge = 0.0,
+	nb_density = 1.0e19,
 	temperature = [20.0],
 	time_frozen = 0.0,
 	bc_part_type_west  = 'supp',
@@ -124,21 +125,36 @@ Species(
 
 
 Species(
-	species_type = 'T1',
+	species_type = 'Cu1',
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 100,
+	n_part_per_cell = 0,
 	c_part_max = 1.0,
-	mass = 3 * 1.67262158e-27,
+	mass = 63.54 * 1.67262158e-27,
 	charge = 1.6021766208e-19,
-	nb_density = 0.5e19,
+	nb_density = 1.0e19,
 	temperature = [20.0],
 	time_frozen = 0.0,
 	bc_part_type_west  = 'supp',
 	bc_part_type_east  = 'supp',
 )
 
+Species(
+	species_type = 'Cu1_constant',
+	initPosition_type = 'random',
+	initMomentum_type = 'maxwell',
+	ionization_model = 'none',
+	n_part_per_cell = 100,
+	c_part_max = 1.0,
+	mass = 63.54 * 1.67262158e-27,
+	charge = 1.6021766208e-19,
+	nb_density = 1.0e19,
+	temperature = [20.0],
+	time_frozen = 0.0,
+	bc_part_type_west  = 'supp',
+	bc_part_type_east  = 'supp',
+)
 
 
 
@@ -168,26 +184,10 @@ Collisions(
 )
 '''
 
-
-
-# PSIs
-# species1    = list of strings, the names of the first species that performPSI
-# species2    = list of strings, the names of the second species that performPSI
-#               (can be the same as species1)
-'''
-PSI(
+Collisions(
 	species1 = ["e"],
-	PSI_type = "Injection",
-	emitKind = "regular",
-	emitPos = "left",
-	emitTemp = 1.0,
-	emitOffset = 0.5,
-	a_FN = 0.0,
-	b_FN = 0.0,
-	work_function = 0.0,
-	emitJ = 5.0,
-	#nPartEmit = 10,
-	relSpecies = "D1",
-
+	species2 = ["Cu"],
+	species3 = ["Cu1"],
+	collisions_type = "ionization",
+	crossSection_fileName = "Ionization_Cu_to_Cu+1.dat"
 )
-'''

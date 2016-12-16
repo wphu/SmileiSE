@@ -14,11 +14,12 @@ using namespace std;
 
 
 // Constructor
-Collisions2D_ChargeExchange::Collisions2D_ChargeExchange(PicParams& param, vector<Species*>& vecSpecies, SmileiMPI* smpi,
+Collisions2D_ChargeExchange::Collisions2D_ChargeExchange(PicParams& params, vector<Species*>& vecSpecies, SmileiMPI* smpi,
                        unsigned int n_col,
                        vector<unsigned int> sg1,
                        vector<unsigned int> sg2,
                        string CS_fileName)
+: Collisions2D(params)
 {
 
     n_collisions    = n_col;
@@ -30,7 +31,7 @@ Collisions2D_ChargeExchange::Collisions2D_ChargeExchange(PicParams& param, vecto
 
 
     // Calculate total number of bins
-    int nbins = vecSpecies[0]->bmin.size();
+    nbins = vecSpecies[0]->bmin.size();
     totbins = nbins;
     //MPI_Allreduce( smpi->isMaster()?MPI_IN_PLACE:&totbins, &totbins, 1, MPI_INTEGER, MPI_SUM, MPI_COMM_WORLD);
     MPI_Reduce( smpi->isMaster()?MPI_IN_PLACE:&totbins, &totbins, 1, MPI_INTEGER, MPI_SUM, 0, MPI_COMM_WORLD);
@@ -47,7 +48,7 @@ Collisions2D_ChargeExchange::~Collisions2D_ChargeExchange()
 
 
 // Calculates the collisions for a given Collisions2D object
-void Collisions2D_ChargeExchange::collide(PicParams& params, vector<Species*>& vecSpecies, int itime)
+void Collisions2D_ChargeExchange::collide(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime)
 {
 
     unsigned int nbins = vecSpecies[0]->bmin.size(); // number of bins

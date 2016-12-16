@@ -17,6 +17,7 @@ using namespace std;
 Collisions1D_DSMC::Collisions1D_DSMC(PicParams& params, vector<Species*>& vecSpecies, SmileiMPI* smpi,
                        unsigned int n_col,
                        vector< vector<unsigned int> > sg)
+: Collisions1D(params)
 {
 
     n_collisions    = n_col;
@@ -26,7 +27,7 @@ Collisions1D_DSMC::Collisions1D_DSMC(PicParams& params, vector<Species*>& vecSpe
 
 
     // Calculate total number of bins In The Current process
-    int nbins = vecSpecies[0]->bmin.size();
+    nbins = vecSpecies[0]->bmin.size();
     totbins = nbins;
 
     NumSpGroups = species_group.size();
@@ -55,7 +56,7 @@ Collisions1D_DSMC::~Collisions1D_DSMC()
 }
 
 // Calculates the collisions for a given Collisions1D object
-void Collisions1D_DSMC::collide(PicParams& params, vector<Species*>& vecSpecies, int itime)
+void Collisions1D_DSMC::collide(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime)
 {
     INDEXM(vecSpecies);
     COLLM(vecSpecies);

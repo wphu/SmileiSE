@@ -260,9 +260,9 @@ public:
 	    }
 
 	    // Needs wavelength_SI to be defined
-	    if (numcollisions > 0)
-	        if (params.wavelength_SI <= 0.)
-	            ERROR("The parameter `wavelength_SI` needs to be defined and positive in order to compute collisions");
+	    //if (numcollisions > 0)
+	    //    if (params.wavelength_SI <= 0.)
+	    //        ERROR("The parameter `wavelength_SI` needs to be defined and positive in order to compute collisions");
 
 	    // pass the variable "debye_length_required" into the Collision class
 
