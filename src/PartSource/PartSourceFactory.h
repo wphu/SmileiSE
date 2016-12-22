@@ -2,6 +2,7 @@
 #define PARTSOURCEFACTORY_H
 
 #include "PartSource1D_Emit.h"
+#include "PartSource1D_Load.h"
 #include "InputData.h"
 //#include "PartSource2D_Emit.h"
 
@@ -38,6 +39,14 @@ public:
 		double emitJ;
 		unsigned int nPartEmit;
 		string relSpecies;
+
+		string loadKind;
+		int loadStep;
+		double loadDensity;
+	    double loadTemperature;
+		double loadDn;
+	    double loadPos_start;
+	    double loadPos_end;
 
 
 	    bool intra, debye_length_required = false;
@@ -110,10 +119,48 @@ public:
 
 			}
 
+			else if(params.geometry == "1d3v" && PartSource_type == "Load"){
+				MESSAGE("Parameters for PartSource #" << n_PartSource << " :");
 
+
+		        ifile.extract("species1",sg1,"PartSource",n_PartSource);
+		        // Obtain the lists of species numbers from the lists of species names.
+		        sgroup1 = params.FindSpecies(sg1);
+		        // Each group of species sgroup1 and sgroup2 must not be empty
+		        if (sgroup1.size()==0) ERROR("No valid `species1` requested in PSI #" << n_PartSource);
+
+		        ifile.extract("loadKind",loadKind,"PartSource",n_PartSource);
+				ifile.extract("loadStep",loadStep,"PartSource",n_PartSource);
+
+		        loadDensity = 0.0; // default
+		        ifile.extract("loadDensity",loadDensity,"PartSource",n_PartSource);
+
+				loadTemperature = 0.0; // default
+		        ifile.extract("loadTemperature",loadTemperature,"PartSource",n_PartSource);
+
+				loadDn= 0.0; // default
+		        ifile.extract("loadDn",loadDn,"PartSource",n_PartSource);
+
+				loadPos_start = 0.0; // default
+				ifile.extract("loadPos_start",loadPos_start,"PartSource",n_PartSource);
+
+				loadPos_end = 0.0; // default
+				ifile.extract("loadPos_end",loadPos_end,"PartSource",n_PartSource);
+
+		        // Print PSI parameters
+		        mystream.str(""); // clear
+		        for (unsigned int rs=0 ; rs<sgroup1.size() ; rs++) mystream << " #" << sgroup1[rs];
+		        MESSAGE(1,"First  group of species :" << mystream.str());
+
+		        // Add new PSI objects to vector
+		        //vecPartSource.push_back( new PartSource1D_Load(params, smpi, sgroup1[0], loadDensity, loadTemperature, loadPos_start, loadPos_end) );
+				vecPartSource.push_back( new PartSource1D_Load(params, smpi, sgroup1[0], loadKind, loadStep, loadDn,loadDensity,
+				loadTemperature, loadPos_start, loadPos_end) );
+
+			}
 
 			else {
-				ERROR("no PSI_type match: "<<PartSource_type);
+				ERROR("no PartSource_type match: "<<PartSource_type);
 			}
 	    }
 

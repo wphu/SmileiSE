@@ -111,7 +111,6 @@ void PartSource1D_Emit::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
     if( emitPos=="left" && smpi1D->isWestern() || emitPos=="right" && smpi1D->isEastern() ) {
         //MESSAGE("Befor particle number: "<<s1->getNbrOfParticles());
         emit(params, vecSpecies);
-        unsigned int iPart = s1->getNbrOfParticles();
         s1->insert_particles_to_bins(new_particles, count_of_particles_to_insert_s1);
         new_particles.clear();
         //MESSAGE("Now particle number: "<<s1->getNbrOfParticles());

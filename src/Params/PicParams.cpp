@@ -156,6 +156,11 @@ PicParams::PicParams(InputData &ifile) {
         clrw = 1;
     }
 
+    if ( !ifile.extract("externB", externB)  ) {
+        ERROR("Extern magnetic field is not defined" );
+    }
+
+
 
     // ------------------
     // Species properties

@@ -118,9 +118,9 @@ isNorthern(smpi->isNorthern())
     Ex_->put_to(0.0);
     Ey_->put_to(0.0);
     Ez_->put_to(0.0);
-    Bx_->put_to(0.0);
-    By_->put_to(0.0);
-    Bz_->put_to(0.0);
+    Bx_->put_to(params.externB[0]);
+    By_->put_to(params.externB[0]);
+    Bz_->put_to(params.externB[0]);
     Bx_m->put_to(0.0);
     By_m->put_to(0.0);
     Bz_m->put_to(0.0);

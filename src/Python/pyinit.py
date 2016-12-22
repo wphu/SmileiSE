@@ -119,6 +119,13 @@ class PartSource(SmileiComponent):
     a_FN = 1.5414e-6
     b_FN = 6.8309e9
     work_function = 4.5
+    loadKind = None
+    loadDensity = 0.0
+    loadTemperature = 0.0
+    loadDn = 0.0
+    loadPos_start = 0.0
+    loadPos_end = 0.0
+    loadStep = 1
 
 
 

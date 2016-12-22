@@ -161,6 +161,10 @@ public:
     //! sets nDim_particle and nDim_field based on the geometry
     void setDimensions();
 
+    //! Method to find the numbers of requested species, sorted, and duplicates removed
+    std::vector<unsigned int> FindSpecies(std::vector<std::string>);
+
+
     //! defines the geometry of the simulation
     std::string geometry;
 
@@ -279,8 +283,8 @@ public:
     //! global number of time exits (it will be used if not specified in various diags/fields)
     unsigned int global_every;
 
-    //! Method to find the numbers of requested species, sorted, and duplicates removed
-    std::vector<unsigned int> FindSpecies(std::vector<std::string>);
+    // extern magnetic fields
+    std::vector<double> externB;
 
     // some physics constants
     double const_c;

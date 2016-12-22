@@ -55,6 +55,9 @@ bc_em_type_x = ['silver-muller']
 bc_em_type_y = ['silver-muller']
 bc_em_value_x = [0.0, 0.0]
 
+externB = [0.0, 0.0, 0.0]
+
+
 #Topology:
 #number_of_procs: Number of MPI processes in each direction.
 #clrw: width of a cluster in number of cell. Warning: clrw must divide nspace_win_x.

@@ -192,6 +192,15 @@ void Species::initWeight(unsigned int nPart, unsigned int ispec, unsigned int iP
     }
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+// For all (np) particles in a mesh initialize its numerical weight (equivalent to constant)
+// ---------------------------------------------------------------------------------------------------------------------
+void Species::initWeight_constant(unsigned int nPart, unsigned int ispec, unsigned int iPart, double weight_const)
+{
+    for (unsigned  p= iPart; p<iPart+nPart; p++) {
+        particles.weight(p) = weight_const;
+    }
+}
 
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -292,19 +301,15 @@ void Species::initMomentum(unsigned int nPart, unsigned int iPart, double *temp,
         {
             double psm = sqrt(2.0 * temp[0] * params.const_e / species_param.mass) * sqrt(-log((double)rand() / RAND_MAX));
 
-            double theta = M_PI*(double)rand() / RAND_MAX;
             double phi   = 2.0 * M_PI*(double)rand() / RAND_MAX;
-            particles.momentum(0,p) = psm*sin(theta)*cos(phi);
-            //particles.momentum(1,p) = psm*sin(theta)*sin(phi);
-            //particles.momentum(2,p) = psm*cos(theta);
+            particles.momentum(0,p) = psm*sin(phi);
 
-            theta = M_PI*(double)rand() / RAND_MAX;
             phi   = 2.0 * M_PI*(double)rand() / RAND_MAX;
-            particles.momentum(1,p) = psm*sin(theta)*cos(phi);
+            particles.momentum(1,p) = psm*sin(phi);
 
-            theta = M_PI*(double)rand() / RAND_MAX;
             phi   = 2.0 * M_PI*(double)rand() / RAND_MAX;
-            particles.momentum(2,p) = psm*sin(theta)*cos(phi);
+            particles.momentum(2,p) = psm*sin(phi);
+
         }
 
 

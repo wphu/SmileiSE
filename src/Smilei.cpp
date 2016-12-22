@@ -197,7 +197,7 @@ int main (int argc, char* argv[])
     for (unsigned int itime=stepStart+1 ; itime <= stepStop ; itime++)
     {
 
-        //MESSAGE("timestep = " << itime);
+        MESSAGE("timestep = " << itime);
         // calculate new times
         // -------------------
         time_prim += params.timestep;
@@ -332,12 +332,16 @@ int main (int argc, char* argv[])
     delete Interp;
     smpi->barrier();
     delete EMfields;
+
+    for (unsigned int iPS=0 ; iPS<vecPartSource.size(); iPS++) delete vecPartSource[iPS];
+    vecPartSource.clear();
+
     for(unsigned int i=0; i<vecCollisions.size(); i++) delete vecCollisions[i];
     vecCollisions.clear();
 
     for (unsigned int ispec=0 ; ispec<vecSpecies.size(); ispec++) delete vecSpecies[ispec];
     vecSpecies.clear();
-
+    smpi->barrier();
     TITLE("END");
     delete sio;
     delete smpi;

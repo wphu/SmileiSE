@@ -59,6 +59,8 @@ sim_time = Tsim
 bc_em_type_x = ['Dirichlet', 'Dirichlet']
 bc_em_value_x = [0.0, 0.0]
 
+externB = [0.0, 0.0, 0.0]
+
 
 #Topology:
 #number_of_procs: Number of MPI processes in each direction.

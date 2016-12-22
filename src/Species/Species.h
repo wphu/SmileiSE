@@ -65,6 +65,9 @@ public:
     //! Method used to initialize the Particle weight (equivalent to a charge density) in a given cell
     void initWeight(unsigned int, unsigned int, unsigned int, double);
 
+    // Method used to initialize the Particles weight by a constant
+    void initWeight_constant(unsigned int nPart, unsigned int ispec, unsigned int iPart, double weight_const);
+
     //! Method used to initialize the Particle charge
     void initCharge(unsigned int, unsigned int, unsigned int, double);
 

@@ -19,8 +19,8 @@ public:
     void operator() (ElectroMagn* EMfields, Particles &particles, int ipart, LocalFields* ELoc, LocalFields* BLoc, LocalFields* JLoc, double* RhoLoc);
 
     inline double compute( double* coeff, Field1D* f, int idx) {
-	double interp_res =  coeff[0] * (*f)(idx)   + coeff[1] * (*f)(idx+1);
-	return interp_res;
+    	double interp_res =  coeff[0] * (*f)(idx)   + coeff[1] * (*f)(idx+1);
+    	return interp_res;
     };
 
 private:
