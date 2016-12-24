@@ -17,6 +17,7 @@ public:
     PicParams& params,
     SmileiMPI* smpi,
     unsigned int load_species1,
+    vector<double> mean_vel,
     string load_kind,
     int load_step,
     double load_dn,

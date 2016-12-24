@@ -15,6 +15,7 @@ public:
     Interpolator1D1Order(PicParams&, SmileiMPI*);
     ~Interpolator1D1Order(){};
 
+    void operator() (ElectroMagn* EMfields, Particles &particles, int ipart, LocalFields* ELoc);
     void operator() (ElectroMagn* EMfields, Particles &particles, int ipart, LocalFields* ELoc, LocalFields* BLoc);
     void operator() (ElectroMagn* EMfields, Particles &particles, int ipart, LocalFields* ELoc, LocalFields* BLoc, LocalFields* JLoc, double* RhoLoc);
 

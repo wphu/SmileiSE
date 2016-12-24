@@ -116,14 +116,14 @@ isEastern(smpi->isEastern())
     Ey_->put_to(0.0);
     Ez_->put_to(0.0);
     Bx_->put_to(params.externB[0]);
-    By_->put_to(params.externB[0]);
-    Bz_->put_to(params.externB[0]);
+    By_->put_to(params.externB[1]);
+    Bz_->put_to(params.externB[2]);
     Bx_m->put_to(0.0);
     By_m->put_to(0.0);
     Bz_m->put_to(0.0);
     rho_->put_to(0.0);
 
-
+    MESSAGE("B "<<params.externB[0]<<" "<<params.externB[1]<<" "<<params.externB[2]);
 
     // Charge currents currents and density for each species
 

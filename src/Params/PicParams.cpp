@@ -317,6 +317,12 @@ void PicParams::readSpecies(InputData &ifile) {
             ERROR("For species #" << ispec << ", n_part_per_cell not defined.");
         }
 
+        // Number of particles per cell for weight
+        if( !ifile.extract("n_part_per_cell_for_weight",tmpSpec.n_part_per_cell_for_weight ,"Species",ispec) ) {
+            ERROR("For species #" << ispec << ", n_part_per_cell_for_weight not defined.");
+        }
+
+
         // Charge
         if( !extractOneProfile(ifile, "charge", tmpSpec.charge_profile, ispec) )
             ERROR("For species #" << ispec << ", charge not found or not understood");
@@ -473,12 +479,8 @@ void PicParams::computeSpecies()
             species_param[ispec].thermalVelocity[i]=sqrt(2.0*species_param[ispec].thermT[i]*const_e/species_param[ispec].mass);
             species_param[ispec].thermalMomentum[i]=species_param[ispec].mass * species_param[ispec].thermalVelocity[i];
         }
-        if(species_param[ispec].n_part_per_cell == 0.0){
-            species_param[ispec].weight = species_param[ispec].density / 100;
-        }
-        else {
-            species_param[ispec].weight = species_param[ispec].density / species_param[ispec].n_part_per_cell;
-        }
+
+        species_param[ispec].weight = species_param[ispec].density / species_param[ispec].n_part_per_cell_for_weight;
 
 
     }//end loop on all species (ispec)

@@ -8,14 +8,14 @@
 #
 import math
 
-l0 = 2.0e-5     # nu.norm_l is reference time, the value's unit before / is m (SI)
+l0 = 2.5e-5     # nu.norm_l is reference time, the value's unit before / is m (SI)
 t0 = 1.0e-12
-Lsim = [500.*l0]	# length of the simulation
+Lsim = [6000.*l0]	# length of the simulation
 
 
 
 #Tsim = 10000.*t0			# duration of the simulation
-Tsim = 20000.*t0			# duration of the simulation
+Tsim = 100000.*t0			# duration of the simulation
 
 #> number of timestep of incrementing averaged electromagnetic fields
 ntime_step_avg = 10000
@@ -60,7 +60,12 @@ sim_time = Tsim
 bc_em_type_x = ['Dirichlet', 'Dirichlet']
 bc_em_value_x = [0.0, 0.0]
 
-externB = [0.0, 0.0, 0.0]
+B = 2.4
+angle = 6.0 * math.pi / 180.0
+Bx = B * math.sin(angle)
+By = B * math.cos(angle)
+Bz = 0.0
+externB = [Bx, By, Bz]
 
 #Topology:
 #number_of_procs: Number of MPI processes in each direction.
@@ -98,6 +103,7 @@ Species(
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
 	n_part_per_cell = 0,
+	n_part_per_cell_for_weight = 1000,
 	c_part_max = 1.0,
 	mass = 9.109382616e-31,
 	charge = -1.6021766208e-19,
@@ -114,6 +120,7 @@ Species(
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
 	n_part_per_cell = 0,
+	n_part_per_cell_for_weight = 1000,
 	c_part_max = 1.0,
 	mass = 2.0 * 1.67262158e-27,
 	charge = 1.6021766208e-19,
@@ -131,6 +138,7 @@ Species(
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
 	n_part_per_cell = 0,
+	n_part_per_cell_for_weight = 200,
 	c_part_max = 1.0,
 	mass = 3 * 1.67262158e-27,
 	charge = 1.6021766208e-19,
@@ -152,12 +160,12 @@ PartSource(
 	species1 = ["e"],
 	PartSource_type = "Load",
 	loadKind = "dn",
-	loadStep = 10,
-	loadDensity = 1.0e19,
-	loadTemperature = 20.0,
-	loadDn = 2.0e21,
-	loadPos_start 	= Lsim[0] / 2.0 - 10.0*l0,
-	loadPos_end 	= Lsim[0] / 2.0 + 10.0*l0,
+	loadStep = 1000,
+	#loadDensity = 1.0e19,
+	loadTemperature = 210.0,
+	loadDn = 2.0e25,
+	loadPos_start 	= Lsim[0] / 2.0 - 1000.0*l0,
+	loadPos_end 	= Lsim[0] / 2.0 + 1000.0*l0,
 
 
 
@@ -168,11 +176,11 @@ PartSource(
 	species1 = ["D1"],
 	PartSource_type = "Load",
 	loadKind = "dn",
-	loadStep = 10,
-	loadDensity = 1.0e19,
-	loadTemperature = 20.0,
-	loadDn = 2.0e21,
-	loadPos_start = 	Lsim[0] / 2.0 - 10.0*l0,
-	loadPos_end = 		Lsim[0] / 2.0 + 10.0*l0,
+	loadStep = 1000,
+	#loadDensity = 1.0e19,
+	loadTemperature = 260.0,
+	loadDn = 2.0e25,
+	loadPos_start = 	Lsim[0] / 2.0 - 1000.0*l0,
+	loadPos_end = 		Lsim[0] / 2.0 + 1000.0*l0,
 
 )

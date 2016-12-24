@@ -371,6 +371,7 @@ void Species::initMomentum(unsigned int nPart, unsigned int iPart, double *temp,
         }
     }//END if initMomentum_type
 
+/*
     // Adding the mean velocity (using relativistic composition)
     // ---------------------------------------------------------
     if ( (vel[0]!=0.0) || (vel[1]!=0.0) || (vel[2]!=0.0) ){
@@ -406,6 +407,20 @@ void Species::initMomentum(unsigned int nPart, unsigned int iPart, double *temp,
         }
 
     }//ENDif vel != 0
+
+*/
+
+if ( (vel[0]!=0.0) || (vel[1]!=0.0) || (vel[2]!=0.0) ){
+    // Lorentz transformation of the momentum
+    for (unsigned int p=iPart; p<iPart+nPart; p++)
+    {
+        particles.momentum(0,p) += vel[0];
+        particles.momentum(1,p) += vel[1];
+        particles.momentum(2,p) += vel[2];
+    }
+
+}//ENDif vel != 0
+
 
 
 
@@ -480,6 +495,7 @@ void Species::dynamics(double time_dual, unsigned int ispec, ElectroMagn* EMfiel
                 //MESSAGE("ipart: "<<iPart);
                 //cout<<"ipart: "<<iPart<<endl;
                 // Interpolate the fields at the particle position
+                //(*LocInterp)(EMfields, particles, iPart, &Epart);
                 (*LocInterp)(EMfields, particles, iPart, &Epart, &Bpart);
 
                 //if(Epart.x != 0.0 || Epart.y != 0.0 || Epart.z != 0.0 || Bpart.x != 0.0 || Bpart.y != 0.0 || Bpart.z != 0.0){
@@ -488,8 +504,9 @@ void Species::dynamics(double time_dual, unsigned int ispec, ElectroMagn* EMfiel
 
 
                 // Push the particle
-                //(*Push)(particles, iPart, Epart, Bpart, gf);
+                //(*Push)(particles, iPart, Epart);
                 (*Push)(particles, iPart, Epart, Bpart);
+                //(*Push)(particles, iPart, Epart, Bpart, gf);
 
                 // Apply boundary condition on the particles
                 // Boundary Condition may be physical or due to domain decomposition

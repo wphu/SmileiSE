@@ -29,6 +29,7 @@ public:
 		string emitKind;
 	    vector<string> sg1, sg2;
 	    vector<unsigned int> sgroup1, sgroup2;
+		vector<double> mean_velocity;
 	    string emitPos;
 		double emitTemp;
 		double weight_const;
@@ -52,6 +53,8 @@ public:
 	    bool intra, debye_length_required = false;
 	    int debug_every;
 	    ostringstream mystream;
+
+		mean_velocity.resize(3, 0.0);
 
 
 	    // Loop over each binary PartSource group and parse info
@@ -129,6 +132,8 @@ public:
 		        // Each group of species sgroup1 and sgroup2 must not be empty
 		        if (sgroup1.size()==0) ERROR("No valid `species1` requested in PSI #" << n_PartSource);
 
+				ifile.extract("mean_velocity",mean_velocity,"PartSource",n_PartSource);
+
 		        ifile.extract("loadKind",loadKind,"PartSource",n_PartSource);
 				ifile.extract("loadStep",loadStep,"PartSource",n_PartSource);
 
@@ -154,7 +159,7 @@ public:
 
 		        // Add new PSI objects to vector
 		        //vecPartSource.push_back( new PartSource1D_Load(params, smpi, sgroup1[0], loadDensity, loadTemperature, loadPos_start, loadPos_end) );
-				vecPartSource.push_back( new PartSource1D_Load(params, smpi, sgroup1[0], loadKind, loadStep, loadDn,loadDensity,
+				vecPartSource.push_back( new PartSource1D_Load(params, smpi, sgroup1[0], mean_velocity, loadKind, loadStep, loadDn,loadDensity,
 				loadTemperature, loadPos_start, loadPos_end) );
 
 			}

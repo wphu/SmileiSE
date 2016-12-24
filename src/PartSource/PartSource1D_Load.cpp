@@ -18,6 +18,7 @@ PartSource1D_Load::PartSource1D_Load(
     PicParams& params,
     SmileiMPI* smpi,
     unsigned int load_species1,
+    vector<double> mean_vel,
     string load_kind,
     int load_step,
     double load_dn,
@@ -33,6 +34,7 @@ PartSource1D (params, smpi)
     dt = params.timestep;
 
     species1        = load_species1;
+    mean_velocity   = mean_vel;
     loadKind        = load_kind;
     loadStep        = load_step;
     loadDn          = load_dn;
@@ -48,7 +50,7 @@ PartSource1D (params, smpi)
         for(int ibin = 0; ibin < numPart_in_each_bin.size(); ibin++)
         {
             numPart_in_each_bin[ibin] = loadDensity / params.species_param[species1].weight;
-            cout<<"numPart_in_each_bin "<<numPart_in_each_bin[ibin]<<endl;
+            //cout<<"numPart_in_each_bin "<<numPart_in_each_bin[ibin]<<endl;
         }
     }
 
@@ -139,9 +141,9 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
         temp[0] = loadTemperature;
         temp[1] = loadTemperature;
         temp[2] = loadTemperature;
-        vel[0] = 0.0;
-        vel[1] = 0.0;
-        vel[2] = 0.0;
+        vel[0] = mean_velocity[0];
+        vel[1] = mean_velocity[1];
+        vel[2] = mean_velocity[2];
 
         indexes_of_particles_to_erase.clear();
         for(int ibin = 0; ibin < count_of_particles_to_insert.size(); ibin++ )
@@ -208,14 +210,14 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
         temp[0] = loadTemperature;
         temp[1] = loadTemperature;
         temp[2] = loadTemperature;
-        vel[0] = 0.0;
-        vel[1] = 0.0;
-        vel[2] = 0.0;
+        vel[0] = mean_velocity[0];
+        vel[1] = mean_velocity[1];
+        vel[2] = mean_velocity[2];
 
         for(int ibin = 0; ibin < count_of_particles_to_insert.size(); ibin++ )
         {
             count_of_particles_to_insert[ibin] = 0;
-            if(ibin >= loadBin_start && ibin <= loadBin_end) { count_of_particles_to_insert[ibin] = loadDn * params.timestep / s1->species_param.weight; }
+            if(ibin >= loadBin_start && ibin <= loadBin_end) { count_of_particles_to_insert[ibin] = loadDn * loadStep * params.timestep / s1->species_param.weight; }
         }
         //cout<<"number: "<<loadDensity * params.timestep / s1->species_param.weight<<endl;
 

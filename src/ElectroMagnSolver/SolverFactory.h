@@ -6,17 +6,20 @@
 #include "MF_Solver2D_Yee.h"
 #include "MF_Solver2D_Cowan.h"
 #include "EF_Solver2D_SLU.h"
-
+#include "InputData.h"
 #include "PicParams.h"
 
 #include "Tools.h"
 
 class SolverFactory {
 public:
-    static Solver* create(PicParams& params, Grid* grid, SmileiMPI* smpi) {
+    static Solver* create(PicParams& params, InputData &ifile, Grid* grid, SmileiMPI* smpi) {
         Solver* solver = NULL;
+        int nx_source_left;
         if ( params.geometry == "1d3v" ) {
-            solver = new EF_Solver1D_TDMA(params, smpi);
+            nx_source_left = 0.0; // default
+            ifile.extract("nx_source_left", nx_source_left);
+            solver = new EF_Solver1D_TDMA(params, smpi, nx_source_left);
         }
         else if ( params.geometry == "2d3v" ) {
 	    //if ()

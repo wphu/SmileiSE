@@ -56,6 +56,11 @@ struct SpeciesStructure {
 
     double n_part_per_cell;
 
+    // n_part_per_cell_for_weight is used to calculate particle weight
+    // Now weight is the same for all the particles!!!
+    // if initialize paritcles before PIC loop, the n_part_per_cell should be equal to n_part_per_cell_for_weight
+    double n_part_per_cell_for_weight;
+
     // weight when all particles has the same weight
     // weight = nb_density / n_part_per_cell; if n_part_per_cell = 0, weight = nb_density / 100
     double weight;

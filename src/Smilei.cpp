@@ -138,7 +138,7 @@ int main (int argc, char* argv[])
     smpi->barrier();
 
     TITLE("Creating Solver");
-    Solver* solver = SolverFactory::create(params, grid, smpi);
+    Solver* solver = SolverFactory::create(params, input_data, grid, smpi);
 
 
     TITLE("Creating PartSource");

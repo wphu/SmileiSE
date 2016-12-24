@@ -68,6 +68,7 @@ class Species(SmileiComponent):
     initPosition_type = None
     initMomentum_type = ""
     n_part_per_cell = None
+    n_part_per_cell_for_weight = None
     c_part_max = 1.0
     charge_density = None
     nb_density = None
@@ -110,6 +111,7 @@ class PartSource(SmileiComponent):
     species1 = None
     species2 = None
     PartSource_type = None
+    mean_velocity = [0.0]
     posEmit = None
     nPartEmit = 0
     tempEmit = 0.0

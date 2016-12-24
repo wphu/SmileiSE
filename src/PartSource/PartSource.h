@@ -25,6 +25,7 @@ public:
             numPart_in_each_bin.resize(params.n_space[0]);
 
             new_particles.initialize(0, params);
+            mean_velocity.resize(3, 0.0);
     };
     virtual ~PartSource(){};
 
@@ -38,6 +39,8 @@ public:
 
     //! Method called in the main smilei loop to apply PartSource at each timestep
     virtual void emitLoad(PicParams&, SmileiMPI* smpi, std::vector<Species*>&,int, ElectroMagn* ){};
+
+    vector<double> mean_velocity;
 
 
     // =================Parameters for emitting particles=================
