@@ -44,7 +44,8 @@ public:
 
 
     //> Id of "Fields_global.h5", contains global fields, such as potential, rho ...
-    hid_t global_file_id_;
+    hid_t       global_file_id_;
+    herr_t      status;
 
     double* data_;
 

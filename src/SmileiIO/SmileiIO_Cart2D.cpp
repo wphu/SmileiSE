@@ -18,7 +18,11 @@ using namespace std;
 SmileiIO_Cart2D::SmileiIO_Cart2D( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies )
 : SmileiIO( params, smpi )
 {
-    if(smpi->isMaster()) createPattern(params, smpi, fields);
+    if(smpi->isMaster())
+    {
+        createPattern(params, smpi, fields);
+        status = H5Fclose(global_file_id_);
+    }
     fieldsGroup.offset[0] = 0;
     fieldsGroup.offset[1] = 0;
     fieldsGroup.offset[2] = 0;
@@ -62,9 +66,7 @@ void SmileiIO_Cart2D::createPattern( PicParams& params, SmileiMPI* smpi, Electro
       data_[i] = 20.0;
     }
 
-
-    H5Gcreate(global_file_id_, "/1d_global", H5P_DEFAULT, H5P_DEFAULT,H5P_DEFAULT);
-    fieldsGroup.group_id = H5Gcreate(global_file_id_, "/2d_global", H5P_DEFAULT, H5P_DEFAULT,H5P_DEFAULT);
+    fieldsGroup.group_id = H5Gcreate(global_file_id_, "/Fields", H5P_DEFAULT, H5P_DEFAULT,H5P_DEFAULT);
 
     /* Create a datagroup attribute. */
     dims = 4;

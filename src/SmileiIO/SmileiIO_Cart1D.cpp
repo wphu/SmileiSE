@@ -23,6 +23,7 @@ SmileiIO_Cart1D::SmileiIO_Cart1D( PicParams& params, SmileiMPI* smpi, ElectroMag
     if(smpi->isMaster()) {
         createFieldsPattern(params, smpi, fields);
         createPartsPattern(params, smpi, fields, vecSpecies);
+        status = H5Fclose(global_file_id_);
     }
 }
 
@@ -46,8 +47,7 @@ void SmileiIO_Cart1D::createFieldsPattern( PicParams& params, SmileiMPI* smpi, E
     fieldsGroup.ndims_[3] = fieldsGroup.dims_global[3];
 
 
-    fieldsGroup.group_id = H5Gcreate(global_file_id_, "/1d_global", H5P_DEFAULT, H5P_DEFAULT,H5P_DEFAULT);
-    H5Gcreate(global_file_id_, "/2d_global", H5P_DEFAULT, H5P_DEFAULT,H5P_DEFAULT);
+    fieldsGroup.group_id = H5Gcreate(global_file_id_, "/Fields", H5P_DEFAULT, H5P_DEFAULT,H5P_DEFAULT);
 
     /* Create a datagroup attribute. */
     dims = 4;
@@ -58,8 +58,6 @@ void SmileiIO_Cart1D::createFieldsPattern( PicParams& params, SmileiMPI* smpi, E
                                  H5P_DEFAULT, H5P_DEFAULT);
     /* Write the attribute data. */
     fieldsGroup.status = H5Awrite(fieldsGroup.attribute_id, H5T_NATIVE_INT, fieldsGroup.ndims_);
-    /* Close the attribute. */
-    fieldsGroup.status = H5Aclose(fieldsGroup.attribute_id);
 
 
     addField(fields->rho_global);
@@ -104,6 +102,17 @@ void SmileiIO_Cart1D::createFieldsPattern( PicParams& params, SmileiMPI* smpi, E
     fieldsGroup.block[1] = 1;
     fieldsGroup.block[2] = 1;
     fieldsGroup.block[3] = 1;
+
+
+
+    // close attribute, dataset, dataspace, group, and so on
+    fieldsGroup.status = H5Aclose( fieldsGroup.attribute_id );
+    fieldsGroup.status = H5Sclose( fieldsGroup.dataspace_id );
+    for(int i = 0; i < fieldsGroup.dataset_id.size(); i++)
+    {
+        fieldsGroup.status = H5Dclose( fieldsGroup.dataset_id[i] );
+    }
+    fieldsGroup.status = H5Gclose( fieldsGroup.group_id );
 
 
 } // END createPattern
@@ -197,6 +206,17 @@ void SmileiIO_Cart1D::createPartsPattern( PicParams& params, SmileiMPI* smpi, El
     ptclsGroup.block[1] = 1;
     ptclsGroup.block[2] = 1;
     ptclsGroup.block[3] = 1;
+
+
+    // close attribute, dataset, dataspace, group, and so on
+    ptclsGroup.status = H5Aclose( ptclsGroup.attribute_id );
+    ptclsGroup.status = H5Sclose( ptclsGroup.dataspace_id );
+    for(int i = 0; i < ptclsGroup.dataset_id.size(); i++)
+    {
+        ptclsGroup.status = H5Dclose( ptclsGroup.dataset_id[i] );
+    }
+    ptclsGroup.status = H5Gclose( ptclsGroup.group_id );
+
 }
 
 

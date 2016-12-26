@@ -10,15 +10,15 @@ import math
 
 l0 = 2.0e-5     # nu.norm_l is reference time, the value's unit before / is m (SI)
 t0 = 1.0e-12
-Lsim = [500.*l0]	# length of the simulation
+Lsim = [1000.*l0]	# length of the simulation
 
 
 
 #Tsim = 10000.*t0			# duration of the simulation
-Tsim = 10000.*t0			# duration of the simulation
+Tsim = 100000.*t0			# duration of the simulation
 
 #> number of timestep of incrementing averaged electromagnetic fields
-ntime_step_avg = 1000
+ntime_step_avg = 10000
 
 #> Timestep to output some fields into hdf5 file
 #dump_step = 10000
@@ -58,10 +58,12 @@ sim_time = Tsim
 #                    reflective = consider the ghost-cells as a perfect conductor
 #
 bc_em_type_x = ['Dirichlet', 'Dirichlet']
+#bc_em_type_x = ['Neumann', 'Dirichlet']
+
 bc_em_value_x = [0.0, -60.0]
 
-B = 2.4
-angle = 6.0 * math.pi / 180.0
+B = 2.0
+angle = 5.0 * math.pi / 180.0
 Bx = B * math.sin(angle)
 By = B * math.cos(angle)
 Bz = 0.0
@@ -110,8 +112,8 @@ Species(
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 100,
-	n_part_per_cell_for_weight = 100,
+	n_part_per_cell = 200,
+	n_part_per_cell_for_weight = 200,
 	c_part_max = 1.0,
 	mass = 9.109382616e-31,
 	charge = -1.6021766208e-19,
@@ -128,8 +130,8 @@ Species(
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 100,
-	n_part_per_cell_for_weight = 100,
+	n_part_per_cell = 200,
+	n_part_per_cell_for_weight = 200,
 	c_part_max = 1.0,
 	mass = 2.0 * 1.67262158e-27,
 	charge = 1.6021766208e-19,

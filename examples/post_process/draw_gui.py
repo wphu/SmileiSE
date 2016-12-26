@@ -41,7 +41,7 @@ class ApplicationWindow(QMainWindow):
         self.filename = "Fields_global.h5"
         self.f=h5.File(self.filename)
         try:
-            dset = self.f["/1d_global/Phi_global_avg"]
+            dset = self.f["/Fields/Phi_global_avg"]
         except:
             dset = self.f["/2d_global/Rho_global"]
             print "the data is 2d !!!"

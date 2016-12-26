@@ -61,6 +61,22 @@ void SmileiIO::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, v
     calVDF( params, smpi, fields, vecSpecies);
 
     if(smpi->isMaster()) {
+
+        // reopen attribute, dataset, dataspace, group, and so on
+        global_file_id_  = H5Fopen( "Fields_global.h5", H5F_ACC_RDWR, H5P_DEFAULT);
+
+        fieldsGroup.group_id = H5Gopen(global_file_id_, "/Fields", H5P_DEFAULT);
+        for(int i = 0; i < fieldsGroup.dataset_name.size(); i++)
+        {
+            fieldsGroup.dataset_id[i] = H5Dopen( fieldsGroup.group_id, fieldsGroup.dataset_name[i], H5P_DEFAULT);
+        }
+
+        ptclsGroup.group_id = H5Gopen(global_file_id_, "/VDF", H5P_DEFAULT);
+        for(int i = 0; i < ptclsGroup.dataset_name.size(); i++)
+        {
+            ptclsGroup.dataset_id[i] = H5Dopen( ptclsGroup.group_id, ptclsGroup.dataset_name[i], H5P_DEFAULT);
+        }
+
         fieldsGroup.offset[0] = ndims_t;
         ptclsGroup.offset[0] = ndims_t;
 
@@ -88,9 +104,19 @@ void SmileiIO::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, v
             fieldsGroup.status = H5Sclose (fieldsGroup.dataspace_id);
         }
 
+        // close attribute, dataset, dataspace, group, and so on
+        fieldsGroup.status = H5Aclose( fieldsGroup.attribute_id );
+        fieldsGroup.status = H5Sclose( fieldsGroup.dataspace_id );
+        for(int i = 0; i < fieldsGroup.dataset_id.size(); i++)
+        {
+            fieldsGroup.status = H5Dclose( fieldsGroup.dataset_id[i] );
+        }
+        fieldsGroup.status = H5Gclose( fieldsGroup.group_id );
+
+
+
         // write particle velocity distribution function
         for(int i = 0; i < ptclsGroup.dataset_id.size(); i++)
-        //for(int i = 0; i < 0; i++)
         {
             ptclsGroup.memspace_id = H5Screate_simple (4, ptclsGroup.count, NULL);
             ptclsGroup.dataspace_id = H5Dget_space (ptclsGroup.dataset_id[i]);
@@ -103,8 +129,18 @@ void SmileiIO::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, v
             ptclsGroup.status = H5Sclose (fieldsGroup.dataspace_id);
         }
 
+        // close attribute, dataset, dataspace, group, and so on
+        ptclsGroup.status = H5Aclose( ptclsGroup.attribute_id );
+        ptclsGroup.status = H5Sclose( ptclsGroup.dataspace_id );
+        for(int i = 0; i < ptclsGroup.dataset_id.size(); i++)
+        {
+            ptclsGroup.status = H5Dclose( ptclsGroup.dataset_id[i] );
+        }
+        ptclsGroup.status = H5Gclose( ptclsGroup.group_id );
 
         ndims_t++;
+
+        status = H5Fclose(global_file_id_);
     }
 
 
