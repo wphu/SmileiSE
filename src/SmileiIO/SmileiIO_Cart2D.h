@@ -22,7 +22,14 @@ public:
     ~SmileiIO_Cart2D();
 
     //! Build memory and file space for // HDF5 write/read
-    void createPattern( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields );
+    void createFieldsPattern( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields );
+    // Create particles h5 file pattern
+    void createPartsPattern( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies );
+
+
+    void initVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies );
+    // calculate velocity distribution function
+    void calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies);
 
 private:
 

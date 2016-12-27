@@ -43,7 +43,7 @@ class ApplicationWindow(QMainWindow):
         try:
             dset = self.f["/Fields/Phi_global_avg"]
         except:
-            dset = self.f["/2d_global/Rho_global"]
+            dset = self.f["/Fields/Rho_global"]
             print "the data is 2d !!!"
         print "Attention: the dataset must be 4 dimensions"
 

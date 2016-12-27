@@ -280,6 +280,7 @@ int main (int argc, char* argv[])
         if (params.ntime_step_avg) EMfields->incrementAvgFields(itime, params.ntime_step_avg);
 
         if(itime % params.dump_step == 0){
+            MESSAGE("timestep = " << itime);
             //> gather time-average fields to process 0 to output
             EMfields->gatherAvgFields(smpi);
             sio->write(params,smpi,EMfields,vecSpecies);

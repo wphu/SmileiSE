@@ -180,88 +180,90 @@ void EF_Solver2D_SLU::initSLU(){
 
     for(i=0; i<nx; i++)
     {
-      for(j=0; j<ny; j++)
-      {
-        if(grid2D->iswall_global_2D[i][j]==0 && grid2D->bndr_global_2D[i][j]==0) {
-          hl = grid2D->numcp_global_2D[i][j] - grid2D->numcp_global_2D[i-1][j];
-          hr = grid2D->numcp_global_2D[i+1][j] - grid2D->numcp_global_2D[i][j];
-          for(k=0; k<grid2D->ncp; k++){
-            b[k]=0.0;
-          }
-          b[ii]=-4.0; b[ii-hl]=1.0; b[ii-1]=1.0; b[ii+hr]=1.0; b[ii+1]=1.0;
-          nnz=nnz+5;
-          for(k=0; k<grid2D->ncp; k++){
-            if(b[k] != 0.0){
-                if(v>=grid2D->ncp*5) cout<<"error"<<v<<endl;
-              val[v] = b [k];
-              row[v] = ii;
-              col[v] = k;
-              v++;
+        for(j=0; j<ny; j++)
+        {
+            // normal points in the calculation region
+            if(grid2D->iswall_global_2D[i][j]==0 && grid2D->bndr_global_2D[i][j]==0) {
+                hl = grid2D->numcp_global_2D[i][j] - grid2D->numcp_global_2D[i-1][j];
+                hr = grid2D->numcp_global_2D[i+1][j] - grid2D->numcp_global_2D[i][j];
+                for(k=0; k<grid2D->ncp; k++){
+                    b[k]=0.0;
+                }
+                b[ii]=-4.0; b[ii-hl]=1.0; b[ii-1]=1.0; b[ii+hr]=1.0; b[ii+1]=1.0;
+                nnz=nnz+5;
+                for(k=0; k<grid2D->ncp; k++){
+                    if(b[k] != 0.0){
+                        if(v>=grid2D->ncp*5) cout<<"error"<<v<<endl;
+                      val[v] = b [k];
+                      row[v] = ii;
+                      col[v] = k;
+                      v++;
+                    }
+                }
+                ii++;
             }
-          }
-          ii++;
-        }
 
-        else if(grid2D->bndr_global_2D[i][j]==1) {
-          for(k=0; k<grid2D->ncp; k++){
-            b[k]=0.0;
-          }
-          b[ii]=1.0;
-          nnz++;
-          for(k=0; k<grid2D->ncp; k++){
-            if(b[k] != 0.0){
-                if(v>=grid2D->ncp*5) cout<<"error"<<v<<endl;
-              val[v] = b [k];
-              row[v] = ii;
-              col[v] = k;
-              v++;
+            // Dirchlet boudnary points
+            else if(grid2D->bndr_global_2D[i][j]==1) {
+                for(k=0; k<grid2D->ncp; k++){
+                    b[k]=0.0;
+                }
+                b[ii]=1.0;
+                nnz++;
+                for(k=0; k<grid2D->ncp; k++){
+                    if(b[k] != 0.0){
+                        if(v>=grid2D->ncp*5) cout<<"error"<<v<<endl;
+                        val[v] = b [k];
+                        row[v] = ii;
+                        col[v] = k;
+                        v++;
+                    }
+                }
+                ii++;
             }
-          }
-          ii++;
-        }
 
-        else if( grid2D->bndr_global_2D[i][j]==8 && j==0) {
-          hu = grid2D->numcp_global_2D[i][ny-1] - grid2D->numcp_global_2D[i][j];
-          for(k=0; k<grid2D->ncp; k++){
-            b[k]=0.0;
-          }
-          b[ii]=1.0; b[ii+hu]=-1.0;
-          nnz=nnz+2;
-          for(k=0; k<grid2D->ncp; k++){
-            if(b[k] != 0.0){
-                if(v>=grid2D->ncp*5) cout<<"error"<<v<<endl;
-              val[v] = b [k];
-              row[v] = ii;
-              col[v] = k;
-              v++;
+            // periodic boudnary points
+            else if( grid2D->bndr_global_2D[i][j]==8 && j==0) {
+                hu = grid2D->numcp_global_2D[i][ny-1] - grid2D->numcp_global_2D[i][j];
+                for(k=0; k<grid2D->ncp; k++){
+                    b[k]=0.0;
+                }
+                b[ii]=1.0; b[ii+hu]=-1.0;
+                nnz=nnz+2;
+                for(k=0; k<grid2D->ncp; k++){
+                    if(b[k] != 0.0){
+                        if(v>=grid2D->ncp*5) cout<<"error"<<v<<endl;
+                        val[v] = b [k];
+                        row[v] = ii;
+                        col[v] = k;
+                        v++;
+                    }
+                }
+                ii++;
             }
-          }
-          ii++;
-        }
 
-        else if ( grid2D->bndr_global_2D[i][j] == 8 && j == ny-1 ) {
-          hl = grid2D->numcp_global_2D[i][j] - grid2D->numcp_global_2D[i-1][j];
-          hr = grid2D->numcp_global_2D[i+1][j] - grid2D->numcp_global_2D[i][j];
-          hd = grid2D->numcp_global_2D[i][ny-1] - grid2D->numcp_global_2D[i][1];
-          for(k=0; k<grid2D->ncp; k++){
-            b[k]=0.0;
-          }
-          b[ii]=-4.0; b[ii-hl]=1.0; b[ii-1]=1.0; b[ii+hr]=1.0; b[ii-hd]=1.0;
-          nnz=nnz+5;
-          for(k=0; k<grid2D->ncp; k++){
-            if(b[k] != 0.0){
-                if(v>=grid2D->ncp*5) cout<<"error"<<v<<endl;
-              val[v] = b [k];
-              row[v] = ii;
-              col[v] = k;
-              v++;
+            // periodic boudnary points
+            else if ( grid2D->bndr_global_2D[i][j] == 8 && j == ny-1 ) {
+                hl = grid2D->numcp_global_2D[i][j] - grid2D->numcp_global_2D[i-1][j];
+                hr = grid2D->numcp_global_2D[i+1][j] - grid2D->numcp_global_2D[i][j];
+                hd = grid2D->numcp_global_2D[i][ny-1] - grid2D->numcp_global_2D[i][1];
+                for(k=0; k<grid2D->ncp; k++){
+                b[k]=0.0;
+                }
+                b[ii]=-4.0; b[ii-hl]=1.0; b[ii-1]=1.0; b[ii+hr]=1.0; b[ii-hd]=1.0;
+                nnz=nnz+5;
+                for(k=0; k<grid2D->ncp; k++){
+                if(b[k] != 0.0){
+                    if(v>=grid2D->ncp*5) cout<<"error"<<v<<endl;
+                  val[v] = b [k];
+                  row[v] = ii;
+                  col[v] = k;
+                  v++;
+                }
+                }
+                ii++;
             }
-          }
-          ii++;
         }
-
-
-      }
     }
 
 //for(int i=0; i<grid2D->ncp*5;i++) cout<<i<<" "<<val[i]<<endl;

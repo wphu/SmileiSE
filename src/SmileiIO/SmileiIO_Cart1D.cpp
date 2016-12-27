@@ -80,7 +80,7 @@ void SmileiIO_Cart1D::createFieldsPattern( PicParams& params, SmileiMPI* smpi, E
     {
       data_[i] = 20.0;
     }
-    /* Create the second dataset in group "Group_A". */
+
     for(int i = 0; i < fieldsGroup.dataset_id.size(); i++)
     {
         fieldsGroup.status = H5Dwrite(fieldsGroup.dataset_id[i], H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data_);
@@ -146,8 +146,6 @@ void SmileiIO_Cart1D::createPartsPattern( PicParams& params, SmileiMPI* smpi, El
                                  H5P_DEFAULT, H5P_DEFAULT);
     /* Write the attribute data. */
     ptclsGroup.status = H5Awrite(ptclsGroup.attribute_id, H5T_NATIVE_INT, ptclsGroup.ndims_);
-    /* Close the attribute. */
-    ptclsGroup.status = H5Aclose(ptclsGroup.attribute_id);
 
 
 
@@ -161,13 +159,15 @@ void SmileiIO_Cart1D::createPartsPattern( PicParams& params, SmileiMPI* smpi, El
         p = &(s->particles);
 
         string fieldName = "VDF_" + s->species_param.species_type;
-        const char* name = fieldName.c_str();
+        ptclsGroup.dataset_stringName.push_back(fieldName);
+        const char* name = ptclsGroup.dataset_stringName.back().c_str();
         ptclsGroup.dataset_name.push_back(name);
+        //addPtclsDatasetName(fieldName);
 
         /* Create the data space for the dataset. */
         ptclsGroup.dataspace_id = H5Screate_simple(4, ptclsGroup.dims_global, NULL);
         int dataset_size = ptclsGroup.dataset_id.size();
-        hid_t id = H5Dcreate2(ptclsGroup.group_id, name, H5T_NATIVE_DOUBLE, ptclsGroup.dataspace_id,
+        hid_t id = H5Dcreate2(ptclsGroup.group_id, ptclsGroup.dataset_name.back(), H5T_NATIVE_DOUBLE, ptclsGroup.dataspace_id,
                                       H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
         ptclsGroup.dataset_id.push_back(id);
@@ -176,13 +176,16 @@ void SmileiIO_Cart1D::createPartsPattern( PicParams& params, SmileiMPI* smpi, El
 
         // for VDF_tot_ the dimension is same with VDF_, but only [nx=0] is meaningful
         fieldName = "VDF_tot_" + s->species_param.species_type;
-        name = fieldName.c_str();
+        ptclsGroup.dataset_stringName.push_back(fieldName);
+        name = ptclsGroup.dataset_stringName.back().c_str();
         ptclsGroup.dataset_name.push_back(name);
+
+        //addPtclsDatasetName(fieldName2);
 
         /* Create the data space for the dataset. */
         ptclsGroup.dataspace_id = H5Screate_simple(4, ptclsGroup.dims_global, NULL);
         dataset_size = ptclsGroup.dataset_id.size();
-        id = H5Dcreate2(ptclsGroup.group_id, name, H5T_NATIVE_DOUBLE, ptclsGroup.dataspace_id,
+        id = H5Dcreate2(ptclsGroup.group_id, ptclsGroup.dataset_name.back(), H5T_NATIVE_DOUBLE, ptclsGroup.dataspace_id,
                                       H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
         ptclsGroup.dataset_id.push_back(id);
@@ -191,6 +194,22 @@ void SmileiIO_Cart1D::createPartsPattern( PicParams& params, SmileiMPI* smpi, El
 
 
     }
+
+
+    //> if without below process, the method write() will go wrong, no ideas now!!!
+    //> output initial 1d_global data===========================================
+    data_ =  (double*)malloc(ptclsGroup.dims_global[3] * ptclsGroup.dims_global[2] * ptclsGroup.dims_global[1] * ptclsGroup.dims_global[0] * sizeof(double));
+    for( int i = 0; i < ptclsGroup.dims_global[3] * ptclsGroup.dims_global[2] * ptclsGroup.dims_global[1] * ptclsGroup.dims_global[0]; i++)
+    {
+      data_[i] = 20.0;
+    }
+
+    for(int i = 0; i < ptclsGroup.dataset_id.size(); i++)
+    {
+        ptclsGroup.status = H5Dwrite(ptclsGroup.dataset_id[i], H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data_);
+    }
+    free(data_);
+
 
     ptclsGroup.offset[0] = 0;
     ptclsGroup.offset[1] = 0;

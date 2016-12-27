@@ -13,6 +13,7 @@
 #include <Field.h>
 #include <hdf5.h>
 #include <Tools.h>
+#include "Array4D.h"
 
 class PicParams;
 class InputData;
@@ -38,6 +39,7 @@ public:
     virtual ~SmileiIO();
 
     void addField(Field* field);
+    void addPtclsDatasetName(string Dname);
     //! Basic write field on its own file (debug)
     void write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies);
     virtual void calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies){};
@@ -64,6 +66,7 @@ public:
         herr_t      status;
 
         std::vector<hid_t> dataset_id;
+        std::vector<std::string> dataset_stringName;
         std::vector<const char*> dataset_name;
         std::vector<double*> dataset_data;
 
@@ -81,6 +84,15 @@ public:
 
     H5Group fieldsGroup;
     H5Group ptclsGroup;     //H5 particles Group
+
+
+    std::vector<Array4D*> vx_VDF;
+    std::vector<Array4D*> vx_VDF_global;
+    std::vector<Array4D*> vx_VDF_tot_global;     // [1][1][1][nv] velocity distribution function for particles in all cells
+    double vxMin,vxMax;
+    double vx_d;
+    int vx_dim;
+
 
 
 private:

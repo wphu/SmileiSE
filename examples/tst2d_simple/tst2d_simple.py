@@ -10,12 +10,21 @@ import math
 
 l0 = 1.0e-5  #(SI)
 t0 = 1.0e-12
-Lsim = [50.*l0,20.*l0]	# length of the simulation
-Tsim = 10.*t0			# duration of the simulation
 resx = 20.				# nb of cells in on laser wavelength
 rest = 30.				# time of timestep in one optical cycle
 
 wavelength_SI = 1.e-6
+
+
+
+Lsim = [50.*l0,20.*l0]	# length of the simulation
+Tsim = 10000.*t0			# duration of the simulation
+# print_every (on screen text output)
+# print_every = 60
+ntime_step_avg = 1000
+
+dump_step = ntime_step_avg
+
 
 
 # dim: Geometry of the simulation
@@ -55,7 +64,17 @@ bc_em_type_x = ['silver-muller']
 bc_em_type_y = ['silver-muller']
 bc_em_value_x = [0.0, 0.0]
 
-externB = [0.0, 0.0, 0.0]
+B = 2.0
+angle = 5.0 * math.pi / 180.0
+Bx = B * math.sin(angle)
+By = B * math.cos(angle)
+Bz = 0.0
+externB = [Bx, By, Bz]
+
+ion_sound_velocity = math.sqrt( (20.0 * 1.6021766208e-19) / (2.0 * 1.67262158e-27) )
+vx = ion_sound_velocity * math.sin(angle)
+vy = ion_sound_velocity * math.cos(angle)
+vz = 0.0
 
 
 #Topology:
@@ -93,7 +112,7 @@ Species(
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 100,
+	n_part_per_cell = 200,
 	n_part_per_cell_for_weight = 200,
 	c_part_max = 1.0,
 	mass = 9.109382616e-31,
@@ -113,12 +132,12 @@ Species(
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 100,
+	n_part_per_cell = 200,
 	n_part_per_cell_for_weight = 200,
 	c_part_max = 1.0,
 	mass = 2.0 * 1.67262158e-27,
 	charge = 1.6021766208e-19,
-	nb_density = 0.5e19,
+	nb_density = 1.0e19,
 	temperature = [20],
 	time_frozen = 0.0,
 	bc_part_type_west  = 'supp',
@@ -134,7 +153,7 @@ Species(
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 100,
+	n_part_per_cell = 0,
 	n_part_per_cell_for_weight = 200,
 	c_part_max = 1.0,
 	mass = 3.0 * 1.67262158e-27,
@@ -159,6 +178,7 @@ Species(
 # species2    = list of strings, the names of the second species that collide
 #               (can be the same as species1)
 # coulomb_log = float, Coulomb logarithm. If negative or zero, then automatically computed.
+'''
 Collisions(
 	species1 = ["e"],
 	species2 = ["D1"],
@@ -177,15 +197,4 @@ Collisions(
 	coulomb_log = 1,
 	collisions_type = "coulomb"
 )
-
-
-
-# ---------------------
-# DIAGNOSTIC PARAMETERS
-# ---------------------
-
-# print_every (on screen text output)
-# print_every = 60
-ntime_step_avg = 1000
-
-dump_step = 1000
+'''

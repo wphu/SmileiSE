@@ -54,6 +54,14 @@ void SmileiIO::addField(Field* field)
     fieldsGroup.dataset_data.push_back(field->data_);
 }
 
+
+void SmileiIO::addPtclsDatasetName(string Dname)
+{
+    const char* name = Dname.c_str();
+    ptclsGroup.dataset_name.push_back(name);
+}
+
+
 //! write potential, rho and so on into hdf5 file every some timesteps
 void SmileiIO::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies)
 {
@@ -104,9 +112,7 @@ void SmileiIO::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, v
             fieldsGroup.status = H5Sclose (fieldsGroup.dataspace_id);
         }
 
-        // close attribute, dataset, dataspace, group, and so on
-        fieldsGroup.status = H5Aclose( fieldsGroup.attribute_id );
-        fieldsGroup.status = H5Sclose( fieldsGroup.dataspace_id );
+        // close dataset, group, and so on
         for(int i = 0; i < fieldsGroup.dataset_id.size(); i++)
         {
             fieldsGroup.status = H5Dclose( fieldsGroup.dataset_id[i] );
@@ -125,13 +131,11 @@ void SmileiIO::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, v
             ptclsGroup.status = H5Dwrite (ptclsGroup.dataset_id[i], H5T_NATIVE_DOUBLE, ptclsGroup.memspace_id,
                                  ptclsGroup.dataspace_id, H5P_DEFAULT, ptclsGroup.dataset_data[i]);
 
-            ptclsGroup.status = H5Sclose (fieldsGroup.memspace_id);
-            ptclsGroup.status = H5Sclose (fieldsGroup.dataspace_id);
+            ptclsGroup.status = H5Sclose (ptclsGroup.memspace_id);
+            ptclsGroup.status = H5Sclose (ptclsGroup.dataspace_id);
         }
 
-        // close attribute, dataset, dataspace, group, and so on
-        ptclsGroup.status = H5Aclose( ptclsGroup.attribute_id );
-        ptclsGroup.status = H5Sclose( ptclsGroup.dataspace_id );
+        // close dataset, group, and so on
         for(int i = 0; i < ptclsGroup.dataset_id.size(); i++)
         {
             ptclsGroup.status = H5Dclose( ptclsGroup.dataset_id[i] );

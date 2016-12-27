@@ -101,6 +101,7 @@ void Grid2D::geometry( ){
     dims_source[0]=0;
     dims_source[1]=0;
 
+    // iswall_global_2D is for particle moving, if four points of one grid is 1, then the grid is wall
     for(int i=0; i<nx; i++)
       for(int j=0; j<ny; j++){
         iswall_global_2D[i][j]=0;
@@ -117,11 +118,14 @@ void Grid2D::geometry( ){
     }
 
     //>>>struct boundary condition
+    // bndr* is for electric potential solving
     for(int i=0; i<nx; i++)
       for(int j=0; j<ny; j++){
         bndr_global_2D[i][j]=0;
       }
 
+    // 5 is the particle source region, usually the region has no need to solve the electric potential
+    // The electric potential in the region can be set to some constant
     for(int i=0; i<dims_source[0]; i++)
       for(int j=0; j<ny; j++){
         bndr_global_2D[i][j]=5;
@@ -132,11 +136,13 @@ void Grid2D::geometry( ){
         bndr_global_2D[i][j]=5;
       }
 
+    // 8 is the periodic boundary condition
     for(int i=dims_source[0]; i<nx; i++){
       bndr_global_2D[i][0]=8;
       bndr_global_2D[i][ny-1]=8;
     }
 
+    // 1 is the Dirchlet boundary condition
     for(int j=0; j<ny; j++){
       bndr_global_2D[dims_source[0]][j]=1;
       bndrVal_global_2D[dims_source[0]][j]=0.0;
