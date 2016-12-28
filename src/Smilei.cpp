@@ -197,7 +197,7 @@ int main (int argc, char* argv[])
     for (unsigned int itime=stepStart+1 ; itime <= stepStop ; itime++)
     {
 
-        MESSAGE("timestep = " << itime);
+        //MESSAGE("timestep = " << itime);
         // calculate new times
         // -------------------
         time_prim += params.timestep;

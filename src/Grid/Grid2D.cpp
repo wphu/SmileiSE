@@ -155,6 +155,82 @@ void Grid2D::geometry( ){
 }
 
 
+//>>>classical gap geometry, with source in x direction
+void Grid2D::geometry_gap( ){
+
+
+    int ny_source = 20;
+    int ny_gapHeight = 50;
+    int nx_gapWeight = 200;
+
+    // iswall_global_2D is for particle moving, if four points of one grid is 1, then the grid is wall
+    for(int i=0; i<nx; i++)
+      for(int j=0; j<ny; j++){
+        iswall_global_2D[i][j]=0;
+      }
+
+    for(int i=0; i<nx; i++){
+      iswall_global_2D[i][0]=1;
+      iswall_global_2D[i][ny-1]=1;
+    }
+
+    for(int j=0; j<ny; j++){
+      iswall_global_2D[0][j]=1;
+      iswall_global_2D[nx-1][j]=1;
+    }
+
+    for(int i = 0; i < 0.5*nx - 0.5*nx_gapWeight; i++)
+    {
+        for(int j = 0; j < ny_gapHeight; j++)
+        {
+            iswall_global_2D[i][j]=1;
+        }
+    }
+
+    for(int i =  0.5*nx + 0.5*nx_gapWeight; i < nx; i++)
+    {
+        for(int j = 0; j < ny_gapHeight; j++)
+        {
+            iswall_global_2D[i][j]=1;
+        }
+    }
+
+
+    //>>>struct boundary condition
+    // bndr* is for electric potential solving
+    for(int i=0; i<nx; i++)
+      for(int j=0; j<ny; j++){
+        bndr_global_2D[i][j]=0;
+      }
+
+    // 5 is the particle source region or wall region, usually the region has no need to solve the electric potential
+    // The electric potential in the region can be set to some constant
+    for(int i=0; i<nx; i++)
+    {
+        for(int j = ny - ny_source; j < ny; j++)
+        {
+            bndr_global_2D[i][j]=5;
+        }
+    }
+
+    // 8 is the periodic boundary condition
+    for(int j = 0; j < ny - ny_source; j++){
+      bndr_global_2D[0][j]=8;
+      bndr_global_2D[nx-1][j]=8;
+    }
+
+    // 1 is the Dirchlet boundary condition
+    for(int j=0; j<ny; j++){
+      bndr_global_2D[dims_source[0]][j]=1;
+      bndrVal_global_2D[dims_source[0]][j]=0.0;
+
+      bndr_global_2D[nx-1][j]=1;
+      bndrVal_global_2D[nx-1][j]=0.0;
+    }
+
+
+}
+
 
 
 void Grid2D::computeNcp(){

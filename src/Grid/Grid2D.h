@@ -24,6 +24,7 @@ public:
     //! Method used to allocate a Grid2D
     void allocateDims();
     void geometry();
+    void geometry_gap();
     void computeNcp();
     int **iswall_2D;
   	int **iswall_global_2D;
