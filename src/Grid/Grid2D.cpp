@@ -4,7 +4,7 @@
 #include <vector>
 #include <cstring>
 #include <iomanip>
-
+#include <fstream>
 
 using namespace std;
 
@@ -39,7 +39,8 @@ Grid(params)
     ny=globalDims_[1];
 
     allocateDims();
-    geometry();
+    //geometry();
+    geometry_gap();
     computeNcp();
 }
 
@@ -158,10 +159,20 @@ void Grid2D::geometry( ){
 //>>>classical gap geometry, with source in x direction
 void Grid2D::geometry_gap( ){
 
+    ofstream isWall;
+    ofstream bndr;
+    ofstream bndrVal;
 
     int ny_source = 20;
-    int ny_gapHeight = 50;
-    int nx_gapWeight = 200;
+    int ny_gapHeight = 100;
+    int nx_gapWeight = 50;
+
+    // electric potential at the wall surface
+    double val1 = -60.0;
+
+    // electric potential at source region
+    double val1_source = 0.0;
+
 
     // iswall_global_2D is for particle moving, if four points of one grid is 1, then the grid is wall
     for(int i=0; i<nx; i++)
@@ -196,7 +207,7 @@ void Grid2D::geometry_gap( ){
     }
 
 
-    //>>>struct boundary condition
+    //==============struct boundary condition===================================
     // bndr* is for electric potential solving
     for(int i=0; i<nx; i++)
       for(int j=0; j<ny; j++){
@@ -209,7 +220,8 @@ void Grid2D::geometry_gap( ){
     {
         for(int j = ny - ny_source; j < ny; j++)
         {
-            bndr_global_2D[i][j]=5;
+            bndr_global_2D[i][j] = 5;
+            bndrVal_global_2D[i][j] = val1_source;
         }
     }
 
@@ -219,15 +231,66 @@ void Grid2D::geometry_gap( ){
       bndr_global_2D[nx-1][j]=8;
     }
 
-    // 1 is the Dirchlet boundary condition
-    for(int j=0; j<ny; j++){
-      bndr_global_2D[dims_source[0]][j]=1;
-      bndrVal_global_2D[dims_source[0]][j]=0.0;
-
-      bndr_global_2D[nx-1][j]=1;
-      bndrVal_global_2D[nx-1][j]=0.0;
+    // define the source region surface boudary
+    for(int i = 0; i < nx; i++){
+      bndr_global_2D    [i][ny - ny_source -1] = 1;
+      bndrVal_global_2D [i][ny - ny_source -1] = val1_source;
     }
 
+    // define the wall surface boundary
+    for(int j = 0; j < ny_gapHeight; j++)
+    {
+        for(int i = 0; i < nx; i++)
+        {
+            if( (i == 0 || i == nx - 1) && j == ny_gapHeight -1 ) {
+                bndr_global_2D[i][j] = 1;
+                bndrVal_global_2D[i][j] = val1;
+            }
+            else if( (i == 0 || i == nx - 1) && j < ny_gapHeight -1 ) {
+                bndr_global_2D[i][j] = 5;
+                bndrVal_global_2D[i][j] = val1;
+            }
+            else if( j == 0 && ( iswall_global_2D[i][j+1] == 0 ||
+            (i != 0 && iswall_global_2D[i-1][j+1] == 0) || (i != nx-1 && iswall_global_2D[i+1][j+1] == 0) ) ) {
+                bndr_global_2D[i][j] = 1;
+                bndrVal_global_2D[i][j] = val1;
+            }
+            else if( j == 0 && iswall_global_2D[i][j+1] == 1 ) {
+                bndr_global_2D[i][j] = 5;
+                bndrVal_global_2D[i][j] = val1;
+            }
+            else if( iswall_global_2D[i][j] == 1 && ( iswall_global_2D[i-1][j] == 0 || iswall_global_2D[i][j-1] == 0
+             || iswall_global_2D[i+1][j] == 0 || iswall_global_2D[i][j+1] == 0 ) ) {
+                bndr_global_2D[i][j] = 1;
+                bndrVal_global_2D[i][j] = val1;
+            }
+            else if( iswall_global_2D[i][j] == 1 ) {
+                bndr_global_2D[i][j] = 5;
+                bndrVal_global_2D[i][j] = val1;
+            }
+        }
+    }
+
+
+    // output data grid data
+    isWall.open("isWall.txt");
+    bndr.open("bndr.txt");
+    bndrVal.open("bndrVal.txt");
+    for(int i=0; i<nx; i++)
+    {
+        for(int j = 0; j < ny; j++)
+        {
+            isWall<<iswall_global_2D[i][j];
+            bndr<<bndr_global_2D[i][j];
+            bndrVal<<bndrVal_global_2D[i][j];
+        }
+        isWall<<endl;
+        bndr<<endl;
+        bndrVal<<endl;
+    }
+    isWall.close();
+    bndr.close();
+    bndrVal.close();
 
 }
 
@@ -238,7 +301,7 @@ void Grid2D::computeNcp(){
     ncp=0;
     for(int i=0; i<nx; i++)
       for(int j=0; j<ny; j++){
-        if((iswall_global_2D[i][j]==0 && bndr_global_2D[i][j]!=5) || bndr_global_2D[i][j]==1
+        if( bndr_global_2D[i][j]==0 || bndr_global_2D[i][j]==1
         || bndr_global_2D[i][j]==2 || bndr_global_2D[i][j]==8){
           ncp++;
           numcp_global_2D[i][j]=ncp-1;

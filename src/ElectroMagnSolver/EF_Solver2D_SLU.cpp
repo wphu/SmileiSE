@@ -183,7 +183,7 @@ void EF_Solver2D_SLU::initSLU(){
         for(j=0; j<ny; j++)
         {
             // normal points in the calculation region
-            if(grid2D->iswall_global_2D[i][j]==0 && grid2D->bndr_global_2D[i][j]==0) {
+            if(grid2D->bndr_global_2D[i][j]==0) {
                 hl = grid2D->numcp_global_2D[i][j] - grid2D->numcp_global_2D[i-1][j];
                 hr = grid2D->numcp_global_2D[i+1][j] - grid2D->numcp_global_2D[i][j];
                 for(k=0; k<grid2D->ncp; k++){
@@ -263,6 +263,49 @@ void EF_Solver2D_SLU::initSLU(){
                 }
                 ii++;
             }
+
+            // periodic boudnary points
+            else if( grid2D->bndr_global_2D[i][j]==8 && i==0) {
+                hr = grid2D->numcp_global_2D[nx-1][j] - grid2D->numcp_global_2D[i][j];
+                for(k=0; k<grid2D->ncp; k++){
+                    b[k]=0.0;
+                }
+                b[ii]=1.0; b[ii+hr]=-1.0;
+                nnz=nnz+2;
+                for(k=0; k<grid2D->ncp; k++){
+                    if(b[k] != 0.0){
+                        if(v>=grid2D->ncp*5) cout<<"error"<<v<<endl;
+                        val[v] = b [k];
+                        row[v] = ii;
+                        col[v] = k;
+                        v++;
+                    }
+                }
+                ii++;
+            }
+
+            // periodic boudnary points
+            else if ( grid2D->bndr_global_2D[i][j] == 8 && i == nx-1 ) {
+                hl = grid2D->numcp_global_2D[i][j] - grid2D->numcp_global_2D[i-1][j];
+                hr = grid2D->numcp_global_2D[i][j] - grid2D->numcp_global_2D[1][j];
+                for(k=0; k<grid2D->ncp; k++){
+                b[k]=0.0;
+                }
+                b[ii]=-4.0; b[ii-hl]=1.0; b[ii-1]=1.0; b[ii-hr]=1.0; b[ii+1]=1.0;
+                nnz=nnz+5;
+                for(k=0; k<grid2D->ncp; k++){
+                if(b[k] != 0.0){
+                    if(v>=grid2D->ncp*5) cout<<"error"<<v<<endl;
+                  val[v] = b [k];
+                  row[v] = ii;
+                  col[v] = k;
+                  v++;
+                }
+                }
+                ii++;
+            }
+
+
         }
     }
 
@@ -367,7 +410,7 @@ void EF_Solver2D_SLU::solve_SLU(Field* rho, Field* phi){
     for ( int i=0; i<nx; i++)
     {
       for ( int j=0; j<ny; j++) {
-        if ( grid2D->iswall_global_2D[i][j] == 0 && grid2D->bndr_global_2D[i][j] == 0 ) {
+        if ( grid2D->bndr_global_2D[i][j] == 0 ) {
           rhsb[ii] = - dxy * const_ephi0_inv * (*rho2D)(i,j);
           ii++;
         }
@@ -375,11 +418,11 @@ void EF_Solver2D_SLU::solve_SLU(Field* rho, Field* phi){
           rhsb[ii] = grid2D->bndrVal_global_2D[i][j];
           ii++;
         }
-        else if ( grid2D->bndr_global_2D[i][j] == 8 && j == 0) {
+        else if ( grid2D->bndr_global_2D[i][j] == 8 && ( j == 0 || i == 0 )) {
           rhsb[ii] = 0.0;
           ii++;
         }
-        else if ( grid2D->bndr_global_2D[i][j] == 8 && j == ny-1) {
+        else if ( grid2D->bndr_global_2D[i][j] == 8 && ( j == ny-1 || i == nx-1 )) {
           rhsb[ii] = - dxy * const_ephi0_inv * (*rho2D)(i,j);
           ii++;
         }
@@ -409,11 +452,16 @@ void EF_Solver2D_SLU::solve_SLU(Field* rho, Field* phi){
     ii=0;
     for ( int i=0; i<nx; i++)
       for ( int j=0; j<ny; j++) {
-        if ( ( grid2D->iswall_global_2D[i][j] == 0 && grid2D->bndr_global_2D[i][j] != 5) || grid2D->bndr_global_2D[i][j] == 1
+        if ( grid2D->bndr_global_2D[i][j] == 0 || grid2D->bndr_global_2D[i][j] == 1
         || grid2D->bndr_global_2D[i][j] == 2 || grid2D->bndr_global_2D[i][j] == 8) {
           (*phi2D)(i,j) = rhsx[ii];
           ii++;
         }
+
+        if(grid2D->bndr_global_2D[i][j] == 5) {
+            (*phi2D)(i,j) = grid2D->bndrVal_global_2D[i][j];
+        }
+
       }//>>>end convert
 
     StatFree(&stat);

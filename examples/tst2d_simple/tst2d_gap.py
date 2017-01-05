@@ -120,10 +120,10 @@ Species(
 	nb_density = 1.0e19,
 	temperature = [20],
 	time_frozen = 0.,
-	bc_part_type_west  = 'supp',
-	bc_part_type_east  = 'supp',
-	bc_part_type_south = 'refl',
-	bc_part_type_north = 'refl'
+	bc_part_type_west  = 'refl',
+	bc_part_type_east  = 'refl',
+	bc_part_type_south = 'supp',
+	bc_part_type_north = 'supp'
 )
 
 
@@ -140,10 +140,10 @@ Species(
 	nb_density = 1.0e19,
 	temperature = [20],
 	time_frozen = 0.0,
-	bc_part_type_west  = 'supp',
-	bc_part_type_east  = 'supp',
-	bc_part_type_south = 'refl',
-	bc_part_type_north = 'refl'
+	bc_part_type_west  = 'refl',
+	bc_part_type_east  = 'refl',
+	bc_part_type_south = 'supp',
+	bc_part_type_north = 'supp'
 )
 
 
@@ -161,10 +161,10 @@ Species(
 	nb_density = 0.5e19,
 	temperature = [20],
 	time_frozen = 0.0,
-	bc_part_type_west  = 'supp',
-	bc_part_type_east  = 'supp',
-	bc_part_type_south = 'refl',
-	bc_part_type_north = 'refl'
+	bc_part_type_west  = 'refl',
+	bc_part_type_east  = 'refl',
+	bc_part_type_south = 'supp',
+	bc_part_type_north = 'supp'
 )
 
 
