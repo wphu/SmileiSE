@@ -3,7 +3,8 @@
 
 #include "Grid.h"
 #include "Grid2D.h"
-
+#include "SmileiMPI.h"
+#include "SmileiMPI_Cart2D.h"
 #include "PicParams.h"
 
 #include "Tools.h"
@@ -18,7 +19,7 @@ public:
     //! \param params : Parameters
     //! \param smpiData : Initial MPI environment (data broadcast)
     //  --------------------------------------------------------------------------------------------------------------------
-    static Grid* create(PicParams& params) {
+    static Grid* create(PicParams& params, SmileiMPI* smpi) {
         Grid* grid = NULL;
         MESSAGE(1, "Geometry:" << params.geometry);
         if ( params.geometry == "1d3v" ) {
@@ -26,6 +27,7 @@ public:
         }
         else if ( params.geometry == "2d3v" ) {
             grid = new Grid2D(params);
+            smpi->scatterGrid(grid);
         }
         else {
             ERROR( "Geometry " << params.geometry << " not implemented" );

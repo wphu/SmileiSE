@@ -12,6 +12,7 @@
 #include "ElectroMagn.h"
 #include "Field.h"
 #include "Species.h"
+#include "Grid.h"
 
 using namespace std;
 

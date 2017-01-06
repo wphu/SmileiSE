@@ -17,7 +17,8 @@
 #include "Interpolator.h"
 #include "InterpolatorFactory.h"
 #include "Profile.h"
-
+#include "Grid.h"
+#include "Grid2D.h"
 #include "Projector.h"
 
 #include "SmileiMPI.h"
@@ -477,6 +478,171 @@ void Species::dynamics(double time_dual, unsigned int ispec, ElectroMagn* EMfiel
         double gf = 1.0;
         //Allocate buffer for projection  *****************************
         // *4 accounts for Jy, Jz and rho. * nthds accounts for each thread.
+        b_rho = (double *) malloc(size_proj_buffer * sizeof(double));
+
+
+        psi_particles.clear();
+        for (ibin = 0 ; ibin < (unsigned int)bmin.size() ; ibin++) {
+
+            // reset all current-buffers
+            memset( &(b_rho[0]), 0, size_proj_buffer*sizeof(double));
+
+            for (iPart=(unsigned int)bmin[ibin] ; iPart<(unsigned int)bmax[ibin]; iPart++ ) {
+
+
+                //MESSAGE("ipart: "<<iPart);
+                //cout<<"ipart: "<<iPart<<endl;
+                // Interpolate the fields at the particle position
+                //(*LocInterp)(EMfields, particles, iPart, &Epart);
+                (*LocInterp)(EMfields, particles, iPart, &Epart, &Bpart);
+
+                //if(Epart.x != 0.0 || Epart.y != 0.0 || Epart.z != 0.0 || Bpart.x != 0.0 || Bpart.y != 0.0 || Bpart.z != 0.0){
+                //    cout<<iPart<<"local field not zero  "<<Epart.x<<" "<<Epart.y<<" "<<Epart.z<<" "<<Bpart.x<<" "<<Bpart.y<<" "<<Bpart.z<<endl;
+                //}
+
+
+                // Push the particle
+                //(*Push)(particles, iPart, Epart);
+                (*Push)(particles, iPart, Epart, Bpart);
+                //(*Push)(particles, iPart, Epart, Bpart, gf);
+
+                // Apply boundary condition on the particles
+                // Boundary Condition may be physical or due to domain decomposition
+                // apply returns 0 if iPart is no more in the domain local
+                // if omp, create a list per thread
+                if ( !partBoundCond->apply( particles, iPart, params.species_param[ispec], ener_iPart, iDirection ) ) {
+                    addPartInExchList( tid, iPart );
+                    nrj_lost_per_thd[tid] += params.species_param[ispec].mass * ener_iPart;
+                    if(iDirection >= 0){
+                        addPartInPsiList( iDirection, iPart );
+                    }
+                }
+
+                //if (!particles.isTestParticles) {
+                //    if (ndim <= 2) {
+                //        (*Proj)(b_Jx, b_Jy, b_Jz, b_rho, particles, iPart, gf, ibin*clrw, b_lastdim);
+                //        //(*Proj)(EMfields->rho_s[ispec], particles, iPart);
+                //    } else {
+                //        (*Proj)(EMfields->Jx_s[ispec], EMfields->Jy_s[ispec], EMfields->Jz_s[ispec],
+                //                EMfields->rho_s[ispec],particles, iPart, gf);
+                //    }
+                //}
+            }//iPart
+
+
+            /*
+            // Copy buffer back to the global array and free buffer****************
+            if (!particles.isTestParticles) {
+                // this part is dimension dependant !! this is for dim = 1
+                if (ndim == 1) {
+                    for (i = 0; i < b_dim0 ; i++) {
+                        //! \todo Should we care about primal - dual sizes here ?
+                        iloc = ibin*clrw + i ;
+                        (*EMfields->rho_s[ispec])(iloc) += b_rho[i];
+                    }
+                } // End if (ndim == 1)
+                if (ndim == 2) {
+                    for (i = 0; i < 2*oversize[0]+1 ; i++) {
+                        iloc = ibin*clrw + i ;
+                        //! \todo Here b_dim0 is the dual size. Make sure no problems arise when i == b_dim0-1 for primal arrays.
+                        for (j = 0; j < b_dim1 ; j++) {
+                            (*EMfields->rho_s[ispec])(iloc*(f_dim1  )+j) += b_rho[i*b_dim1+j];   // primal along y
+                        }
+                    }
+                    for (i = 2*oversize[0]+1; i < clrw ; i++) {
+                        iloc = ibin*clrw + i ;
+                        //! \todo Here b_dim0 is the dual size. Make sure no problems arise when i == b_dim0-1 for primal arrays.
+                        for (j = 0; j < b_dim1 ; j++) {
+                            (*EMfields->rho_s[ispec])(iloc*(f_dim1  )+j) += b_rho[i*b_dim1+j];   // primal along y
+                        }
+                    }
+                    for (i = std::max(clrw,2*oversize[0]+1); i < b_dim0 ; i++) {
+                        iloc = ibin*clrw + i ;
+                        //! \todo Here b_dim0 is the dual size. Make sure no problems arise when i == b_dim0-1 for primal arrays.
+                        for (j = 0; j < b_dim1 ; j++) {
+                            (*EMfields->rho_s[ispec])(iloc*(f_dim1  )+j) += b_rho[i*b_dim1+j];   // primal along y
+                        }
+                    }
+                } // End if (ndim == 2)
+            } // if (!particles.isTestParticles)
+            */
+
+        }// ibin
+
+        for (iPart=0 ; iPart<nParticles; iPart++ ) {
+            (*Proj)(EMfields->rho_s[ispec], particles, iPart);
+        }
+
+        // copy PSI particles to psi_particles, because after MPi particle exchanging
+        // the PSI particles will be erased
+        for(int iDirection=0; iDirection<indexes_of_particles_to_perform_psi.size(); iDirection++)
+        {
+            for(int iPart=0; iPart<indexes_of_particles_to_perform_psi[iDirection].size(); iPart++)
+            {
+                int iPart_psi = indexes_of_particles_to_perform_psi[iDirection][iPart];
+                particles.cp_particle(iPart_psi, psi_particles);
+            }
+        }
+
+        free(b_rho);
+
+        for (unsigned int ithd=0 ; ithd<nrj_lost_per_thd.size() ; ithd++)
+            nrj_bc_lost += nrj_lost_per_thd[ithd];
+    }
+    else if (!particles.isTestParticles) { // immobile particle (at the moment only project density)
+        for (iPart=0 ; iPart<nParticles; iPart++ ) {
+            (*Proj)(EMfields->rho_s[ispec], particles, iPart);
+        }
+    }//END if time vs. time_frozen
+
+    delete LocInterp;
+
+}//END dynamic
+
+
+
+void Species::dynamics_EM(double time_dual, unsigned int ispec, ElectroMagn* EMfields, Interpolator* Interp,
+                       Projector* Proj, SmileiMPI *smpi, PicParams &params)
+{
+    Interpolator* LocInterp = InterpolatorFactory::create(params, smpi);
+
+    // Electric field at the particle position
+    LocalFields Epart;
+    // Magnetic field at the particle position
+    LocalFields Bpart;
+    // Ionization current
+    LocalFields Jion;
+
+    int iloc;
+    unsigned int i,j,ibin,iPart;
+
+    //! buffers for currents and charge
+    double *b_Jx,*b_Jy,*b_Jz,*b_rho;
+
+    // number of particles for this Species
+    unsigned int nParticles = getNbrOfParticles();
+    // Reset list of particles to exchange
+    int tid(0);
+    int iDirection=-1;
+    std::vector<double> nrj_lost_per_thd(1, 0.);
+#ifdef _OMP
+    tid = omp_get_thread_num();
+    int nthds = omp_get_num_threads();
+    nrj_lost_per_thd.resize(nthds, 0.);
+#endif
+    clearExchList(tid);
+
+    //ener_tot  = 0.;
+    //ener_lost = 0.;
+    double ener_iPart(0.);
+    //bool contribute(true);
+    // -------------------------------
+    // calculate the particle dynamics
+    // -------------------------------
+    if (time_dual>species_param.time_frozen) { // moving particle
+        double gf = 1.0;
+        //Allocate buffer for projection  *****************************
+        // *4 accounts for Jy, Jz and rho. * nthds accounts for each thread.
         b_Jx = (double *) malloc(4 * size_proj_buffer * sizeof(double));
         //Point buffers of each thread to the correct position
         b_Jy = b_Jx + size_proj_buffer ;
@@ -624,6 +790,69 @@ void Species::dynamics(double time_dual, unsigned int ispec, ElectroMagn* EMfiel
     delete LocInterp;
 
 }//END dynamic
+
+
+void Species::absorb2D(double time_dual, unsigned int ispec, Grid* grid, SmileiMPI *smpi, PicParams &params)
+{
+    double xpn, ypn;
+    int ic, jc;
+    double dx_inv_, dy_inv_;
+    int i_domain_begin, j_domain_begin;
+
+    Grid2D* grid2D = static_cast<Grid2D*>(grid);
+
+    SmileiMPI_Cart2D* smpi2D = static_cast<SmileiMPI_Cart2D*>(smpi);
+
+    dx_inv_   = 1.0/params.cell_length[0];
+    dy_inv_   = 1.0/params.cell_length[1];
+
+    i_domain_begin = smpi2D->getCellStartingGlobalIndex(0);
+    j_domain_begin = smpi2D->getCellStartingGlobalIndex(1);
+
+
+    if (time_dual>species_param.time_frozen) { // moving particle
+
+        indexes_of_particles_to_absorb.clear();
+
+        psi_particles.clear();
+        for (int ibin = 0 ; ibin < (unsigned int)bmin.size() ; ibin++) {
+            for (int iPart=(unsigned int)bmin[ibin] ; iPart<(unsigned int)bmax[ibin]; iPart++ ) {
+
+                //Locate particle on the primal grid & calculate the projection coefficients
+                xpn = particles.position(0, iPart) * dx_inv_;  // normalized distance to the first node
+                ic  = floor(xpn);                   // index of the central node
+
+                ypn = particles.position(1, iPart) * dy_inv_;  // normalized distance to the first node
+                jc   = floor(ypn);                  // index of the central node
+
+                int i = ic-i_domain_begin; // index of first point for projection in x
+                int j = jc-j_domain_begin; // index of first point for projection in y
+
+                if( grid2D->iswall_2D[i][j] == 1 && grid2D->iswall_2D[i+1][j] == 1 && grid2D->iswall_2D[i+1][j+1] == 1
+                && grid2D->iswall_2D[i][j+1] == 1 ) {
+                    indexes_of_particles_to_absorb.push_back(iPart);
+                }
+
+            }//iPart
+
+        }// ibin
+
+        // copy PSI particles to psi_particles, because after MPi particle exchanging
+        // the PSI particles will be erased
+        for(int iPart=0; iPart<indexes_of_particles_to_absorb.size(); iPart++)
+        {
+            int iPart_psi = indexes_of_particles_to_absorb[iPart];
+            particles.cp_particle(iPart_psi, psi_particles);
+        }
+        erase_particles_from_bins(indexes_of_particles_to_absorb);
+    }
+    else if (!particles.isTestParticles) { // immobile particle (at the moment only project density)
+
+    }//END if time vs. time_frozen
+
+
+}//END absorbProject
+
 
 
 

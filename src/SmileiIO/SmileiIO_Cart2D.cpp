@@ -86,6 +86,13 @@ void SmileiIO_Cart2D::createFieldsPattern( PicParams& params, SmileiMPI* smpi, E
     addField(fields->phi_global_avg);
     addField(fields->Ex_global_avg);
 
+    for(int i = 0; i < fields->rho_s.size(); i++)
+    {
+        addField(fields->rho_s_global[i]);
+        //addField(fields->rho_s_global_avg[i]);
+
+    }
+
     //> if without below process, the method write() will go wrong, no ideas now!!!
     //> output initial 1d_global data===========================================
     data_ =  (double*)malloc(fieldsGroup.dims_global[3] * fieldsGroup.dims_global[2] * fieldsGroup.dims_global[1] * fieldsGroup.dims_global[0] * sizeof(double));

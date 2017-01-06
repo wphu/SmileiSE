@@ -8,7 +8,6 @@
 
 #include "PicParams.h"
 #include "Tools.h"
-#include "GridFactory.h"
 #include "Array4D.h"
 
 class PicParams;
@@ -16,6 +15,8 @@ class Particles;
 class Species;
 class ElectroMagn;
 class Field;
+class Grid;
+
 
 //  --------------------------------------------------------------------------------------------------------------------
 //! Class SmileiMPI

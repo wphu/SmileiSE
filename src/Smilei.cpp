@@ -95,7 +95,7 @@ int main (int argc, char* argv[])
     //>Initialize Grid
     TITLE("generate grid");
     Grid* grid = NULL;
-    grid = GridFactory::create(params);
+    grid = GridFactory::create(params, smpi);
     smpi->barrier();
     smpi->scatterGrid(grid);
 
@@ -253,6 +253,14 @@ int main (int argc, char* argv[])
             }
             vecSpecies[ispec]->sort_part(); // Should we sort test particles ?? (JD)
         }
+
+        // absorb particles which reach the walls
+        for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
+        {
+            vecSpecies[ispec]->absorb2D(time_dual, ispec, grid, smpi, params);
+            smpi->barrier();
+        }
+
 
         //> perform PSI (Plasma Surface Interaction) processes, such as injection, sputtering, secondary electron emission
         // PSIs usually create new particles, insert new particles to the end of each bins,
