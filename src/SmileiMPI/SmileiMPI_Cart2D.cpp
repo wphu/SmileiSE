@@ -798,6 +798,86 @@ void SmileiMPI_Cart2D::scatterGrid( Grid* grid )
 } // END scatterGrid
 
 
+void SmileiMPI_Cart2D::gatherRho( Field* field_global ,Field* field  )
+{
+
+    int procs_rk;
+    int iGlobal, jGlobal;
+    int iGlobal_gather;
+    int nx, ny;
+
+    Field2D* f2D =  static_cast<Field2D*>(field);
+    Field2D* f2D_global =  static_cast<Field2D*>(field_global);
+    nx = f2D_global->dims_[0];
+    ny = f2D_global->dims_[1];
+    f2D_global->put_to(0.0);
+    MPI_Gatherv(f2D->data_, send_cnt[smilei_rk], MPI_DOUBLE, field_global_gather, &recv_cnt[0], &recv_disp[0], MPI_DOUBLE, 0, SMILEI_COMM_2D);
+
+    for(int iProcs = 0; iProcs < number_of_procs[0]; iProcs++)
+    {
+        for(int jProcs = 0; jProcs < number_of_procs[1]; jProcs++)
+        {
+            procs_rk = iProcs * number_of_procs[1] + jProcs;
+            for(int i = 0; i < dims_gather[procs_rk*2]; i++)
+            {
+                for(int j = 0; j < dims_gather[procs_rk*2 + 1]; j++)
+                {
+                    iGlobal = iProcs * (dims_gather[0] - 2*oversize[0] -1) + i -oversize[0];
+                    jGlobal = jProcs * (dims_gather[1] - 2*oversize[1] -1) + j -oversize[1];
+                    if(iProcs == 0 && i < oversize[0] || iProcs == number_of_procs[0] -1 && i > dims_gather[procs_rk*2] - 1 - oversize[0]){
+                        iGlobal = abs((int)f2D_global->dims_[0] - abs(iGlobal) - 1);
+                    }
+                    if(jProcs == 0 && j < oversize[1] || jProcs == number_of_procs[1] -1 && j > dims_gather[procs_rk*2+1] - 1 - oversize[1]){
+                        jGlobal = abs((int)f2D_global->dims_[1] - abs(jGlobal) - 1);
+                    }
+                    iGlobal_gather = send_disp[procs_rk] + i * dims_gather[procs_rk*2+1] + j;
+                    //if(iGlobal >= ii || jGlobal >= jj) cout<<"error "<<iGlobal<<" "<<iProcs<<" "<<dims_gather[0]<<" "<<oversize[0]<<endl;
+
+                    f2D_global->data_2D[iGlobal][jGlobal] += field_global_gather[iGlobal_gather];
+
+                    //if(f2D_global->data_2D[iGlobal][jGlobal] != 0.0) cout<<"ereeee"; //<<f2D_global->data_2D[iGlobal][jGlobal]<<endl;
+
+
+                }
+            }
+
+        }
+    }
+
+    //> Handle the boundary points and corner points,
+    //> this is meaningful for periodic boundary condition,
+    //> but not affect the results of other boudary conditions.
+    for(int i = 0; i < nx; i++)
+    {
+        for(int j = 0; j < ny; j++)
+        {
+            if( i == 0){
+                f2D_global->data_2D[i][j] += f2D_global->data_2D[nx-1][j];
+            }
+            else if(j == 0){
+                f2D_global->data_2D[i][j] += f2D_global->data_2D[i][ny-1];
+            }
+        }
+
+    }
+    for(int i = 0; i < nx; i++)
+    {
+        for(int j = 0; j < ny; j++)
+        {
+            if( i == nx-1){
+                f2D_global->data_2D[i][j] = f2D_global->data_2D[0][j];
+            }
+            else if(j == ny-1){
+                f2D_global->data_2D[i][j] = f2D_global->data_2D[i][0];
+            }
+        }
+
+    }
+
+
+
+} // END gatherRho
+
 
 void SmileiMPI_Cart2D::gatherField( Field* field_global ,Field* field  )
 {
@@ -834,7 +914,7 @@ void SmileiMPI_Cart2D::gatherField( Field* field_global ,Field* field  )
                     iGlobal_gather = send_disp[procs_rk] + i * dims_gather[procs_rk*2+1] + j;
                     //if(iGlobal >= ii || jGlobal >= jj) cout<<"error "<<iGlobal<<" "<<iProcs<<" "<<dims_gather[0]<<" "<<oversize[0]<<endl;
 
-                    f2D_global->data_2D[iGlobal][jGlobal] += field_global_gather[iGlobal_gather];
+                    f2D_global->data_2D[iGlobal][jGlobal] = field_global_gather[iGlobal_gather];
 
                     //if(f2D_global->data_2D[iGlobal][jGlobal] != 0.0) cout<<"ereeee"; //<<f2D_global->data_2D[iGlobal][jGlobal]<<endl;
 

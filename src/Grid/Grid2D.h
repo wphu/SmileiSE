@@ -4,8 +4,11 @@
 #include <cmath>
 
 #include <vector>
+#include <string>
 
 #include "Grid.h"
+
+using namespace std;
 
 //! class Grid2D used to defined a 2d vector
 class Grid2D : public Grid
@@ -16,7 +19,14 @@ public:
     Grid2D();
 
     //! Constructor for Grid2D: with the vector dimension as input argument
-    Grid2D(PicParams &params);
+    Grid2D(
+        PicParams &params,
+        string grid_type,
+        string gap_kind,
+        int ny_source_temp,
+        int ny_gapHeight_temp,
+        int nx_gapWeight_temp,
+        double potential_wall_temp);
 
     //! Destructor for Grid2D
     ~Grid2D();
@@ -35,6 +45,14 @@ public:
 
     //>>>temp variable
 
+
+
+    // Tomakak divertor gap geometry Parameters
+    std::string gapKind;
+    int ny_source;
+    int ny_gapHeight;
+    int nx_gapWeight;
+    double potential_wall;
 
 
 private:

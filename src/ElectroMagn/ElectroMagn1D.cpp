@@ -93,7 +93,6 @@ isEastern(smpi->isEastern())
     Jy_   = new Field1D(dimPrim, "Jy");
     Jz_   = new Field1D(dimPrim, "Jz");
     rho_  = new Field1D(dimPrim, "Rho" );
-
     rho_avg  = new Field1D(dimPrim, "Rho_avg" );
 
 
@@ -309,65 +308,47 @@ void ElectroMagn1D::centerMagneticFields()
 // ---------------------------------------------------------------------------------------------------------------------
 void ElectroMagn1D::incrementAvgFields(unsigned int time_step, unsigned int ntime_step_avg)
 {
-    // Static cast of the fields
-    Field1D* rho1D    = static_cast<Field1D*>(rho_);
-    Field1D* phi1D    = static_cast<Field1D*>(phi_);
-    Field1D* Ex1D     = static_cast<Field1D*>(Ex_);
-
-
-    Field1D* rho1D_avg = static_cast<Field1D*>(rho_avg);
-    Field1D* phi1D_avg = static_cast<Field1D*>(phi_avg);
-    Field1D* Ex1D_avg  = static_cast<Field1D*>(Ex_avg);
-
-
     // reset the averaged fields for (time_step-1)%ntime_step_avg == 0
     if ( (time_step-1)%ntime_step_avg==0 ){
-        rho1D_avg->put_to(0.0);
-        phi1D_avg->put_to(0.0);
-        Ex1D_avg->put_to(0.0);
+        rho_global_avg->put_to(0.0);
+        phi_global_avg->put_to(0.0);
+        Ex_global_avg->put_to(0.0);
+        Ey_global_avg->put_to(0.0);
         for (unsigned int ispec=0; ispec<n_species; ispec++) {
-            Field1D* rho1D_s_avg    = static_cast<Field1D*>(rho_s_avg[ispec]);
-            rho1D_s_avg->put_to(0.0);
+            rho_s_avg[ispec]->put_to(0.0);
         }//END loop on species ispec
-
-
     }
 
-    // for Ex
+    // Calculate the sum values for global rho phi Ex and Ey
     for (unsigned int i=0 ; i<dimPrim[0] ; i++) {
-        (*rho1D_avg)(i) += (*rho1D)(i);
-        (*phi1D_avg)(i) += (*phi1D)(i);
-        (*Ex1D_avg)(i)  += (*Ex1D)(i);
-
+        (*rho_global_avg)(i) += (*rho_global)(i);
+        (*phi_global_avg)(i) += (*phi_global)(i);
+        (*Ex_global_avg)(i)  += (*Ex_global)(i);
+        (*Ey_global_avg)(i)  += (*Ey_global)(i);
     }
 
-    // for density of each species
+    // Calculate the sum values for density of each species
     for (unsigned int ispec=0; ispec<n_species; ispec++) {
-        Field1D* rho1D_s        = static_cast<Field1D*>(rho_s[ispec]);
-        Field1D* rho1D_s_avg    = static_cast<Field1D*>(rho_s_avg[ispec]);
         // all fields are defined on the primal grid
         for (unsigned int ix=0 ; ix<dimPrim[0] ; ix++) {
-            (*rho1D_s_avg)(ix) += (*rho1D_s)(ix);
+            (*rho_s_avg[ispec])(ix) += (*rho_s[ispec])(ix);
         }
     }//END loop on species ispec
 
 
-
-    // reset the averaged fields for (time_step-1)%ntime_step_avg == 0
+    // calculate the averaged values
     if ( time_step%ntime_step_avg==0 ){
         for (unsigned int i=0 ; i<dimPrim[0] ; i++) {
-            (*rho1D_avg)(i) /= ntime_step_avg;
-            (*phi1D_avg)(i) /= ntime_step_avg;
-            (*Ex1D_avg)(i)  /= ntime_step_avg;
-
+            (*rho_global_avg)(i) /= ntime_step_avg;
+            (*phi_global_avg)(i) /= ntime_step_avg;
+            (*Ex_global_avg)(i)  /= ntime_step_avg;
+            (*Ey_global_avg)(i)  /= ntime_step_avg;
         }
         for (unsigned int ispec=0; ispec<n_species; ispec++) {
-            Field1D* rho1D_s_avg    = static_cast<Field1D*>(rho_s_avg[ispec]);
             for (unsigned int ix=0 ; ix<dimPrim[0] ; ix++) {
-                (*rho1D_s_avg)(ix) /= ntime_step_avg;
+                (*rho_s_avg[ispec])(ix) /= ntime_step_avg;
             }
         }//END loop on species ispec
-
     }
 
 }//END incrementAvgFields

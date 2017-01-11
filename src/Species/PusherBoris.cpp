@@ -36,8 +36,73 @@ void PusherBoris::operator() (Particles &particles, int ipart, LocalFields Epart
 
 
 /***********************************************************************
+	Lorentz Force -- leap-frog (Boris) scheme -- non-relativistic  ---by wphu
+***********************************************************************/
+void PusherBoris::operator() (Particles &particles, int ipart, LocalFields Epart, LocalFields Bpart)
+{
+    double charge_over_mass_ = static_cast<double>(particles.charge(ipart))*one_over_mass_;
+    double umx, umy, umz, upx, upy, upz, pxdot, pydot, pzdot;
+    double alpha, inv_det_T, Tx, Ty, Tz, Tx2, Ty2, Tz2, Sx, Sy, Sz;
+    double TxTy, TyTz, TzTx;
+    double pxsm, pysm, pzsm;
+
+    // --------------------------------------
+    // SOLVE THE PARTICLE EQUATION OF MOTIONS
+    // --------------------------------------
+
+    // Half-acceleration in the electric field
+    umx = particles.momentum(0, ipart) + charge_over_mass_*Epart.x*dts2;
+    umy = particles.momentum(1, ipart) + charge_over_mass_*Epart.y*dts2;
+    umz = particles.momentum(2, ipart) + charge_over_mass_*Epart.z*dts2;
+
+    // Rotation in the magnetic field
+    alpha = charge_over_mass_*dts2;
+    Tx    = alpha * Bpart.x;
+    Ty    = alpha * Bpart.y;
+    Tz    = alpha * Bpart.z;
+    Tx2   = Tx*Tx;
+    Ty2   = Ty*Ty;
+    Tz2   = Tz*Tz;
+    TxTy  = Tx*Ty;
+    TyTz  = Ty*Tz;
+    TzTx  = Tz*Tx;
+    inv_det_T = 1.0/(1.0+Tx2+Ty2+Tz2);
+    Sx    = 2.0 * Tx * inv_det_T;
+    Sy    = 2.0 * Ty * inv_det_T;
+    Sz    = 2.0 * Tz * inv_det_T;
+
+    pxdot = umx + umy * Tz - umz * Ty;
+    pydot = umy + umz * Tx - umx * Tz;
+    pzdot = umz + umx * Ty - umy * Tx;
+
+    pxsm = umx + pydot * Sz - pzdot * Sy;
+    pysm = umy + pzdot * Sx - pxdot * Sz;
+    pzsm = umz + pxdot * Sy - pydot * Sx;
+
+    // Half-acceleration in the electric field
+    pxsm = upx + charge_over_mass_*Epart.x*dts2;
+    pysm = upy + charge_over_mass_*Epart.y*dts2;
+    pzsm = upz + charge_over_mass_*Epart.z*dts2;
+
+    particles.momentum(0, ipart) = pxsm;
+    particles.momentum(1, ipart) = pysm;
+    particles.momentum(2, ipart) = pzsm;
+
+    // Move the particle
+    for ( int i = 0 ; i<nDim_ ; i++ ) {
+        particles.position_old(i, ipart)  = particles.position(i, ipart);
+        particles.position(i, ipart)     += dt*particles.momentum(i, ipart);
+    }
+
+}
+
+
+
+
+/***********************************************************************
 	Lorentz Force -- leap-frog (Boris) scheme -- non-relativistic
 ***********************************************************************/
+/*
 void PusherBoris::operator() (Particles &particles, int ipart, LocalFields Epart, LocalFields Bpart)
 {
     double charge_over_mass_ = static_cast<double>(particles.charge(ipart))*one_over_mass_;
@@ -89,7 +154,7 @@ void PusherBoris::operator() (Particles &particles, int ipart, LocalFields Epart
 
 }
 
-
+*/
 
 
 /***********************************************************************

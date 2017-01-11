@@ -1,20 +1,20 @@
 /*
-PartSource1D class
+PartSource2D class
 */
 
-#ifndef PARTSOURCE1D_H
-#define PARTSOURCE1D_H
+#ifndef PARTSOURCE2D_H
+#define PARTSOURCE2D_H
 
 #include <vector>
 #include "PartSource.h"
 
-class PartSource1D : public PartSource
+class PartSource2D : public PartSource
 {
 
 public:
     //! Constructor for PSI between two species
-    PartSource1D(PicParams& params, SmileiMPI* smpi) : PartSource(params, smpi) {};
-    virtual ~PartSource1D(){};
+    PartSource2D(PicParams& params, SmileiMPI* smpi) : PartSource(params, smpi) {};
+    virtual ~PartSource2D(){};
 
     // sputtered particle number
     int nPartEmit;

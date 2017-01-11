@@ -95,7 +95,7 @@ int main (int argc, char* argv[])
     //>Initialize Grid
     TITLE("generate grid");
     Grid* grid = NULL;
-    grid = GridFactory::create(params, smpi);
+    grid = GridFactory::create(params, input_data, smpi);
     smpi->barrier();
     smpi->scatterGrid(grid);
 

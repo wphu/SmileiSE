@@ -81,7 +81,7 @@ void Projector2D1Order::operator() (Field* rho, Particles &particles, int ipart)
 
     //Declaration of local variables
     double delta, delta2;
-    double rho_p = particles.charge(ipart)*particles.weight(ipart);   // charge density of the macro-particle
+    double rho_p = particles.weight(ipart);   // charge density of the macro-particle
     double Sx[2], Sy[2];             // projection coefficient arrays
 
     //Locate particle on the primal grid & calculate the projection coefficients

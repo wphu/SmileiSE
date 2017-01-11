@@ -142,7 +142,9 @@ class MyDynamicMplCanvas1D(MyMplCanvas):
 class MyStaticMplCanvas2D(MyMplCanvas):
     """Simple canvas with a sine plot."""
     def compute_initial_figure(self, time, dset=None):
-
+        self.fig.clear()
+        self.fig.subplots_adjust(top=0.85, bottom=0.2, left=0.2)
+        self.axes1 = self.fig.add_subplot(111)
         #> ==================================================================
         if dset != None:
             self.dset = dset
@@ -168,8 +170,9 @@ class MyStaticMplCanvas2D(MyMplCanvas):
         else:
         	ticks_val=np.linspace(val_2d.min(),val_2d.max(),5)
 
-        self.axes1.contourf(self.x,self.y,val_2d,cmap=cm.get_cmap('jet'),levels=levels)
-        #cbar_temp1=fig.colorbar(cf_temp1,ticks=ticks_val)
+        self.cf_temp1 = self.axes1.contourf(self.x,self.y,val_2d,cmap=cm.get_cmap('jet'),levels=levels)
+
+        self.fig.colorbar(self.cf_temp1,ticks=ticks_val)
 
 
 
@@ -178,6 +181,7 @@ class MyStaticMplCanvas2D(MyMplCanvas):
         self.axes1.set_title('rho')
         self.axes1.set_xlabel('x(mm)')
         self.axes1.set_ylabel('y(mm)')
+
 
 
 
@@ -204,6 +208,9 @@ class MyDynamicMplCanvas2D(MyMplCanvas):
 
 
     def compute_initial_figure(self, time, dset = None):
+        self.fig.clear()
+        self.fig.subplots_adjust(top=0.85, bottom=0.2, left=0.2)
+        self.axes1 = self.fig.add_subplot(111)
         #> ==================================================================
         #> ==================================================================
         if dset != None:
@@ -231,8 +238,8 @@ class MyDynamicMplCanvas2D(MyMplCanvas):
         else:
         	ticks_val=np.linspace(val_2d.min(),val_2d.max(),5)
 
-        self.axes1.contourf(self.x,self.y,val_2d,cmap=cm.get_cmap('jet'),levels=levels)
-        #cbar_temp1=fig.colorbar(cf_temp1,ticks=ticks_val)
+        self.cf_temp1 = self.axes1.contourf(self.x,self.y,val_2d,cmap=cm.get_cmap('jet'),levels=levels)
+        self.fig.colorbar(self.cf_temp1,ticks=ticks_val)
 
         self.axes1.axis([self.x.min(),self.x.max(),self.y.min(),self.y.max()])
         self.axes1.set_yticks(np.arange(0,self.y.max(),100))
@@ -241,6 +248,9 @@ class MyDynamicMplCanvas2D(MyMplCanvas):
         self.axes1.set_ylabel('y(mm)')
 
     def update_figure(self, time):
+        self.fig.clear()
+        self.fig.subplots_adjust(top=0.85, bottom=0.2, left=0.2)
+        self.axes1 = self.fig.add_subplot(111)
 
         #> ==================================================================
         self.time = time
@@ -257,8 +267,8 @@ class MyDynamicMplCanvas2D(MyMplCanvas):
         else:
         	ticks_val=np.linspace(val_2d.min(),val_2d.max(),5)
 
-        self.im = self.axes1.contourf(self.x,self.y,val_2d,cmap=cm.get_cmap('jet'),levels=levels)
-        #cbar_temp1=fig.colorbar(cf_temp1,ticks=ticks_val)
+        self.cf_temp1 = self.axes1.contourf(self.x,self.y,val_2d,cmap=cm.get_cmap('jet'),levels=levels)
+        self.fig.colorbar(self.cf_temp1,ticks=ticks_val)
 
 
 

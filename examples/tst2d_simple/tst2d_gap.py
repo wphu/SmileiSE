@@ -17,7 +17,7 @@ wavelength_SI = 1.e-6
 
 
 
-Lsim = [200.*l0,200.*l0]	# length of the simulation
+Lsim = [300.*l0,300.*l0]	# length of the simulation
 Tsim = 10.*t0			# duration of the simulation
 # print_every (on screen text output)
 # print_every = 60
@@ -64,18 +64,21 @@ bc_em_type_x = ['silver-muller']
 bc_em_type_y = ['silver-muller']
 bc_em_value_x = [0.0, 0.0]
 
-B = 2.0
-angle = 5.0 * math.pi / 180.0
-Bx = B * math.sin(angle)
-By = B * math.cos(angle)
+B = 2
+angle = (180.0 - 5.0) * math.pi / 180.0
+Bx = B * math.cos(angle)
+By = B * math.sin(angle)
 Bz = 0.0
 externB = [Bx, By, Bz]
 
 ion_sound_velocity = math.sqrt( (20.0 * 1.6021766208e-19) / (2.0 * 1.67262158e-27) )
-vx = ion_sound_velocity * math.sin(angle)
-vy = ion_sound_velocity * math.cos(angle)
+vx = -ion_sound_velocity * math.cos(angle)
+vy = -ion_sound_velocity * math.sin(angle)
 vz = 0.0
 
+vx = 0.0
+vy = 0.0
+vz = 0.0
 
 #Topology:
 #number_of_procs: Number of MPI processes in each direction.
@@ -86,6 +89,18 @@ number_of_procs = [4, 5]
 # RANDOM seed
 # this is used to randomize the random number generator
 random_seed = 0
+
+
+
+Grid(
+	gridType = "gap",
+	gapKind = "divertor",
+	ny_source = 20,
+	ny_gapHeight = 100,
+	nx_gapWeight = 100,
+	potential_wall = -60.0
+)
+
 
 
 
@@ -112,13 +127,14 @@ Species(
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 200,
+	n_part_per_cell = 0,
 	n_part_per_cell_for_weight = 200,
 	c_part_max = 1.0,
 	mass = 9.109382616e-31,
 	charge = -1.6021766208e-19,
 	nb_density = 1.0e19,
 	temperature = [20],
+	mean_velocity = [0.0, 0.0, 0.0],
 	time_frozen = 0.,
 	bc_part_type_west  = 'refl',
 	bc_part_type_east  = 'refl',
@@ -132,13 +148,14 @@ Species(
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 200,
+	n_part_per_cell = 0,
 	n_part_per_cell_for_weight = 200,
 	c_part_max = 1.0,
 	mass = 2.0 * 1.67262158e-27,
 	charge = 1.6021766208e-19,
 	nb_density = 1.0e19,
 	temperature = [20],
+	mean_velocity = [vx, vy, vz],
 	time_frozen = 0.0,
 	bc_part_type_west  = 'refl',
 	bc_part_type_east  = 'refl',
@@ -160,6 +177,7 @@ Species(
 	charge = 1.6021766208e-19,
 	nb_density = 0.5e19,
 	temperature = [20],
+	mean_velocity = [vx, vy, vz],
 	time_frozen = 0.0,
 	bc_part_type_west  = 'refl',
 	bc_part_type_east  = 'refl',
@@ -198,3 +216,77 @@ Collisions(
 	collisions_type = "coulomb"
 )
 '''
+
+### The initial particle source
+PartSource(
+	species1 = ["e"],
+	PartSource_type = "Load",
+	loadKind = "nT",
+	everyTime = 0,
+	loadStep = 100,
+	loadDensity = 1.0e19,
+	loadTemperature = 20.0,
+	mean_velocity = [0, 0 ,0],
+	#loadDn = 2.0e25,
+	loadPos_start 	= 0.0,
+	loadPos_end 	= 300.0*l0,
+	loadPos_Ystart 	= (300.0-195.0)*l0,
+	loadPos_Yend 	= 300.0*l0,
+
+)
+
+
+PartSource(
+	species1 = ["D1"],
+	PartSource_type = "Load",
+	loadKind = "nT",
+	everyTime = 0,
+	loadStep = 100,
+	loadDensity = 1.0e19,
+	loadTemperature = 20.0,
+	mean_velocity = [vx, vy ,vz],
+	#loadDn = 2.0e25,
+	loadPos_start 	= 0.0,
+	loadPos_end 	= 300.0*l0,
+	loadPos_Ystart 	= (300.0-195.0)*l0,
+	loadPos_Yend 	= 300.0*l0,
+
+)
+
+
+
+### The every-time particle source
+PartSource(
+	species1 = ["e"],
+	PartSource_type = "Load",
+	loadKind = "nT",
+	everyTime = 1,
+	loadStep = 100,
+	loadDensity = 1.0e19,
+	loadTemperature = 20.0,
+	mean_velocity = [0, 0 ,0],
+	#loadDn = 2.0e25,
+	loadPos_start 	= 0.0,
+	loadPos_end 	= 300.0*l0,
+	loadPos_Ystart 	= (300.0-20.0)*l0,
+	loadPos_Yend 	= 300.0*l0,
+
+)
+
+
+PartSource(
+	species1 = ["D1"],
+	PartSource_type = "Load",
+	loadKind = "nT",
+	everyTime = 1,
+	loadStep = 100,
+	loadDensity = 1.0e19,
+	loadTemperature = 20.0,
+	mean_velocity = [vx, vy ,vz],
+	#loadDn = 2.0e25,
+	loadPos_start 	= 0.0,
+	loadPos_end 	= 300.0*l0,
+	loadPos_Ystart 	= (300.0-20.0)*l0,
+	loadPos_Yend 	= 300.0*l0,
+
+)

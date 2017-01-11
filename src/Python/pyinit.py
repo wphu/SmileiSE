@@ -105,6 +105,22 @@ class Laser(SmileiComponent):
     int_params_transv = []
     double_params_transv = []
 
+
+class Grid(SmileiComponent):
+    """Grid parameters"""
+    #  gridType can be "rectange", "gap"
+    gridType = "rectangle"
+    gapKind = "divertor"
+    ny_source = 20
+    ny_gapHeight = 100
+    nx_gapWeight = 100
+    potential_wall = 0.0
+
+
+
+
+
+
 class PartSource(SmileiComponent):
     """PartSource parameters"""
     # species1 and species2 are unsigned integer type
@@ -127,7 +143,10 @@ class PartSource(SmileiComponent):
     loadDn = 0.0
     loadPos_start = 0.0
     loadPos_end = 0.0
+    loadPos_Ystart = 0.0
+    loadPos_Yend = 0.0
     loadStep = 1
+    everyTime = 0
 
 
 

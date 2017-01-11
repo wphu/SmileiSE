@@ -22,9 +22,23 @@ Grid2D::Grid2D() : Grid()
 }
 
 // with the dimensions as input argument
-Grid2D::Grid2D(PicParams &params):
+Grid2D::Grid2D(
+    PicParams &params,
+    string grid_type,
+    string gap_kind,
+    int ny_source_temp,
+    int ny_gapHeight_temp,
+    int nx_gapWeight_temp,
+    double potential_wall_temp):
 Grid(params)
 {
+    gridType = grid_type;
+    gapKind = gap_kind;
+    ny_source = ny_source_temp;
+    ny_gapHeight = ny_gapHeight_temp;
+    nx_gapWeight = nx_gapWeight_temp;
+    potential_wall = potential_wall_temp;
+
     // number of nodes of the grid in the x-direction
     dims_.resize(2);
     globalDims_.resize(2);
@@ -163,12 +177,8 @@ void Grid2D::geometry_gap( ){
     ofstream bndr;
     ofstream bndrVal;
 
-    int ny_source = 20;
-    int ny_gapHeight = 100;
-    int nx_gapWeight = 50;
-
     // electric potential at the wall surface
-    double val1 = -60.0;
+    double val1 = potential_wall;
 
     // electric potential at source region
     double val1_source = 0.0;

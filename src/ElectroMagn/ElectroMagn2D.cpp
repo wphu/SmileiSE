@@ -87,7 +87,7 @@ isNorthern(smpi->isNorthern())
     Jy_   = new Field2D(dimPrim, "Jy" );
     Jz_   = new Field2D(dimPrim, "Jz" );
     rho_  = new Field2D(dimPrim, "Rho" );
-
+    rho_avg  = new Field2D(dimPrim, "Rho_avg" );
 
     // Allocation of time-averaged EM fields
     phi_avg = new Field2D(dimPrim, "Phi_avg" );
@@ -110,7 +110,7 @@ isNorthern(smpi->isNorthern())
     rho_global_avg = new Field2D(dim_global, "Rho_global_avg");
     phi_global_avg = new Field2D(dim_global, "Phi_global_avg");
     Ex_global_avg  = new Field2D(dim_global, "Ex_global_avg");
-
+    Ey_global_avg  = new Field2D(dim_global, "Ey_global_avg");
 
     rho_global->put_to(0.0);
     phi_global->put_to(0.0);
@@ -119,8 +119,8 @@ isNorthern(smpi->isNorthern())
     Ey_->put_to(0.0);
     Ez_->put_to(0.0);
     Bx_->put_to(params.externB[0]);
-    By_->put_to(params.externB[0]);
-    Bz_->put_to(params.externB[0]);
+    By_->put_to(params.externB[1]);
+    Bz_->put_to(params.externB[2]);
     Bx_m->put_to(0.0);
     By_m->put_to(0.0);
     Bz_m->put_to(0.0);
@@ -142,8 +142,10 @@ isNorthern(smpi->isNorthern())
         Jy_s[ispec]  = new Field2D(dimPrim, ("Jy_"+params.species_param[ispec].species_type).c_str());
         Jz_s[ispec]  = new Field2D(dimPrim, ("Jz_"+params.species_param[ispec].species_type).c_str());
         rho_s[ispec] = new Field2D(dimPrim, ("Rho_"+params.species_param[ispec].species_type).c_str());
-        rho_s_global[ispec] = new Field2D(dim_global, ("Rho_global_"+params.species_param[ispec].species_type).c_str());
+        rho_s_avg[ispec]        = new Field2D(dimPrim, ("Rho_"+params.species_param[ispec].species_type+"_avg").c_str());
 
+        rho_s_global[ispec] = new Field2D(dim_global, ("Rho_global_"+params.species_param[ispec].species_type).c_str());
+        rho_s_global_avg[ispec] = new Field2D(dim_global, ("Rho_global_"+params.species_param[ispec].species_type+"_avg").c_str());
     }
 
 
@@ -377,74 +379,48 @@ void ElectroMagn2D::centerMagneticFields()
 // ---------------------------------------------------------------------------------------------------------------------
 void ElectroMagn2D::incrementAvgFields(unsigned int time_step, unsigned int ntime_step_avg)
 {
-    // Static cast of the fields
-    Field2D* Ex2D     = static_cast<Field2D*>(Ex_);
-    Field2D* Ey2D     = static_cast<Field2D*>(Ey_);
-    Field2D* Ez2D     = static_cast<Field2D*>(Ez_);
-    Field2D* Bx2D_m   = static_cast<Field2D*>(Bx_m);
-    Field2D* By2D_m   = static_cast<Field2D*>(By_m);
-    Field2D* Bz2D_m   = static_cast<Field2D*>(Bz_m);
-    Field2D* Ex2D_avg = static_cast<Field2D*>(Ex_avg);
-    Field2D* Ey2D_avg = static_cast<Field2D*>(Ey_avg);
-    Field2D* Ez2D_avg = static_cast<Field2D*>(Ez_avg);
-    Field2D* Bx2D_avg = static_cast<Field2D*>(Bx_avg);
-    Field2D* By2D_avg = static_cast<Field2D*>(By_avg);
-    Field2D* Bz2D_avg = static_cast<Field2D*>(Bz_avg);
-
     // reset the averaged fields for (time_step-1)%ntime_step_avg == 0
     if ( (time_step-1)%ntime_step_avg==0 ){
-        Ex2D_avg->put_to(0.0);
-        Ey2D_avg->put_to(0.0);
-        Ez2D_avg->put_to(0.0);
-        Bx2D_avg->put_to(0.0);
-        By2D_avg->put_to(0.0);
-        Bz2D_avg->put_to(0.0);
+        rho_global_avg->put_to(0.0);
+        phi_global_avg->put_to(0.0);
+        Ex_global_avg->put_to(0.0);
+        Ey_global_avg->put_to(0.0);
+        for (unsigned int ispec=0; ispec<n_species; ispec++) {
+            rho_s_avg[ispec]->put_to(0.0);
+        }//END loop on species ispec
     }
 
-    // increment the time-averaged fields
+    // Calculate the sum values for global rho phi Ex and Ey
+    for (unsigned int i=0 ; i<dimPrim[0] ; i++) {
+        (*rho_global_avg)(i) += (*rho_global)(i);
+        (*phi_global_avg)(i) += (*phi_global)(i);
+        (*Ex_global_avg)(i)  += (*Ex_global)(i);
+        (*Ey_global_avg)(i)  += (*Ey_global)(i);
+    }
 
-    // Electric field Ex^(d,p)
-    for (unsigned int i=0 ; i<nx_p ; i++) {
-        for (unsigned int j=0 ; j<ny_p ; j++) {
-            (*Ex2D_avg)(i,j) += (*Ex2D)(i,j);
+    // Calculate the sum values for density of each species
+    for (unsigned int ispec=0; ispec<n_species; ispec++) {
+        // all fields are defined on the primal grid
+        for (unsigned int ix=0 ; ix<dimPrim[0] ; ix++) {
+            (*rho_s_avg[ispec])(ix) += (*rho_s[ispec])(ix);
         }
-    }
+    }//END loop on species ispec
 
-    // Electric field Ey^(p,d)
-    for (unsigned int i=0 ; i<nx_p ; i++) {
-        for (unsigned int j=0 ; j<ny_p ; j++) {
-            (*Ey2D_avg)(i,j) += (*Ey2D)(i,j);
+
+    // calculate the averaged values
+    if ( time_step%ntime_step_avg==0 ){
+        for (unsigned int i=0 ; i<dimPrim[0] ; i++) {
+            (*rho_global_avg)(i) /= ntime_step_avg;
+            (*phi_global_avg)(i) /= ntime_step_avg;
+            (*Ex_global_avg)(i)  /= ntime_step_avg;
+            (*Ey_global_avg)(i)  /= ntime_step_avg;
         }
+        for (unsigned int ispec=0; ispec<n_species; ispec++) {
+            for (unsigned int ix=0 ; ix<dimPrim[0] ; ix++) {
+                (*rho_s_avg[ispec])(ix) /= ntime_step_avg;
+            }
+        }//END loop on species ispec
     }
-
-    // Electric field Ez^(p,p)
-    for (unsigned int i=0 ;  i<nx_p ; i++) {
-        for (unsigned int j=0 ; j<ny_p ; j++) {
-            (*Ez2D_avg)(i,j) += (*Ez2D)(i,j);
-        }
-    }
-
-    // Magnetic field Bx^(p,d)
-    for (unsigned int i=0 ; i<nx_p ; i++) {
-        for (unsigned int j=0 ; j<ny_p ; j++) {
-            (*Bx2D_avg)(i,j) += (*Bx2D_m)(i,j);
-        }
-    }
-
-    // Magnetic field By^(d,p)
-    for (unsigned int i=0 ; i<nx_p ; i++) {
-        for (unsigned int j=0 ; j<ny_p ; j++) {
-            (*By2D_avg)(i,j) += (*By2D_m)(i,j);
-        }
-    }
-
-    // Magnetic field Bz^(d,d)
-    for (unsigned int i=0 ; i<nx_p ; i++) {
-        for (unsigned int j=0 ; j<ny_p ; j++) {
-            (*Bz2D_avg)(i,j) += (*Bz2D_m)(i,j);
-        }
-    }
-
 
 }//END incrementAvgFields
 
@@ -569,7 +545,7 @@ void ElectroMagn2D::computeTotalRhoJ()
         // Charge density rho^(p,p) to 0
         for (unsigned int i=0 ; i<nx_p ; i++) {
             for (unsigned int j=0 ; j<ny_p ; j++) {
-                (*rho2D)(i,j) += (*rho2D_s)(i,j);
+                (*rho2D)(i,j) += ( (*rho2D_s)(i,j) * species_param[ispec].charge );
             }
         }
 /*
@@ -703,21 +679,10 @@ void ElectroMagn2D::computePoynting() {
 void ElectroMagn2D::gatherAvgFields(SmileiMPI *smpi)
 {
     SmileiMPI_Cart2D* smpi2D = static_cast<SmileiMPI_Cart2D*>(smpi);
-    Field2D* rho2D_avg          = static_cast<Field2D*>(rho_avg);
-    Field2D* phi2D_avg          = static_cast<Field2D*>(phi_avg);
-    Field2D* Ex2D_avg           = static_cast<Field2D*>(Ex_avg);
-    Field2D* rho2D_global_avg   = static_cast<Field2D*>(rho_global_avg);
-    Field2D* phi2D_global_avg   = static_cast<Field2D*>(phi_global_avg);
-    Field2D* Ex2D_global_avg    = static_cast<Field2D*>(Ex_global_avg);
-
-    smpi2D->gatherRho(rho2D_global_avg, rho2D_avg);
-    smpi2D->gatherField(phi2D_global_avg, phi2D_avg);
-    smpi2D->gatherField(Ex2D_global_avg, Ex2D_avg);
-    smpi->barrier();
-
     for(int i = 0; i < rho_s.size(); i++)
     {
         smpi2D->gatherRho( static_cast<Field2D*>(rho_s_global[i]), static_cast<Field2D*>(rho_s[i]) );
+        smpi2D->gatherRho( static_cast<Field2D*>(rho_s_global_avg[i]), static_cast<Field2D*>(rho_s_avg[i]) );
     }
 
 }

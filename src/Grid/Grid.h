@@ -60,6 +60,7 @@ public:
     int ncp;
     std::vector<int> dims_source;
     int nx,ny,nz;
+    std::string gridType;
 
 
 protected:

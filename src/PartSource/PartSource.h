@@ -1,5 +1,5 @@
 /*
-PSI class
+PartSource class
 */
 
 #ifndef PARTSOURCE_H
@@ -36,6 +36,9 @@ public:
     vector<int> numPart_in_each_bin;
     vector<int> count_of_particles_to_insert;
     vector<int> indexes_of_particles_to_erase;
+
+    // Particle number in one cell, different from particle number in one bin for 2D case
+    int numPart_in_each_cell;
 
     //! Method called in the main smilei loop to apply PartSource at each timestep
     virtual void emitLoad(PicParams&, SmileiMPI* smpi, std::vector<Species*>&,int, ElectroMagn* ){};
@@ -81,11 +84,18 @@ public:
     double loadPos_end;
     int loadBin_start;
     int loadBin_end;
+
+    double loadPos_Ystart;
+    double loadPos_Yend;
+    int loadBin_Ystart;
+    int loadBin_Yend;
+
     int loadStep;
+    int everyTime;
 
 private:
 
-        double const_e;
+    double const_e;
 
 };
 

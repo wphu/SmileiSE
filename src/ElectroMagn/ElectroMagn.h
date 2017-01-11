@@ -138,7 +138,8 @@ public:
     //! the time-average global Ex for solving poisson eqution using SuperLU
     Field* Ex_global_avg;
 
-
+    //! the time-average global Ey for solving poisson eqution using SuperLU
+    Field* Ey_global_avg;
 
 
     //! all Fields in electromagn (filled in ElectromagnFactory.h)

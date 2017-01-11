@@ -73,6 +73,7 @@ public:
     int extrem_ranks[2][2];
 
     void scatterGrid( Grid* grid );
+    void gatherRho( Field* field_global ,Field* field  );
     void gatherField( Field* field_global ,Field* field  );
     void scatterField( Field* field_global ,Field* field );
 
