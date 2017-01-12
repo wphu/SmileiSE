@@ -45,6 +45,7 @@ void PusherBoris::operator() (Particles &particles, int ipart, LocalFields Epart
     double alpha, inv_det_T, Tx, Ty, Tz, Tx2, Ty2, Tz2, Sx, Sy, Sz;
     double TxTy, TyTz, TzTx;
     double pxsm, pysm, pzsm;
+    double dl;
 
     // --------------------------------------
     // SOLVE THE PARTICLE EQUATION OF MOTIONS
@@ -91,7 +92,12 @@ void PusherBoris::operator() (Particles &particles, int ipart, LocalFields Epart
     // Move the particle
     for ( int i = 0 ; i<nDim_ ; i++ ) {
         particles.position_old(i, ipart)  = particles.position(i, ipart);
-        particles.position(i, ipart)     += dt*particles.momentum(i, ipart);
+        dl = dt*particles.momentum(i, ipart);
+        particles.position(i, ipart)     += dl;
+
+        //if(abs(dl) > cell_length[i]) {
+        //    cout<<"displacement at one timestep is larger than cell_length  "<<dl<<endl;
+        //}
     }
 
 }

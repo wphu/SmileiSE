@@ -569,9 +569,9 @@ void Species::dynamics(double time_dual, unsigned int ispec, ElectroMagn* EMfiel
 
         }// ibin
 
-        for (iPart=0 ; iPart<nParticles; iPart++ ) {
-            (*Proj)(EMfields->rho_s[ispec], particles, iPart);
-        }
+        //for (iPart=0 ; iPart<nParticles; iPart++ ) {
+        //    (*Proj)(EMfields->rho_s[ispec], particles, iPart);
+        //}
 
         // copy PSI particles to psi_particles, because after MPi particle exchanging
         // the PSI particles will be erased
@@ -792,6 +792,31 @@ void Species::dynamics_EM(double time_dual, unsigned int ispec, ElectroMagn* EMf
 }//END dynamic
 
 
+void Species::Project(double time_dual, unsigned int ispec, ElectroMagn* EMfields, Projector* Proj, SmileiMPI *smpi, PicParams &params)
+{
+
+    if (time_dual>species_param.time_frozen) { // moving particle
+
+        for (int ibin = 0 ; ibin < (unsigned int)bmin.size() ; ibin++)
+        {
+            for (int iPart=(unsigned int)bmin[ibin] ; iPart<(unsigned int)bmax[ibin]; iPart++ )
+            {
+                (*Proj)(EMfields->rho_s[ispec], particles, iPart);
+            }//iPart
+        }// ibin
+
+    }
+    else if (!particles.isTestParticles) {
+
+    }
+
+
+}//END Project
+
+
+
+
+
 void Species::absorb2D(double time_dual, unsigned int ispec, Grid* grid, SmileiMPI *smpi, PicParams &params)
 {
     double xpn, ypn;
@@ -851,7 +876,7 @@ void Species::absorb2D(double time_dual, unsigned int ispec, Grid* grid, SmileiM
     }//END if time vs. time_frozen
 
 
-}//END absorbProject
+}//END absorb2D
 
 
 
@@ -875,7 +900,7 @@ void Species::dump(std::ofstream& ofile)
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Sort particles
-// This method assume the particle only moving length is less than one cell_length
+// This method assume the particle displacement at one timestep is less than one cell_length
 // When a particle loss in collision , can not directly move it to bin end and then sort_part
 // ---------------------------------------------------------------------------------------------------------------------
 void Species::sort_part()
@@ -885,58 +910,71 @@ void Species::sort_part()
     int p1,p2,bmin_init;
     unsigned int bin;
     double limit;
+    int numSort;
+    int count;
 
-
-    //Backward pass
-#pragma omp for schedule(runtime)
-    for (bin=0; bin<bmin.size()-1; bin++) { //Loop on the bins.
-        limit = min_loc + (bin+1)*cell_length[0]*clrw;
-        p1 = bmax[bin]-1;
-        //If first particles change bin, they do not need to be swapped.
-        while (p1 == bmax[bin]-1 && p1 >= bmin[bin]) {
-            if (particles.position(0,p1) >= limit ) {
-                bmax[bin]--;
-            }
-            p1--;
+    count = 0;
+    do {
+        count++;
+        if(count>3) {
+            cout<<"count of particles sort: "<<count<<endl;
         }
-        //         Now particles have to be swapped
-        for( p2 = p1 ; p2 >= bmin[bin] ; p2-- ) { //Loop on the bin's particles.
-            if (particles.position(0,p2) >= limit ) {
-                //This particle goes up one bin.
-                particles.swap_part(p2,bmax[bin]-1);
-                bmax[bin]--;
+        numSort = 0;
+        //Backward pass
+        for (bin=0; bin<bmin.size()-1; bin++) { //Loop on the bins.
+            limit = min_loc + (bin+1)*cell_length[0]*clrw;
+            p1 = bmax[bin]-1;
+            //If first particles change bin, they do not need to be swapped.
+            while (p1 == bmax[bin]-1 && p1 >= bmin[bin]) {
+                if (particles.position(0,p1) >= limit ) {
+                    bmax[bin]--;
+                    numSort++;
+                }
+                p1--;
             }
+            //         Now particles have to be swapped
+            for( p2 = p1 ; p2 >= bmin[bin] ; p2-- ) { //Loop on the bin's particles.
+                if (particles.position(0,p2) >= limit ) {
+                    //This particle goes up one bin.
+                    particles.swap_part(p2,bmax[bin]-1);
+                    bmax[bin]--;
+                    numSort++;
+                }
+            }
+        }
+        //Forward pass + Rebracketting
+        for (bin=1; bin<bmin.size(); bin++) { //Loop on the bins.
+            limit = min_loc + bin*cell_length[0]*clrw;
+            bmin_init = bmin[bin];
+            p1 = bmin[bin];
+            while (p1 == bmin[bin] && p1 < bmax[bin]) {
+                if (particles.position(0,p1) < limit ) {
+                    bmin[bin]++;
+                    numSort++;
+                }
+                p1++;
+            }
+            for( p2 = p1 ; p2 < bmax[bin] ; p2++ ) { //Loop on the bin's particles.
+                if (particles.position(0,p2) < limit ) {
+                    //This particle goes down one bin.
+                    particles.swap_part(p2,bmin[bin]);
+                    bmin[bin]++;
+                    numSort++;
+                }
+            }
+
+            //Rebracketting
+            //Number of particles from bin going down is: bmin[bin]-bmin_init.
+            //Number of particles from bin-1 going up is: bmin_init-bmax[bin-1].
+            //Total number of particles we need to swap is the min of both.
+            p2 = min(bmin[bin]-bmin_init,bmin_init-bmax[bin-1]);
+            if (p2 >0) particles.swap_part(bmax[bin-1],bmin[bin]-p2,p2);
+            bmax[bin-1] += bmin[bin] - bmin_init;
+            bmin[bin] = bmax[bin-1];
         }
     }
-    //Forward pass + Rebracketting
-#pragma omp for schedule(runtime)
-    for (bin=1; bin<bmin.size(); bin++) { //Loop on the bins.
-        limit = min_loc + bin*cell_length[0]*clrw;
-        bmin_init = bmin[bin];
-        p1 = bmin[bin];
-        while (p1 == bmin[bin] && p1 < bmax[bin]) {
-            if (particles.position(0,p1) < limit ) {
-                bmin[bin]++;
-            }
-            p1++;
-        }
-        for( p2 = p1 ; p2 < bmax[bin] ; p2++ ) { //Loop on the bin's particles.
-            if (particles.position(0,p2) < limit ) {
-                //This particle goes down one bin.
-                particles.swap_part(p2,bmin[bin]);
-                bmin[bin]++;
-            }
-        }
+    while ( numSort > 0 );
 
-        //Rebracketting
-        //Number of particles from bin going down is: bmin[bin]-bmin_init.
-        //Number of particles from bin-1 going up is: bmin_init-bmax[bin-1].
-        //Total number of particles we need to swap is the min of both.
-        p2 = min(bmin[bin]-bmin_init,bmin_init-bmax[bin-1]);
-        if (p2 >0) particles.swap_part(bmax[bin-1],bmin[bin]-p2,p2);
-        bmax[bin-1] += bmin[bin] - bmin_init;
-        bmin[bin] = bmax[bin-1];
-    }
 }
 /*
 void Species::movingWindow_x(unsigned int shift, SmileiMPI *smpi, PicParams& params)

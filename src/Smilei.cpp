@@ -261,7 +261,13 @@ int main (int argc, char* argv[])
                 vecSpecies[ispec]->absorb2D(time_dual, ispec, grid, smpi, params);
                 smpi->barrier();
             }
+        }
 
+        // Project particles
+        for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
+        {
+                vecSpecies[ispec]->Project(time_dual, ispec, EMfields, Proj, smpi, params);
+                smpi->barrier();
         }
 
 

@@ -62,6 +62,8 @@ public:
     virtual void dynamics_EM(double time, unsigned int ispec, ElectroMagn* EMfields, Interpolator* interp,
                         Projector* proj, SmileiMPI *smpi, PicParams &params);
 
+    virtual void Project(double time, unsigned int ispec, ElectroMagn* EMfields, Projector* Proj, SmileiMPI *smpi, PicParams &params);
+
     // absort particles according to the Grid for 2-dimension
     virtual void absorb2D(double time, unsigned int ispec, Grid* grid, SmileiMPI *smpi, PicParams &params);
 

@@ -9,6 +9,7 @@ Pusher::Pusher(PicParams& params, int ispec)
     dts2           = params.timestep/2.;
 
     nDim_          = params.nDim_particle;
+    cell_length    = params.cell_length;
 
 }
 

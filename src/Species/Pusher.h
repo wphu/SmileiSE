@@ -30,6 +30,8 @@ protected:
     double one_over_mass_;
 
     int nDim_;
+    
+    std::vector<double> cell_length;
 
 };//END class
 
