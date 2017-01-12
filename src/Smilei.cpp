@@ -257,8 +257,11 @@ int main (int argc, char* argv[])
         // absorb particles which reach the walls
         for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
         {
-            vecSpecies[ispec]->absorb2D(time_dual, ispec, grid, smpi, params);
-            smpi->barrier();
+            if(params.geometry == "2d3v") {
+                vecSpecies[ispec]->absorb2D(time_dual, ispec, grid, smpi, params);
+                smpi->barrier();
+            }
+
         }
 
 
