@@ -319,7 +319,7 @@ void ElectroMagn1D::incrementAvgFields(unsigned int time_step, unsigned int ntim
     }
 
     // Calculate the sum values for global rho phi Ex and Ey
-    for (unsigned int i=0 ; i<dimPrim[0] ; i++) {
+    for (unsigned int i=0 ; i<dim_global[0] ; i++) {
         (*rho_global_avg)(i) += (*rho_global)(i);
         (*phi_global_avg)(i) += (*phi_global)(i);
         (*Ex_global_avg)(i)  += (*Ex_global)(i);
@@ -336,7 +336,7 @@ void ElectroMagn1D::incrementAvgFields(unsigned int time_step, unsigned int ntim
 
     // calculate the averaged values
     if ( time_step%ntime_step_avg==0 ){
-        for (unsigned int i=0 ; i<dimPrim[0] ; i++) {
+        for (unsigned int i=0 ; i<dim_global[0] ; i++) {
             (*rho_global_avg)(i) /= ntime_step_avg;
             (*phi_global_avg)(i) /= ntime_step_avg;
             (*Ex_global_avg)(i)  /= ntime_step_avg;
@@ -475,18 +475,6 @@ void ElectroMagn1D::computePoynting() {
 void ElectroMagn1D::gatherAvgFields(SmileiMPI *smpi)
 {
     SmileiMPI_Cart1D* smpi1D = static_cast<SmileiMPI_Cart1D*>(smpi);
-    Field1D* rho1D_avg          = static_cast<Field1D*>(rho_avg);
-    Field1D* phi1D_avg          = static_cast<Field1D*>(phi_avg);
-    Field1D* Ex1D_avg           = static_cast<Field1D*>(Ex_avg);
-    Field1D* rho1D_global_avg   = static_cast<Field1D*>(rho_global_avg);
-    Field1D* phi1D_global_avg   = static_cast<Field1D*>(phi_global_avg);
-    Field1D* Ex1D_global_avg    = static_cast<Field1D*>(Ex_global_avg);
-
-    smpi1D->gatherRho(rho1D_global_avg, rho1D_avg);
-    smpi1D->gatherField(phi1D_global_avg, phi1D_avg);
-    smpi1D->gatherField(Ex1D_global_avg, Ex1D_avg);
-    smpi->barrier();
-
     for(int i = 0; i < rho_s.size(); i++)
     {
         smpi1D->gatherRho( static_cast<Field1D*>(rho_s_global[i]), static_cast<Field1D*>(rho_s[i]) );

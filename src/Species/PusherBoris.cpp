@@ -75,9 +75,9 @@ void PusherBoris::operator() (Particles &particles, int ipart, LocalFields Epart
     pydot = umy + umz * Tx - umx * Tz;
     pzdot = umz + umx * Ty - umy * Tx;
 
-    pxsm = umx + pydot * Sz - pzdot * Sy;
-    pysm = umy + pzdot * Sx - pxdot * Sz;
-    pzsm = umz + pxdot * Sy - pydot * Sx;
+    upx = umx + pydot * Sz - pzdot * Sy;
+    upy = umy + pzdot * Sx - pxdot * Sz;
+    upz = umz + pxdot * Sy - pydot * Sx;
 
     // Half-acceleration in the electric field
     pxsm = upx + charge_over_mass_*Epart.x*dts2;
