@@ -40,7 +40,7 @@ void PusherBoris::operator() (Particles &particles, int ipart, LocalFields Epart
 ***********************************************************************/
 void PusherBoris::operator() (Particles &particles, int ipart, LocalFields Epart, LocalFields Bpart)
 {
-    double charge_over_mass_ = static_cast<double>(particles.charge(ipart))*one_over_mass_;
+    //double charge_over_mass_ = static_cast<double>(particles.charge(ipart))*one_over_mass_;
     double umx, umy, umz, upx, upy, upz, pxdot, pydot, pzdot;
     double alpha, inv_det_T, Tx, Ty, Tz, Tx2, Ty2, Tz2, Sx, Sy, Sz;
     double TxTy, TyTz, TzTx;
@@ -64,13 +64,10 @@ void PusherBoris::operator() (Particles &particles, int ipart, LocalFields Epart
     Tx2   = Tx*Tx;
     Ty2   = Ty*Ty;
     Tz2   = Tz*Tz;
-    TxTy  = Tx*Ty;
-    TyTz  = Ty*Tz;
-    TzTx  = Tz*Tx;
-    inv_det_T = 1.0/(1.0+Tx2+Ty2+Tz2);
-    Sx    = 2.0 * Tx * inv_det_T;
-    Sy    = 2.0 * Ty * inv_det_T;
-    Sz    = 2.0 * Tz * inv_det_T;
+    inv_det_T = 2.0/(1.0+Tx2+Ty2+Tz2);
+    Sx    = Tx * inv_det_T;
+    Sy    = Ty * inv_det_T;
+    Sz    = Tz * inv_det_T;
 
     pxdot = umx + umy * Tz - umz * Ty;
     pydot = umy + umz * Tx - umx * Tz;

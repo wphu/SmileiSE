@@ -197,7 +197,7 @@ void PartSource2D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
     double *temp=new double[3];
     double *vel=new double[3];
 
-    if(everyTime = 0 && itime > 1) { return; }
+    if(everyTime == 0 && itime > 1) { return; }
     if(loadKind == "nT" && loadBin_end != loadBin_start && loadBin_Yend != loadBin_Ystart) {
         s1 = vecSpecies[species1];
         p1 = &(s1->particles);

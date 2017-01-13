@@ -5,6 +5,7 @@ Pusher::Pusher(PicParams& params, int ispec)
 {
     mass_          = params.species_param[ispec].mass;
     one_over_mass_ = 1.0/mass_;
+    charge_over_mass_ = params.species_param[ispec].charge*one_over_mass_;
     dt             = params.timestep;
     dts2           = params.timestep/2.;
 

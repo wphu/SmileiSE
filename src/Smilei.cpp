@@ -231,7 +231,7 @@ int main (int argc, char* argv[])
         for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
         {
             //MESSAGE("move particle111 ===="<<ispec);
-            EMfields->restartRhoJs(ispec, 0);
+            //EMfields->restartRhoJs(ispec, 0);
             vecSpecies[ispec]->dynamics(time_dual, ispec, EMfields, Interp, Proj, smpi, params);
             smpi->barrier();
             //MESSAGE("move particle222 ===="<<ispec);
@@ -266,8 +266,9 @@ int main (int argc, char* argv[])
         // Project particles
         for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
         {
-                vecSpecies[ispec]->Project(time_dual, ispec, EMfields, Proj, smpi, params);
-                smpi->barrier();
+            EMfields->restartRhoJs(ispec, 0);
+            vecSpecies[ispec]->Project(time_dual, ispec, EMfields, Proj, smpi, params);
+            smpi->barrier();
         }
 
 

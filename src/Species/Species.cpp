@@ -411,16 +411,15 @@ void Species::initMomentum(unsigned int nPart, unsigned int iPart, double *temp,
 
 */
 
-if ( (vel[0]!=0.0) || (vel[1]!=0.0) || (vel[2]!=0.0) ){
-    // Lorentz transformation of the momentum
-    for (unsigned int p=iPart; p<iPart+nPart; p++)
-    {
-        particles.momentum(0,p) += vel[0];
-        particles.momentum(1,p) += vel[1];
-        particles.momentum(2,p) += vel[2];
-    }
+    if ( (vel[0]!=0.0) || (vel[1]!=0.0) || (vel[2]!=0.0) ){
+        for (unsigned int p=iPart; p<iPart+nPart; p++)
+        {
+            particles.momentum(0,p) += vel[0];
+            particles.momentum(1,p) += vel[1];
+            particles.momentum(2,p) += vel[2];
+        }
 
-}//ENDif vel != 0
+    }//ENDif vel != 0
 
 
 

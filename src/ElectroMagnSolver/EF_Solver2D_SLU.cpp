@@ -294,13 +294,13 @@ void EF_Solver2D_SLU::initSLU(){
                 b[ii]=-4.0; b[ii-hl]=1.0; b[ii-1]=1.0; b[ii-hr]=1.0; b[ii+1]=1.0;
                 nnz=nnz+5;
                 for(k=0; k<grid2D->ncp; k++){
-                if(b[k] != 0.0){
-                    if(v>=grid2D->ncp*5) cout<<"error"<<v<<endl;
-                  val[v] = b [k];
-                  row[v] = ii;
-                  col[v] = k;
-                  v++;
-                }
+                    if(b[k] != 0.0){
+                        if(v>=grid2D->ncp*5) cout<<"error"<<v<<endl;
+                      val[v] = b [k];
+                      row[v] = ii;
+                      col[v] = k;
+                      v++;
+                    }
                 }
                 ii++;
             }
