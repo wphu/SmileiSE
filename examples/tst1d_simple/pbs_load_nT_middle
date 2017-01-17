@@ -1,0 +1,21 @@
+#PBS -S /bin/bash
+#PBS -N tst1d_load_middle
+#PBS -l nodes=1:ppn=24
+#PBS -m b
+#PBS -m e
+#PBS -m a
+#PBS -o outfile
+#PBS -e errfile
+#PBS -l walltime=2000:00:00
+##PBS -q batch
+
+echo "begin time"; date
+echo "job run on :"; hostname
+echo "with job id:" $PBS_JOBID
+echo "end time"; date
+
+##do your job
+cd $PBS_O_WORKDIR
+
+##/opt/openmpi/bin/mpirun -machinefile mfile -n 9 ./ion_extra2parlu
+mpiexec -genv I_MPI_DEVICE rdssm -n 24 ../../src/smilei tst1d_load_nT_middle.py

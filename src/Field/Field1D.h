@@ -3,9 +3,12 @@
 
 #include <cmath>
 #include <vector>
+#include <iostream>
 
 #include "Field.h"
 #include "Tools.h"
+
+using namespace std;
 
 //! class Field1D used to defined a 1d vector
 class Field1D : public Field
@@ -17,7 +20,7 @@ public:
 
     //! Constructor for Field1D: with the vector dimension as input argument
     Field1D( std::vector<unsigned int> dims );
-    
+
     //! Constructor, isPrimal define if mainDim is Primal or Dual
     Field1D( std::vector<unsigned int> dims, unsigned int mainDim, bool isPrimal );
 
@@ -31,7 +34,7 @@ public:
 
     //! Method used to allocate a Field1D
     void allocateDims(std::vector<unsigned int> dims);
-    //! a Field1D can also be initialized win an unsigned int 
+    //! a Field1D can also be initialized win an unsigned int
 	void allocateDims(unsigned int dims1);
     //! 1D method used to allocate Field, isPrimal define if mainDim is Primal or Dual
 	void allocateDims(std::vector<unsigned int> dims, unsigned int mainDim, bool isPrimal);
@@ -47,6 +50,10 @@ public:
     {
         DEBUGEXEC(if (i>=dims_[0]) ERROR(name << "Out of limits & "<< i));
         DEBUGEXEC(if (!std::isfinite(data_[i])) ERROR(name << " not finite at i=" << i << " = " << data_[i]));
+        //if (i>=dims_[0] || i < 0) {
+        //    cout<<"Out of limits & "<<i<<endl;
+        //    return data_[0];
+        //}
         return data_[i];
     };
 
@@ -55,14 +62,18 @@ public:
     {
         DEBUGEXEC(if (i>=dims_[0]) ERROR(name << "Out of limits "<< i));
         DEBUGEXEC(if (!std::isfinite(data_[i])) ERROR(name << "Not finite "<< i << " = " << data_[i]));
+        //if (i>=dims_[0] || i < 0) {
+        //    cout<<"Out of limits & "<<i<<endl;
+        //    return data_[0];
+        //}
         return data_[i];
     };
 
 
     //virtual double computeNRJ(unsigned int shift, unsigned int** istart, unsigned int** bufsize) {return 0.;};
     virtual double computeNRJ(unsigned int shift, unsigned int istart[3][2], unsigned int bufsize[3][2]);
-    
-    
+
+
     //double ExtFieldAt_xmin,ExtFieldAt_xmax;
 
 private:

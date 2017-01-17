@@ -82,6 +82,12 @@ void Projector1D1Order::operator() (Field* rho, Particles &particles, int ipart)
 
     i -= index_domain_begin;
 
+    //if(i > rho1D->dims_[0] || i+1 > rho1D->dims_[0]) {
+    //    cout<<"Projection out of limits: i = "<<i<<" x = "<<particles.position(0, ipart)<<endl;
+    //    cout<<"ipart = "<<ipart<<" particle size = "<<particles.size()<<endl;
+    //    return;
+    //}
+
     // 1nd order projection for the total density
     //#pragma omp atomic
     (*rho1D)( i  )  += (1.0 - xjmxi)    * rho_j ;

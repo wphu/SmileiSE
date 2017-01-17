@@ -95,6 +95,11 @@ void PusherBoris::operator() (Particles &particles, int ipart, LocalFields Epart
         //if(abs(dl) > cell_length[i]) {
         //    cout<<"displacement at one timestep is larger than cell_length  "<<dl<<endl;
         //}
+        //if(userFunctions::is_nan(particles.position(i, ipart))) {
+        //    cout<<"displacement at one timestep is larger than cell_length  "<<dl<<endl;
+        //    cout<<"E   "<<Epart.x<<"  "<<Epart.y<<"  "<<Epart.z<<endl;
+        //    //cout<<"hehe"<<endl;
+        //}
     }
 
 }

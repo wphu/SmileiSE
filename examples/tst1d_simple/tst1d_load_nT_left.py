@@ -8,14 +8,14 @@
 #
 import math
 
-l0 = 2.0e-5     # nu.norm_l is reference time, the value's unit before / is m (SI)
+l0 = 0.5e-5     # nu.norm_l is reference time, the value's unit before / is m (SI)
 t0 = 1.0e-12
 Lsim = [1000.*l0]	# length of the simulation
 
 
 
 #Tsim = 10000.*t0			# duration of the simulation
-Tsim = 100000.*t0			# duration of the simulation
+Tsim = 200000.*t0			# duration of the simulation
 
 #> number of timestep of incrementing averaged electromagnetic fields
 ntime_step_avg = 10000
@@ -78,7 +78,7 @@ vz = 0.0
 #Topology:
 #number_of_procs: Number of MPI processes in each direction.
 #clrw: width of a cluster in number of cell. Warning: clrw must divide nspace_win_x.
-number_of_procs = [20]
+number_of_procs = [24]
 
 
 # RANDOM seed
@@ -112,8 +112,8 @@ Species(
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 200,
-	n_part_per_cell_for_weight = 200,
+	n_part_per_cell = 100,
+	n_part_per_cell_for_weight = 100,
 	c_part_max = 1.0,
 	mass = 9.109382616e-31,
 	charge = -1.6021766208e-19,
@@ -130,8 +130,8 @@ Species(
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 200,
-	n_part_per_cell_for_weight = 200,
+	n_part_per_cell = 100,
+	n_part_per_cell_for_weight = 100,
 	c_part_max = 1.0,
 	mass = 2.0 * 1.67262158e-27,
 	charge = 1.6021766208e-19,
@@ -169,7 +169,7 @@ Species(
 # species2    = list of strings, the names of the second species that performPSI
 #               (can be the same as species1)
 
-nx_source_left = 40
+nx_source_left = 100
 
 PartSource(
 	species1 = ["e"],
@@ -181,7 +181,7 @@ PartSource(
 	mean_velocity = [0, 0 ,0],
 	#loadDn = 2.0e25,
 	loadPos_start 	= 0.0,
-	loadPos_end 	= 40.0*l0,
+	loadPos_end 	= 100.0*l0,
 
 
 
@@ -198,6 +198,6 @@ PartSource(
 	mean_velocity = [vx, vy ,vz],
 	#loadDn = 2.0e25,
 	loadPos_start 	= 0.0,
-	loadPos_end 	= 40.0*l0,
+	loadPos_end 	= 100.0*l0,
 
 )

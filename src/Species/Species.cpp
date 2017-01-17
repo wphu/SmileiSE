@@ -1,6 +1,7 @@
 #include "Species.h"
 
 #include <cmath>
+
 #include <ctime>
 #include <cstdlib>
 
@@ -300,7 +301,13 @@ void Species::initMomentum(unsigned int nPart, unsigned int iPart, double *temp,
 
         for (unsigned int p= iPart; p<iPart+nPart; p++)
         {
-            double psm = sqrt(2.0 * temp[0] * params.const_e / species_param.mass) * sqrt(-log((double)rand() / RAND_MAX));
+            double ran;
+            do {
+                ran = (double)rand() / RAND_MAX;
+            }
+            while (ran == 0.0);
+
+            double psm = sqrt(2.0 * temp[0] * params.const_e / species_param.mass) * sqrt(-log(ran));
 
             double phi   = 2.0 * M_PI*(double)rand() / RAND_MAX;
             particles.momentum(0,p) = psm*sin(phi);
@@ -310,6 +317,12 @@ void Species::initMomentum(unsigned int nPart, unsigned int iPart, double *temp,
 
             phi   = 2.0 * M_PI*(double)rand() / RAND_MAX;
             particles.momentum(2,p) = psm*sin(phi);
+
+
+            //if( isinf(particles.momentum(0,p)) || isinf(particles.momentum(1,p)) || isinf(particles.momentum(2,p)) ) {
+            //    cout<<particles.momentum(0,p)<<" "<<particles.momentum(1,p)<<" "<<particles.momentum(2,p)<<endl;
+            //    cout<<psm<<" "<<ran<<endl;
+            //}
 
         }
 
@@ -915,9 +928,9 @@ void Species::sort_part()
     count = 0;
     do {
         count++;
-        if(count>3) {
-            cout<<"count of particles sort: "<<count<<endl;
-        }
+        //if(count>3) {
+        //    cout<<"count of particles sort: "<<count<<endl;
+        //}
         numSort = 0;
         //Backward pass
         for (bin=0; bin<bmin.size()-1; bin++) { //Loop on the bins.

@@ -9,6 +9,7 @@
 #define PUSHERBORIS_H
 
 #include "Pusher.h"
+#include "userFunctions.h"
 
 //  --------------------------------------------------------------------------------------------------------------------
 //! Class PusherBoris

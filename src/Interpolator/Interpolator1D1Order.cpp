@@ -97,6 +97,11 @@ void Interpolator1D1Order::operator() (ElectroMagn* EMfields, Particles &particl
 
     ip_ -= index_domain_begin;
 
+    //if(ip_ > Ex1D->dims_[0] || ip_+1 > Ex1D->dims_[0]) {
+    //    cout<<"interpolator out of limits: ip_ = "<<ip_<<" x = "<<particles.position(0, ipart)<<endl;
+    //    return;
+    //}
+
     (*ELoc).x = compute(coeffp_, Ex1D, ip_);
     (*ELoc).y = compute(coeffp_, Ey1D, ip_);
     (*ELoc).z = compute(coeffp_, Ez1D, ip_);

@@ -4,8 +4,11 @@
 #include <cmath>
 
 #include <vector>
+#include <iostream>
 
 #include "Field.h"
+
+using namespace std;
 
 //! class Field2D used to defined a 2d vector
 class Field2D : public Field
@@ -30,7 +33,7 @@ public:
 
     //! Method used to allocate a Field2D
     void allocateDims(std::vector<unsigned int> dims );
-    //! a Field2D can also be initialized win two unsigned int 
+    //! a Field2D can also be initialized win two unsigned int
     void allocateDims(unsigned int dims1,unsigned int dims2);
     //! allocate dimensions for field2D isPrimal define if mainDim is Primal or Dual
     void allocateDims(std::vector<unsigned int> dims, unsigned int mainDim, bool isPrimal );
@@ -43,6 +46,10 @@ public:
     inline double& operator () (unsigned int i,unsigned int j) {
         DEBUGEXEC(if (i>=dims_[0] || j>=dims_[1]) ERROR(name << "Out of limits & "<< i << " " << j));
         DEBUGEXEC(if (!std::isfinite(data_2D[i][j])) ERROR(name << " Not finite "<< i << "," << j << " = " << data_2D[i][j]));
+        //if (i >= dims_[0] || i < 0 || j >= dims_[1] || j < 0) {
+        //    cout<<"Out of limits & "<<"i= "<<i<<"  j= "<<j<<endl;
+        //    return data_2D[0][0];
+        //}
         return data_2D[i][j];
     };
 
@@ -56,6 +63,10 @@ public:
     inline double operator () (unsigned int i,unsigned int j) const {
         DEBUGEXEC(if (i>=dims_[0] || j>=dims_[1]) ERROR(name << "Out of limits "<< i << " " << j));
         DEBUGEXEC(if (!std::isfinite(data_2D[i][j])) ERROR(name << "Not finite "<< i << "," << j << " = " << data_2D[i][j]));
+        //if (i >= dims_[0] || i < 0 || j >= dims_[1] || j < 0) {
+        //    cout<<"Out of limits & "<<"i= "<<i<<"  j= "<<j<<endl;
+        //    return data_2D[0][0];
+        //}
         return data_2D[i][j];
     };
 
@@ -78,4 +89,3 @@ private:
 };
 
 #endif
-
