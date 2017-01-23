@@ -60,29 +60,22 @@ void Collisions2D_Ionization::collide(PicParams& params, SmileiMPI* smpi, vector
 
     vector<vector<int> > index1, index2;
     vector<int> n1, n2;
+    vector<double> density1, density2;
+    double n1_max, n2_max;
+
     vector<double> momentum_unit(3, 0.0), momentum_temp(3, 0.0);
     int idNew;
     int totNCollision = 0;
     vector<int> bmin1, bmax1, bmin2, bmax2, bmin3, bmax3;
-
-    unsigned int nspec1, nspec2; // numbers of species in each group
-    unsigned int npart1, npart2; // numbers of macro-particles in each group
     unsigned int npairs; // number of pairs of macro-particles
-    vector<unsigned int> np1, np2; // numbers of macro-particles in each species, in each group
-    double n12, n123, n223; // densities of particles
-    unsigned int i1, i2, i3, ispec1, ispec2, ispec3;
+    unsigned int i1, i2, i3;
     Species   *s1, *s2, *s3;
     Particles *p1, *p2, *p3;
-    double m1, m2, m3, m12, W1, W2, W3, qqm, qqm2, gamma1, gamma2, gamma12, gamma12_inv,
-           COM_vx, COM_vy, COM_vz, COM_vsquare, COM_gamma,
-           term1, term2, term3, term4, term5, term6, coeff1, coeff2, coeff3, coeff4, twoPi,
-           vcv1, vcv2, px_COM, py_COM, pz_COM, p2_COM, p_COM, gamma1_COM, gamma2_COM,
-           logL, bmin, s, vrel, smax,
-           cosX, sinX, phi, sinXcosPhi, sinXsinPhi, p_perp, inv_p_perp,
-           newpx_COM, newpy_COM, newpz_COM, U, vcp;
+    double m1, m2, m3, m12, W1, W2, W3;
 
-    double  sigma_cr, sigma_cr_max, v_square, v_magnitude, ke1, ke_primary, ke_secondary,
+    double  sigma_cr, sigma_cr_max, ke1, ke_primary, ke_secondary,
             ran, P_collision, ran_P;
+    double  v_square, v_magnitude, v_magnitude_primary, v_magnitude_secondary;
 
 
     Field2D *smean, *logLmean, *ncol;//, *temperature
@@ -91,6 +84,7 @@ void Collisions2D_Ionization::collide(PicParams& params, SmileiMPI* smpi, vector
 
     sg1 = &species_group1;
     sg2 = &species_group2;
+    sg3 = &species_group3;
 
     s1 = vecSpecies[(*sg1)[0]];      s2 = vecSpecies[(*sg2)[0]];        s3 = vecSpecies[(*sg3)[0]];
     p1 = &(s1->particles);           p2 = &(s2->particles);             p3 = &(s3->particles);
@@ -98,6 +92,20 @@ void Collisions2D_Ionization::collide(PicParams& params, SmileiMPI* smpi, vector
     W1 = p1->weight(i1);             W2 = p2->weight(i2);               W3 = p3->weight(i3);
     bmin1 = s1->bmin;                bmin2 = s2->bmin;                  bmin3 = s3->bmin;
     bmax1 = s1->bmax;                bmax2 = s2->bmax;                  bmax3 = s3->bmax;
+
+
+    count_of_particles_to_insert_s1.resize(nbins);
+    count_of_particles_to_insert_s3.resize(nbins);
+    count_of_particles_to_erase_s2.resize(nbins);
+    for(int ibin=0; ibin<nbins; ibin++)
+    {
+        count_of_particles_to_insert_s1[ibin] = 0;
+        count_of_particles_to_insert_s3[ibin] = 0;
+        count_of_particles_to_erase_s2[ibin] = 0;
+    }
+
+    totNCollision = 0;
+    sigma_cr_max = maxCV(p1, m1);
     // Loop on bins
     for (unsigned int ibin=0 ; ibin<nbins ; ibin++) {
 
@@ -106,6 +114,8 @@ void Collisions2D_Ionization::collide(PicParams& params, SmileiMPI* smpi, vector
         //>calculate the particle number of species1 in each cell, and the indexs of particles in the cell
         index1.resize(params.n_space[1]);
         n1.resize(params.n_space[1]);
+        density1.resize(params.n_space[1]);
+        n1_max = 0.0;
         for(int i = 0; i < index1.size(); i++)
         {
             index1[i].resize(0);
@@ -120,7 +130,8 @@ void Collisions2D_Ionization::collide(PicParams& params, SmileiMPI* smpi, vector
         }
         for(int i = 0; i < params.n_space[1]; i++)
         {
-            n1[i] = index1.size() / params.cell_volume;
+            n1[i] = index1[i].size();
+            density1[i] = n1[i] * W1;
             random_shuffle(index1[i].begin(), index1[i].end());
         }
 
@@ -128,6 +139,8 @@ void Collisions2D_Ionization::collide(PicParams& params, SmileiMPI* smpi, vector
         //>calculate the particle number of species2 in each cell, and the indexs of particles in the cell
         index2.resize(params.n_space[1]);
         n2.resize(params.n_space[1]);
+        density2.resize(params.n_space[1]);
+        n2_max = 0.0;
         for(int i = 0; i < index2.size(); i++)
         {
             index2[i].resize(0);
@@ -142,21 +155,23 @@ void Collisions2D_Ionization::collide(PicParams& params, SmileiMPI* smpi, vector
         }
         for(int i = 0; i < params.n_space[1]; i++)
         {
-            n2[i] = index2.size() / params.cell_volume;
+            n2[i] = index2[i].size();
+            density2[i] = n2[i] * W2;
             random_shuffle(index2[i].begin(), index2[i].end());
         }
 
 
 
-        // Now start the real loop
+        // Now start the real loop in cells in y-direction of each bin
         // See equations in http://dx.doi.org/10.1063/1.4742167
         // ----------------------------------------------------
         for (int iCell = 0; iCell < params.n_space[1]; iCell++)
         {
-            npairs = n1[iCell] * (1 - exp(-n2[iCell] * sigma_cr_max) );
+            npairs = n1[iCell] * ( 1 - exp(-density2[iCell] * sigma_cr_max * timestep) );
             for(int i = 0; i < npairs; i++)
             {
-                i1 = i2 = i;
+                i1 = index1[iCell][i];
+                i2 = index2[iCell][i];
 
                 v_square = pow(p1->momentum(0,i1),2) + pow(p1->momentum(1,i1),2) + pow(p1->momentum(2,i1),2);
                 v_magnitude = sqrt(v_square);
@@ -176,71 +191,85 @@ void Collisions2D_Ionization::collide(PicParams& params, SmileiMPI* smpi, vector
                 double ran_p = (double)rand() / RAND_MAX;
 
                 if(ran_P < P_collision){
+                    count_of_particles_to_erase_s2[ibin]++;
                     //>calculate the scatter velocity of primary electron
-                    calculate_scatter_velocity(ke_primary, v_magnitude, m1, m2, momentum_unit, momentum_temp);
+                    momentum_unit[0] = p1->momentum(0,i1) / v_magnitude;
+                    momentum_unit[1] = p1->momentum(1,i1) / v_magnitude;
+                    momentum_unit[2] = p1->momentum(2,i1) / v_magnitude;
+                    //MESSAGE("v_magnitude"<<"  "<<v_magnitude_primary<<"  "<<v_magnitude_secondary);
+                    //MESSAGE("momentum1"<<" "<<p1->momentum(0, i1)<<"  "<<p1->momentum(1, i1)<<"  "<<p1->momentum(2, i1));
+                    calculate_scatter_velocity(v_magnitude_primary, m1, m2, momentum_unit, momentum_temp);
                     p1->momentum(0,i1) = momentum_temp[0];
                     p1->momentum(1,i1) = momentum_temp[1];
                     p1->momentum(2,i1) = momentum_temp[2];
 
-
                     //>calculate the scatter velocity of secondary electron
-                    calculate_scatter_velocity(ke_secondary, v_magnitude, m1, m2, momentum_unit, momentum_temp);
+                    calculate_scatter_velocity(v_magnitude_secondary, m1, m2, momentum_unit, momentum_temp);
                     //>create new particle in the end of p1, we should sort_part when all bins are done!!!
-                    p1->create_particle();
-                    idNew = p1->size() - 1;
-                    p1->momentum(0, idNew) = momentum_temp[0];
-                    p1->momentum(1, idNew) = momentum_temp[1];
-                    p1->momentum(2, idNew) = momentum_temp[2];
+                    //MESSAGE("momentum2"<<" "<<p1->momentum(0, i1)<<"  "<<p1->momentum(1, i1)<<"  "<<p1->momentum(2, i1));
+                    p1->cp_particle(i1, new_particles1);
+                    //MESSAGE("momentum1"<<" "<<new_particles1.momentum(0, idNew)<<"  "<<new_particles1.momentum(1, idNew));
 
+                    idNew = new_particles1.size() - 1;
+                    new_particles1.momentum(0, idNew) = momentum_temp[0];
+                    new_particles1.momentum(1, idNew) = momentum_temp[1];
+                    new_particles1.momentum(2, idNew) = momentum_temp[2];
+                    count_of_particles_to_insert_s1[ibin]++;
+                    //MESSAGE("momentum3"<<" "<<p1->momentum(0, idNew)<<"  "<<p1->momentum(1, idNew)<<"  "<<p1->momentum(2, idNew));
+
+                    p2->cp_particle(i2, new_particles3);
                     //>create the ionized ion (species3)
-                    p3->create_particle();
-                    idNew = p3->size() - 1;
-                    p3->momentum(0, idNew) = p2->momentum(0, i2);
-                    p3->momentum(1, idNew) = p2->momentum(1, i2);
-                    p3->momentum(2, idNew) = p2->momentum(2, i2);
+                    idNew = new_particles3.size() - 1;
+                    new_particles3.charge(idNew) = s3->species_param.charge;
+                    count_of_particles_to_insert_s3[ibin]++;
 
-                    p3->position(0, idNew) = p2->position(0, i2);
-                    p3->position(1, idNew) = p2->position(1, i2);
-                    p3->position(2, idNew) = p2->position(2, i2);
-
-                    p3->position_old(0, idNew) = p2->position_old(0, i2);
-                    p3->position_old(1, idNew) = p2->position_old(1, i2);
-                    p3->position_old(2, idNew) = p2->position_old(2, i2);
-
-                    p3->charge(idNew) = p2->charge(i2) + 1;
-                    p3->weight(idNew) = p2->weight(i2);
-
-
-                    //>swap the particle of p2 to the end, we should erase all the particles
-                    //>(which are swapped to the end), when all bins are done!!!
-                    idNew = p2->size() - 1 - totNCollision;
-                    p2->swap_part(i2, idNew);
-
+                    indexes_of_particles_to_erase_s2.push_back(i2);
                     totNCollision++;
-
                 }
             }
         }
 
     } // end loop on bins
 
-    //>delete ionized neutrals
-    idNew = p2->size() - totNCollision;
-    p2->erase_particle_trail(idNew);
-    //>update the bmax, because created particles are put the end of species1 and species3
-    //>then sort_part to move the particles to the bins which they belong to
-    s1->bmax.back() += totNCollision;
-    s1->sort_part();
-    s3->bmax.back() += totNCollision;
-    s3->sort_part();
+    s2->erase_particles_from_bins(indexes_of_particles_to_erase_s2);
+    indexes_of_particles_to_erase_s2.clear();
+
+    s1->insert_particles_to_bins(new_particles1, count_of_particles_to_insert_s1);
+    s3->insert_particles_to_bins(new_particles3, count_of_particles_to_insert_s3);
+    new_particles1.clear();
+    new_particles3.clear();
 
 }
+
+
+double Collisions2D_Ionization::maxCV(Particles* particles, double eMass){
+    int nPart = particles->size();
+    double v_square;
+    double v_magnitude;
+    double ke;
+    double maxCrossSectionV = 0.0;
+    double crossSectionV;
+
+    for(unsigned int iPart = 0; iPart < nPart; iPart++)
+    {
+        v_square = particles->momentum(0,iPart) * particles->momentum(0,iPart) +
+                          particles->momentum(1,iPart) * particles->momentum(1,iPart) +
+                          particles->momentum(2,iPart) * particles->momentum(2,iPart);
+        v_magnitude = sqrt(v_square);
+        // ke is energy (eV)
+        ke = 0.5 * eMass * v_square / const_e;
+        crossSectionV = v_magnitude * interpCrossSection( ke );
+        if(crossSectionV > maxCrossSectionV) {maxCrossSectionV = crossSectionV;};
+    }
+    return maxCrossSectionV;
+}
+
 
 
 //>the method is eqution (11) from the ref: a Monte Carlo collision model for the particle in cell method: applications to
 //>argon and oxygen discharges.
 //>and the code is transformed from C.F. Sang's fortran code
-void Collisions2D_Ionization::calculate_scatter_velocity(double ke, double v_magnitude, double mass1, double mass2,
+void Collisions2D_Ionization::calculate_scatter_velocity(double v_magnitude, double mass1, double mass2,
 vector<double>& momentum_unit, vector<double>& momentum_temp)
 {
     double up1, up2, up3;
