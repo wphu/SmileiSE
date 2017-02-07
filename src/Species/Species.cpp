@@ -851,7 +851,6 @@ void Species::absorb2D(double time_dual, unsigned int ispec, Grid* grid, SmileiM
 
         indexes_of_particles_to_absorb.clear();
 
-        psi_particles.clear();
         for (int ibin = 0 ; ibin < (unsigned int)bmin.size() ; ibin++) {
             for (int iPart=(unsigned int)bmin[ibin] ; iPart<(unsigned int)bmax[ibin]; iPart++ ) {
 
