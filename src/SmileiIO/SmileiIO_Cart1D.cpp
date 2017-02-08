@@ -14,15 +14,17 @@
 #include "ElectroMagn.h"
 #include "Species.h"
 
+
 using namespace std;
 
-SmileiIO_Cart1D::SmileiIO_Cart1D( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies  )
+SmileiIO_Cart1D::SmileiIO_Cart1D( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, Diagnostic1D* diag1D  )
 : SmileiIO( params, smpi )
 {
     initVDF(params, smpi, fields, vecSpecies);
     if(smpi->isMaster()) {
         createFieldsPattern(params, smpi, fields);
         createPartsPattern(params, smpi, fields, vecSpecies);
+        createDiagsPattern(params, smpi, diag1D );
         status = H5Fclose(global_file_id_);
     }
 }
@@ -166,7 +168,6 @@ void SmileiIO_Cart1D::createPartsPattern( PicParams& params, SmileiMPI* smpi, El
 
         /* Create the data space for the dataset. */
         ptclsGroup.dataspace_id = H5Screate_simple(4, ptclsGroup.dims_global, NULL);
-        int dataset_size = ptclsGroup.dataset_id.size();
         hid_t id = H5Dcreate2(ptclsGroup.group_id, ptclsGroup.dataset_name.back(), H5T_NATIVE_DOUBLE, ptclsGroup.dataspace_id,
                                       H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
@@ -184,7 +185,6 @@ void SmileiIO_Cart1D::createPartsPattern( PicParams& params, SmileiMPI* smpi, El
 
         /* Create the data space for the dataset. */
         ptclsGroup.dataspace_id = H5Screate_simple(4, ptclsGroup.dims_global, NULL);
-        dataset_size = ptclsGroup.dataset_id.size();
         id = H5Dcreate2(ptclsGroup.group_id, ptclsGroup.dataset_name.back(), H5T_NATIVE_DOUBLE, ptclsGroup.dataspace_id,
                                       H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
@@ -237,6 +237,112 @@ void SmileiIO_Cart1D::createPartsPattern( PicParams& params, SmileiMPI* smpi, El
     ptclsGroup.status = H5Gclose( ptclsGroup.group_id );
 
 }
+
+
+// Create particles h5 file pattern
+void SmileiIO_Cart1D::createDiagsPattern( PicParams& params, SmileiMPI* smpi, Diagnostic1D* diag1D )
+{
+    string diagName;
+    const char* name;
+    hid_t dataset_id;
+
+    fieldsGroup.group_id = H5Gcreate(global_file_id_, "/Diagnostic", H5P_DEFAULT, H5P_DEFAULT,H5P_DEFAULT);
+
+    // =======create dataset for particleFlux================================
+    diagsGroup.dims_global[3] = 2;
+    diagsGroup.dims_global[2] = diag1D->n_species;
+    diagsGroup.dims_global[1] = 1;
+    diagsGroup.dims_global[0] = params.n_time / params.dump_step;
+
+    // dataset name
+    diagName = "particleFlux";
+    diagsGroup.dataset_stringName.push_back(diagName);
+    name = diagsGroup.dataset_stringName.back().c_str();
+    diagsGroup.dataset_name.push_back(name);
+
+    // Create the data space for the dataset
+    diagsGroup.dataspace_id = H5Screate_simple(4, diagsGroup.dims_global, NULL);
+    // Create the dataset
+    dataset_id = H5Dcreate2(diagsGroup.group_id, diagsGroup.dataset_name.back(), H5T_NATIVE_DOUBLE, diagsGroup.dataspace_id,
+                                  H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    diagsGroup.dataset_id.push_back(dataset_id);
+
+    // Write initial data to the dataset
+    data_ =  (double*)malloc(diagsGroup.dims_global[3] * diagsGroup.dims_global[2] * diagsGroup.dims_global[1] * diagsGroup.dims_global[0] * sizeof(double));
+    for( int i = 0; i < diagsGroup.dims_global[3] * diagsGroup.dims_global[2] * diagsGroup.dims_global[1] * diagsGroup.dims_global[0]; i++)
+    {
+      data_[i] = 2.0;
+    }
+    diagsGroup.status = H5Dwrite(diagsGroup.dataset_id.back(), H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data_);
+    free(data_);
+
+
+    // =======create dataset for heatFlux================================
+    diagsGroup.dims_global[3] = 2;
+    diagsGroup.dims_global[2] = diag1D->n_species;
+    diagsGroup.dims_global[1] = 1;
+    diagsGroup.dims_global[0] = params.n_time / params.dump_step;
+
+    // dataset name
+    diagName = "heatFlux";
+    diagsGroup.dataset_stringName.push_back(diagName);
+    name = diagsGroup.dataset_stringName.back().c_str();
+    diagsGroup.dataset_name.push_back(name);
+
+    // Create the data space for the dataset
+    diagsGroup.dataspace_id = H5Screate_simple(4, diagsGroup.dims_global, NULL);
+    // Create the dataset
+    dataset_id = H5Dcreate2(diagsGroup.group_id, diagsGroup.dataset_name.back(), H5T_NATIVE_DOUBLE, diagsGroup.dataspace_id,
+                                  H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    diagsGroup.dataset_id.push_back(dataset_id);
+
+    // Write initial data to the dataset
+    data_ =  (double*)malloc(diagsGroup.dims_global[3] * diagsGroup.dims_global[2] * diagsGroup.dims_global[1] * diagsGroup.dims_global[0] * sizeof(double));
+    for( int i = 0; i < diagsGroup.dims_global[3] * diagsGroup.dims_global[2] * diagsGroup.dims_global[1] * diagsGroup.dims_global[0]; i++)
+    {
+      data_[i] = 2.0;
+    }
+    diagsGroup.status = H5Dwrite(diagsGroup.dataset_id.back(), H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data_);
+    free(data_);
+
+
+    // =======create dataset for angleDist================================
+    diagsGroup.dims_global[3] = 90;
+    diagsGroup.dims_global[2] = 2;
+    diagsGroup.dims_global[1] = diag1D->n_species;
+    diagsGroup.dims_global[0] = params.n_time / params.dump_step;
+
+    // dataset name
+    diagName = "angleDist";
+    diagsGroup.dataset_stringName.push_back(diagName);
+    name = diagsGroup.dataset_stringName.back().c_str();
+    diagsGroup.dataset_name.push_back(name);
+
+    // Create the data space for the dataset
+    diagsGroup.dataspace_id = H5Screate_simple(4, diagsGroup.dims_global, NULL);
+    // Create the dataset
+    dataset_id = H5Dcreate2(diagsGroup.group_id, diagsGroup.dataset_name.back(), H5T_NATIVE_DOUBLE, diagsGroup.dataspace_id,
+                                  H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    diagsGroup.dataset_id.push_back(dataset_id);
+
+    // Write initial data to the dataset
+    data_ =  (double*)malloc(diagsGroup.dims_global[3] * diagsGroup.dims_global[2] * diagsGroup.dims_global[1] * diagsGroup.dims_global[0] * sizeof(double));
+    for( int i = 0; i < diagsGroup.dims_global[3] * diagsGroup.dims_global[2] * diagsGroup.dims_global[1] * diagsGroup.dims_global[0]; i++)
+    {
+      data_[i] = 2.0;
+    }
+    diagsGroup.status = H5Dwrite(diagsGroup.dataset_id.back(), H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data_);
+    free(data_);
+
+
+    // close dataset and group
+    for(int i = 0; i < diagsGroup.dataset_id.size(); i++)
+    {
+        diagsGroup.status = H5Dclose( diagsGroup.dataset_id[i] );
+    }
+    diagsGroup.status = H5Gclose( diagsGroup.group_id );
+}
+
 
 
 void SmileiIO_Cart1D::initVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies )
@@ -325,3 +431,116 @@ void SmileiIO_Cart1D::calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* f
 
     }
 }
+
+
+
+//! write potential, rho and so on into hdf5 file every some timesteps
+void SmileiIO_Cart1D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, Diagnostic* diag)
+{
+
+    calVDF( params, smpi, fields, vecSpecies);
+
+    if(smpi->isMaster()) {
+
+        // reopen attribute, dataset, dataspace, group, and so on
+        global_file_id_  = H5Fopen( "Fields_global.h5", H5F_ACC_RDWR, H5P_DEFAULT);
+
+        fieldsGroup.group_id = H5Gopen(global_file_id_, "/Fields", H5P_DEFAULT);
+        for(int i = 0; i < fieldsGroup.dataset_name.size(); i++)
+        {
+            fieldsGroup.dataset_id[i] = H5Dopen( fieldsGroup.group_id, fieldsGroup.dataset_name[i], H5P_DEFAULT);
+        }
+
+        ptclsGroup.group_id = H5Gopen(global_file_id_, "/VDF", H5P_DEFAULT);
+        for(int i = 0; i < ptclsGroup.dataset_name.size(); i++)
+        {
+            ptclsGroup.dataset_id[i] = H5Dopen( ptclsGroup.group_id, ptclsGroup.dataset_name[i], H5P_DEFAULT);
+        }
+
+        fieldsGroup.offset[0] = ndims_t;
+        ptclsGroup.offset[0] = ndims_t;
+
+        fieldsGroup.count[0]  = 1;
+        fieldsGroup.count[1]  = fieldsGroup.dims_global[1];
+        fieldsGroup.count[2]  = fieldsGroup.dims_global[2];
+        fieldsGroup.count[3]  = fieldsGroup.dims_global[3];
+
+        ptclsGroup.count[0]  = 1;
+        ptclsGroup.count[1]  = ptclsGroup.dims_global[1];
+        ptclsGroup.count[2]  = ptclsGroup.dims_global[2];
+        ptclsGroup.count[3]  = ptclsGroup.dims_global[3];
+
+        // =============write fields============================================
+        for(int i = 0; i < fieldsGroup.dataset_id.size(); i++)
+        {
+            fieldsGroup.memspace_id = H5Screate_simple (4, fieldsGroup.count, NULL);
+            fieldsGroup.dataspace_id = H5Dget_space (fieldsGroup.dataset_id[i]);
+            // H5Sselect_hyperslab: define the selection of subset in the dataspace
+            fieldsGroup.status = H5Sselect_hyperslab (fieldsGroup.dataspace_id, H5S_SELECT_SET, fieldsGroup.offset,
+                                              fieldsGroup.stride, fieldsGroup.count, fieldsGroup.block);
+            fieldsGroup.status = H5Dwrite (fieldsGroup.dataset_id[i], H5T_NATIVE_DOUBLE, fieldsGroup.memspace_id,
+                                 fieldsGroup.dataspace_id, H5P_DEFAULT, fieldsGroup.dataset_data[i]);
+
+            fieldsGroup.status = H5Sclose (fieldsGroup.memspace_id);
+            fieldsGroup.status = H5Sclose (fieldsGroup.dataspace_id);
+        }
+
+        // close dataset, group, and so on
+        for(int i = 0; i < fieldsGroup.dataset_id.size(); i++)
+        {
+            fieldsGroup.status = H5Dclose( fieldsGroup.dataset_id[i] );
+        }
+        fieldsGroup.status = H5Gclose( fieldsGroup.group_id );
+
+
+
+        // ==============write particle velocity distribution function=========================
+        for(int i = 0; i < ptclsGroup.dataset_id.size(); i++)
+        {
+            ptclsGroup.memspace_id = H5Screate_simple (4, ptclsGroup.count, NULL);
+            ptclsGroup.dataspace_id = H5Dget_space (ptclsGroup.dataset_id[i]);
+            ptclsGroup.status = H5Sselect_hyperslab (ptclsGroup.dataspace_id, H5S_SELECT_SET, ptclsGroup.offset,
+                                              ptclsGroup.stride, ptclsGroup.count, ptclsGroup.block);
+            ptclsGroup.status = H5Dwrite (ptclsGroup.dataset_id[i], H5T_NATIVE_DOUBLE, ptclsGroup.memspace_id,
+                                 ptclsGroup.dataspace_id, H5P_DEFAULT, ptclsGroup.dataset_data[i]);
+
+            ptclsGroup.status = H5Sclose (ptclsGroup.memspace_id);
+            ptclsGroup.status = H5Sclose (ptclsGroup.dataspace_id);
+        }
+
+        // close dataset, group, and so on
+        for(int i = 0; i < ptclsGroup.dataset_id.size(); i++)
+        {
+            ptclsGroup.status = H5Dclose( ptclsGroup.dataset_id[i] );
+        }
+        ptclsGroup.status = H5Gclose( ptclsGroup.group_id );
+
+
+        // ==============write Diagnostic: particleFlux, heatFlux and angleDist============
+        for(int i = 0; i < ptclsGroup.dataset_id.size(); i++)
+        {
+            diagsGroup.memspace_id = H5Screate_simple (4, diagsGroup.count, NULL);
+            diagsGroup.dataspace_id = H5Dget_space (diagsGroup.dataset_id[i]);
+            diagsGroup.status = H5Sselect_hyperslab (diagsGroup.dataspace_id, H5S_SELECT_SET, diagsGroup.offset,
+                                              diagsGroup.stride, diagsGroup.count, diagsGroup.block);
+            diagsGroup.status = H5Dwrite (diagsGroup.dataset_id[i], H5T_NATIVE_DOUBLE, diagsGroup.memspace_id,
+                                 diagsGroup.dataspace_id, H5P_DEFAULT, diagsGroup.dataset_data[i]);
+
+            diagsGroup.status = H5Sclose (diagsGroup.memspace_id);
+            diagsGroup.status = H5Sclose (diagsGroup.dataspace_id);
+        }
+
+        // close dataset, group, and so on
+        for(int i = 0; i < diagsGroup.dataset_id.size(); i++)
+        {
+            diagsGroup.status = H5Dclose( diagsGroup.dataset_id[i] );
+        }
+        diagsGroup.status = H5Gclose( diagsGroup.group_id );
+
+
+        ndims_t++;
+        status = H5Fclose(global_file_id_);
+    }
+
+
+} // END write

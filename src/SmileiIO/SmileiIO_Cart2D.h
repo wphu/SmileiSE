@@ -21,6 +21,8 @@ public:
     //! Destructor for SmileiIO
     ~SmileiIO_Cart2D();
 
+    virtual void write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, Diagnostic* diag);
+
     //! Build memory and file space for // HDF5 write/read
     void createFieldsPattern( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields );
     // Create particles h5 file pattern

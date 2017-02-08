@@ -21,6 +21,7 @@ class SmileiMPI;
 class ElectroMagn;
 class Field;
 class Species;
+class Diagnostic;
 
 #include <csignal>
 
@@ -41,7 +42,7 @@ public:
     void addField(Field* field);
     void addPtclsDatasetName(string Dname);
     //! Basic write field on its own file (debug)
-    void write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies);
+    virtual void write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, Diagnostic* diag){};
     virtual void calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies){};
 
 
@@ -57,13 +58,19 @@ public:
     //> dimensions of time, which means total timestep number to output
     int ndims_t;
 
+    // H5Group is for fields and particles( velocity distribution funtion )
     struct H5Group
     {
         hid_t       group_id;
-        hid_t       dataspace_id;
         hid_t       attribute_id;
-        hid_t       memspace_id;
         herr_t      status;
+
+        // dataspace_id is temporary to create dataset_id, corresponse to the whole dataset structure
+        hid_t       dataspace_id;
+        // memspace_id is temporary to write subset of a dataset, descript the structure of the subset
+        hid_t       memspace_id;
+        // ndims_ is used to output the dimensitons as attribute
+        int ndims_[4];
 
         std::vector<hid_t> dataset_id;
         std::vector<std::string> dataset_stringName;
@@ -71,8 +78,8 @@ public:
         std::vector<double*> dataset_data;
 
         //> data dimensions to be outputed: t, z, y, x
-        //> ndims_[1] = 1 for 2d; ndims_[1] = ndims_[2] = 1 for 1d
-        int ndims_[4];
+        //> [1] = 1 for 2d; [1] = [2] = 1 for 1d
+        // For different dataset, the dims_global may be different
         hsize_t     dims_global[4];
 
         //> parameters for outputing fields in one timestep, used by H5Sselect_hyperslab hdf5 method
@@ -84,6 +91,7 @@ public:
 
     H5Group fieldsGroup;
     H5Group ptclsGroup;     //H5 particles Group
+    H5Group diagsGroup;     //Diagnostic Group
 
 
     std::vector<Array4D*> vx_VDF;
