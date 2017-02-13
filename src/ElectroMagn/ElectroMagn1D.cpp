@@ -135,6 +135,26 @@ isEastern(smpi->isEastern())
 
         rho_s_global[ispec]     = new Field1D(dim_global, ("Rho_global_"+params.species_param[ispec].species_type).c_str());
         rho_s_global_avg[ispec] = new Field1D(dim_global, ("Rho_global_"+params.species_param[ispec].species_type+"_avg").c_str());
+
+        Vx_s[ispec]             = new Field1D(dimPrim, ("Vx_"+params.species_param[ispec].species_type).c_str());
+        Vx_s_avg[ispec]         = new Field1D(dimPrim, ("Vx_"+params.species_param[ispec].species_type+"_avg").c_str());
+        Vx_s_global[ispec]      = new Field1D(dim_global, ("Vx_global_"+params.species_param[ispec].species_type).c_str());
+        Vx_s_global_avg[ispec]  = new Field1D(dim_global, ("Vx_global_"+params.species_param[ispec].species_type+"_avg").c_str());
+
+        Vy_s[ispec]             = new Field1D(dimPrim, ("Vy_"+params.species_param[ispec].species_type).c_str());
+        Vy_s_avg[ispec]         = new Field1D(dimPrim, ("Vy_"+params.species_param[ispec].species_type+"_avg").c_str());
+        Vy_s_global[ispec]      = new Field1D(dim_global, ("Vy_global_"+params.species_param[ispec].species_type).c_str());
+        Vy_s_global_avg[ispec]  = new Field1D(dim_global, ("Vy_global_"+params.species_param[ispec].species_type+"_avg").c_str());
+
+        Vz_s[ispec]             = new Field1D(dimPrim, ("Vz_"+params.species_param[ispec].species_type).c_str());
+        Vz_s_avg[ispec]         = new Field1D(dimPrim, ("Vz_"+params.species_param[ispec].species_type+"_avg").c_str());
+        Vz_s_global[ispec]      = new Field1D(dim_global, ("Vz_global_"+params.species_param[ispec].species_type).c_str());
+        Vz_s_global_avg[ispec]  = new Field1D(dim_global, ("Vz_global_"+params.species_param[ispec].species_type+"_avg").c_str());
+
+        T_s[ispec]              = new Field1D(dimPrim, ("T_"+params.species_param[ispec].species_type).c_str());
+        T_s_avg[ispec]          = new Field1D(dimPrim, ("T_"+params.species_param[ispec].species_type+"_avg").c_str());
+        T_s_global[ispec]       = new Field1D(dim_global, ("T_global_"+params.species_param[ispec].species_type).c_str());
+        T_s_global_avg[ispec]   = new Field1D(dim_global, ("T_global_"+params.species_param[ispec].species_type+"_avg").c_str());
     }
 
     //    ostringstream file_name("");

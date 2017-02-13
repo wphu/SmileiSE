@@ -21,7 +21,7 @@ using namespace std;
 class SmileiIO_Cart1D : public SmileiIO {
 public:
     //! Create // HDF5 environment
-    SmileiIO_Cart1D( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, Diagnostic1D* diag1D );
+    SmileiIO_Cart1D( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, Diagnostic* diag );
     //! Destructor for SmileiIO
     ~SmileiIO_Cart1D();
 

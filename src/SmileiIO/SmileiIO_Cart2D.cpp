@@ -16,9 +16,10 @@
 
 using namespace std;
 
-SmileiIO_Cart2D::SmileiIO_Cart2D( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies )
+SmileiIO_Cart2D::SmileiIO_Cart2D( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, Diagnostic* diag )
 : SmileiIO( params, smpi )
 {
+    Diagnostic2D* diag2D = static_cast<Diagnostic2D*>(diag);
     if(smpi->isMaster())
     {
         createFieldsPattern(params, smpi, fields);
@@ -318,7 +319,7 @@ void SmileiIO_Cart2D::calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* f
 //! write potential, rho and so on into hdf5 file every some timesteps
 void SmileiIO_Cart2D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, Diagnostic* diag)
 {
-
+    Diagnostic2D* diag2D = static_cast<Diagnostic2D*>(diag);
     calVDF( params, smpi, fields, vecSpecies);
 
     if(smpi->isMaster()) {

@@ -14,9 +14,18 @@ class DiagnosticFactory {
 public:
 
     static Diagnostic* create(PicParams& params, SmileiMPI* smpi) {
-        Diagnostic* Diag;
+        Diagnostic* diag = NULL;
+        if ( params.geometry == "1d3v" ) {
+            diag = new Diagnostic1D(params, smpi);
+        }
+        else if ( params.geometry == "2d3v" ) {
+            diag = new Diagnostic2D(params, smpi);
+        }
+        else {
+            ERROR( "Unknwon geometry : " << params.geometry );
+        }
 
-        return Diag;
+        return diag;
     } // END createGlobalDiagnostics
 
 

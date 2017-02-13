@@ -1,11 +1,17 @@
 #include "Diagnostic1D.h"
 #include "Species.h"
-#include "SmileiMPI.h"
+#include "SmileiMPI_Cart1D.h"
+#include "Field1D.h"
+#include "ElectroMagn.h"
 
 
 Diagnostic1D::Diagnostic1D(PicParams& params, SmileiMPI* smpi) :
 Diagnostic(params)
 {
+	SmileiMPI_Cart1D* smpi1D = static_cast<SmileiMPI_Cart1D*>(smpi);
+	dx_inv_  = 1.0/params.cell_length[0];
+	index_domain_begin = smpi1D->getCellStartingGlobalIndex(0);
+
 	particleFlux.resize(n_species);
 	heatFlux.resize(n_species);
 	angleDist.resize(n_species);
@@ -22,7 +28,7 @@ Diagnostic(params)
 }
 
 
-void Diagnostic1D::run( SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime )
+void Diagnostic1D::run( SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMagn* EMfields, int itime )
 {
 	Species *s1;
 	Particles *p1;
@@ -33,7 +39,8 @@ void Diagnostic1D::run( SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime
 
 	angle_temp.resize(90);
 
-	if(itime == dump_step + 1) {
+	// reset diagnostic parameters to zero
+	if( (itime % (dump_step + 1)) == 0 ) {
 		for(int ispec = 0; ispec < n_species; ispec++)
 		{
 			for(int iDirection = 0; iDirection < 2; iDirection++)
@@ -48,7 +55,7 @@ void Diagnostic1D::run( SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime
 		}
 	}
 
-
+	// calculate diagnost parameters
 	for(int ispec = 0; ispec < n_species; ispec++)
 	{
 		s1 = vecSpecies[ispec];
@@ -70,18 +77,21 @@ void Diagnostic1D::run( SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime
 			}
 		}
 
-		if(itime == dump_step) {
+
+
+		// calculate velocity and temperature
+
+	}
+
+	// MPI gather diagnostic parameters to master
+	if( (itime % dump_step) == 0 ) {
+		for(int ispec = 0; ispec < n_species; ispec++)
+		{
 			particleFlux[ispec][0] /= (timestep * dump_step);
 			particleFlux[ispec][1] /= (timestep * dump_step);
 			heatFlux[ispec][0] /= (timestep * dump_step);
 			heatFlux[ispec][1] /= (timestep * dump_step);
-		}
 
-	}
-
-	if(itime == dump_step) {
-		for(int ispec = 0; ispec < n_species; ispec++)
-		{
 			for(int iDirection = 0; iDirection < 2; iDirection++)
 			{
 				MPI_Allreduce( &particleFlux[ispec][iDirection], &flux_temp, 1, MPI_DOUBLE,MPI_SUM, MPI_COMM_WORLD);
@@ -93,9 +103,116 @@ void Diagnostic1D::run( SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime
 				MPI_Allreduce( &angleDist[ispec][iDirection][0], &angle_temp[0], 90, MPI_DOUBLE,MPI_SUM, MPI_COMM_WORLD);
 				angleDist[ispec][iDirection] = angle_temp;
 			}
+
 		}
 	}
 
+	// calculate velocity and temperature of each species
+	calVT(smpi, vecSpecies, EMfields, itime);
 
+
+
+}
+
+
+void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMagn* EMfields, int itime)
+{
+	Species *s1;
+	Particles *p1;
+	int i;
+	double xjn,xjmxi;
+	double m_ov_3e;
+	double vx, vy, vz;
+	double dump_step_inv_;
+	Field1D *ptclNum1D = new Field1D(EMfields->dimPrim, "ptclNum");
+
+	dump_step_inv_ = 1.0 / dump_step;
+	for(int iSpec = 0; iSpec < vecSpecies.size(); iSpec++)
+	{
+
+		s1 = vecSpecies[iSpec];
+		p1 = &(s1->particles);
+		Field1D* Vx1D_s = static_cast<Field1D*>(EMfields->Vx_s[iSpec]);
+		Field1D* Vy1D_s = static_cast<Field1D*>(EMfields->Vy_s[iSpec]);
+		Field1D* Vz1D_s = static_cast<Field1D*>(EMfields->Vz_s[iSpec]);
+
+		Field1D* Vx1D_s_avg = static_cast<Field1D*>(EMfields->Vx_s_avg[iSpec]);
+		Field1D* Vy1D_s_avg = static_cast<Field1D*>(EMfields->Vy_s_avg[iSpec]);
+		Field1D* Vz1D_s_avg = static_cast<Field1D*>(EMfields->Vz_s_avg[iSpec]);
+
+		Field1D* T1D_s = static_cast<Field1D*>(EMfields->T_s[iSpec]);
+		Field1D* T1D_s_avg = static_cast<Field1D*>(EMfields->T_s_avg[iSpec]);
+		m_ov_3e = s1->species_param.mass / ( const_e * 3.0 );
+
+		Vx1D_s->put_to(0.0);
+		Vy1D_s->put_to(0.0);
+		Vz1D_s->put_to(0.0);
+		T1D_s->put_to(0.0);
+		if( (itime % (dump_step + 1)) == 0 ) {
+			(EMfields->Vx_s_avg[iSpec])->put_to(0.0);
+			(EMfields->Vy_s_avg[iSpec])->put_to(0.0);
+			(EMfields->Vz_s_avg[iSpec])->put_to(0.0);
+			(EMfields->T_s_avg[iSpec]) ->put_to(0.0);
+		}
+
+		// calculate macroscopic velocity (average velocity) and particle number at grid points
+		for(int iPart = 0; iPart < p1->size(); iPart++)
+		{
+			//Locate particle on the grid
+			xjn    = p1->position(0, iPart) * dx_inv_;  	// normalized distance to the first node
+			i      = floor(xjn);                   		// index of the central node
+			xjmxi  = xjn - (double)i;              		// normalized distance to the nearest grid point
+
+			i -= index_domain_begin;
+			(*ptclNum1D)(i) 	+= 1.0;
+			(*Vx1D_s)(i) 		+= p1->momentum(0, iPart);
+		}
+		for(int i = 0; i < ptclNum1D->dims_[0]; i++)
+		{
+			(*Vx1D_s)(i) /= (*ptclNum1D)(i);
+		}
+
+		// calculate temperature
+		for(int iPart = 0; iPart < p1->size(); iPart++)
+		{
+			//Locate particle on the grid
+			xjn    = p1->position(0, iPart) * dx_inv_;  	// normalized distance to the first node
+			i      = floor(xjn);                   		// index of the central node
+			xjmxi  = xjn - (double)i;              		// normalized distance to the nearest grid point
+
+			vx = p1->momentum(0, iPart) - (*Vx1D_s)(i);
+			vy = p1->momentum(1, iPart) - (*Vy1D_s)(i);
+			vz = p1->momentum(2, iPart) - (*Vz1D_s)(i);
+			i -= index_domain_begin;
+			(*T1D_s)(i) 		+= ( vx * vx + vy * vy + vz * vz );
+		}
+		for(int i = 0; i < ptclNum1D->dims_[0]; i++)
+		{
+			(*T1D_s)(i) = (*T1D_s)(i) * m_ov_3e / (*ptclNum1D)(i);
+		}
+
+		// sum velocity and temperature
+		for(int i = 0; i < ptclNum1D->dims_[0]; i++)
+		{
+			(*Vx1D_s_avg)(i) += (*Vx1D_s)(i);
+			(*Vy1D_s_avg)(i) += (*Vy1D_s)(i);
+			(*Vz1D_s_avg)(i) += (*Vz1D_s)(i);
+			(*T1D_s_avg)(i) += (*T1D_s)(i);
+		}
+		if( (itime % dump_step) == 0 ) {
+			(*Vx1D_s_avg)(i) *= dump_step_inv_;
+			(*Vy1D_s_avg)(i) *= dump_step_inv_;
+			(*Vz1D_s_avg)(i) *= dump_step_inv_;
+			(*T1D_s_avg)(i)  *= dump_step_inv_;
+
+			// another way: firstly gather V, T, ptclNum, then calculate V_global, T_global
+			SmileiMPI_Cart1D* smpi1D = static_cast<SmileiMPI_Cart1D*>(smpi);
+			smpi1D->gatherField( static_cast<Field1D*>(EMfields->Vx_s_global_avg[i]), Vx1D_s_avg );
+			smpi1D->gatherField( static_cast<Field1D*>(EMfields->Vy_s_global_avg[i]), Vy1D_s_avg );
+			smpi1D->gatherField( static_cast<Field1D*>(EMfields->Vz_s_global_avg[i]), Vz1D_s_avg );
+			smpi1D->gatherField( static_cast<Field1D*>(EMfields->T_s_global_avg[i]), T1D_s_avg );
+		}
+
+	}
 
 }

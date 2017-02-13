@@ -158,6 +158,28 @@ public:
     std::vector<Field*> rho_s_global;
     std::vector<Field*> rho_s_global_avg;
 
+    // Vector of macroscopic velocity and temperature
+    // These fields are calculated in Diagnostic.run()
+    std::vector<Field*> Vx_s;
+    std::vector<Field*> Vx_s_avg;
+    std::vector<Field*> Vx_s_global;
+    std::vector<Field*> Vx_s_global_avg;
+    std::vector<Field*> Vy_s;
+    std::vector<Field*> Vy_s_avg;
+    std::vector<Field*> Vy_s_global;
+    std::vector<Field*> Vy_s_global_avg;
+    std::vector<Field*> Vz_s;
+    std::vector<Field*> Vz_s_avg;
+    std::vector<Field*> Vz_s_global;
+    std::vector<Field*> Vz_s_global_avg;
+
+    std::vector<Field*> T_s;
+    std::vector<Field*> T_s_avg;
+    std::vector<Field*> T_s_global;
+    std::vector<Field*> T_s_global_avg;
+
+
+
     //! nDim_field (from params)
     const unsigned int nDim_field;
 

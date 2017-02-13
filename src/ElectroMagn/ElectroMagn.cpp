@@ -80,6 +80,16 @@ oversize(params.oversize)
     rho_s_avg.resize(n_species);
     rho_s_global.resize(n_species);
     rho_s_global_avg.resize(n_species);
+
+    Vx_s.resize(n_species);
+    Vx_s_avg.resize(n_species);
+    Vx_s_global.resize(n_species);
+    Vx_s_global_avg.resize(n_species);
+    T_s.resize(n_species);
+    T_s_avg.resize(n_species);
+    T_s_global.resize(n_species);
+    T_s_global_avg.resize(n_species);
+
     for (unsigned int ispec=0; ispec<n_species; ispec++) {
         Jx_s[ispec]             = NULL;
         Jy_s[ispec]             = NULL;
@@ -88,6 +98,26 @@ oversize(params.oversize)
         rho_s_avg[ispec]        = NULL;
         rho_s_global[ispec]     = NULL;
         rho_s_global_avg[ispec] = NULL;
+
+        Vx_s[ispec]             = NULL;
+        Vx_s_avg[ispec]         = NULL;
+        Vx_s_global[ispec]      = NULL;
+        Vx_s_global_avg[ispec]  = NULL;
+
+        Vy_s[ispec]             = NULL;
+        Vy_s_avg[ispec]         = NULL;
+        Vy_s_global[ispec]      = NULL;
+        Vy_s_global_avg[ispec]  = NULL;
+
+        Vz_s[ispec]             = NULL;
+        Vz_s_avg[ispec]         = NULL;
+        Vz_s_global[ispec]      = NULL;
+        Vz_s_global_avg[ispec]  = NULL;
+
+        T_s[ispec]              = NULL;
+        T_s_avg[ispec]          = NULL;
+        T_s_global[ispec]       = NULL;
+        T_s_global_avg[ispec]   = NULL;
     }
 
 

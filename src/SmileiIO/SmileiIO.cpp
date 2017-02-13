@@ -53,10 +53,3 @@ void SmileiIO::addField(Field* field)
 
     fieldsGroup.dataset_data.push_back(field->data_);
 }
-
-
-void SmileiIO::addPtclsDatasetName(string Dname)
-{
-    const char* name = Dname.c_str();
-    ptclsGroup.dataset_name.push_back(name);
-}

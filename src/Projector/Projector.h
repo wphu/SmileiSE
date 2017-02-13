@@ -40,9 +40,10 @@ public:
     //! Project global current densities if Ionization in Species::dynamics,
     virtual void operator() (Field* Jx, Field* Jy, Field* Jz, Particles &particles, int ipart, LocalFields Jion) = 0;
 
+
+
 private:
 
 };
 
 #endif
-

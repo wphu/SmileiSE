@@ -17,7 +17,7 @@ public :
     virtual ~Diagnostic() {};
 
     //! Runs the diag for all patches for local diags.
-    virtual void run( SmileiMPI* smpi, vector<Species*>& vecSpecies, int timestep ) {};
+    virtual void run( SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMagn* EMfields, int timestep ) {};
 
     const unsigned int n_species;
 
@@ -25,9 +25,11 @@ protected :
 
     // pi * 0.5
     double PI_ov_2;
-    vector<double> sim_length;
     int dump_step;
     double timestep;
+    double const_e;
+
+    vector<double> sim_length;
 };
 
 #endif

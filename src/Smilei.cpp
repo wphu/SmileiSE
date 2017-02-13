@@ -132,9 +132,14 @@ int main (int argc, char* argv[])
     vector<ElectroMagnBC*> vecEmBC = ElectroMagnBCFactory::create(params);
     smpi->barrier();
 
+    TITLE("Creating Diagnostic");
+    Diagnostic*  diag  = DiagnosticFactory::create(params, smpi);
+    smpi->barrier();
+
+
     //Create mpi i/o environment
     TITLE("Output environment");
-    SmileiIO*  sio  = SmileiIOFactory::create(params, smpi, EMfields, vecSpecies);
+    SmileiIO*  sio  = SmileiIOFactory::create(params, smpi, EMfields, vecSpecies, diag);
     smpi->barrier();
 
     TITLE("Creating Solver");
@@ -282,6 +287,8 @@ int main (int argc, char* argv[])
         timer[2].update();
         smpi->barrier();
 
+        // run Diagnostic: calculate particle flux, heat flux and angle distribution
+        diag->run(smpi, vecSpecies, EMfields, itime);
 
         timer[3].restart();
         // put density and currents to 0 + save former density

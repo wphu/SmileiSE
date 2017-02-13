@@ -7,4 +7,5 @@ dump_step(params.dump_step),
 timestep(params.timestep)
 {
 	PI_ov_2 = 0.5 * params.const_pi;
+	const_e = params.const_e;
 }

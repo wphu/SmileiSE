@@ -40,7 +40,6 @@ public:
     virtual ~SmileiIO();
 
     void addField(Field* field);
-    void addPtclsDatasetName(string Dname);
     //! Basic write field on its own file (debug)
     virtual void write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, Diagnostic* diag){};
     virtual void calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies){};
@@ -83,6 +82,12 @@ public:
         hsize_t     dims_global[4];
 
         //> parameters for outputing fields in one timestep, used by H5Sselect_hyperslab hdf5 method
+        /*
+        The offset or start array specifies the offset of the starting element of the specified hyperslab.
+        The count array determines how many blocks to select from the dataspace in each dimension. If the block size for a dimension is one then the count is the number of elements along that dimension.
+        The stride array allows you to sample elements along a dimension. For example, a stride of one (or NULL) will select every element along a dimension, a stride of two will select every other element, and a stride of three will select an element after every two elements.
+        The block array determines the size of the element block selected from a dataspace. If the block size is one or NULL then the block size is a single element in that dimension
+        */
         hsize_t     count[4];              /* size of subset in the file */
         hsize_t     offset[4];             /* subset offset in the file */
         hsize_t     stride[4];

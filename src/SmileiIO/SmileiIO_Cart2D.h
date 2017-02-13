@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "SmileiIO.h"
+#include "Diagnostic2D.h"
 
 //  --------------------------------------------------------------------------------------------------------------------
 //! Class SmileiIO_Cart2D
@@ -17,7 +18,7 @@
 class SmileiIO_Cart2D : public SmileiIO {
 public:
     //! Create // HDF5 environment
-    SmileiIO_Cart2D( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies );
+    SmileiIO_Cart2D( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, Diagnostic* diag );
     //! Destructor for SmileiIO
     ~SmileiIO_Cart2D();
 
