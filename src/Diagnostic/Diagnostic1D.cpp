@@ -33,6 +33,7 @@ void Diagnostic1D::run( SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMa
 	Species *s1;
 	Particles *p1;
 	double v_square, v_magnitude;
+	double mass_ov_2, weight;
 	int iAngle;
 	double flux_temp;
 	vector<double> angle_temp;
@@ -46,7 +47,7 @@ void Diagnostic1D::run( SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMa
 			for(int iDirection = 0; iDirection < 2; iDirection++)
 			{
 				particleFlux[ispec][iDirection] = 0.0;
-				heatFlux[ispec][iDirection] 	= 0.0;
+				heatFlux	[ispec][iDirection] 	= 0.0;
 				for(int iA = 0; iA < 90; iA++)
 				{
 					angleDist[ispec][iDirection][iA] = 0.0;
@@ -55,32 +56,47 @@ void Diagnostic1D::run( SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMa
 		}
 	}
 
-	// calculate diagnost parameters
+	// calculate diagnostic parameters
 	for(int ispec = 0; ispec < n_species; ispec++)
 	{
 		s1 = vecSpecies[ispec];
 		p1 = &(s1->psi_particles);
+
+		// 0.5 * mass
+		mass_ov_2 = 0.5 * s1->species_param.mass;
 		for(int iPart = 0; iPart < p1->size(); iPart++)
 		{
+			//cout<<"particle number:  "<<p1->position(0,iPart)<<endl;
 			v_square = p1->momentum(0,iPart) * p1->momentum(0,iPart) + p1->momentum(1,iPart) * p1->momentum(1,iPart) + p1->momentum(2,iPart) * p1->momentum(2,iPart);
 			v_magnitude = sqrt(v_square);
-			iAngle = acos( abs(p1->momentum(0,iPart)) / v_magnitude ) / PI_ov_2;
+			iAngle = 90.0 * acos( abs(p1->momentum(0,iPart)) / v_magnitude ) / PI_ov_2;
 			if( p1->position(0,iPart) < 0.0 ) {
+				//cout<<"particle number:  "<<p1->position(0,iPart)<<endl;
 				particleFlux[ispec][0]++;
-				heatFlux[ispec][0] += 0.5 * s1->species_param.mass * v_square;
-				angleDist[ispec][0][iAngle]++;
+				heatFlux[ispec][0] += mass_ov_2 * v_square;
+				if (iAngle >= 0 && iAngle < 90)
+				{
+					angleDist[ispec][0][iAngle]++;
+				}
+				else
+				{
+					WARNING("iAngle out of range: iAngle = "<<iAngle);
+				}
+
 			}
 			else if( p1->position(0,iPart) > sim_length[0] ) {
 				particleFlux[ispec][1]++;
-				heatFlux[ispec][1] += 0.5 * s1->species_param.mass * v_square;
-				angleDist[ispec][1][iAngle]++;
+				heatFlux[ispec][1] += mass_ov_2 * v_square;
+				if (iAngle >= 0 && iAngle < 90)
+				{
+					angleDist[ispec][1][iAngle]++;
+				}
+				else
+				{
+					WARNING("iAngle out of range: iAngle = "<<iAngle);
+				}
 			}
 		}
-
-
-
-		// calculate velocity and temperature
-
 	}
 
 	// MPI gather diagnostic parameters to master
@@ -108,7 +124,7 @@ void Diagnostic1D::run( SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMa
 	}
 
 	// calculate velocity and temperature of each species
-	calVT(smpi, vecSpecies, EMfields, itime);
+	//calVT(smpi, vecSpecies, EMfields, itime);
 
 
 
@@ -166,10 +182,14 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 			i -= index_domain_begin;
 			(*ptclNum1D)(i) 	+= 1.0;
 			(*Vx1D_s)(i) 		+= p1->momentum(0, iPart);
+			(*Vy1D_s)(i) 		+= p1->momentum(1, iPart);
+			(*Vz1D_s)(i) 		+= p1->momentum(2, iPart);
 		}
 		for(int i = 0; i < ptclNum1D->dims_[0]; i++)
 		{
 			(*Vx1D_s)(i) /= (*ptclNum1D)(i);
+			(*Vy1D_s)(i) /= (*ptclNum1D)(i);
+			(*Vz1D_s)(i) /= (*ptclNum1D)(i);
 		}
 
 		// calculate temperature
@@ -199,11 +219,15 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 			(*Vz1D_s_avg)(i) += (*Vz1D_s)(i);
 			(*T1D_s_avg)(i) += (*T1D_s)(i);
 		}
+		// Calculate the average parameters and MPI gather
 		if( (itime % dump_step) == 0 ) {
-			(*Vx1D_s_avg)(i) *= dump_step_inv_;
-			(*Vy1D_s_avg)(i) *= dump_step_inv_;
-			(*Vz1D_s_avg)(i) *= dump_step_inv_;
-			(*T1D_s_avg)(i)  *= dump_step_inv_;
+			for(int i = 0; i < ptclNum1D->dims_[0]; i++)
+			{
+				(*Vx1D_s_avg)(i) *= dump_step_inv_;
+				(*Vy1D_s_avg)(i) *= dump_step_inv_;
+				(*Vz1D_s_avg)(i) *= dump_step_inv_;
+				(*T1D_s_avg)(i)  *= dump_step_inv_;
+			}
 
 			// another way: firstly gather V, T, ptclNum, then calculate V_global, T_global
 			SmileiMPI_Cart1D* smpi1D = static_cast<SmileiMPI_Cart1D*>(smpi);

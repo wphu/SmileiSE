@@ -248,7 +248,7 @@ void SmileiIO_Cart1D::createDiagsPattern( PicParams& params, SmileiMPI* smpi, Di
     const char* name;
     hid_t dataset_id;
 
-    fieldsGroup.group_id = H5Gcreate(global_file_id_, "/Diagnostic", H5P_DEFAULT, H5P_DEFAULT,H5P_DEFAULT);
+    diagsGroup.group_id = H5Gcreate(global_file_id_, "/Diagnostic", H5P_DEFAULT, H5P_DEFAULT,H5P_DEFAULT);
 
     // =======create dataset for particleFlux================================
     diagsGroup.dims_global[3] = 2;
@@ -564,7 +564,7 @@ void SmileiIO_Cart1D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fi
                 diagsGroup.status = H5Sselect_hyperslab (diagsGroup.dataspace_id, H5S_SELECT_SET, diagsGroup.offset,
                                                   diagsGroup.stride, diagsGroup.count, diagsGroup.block);
                 diagsGroup.status = H5Dwrite (diagsGroup.dataset_id[1], H5T_NATIVE_DOUBLE, diagsGroup.memspace_id,
-                                     diagsGroup.dataspace_id, H5P_DEFAULT, &(diag1D->particleFlux[ispec][iDirection]) );
+                                     diagsGroup.dataspace_id, H5P_DEFAULT, &(diag1D->heatFlux[ispec][iDirection]) );
 
                 diagsGroup.status = H5Sclose (diagsGroup.memspace_id);
                 diagsGroup.status = H5Sclose (diagsGroup.dataspace_id);

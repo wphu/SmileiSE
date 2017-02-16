@@ -85,11 +85,21 @@ oversize(params.oversize)
     Vx_s_avg.resize(n_species);
     Vx_s_global.resize(n_species);
     Vx_s_global_avg.resize(n_species);
+
+    Vy_s.resize(n_species);
+    Vy_s_avg.resize(n_species);
+    Vy_s_global.resize(n_species);
+    Vy_s_global_avg.resize(n_species);
+
+    Vz_s.resize(n_species);
+    Vz_s_avg.resize(n_species);
+    Vz_s_global.resize(n_species);
+    Vz_s_global_avg.resize(n_species);
+
     T_s.resize(n_species);
     T_s_avg.resize(n_species);
     T_s_global.resize(n_species);
     T_s_global_avg.resize(n_species);
-
     for (unsigned int ispec=0; ispec<n_species; ispec++) {
         Jx_s[ispec]             = NULL;
         Jy_s[ispec]             = NULL;
@@ -119,7 +129,6 @@ oversize(params.oversize)
         T_s_global[ispec]       = NULL;
         T_s_global_avg[ispec]   = NULL;
     }
-
 
     for (unsigned int i=0; i<3; i++) {
         for (unsigned int j=0; j<2; j++) {

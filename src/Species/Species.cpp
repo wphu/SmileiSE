@@ -155,7 +155,7 @@ min_loc(smpi->getDomainLocalMin(0))
 #endif
     }
     indexes_of_particles_to_exchange_per_thd.resize(nthds);
-
+    indexes_of_particles_to_perform_psi.resize(2 * params.nDim_particle);
     //ener_tot = 0.;
     nrj_bc_lost = 0.;
     nrj_mw_lost = 0.;
@@ -471,12 +471,7 @@ void Species::dynamics(double time_dual, unsigned int ispec, ElectroMagn* EMfiel
     // Reset list of particles to exchange
     int tid(0);
     int iDirection=-1;
-    std::vector<double> nrj_lost_per_thd(1, 0.);
-#ifdef _OMP
-    tid = omp_get_thread_num();
-    int nthds = omp_get_num_threads();
-    nrj_lost_per_thd.resize(nthds, 0.);
-#endif
+
     clearExchList(tid);
 
     //ener_tot  = 0.;
@@ -488,30 +483,14 @@ void Species::dynamics(double time_dual, unsigned int ispec, ElectroMagn* EMfiel
     // -------------------------------
     if (time_dual>species_param.time_frozen) { // moving particle
         double gf = 1.0;
-        //Allocate buffer for projection  *****************************
-        // *4 accounts for Jy, Jz and rho. * nthds accounts for each thread.
-        b_rho = (double *) malloc(size_proj_buffer * sizeof(double));
-
 
         psi_particles.clear();
         for (ibin = 0 ; ibin < (unsigned int)bmin.size() ; ibin++) {
-
-            // reset all current-buffers
-            memset( &(b_rho[0]), 0, size_proj_buffer*sizeof(double));
-
             for (iPart=(unsigned int)bmin[ibin] ; iPart<(unsigned int)bmax[ibin]; iPart++ ) {
 
-
-                //MESSAGE("ipart: "<<iPart);
-                //cout<<"ipart: "<<iPart<<endl;
                 // Interpolate the fields at the particle position
                 //(*LocInterp)(EMfields, particles, iPart, &Epart);
                 (*LocInterp)(EMfields, particles, iPart, &Epart, &Bpart);
-
-                //if(Epart.x != 0.0 || Epart.y != 0.0 || Epart.z != 0.0 || Bpart.x != 0.0 || Bpart.y != 0.0 || Bpart.z != 0.0){
-                //    cout<<iPart<<"local field not zero  "<<Epart.x<<" "<<Epart.y<<" "<<Epart.z<<" "<<Bpart.x<<" "<<Bpart.y<<" "<<Bpart.z<<endl;
-                //}
-
 
                 // Push the particle
                 //(*Push)(particles, iPart, Epart);
@@ -524,61 +503,11 @@ void Species::dynamics(double time_dual, unsigned int ispec, ElectroMagn* EMfiel
                 // if omp, create a list per thread
                 if ( !partBoundCond->apply( particles, iPart, params.species_param[ispec], ener_iPart, iDirection ) ) {
                     addPartInExchList( tid, iPart );
-                    nrj_lost_per_thd[tid] += params.species_param[ispec].mass * ener_iPart;
                     if(iDirection >= 0){
                         addPartInPsiList( iDirection, iPart );
                     }
                 }
-
-                //if (!particles.isTestParticles) {
-                //    if (ndim <= 2) {
-                //        (*Proj)(b_Jx, b_Jy, b_Jz, b_rho, particles, iPart, gf, ibin*clrw, b_lastdim);
-                //        //(*Proj)(EMfields->rho_s[ispec], particles, iPart);
-                //    } else {
-                //        (*Proj)(EMfields->Jx_s[ispec], EMfields->Jy_s[ispec], EMfields->Jz_s[ispec],
-                //                EMfields->rho_s[ispec],particles, iPart, gf);
-                //    }
-                //}
             }//iPart
-
-
-            /*
-            // Copy buffer back to the global array and free buffer****************
-            if (!particles.isTestParticles) {
-                // this part is dimension dependant !! this is for dim = 1
-                if (ndim == 1) {
-                    for (i = 0; i < b_dim0 ; i++) {
-                        //! \todo Should we care about primal - dual sizes here ?
-                        iloc = ibin*clrw + i ;
-                        (*EMfields->rho_s[ispec])(iloc) += b_rho[i];
-                    }
-                } // End if (ndim == 1)
-                if (ndim == 2) {
-                    for (i = 0; i < 2*oversize[0]+1 ; i++) {
-                        iloc = ibin*clrw + i ;
-                        //! \todo Here b_dim0 is the dual size. Make sure no problems arise when i == b_dim0-1 for primal arrays.
-                        for (j = 0; j < b_dim1 ; j++) {
-                            (*EMfields->rho_s[ispec])(iloc*(f_dim1  )+j) += b_rho[i*b_dim1+j];   // primal along y
-                        }
-                    }
-                    for (i = 2*oversize[0]+1; i < clrw ; i++) {
-                        iloc = ibin*clrw + i ;
-                        //! \todo Here b_dim0 is the dual size. Make sure no problems arise when i == b_dim0-1 for primal arrays.
-                        for (j = 0; j < b_dim1 ; j++) {
-                            (*EMfields->rho_s[ispec])(iloc*(f_dim1  )+j) += b_rho[i*b_dim1+j];   // primal along y
-                        }
-                    }
-                    for (i = std::max(clrw,2*oversize[0]+1); i < b_dim0 ; i++) {
-                        iloc = ibin*clrw + i ;
-                        //! \todo Here b_dim0 is the dual size. Make sure no problems arise when i == b_dim0-1 for primal arrays.
-                        for (j = 0; j < b_dim1 ; j++) {
-                            (*EMfields->rho_s[ispec])(iloc*(f_dim1  )+j) += b_rho[i*b_dim1+j];   // primal along y
-                        }
-                    }
-                } // End if (ndim == 2)
-            } // if (!particles.isTestParticles)
-            */
-
         }// ibin
 
         //for (iPart=0 ; iPart<nParticles; iPart++ ) {
@@ -596,10 +525,6 @@ void Species::dynamics(double time_dual, unsigned int ispec, ElectroMagn* EMfiel
             }
         }
 
-        free(b_rho);
-
-        for (unsigned int ithd=0 ; ithd<nrj_lost_per_thd.size() ; ithd++)
-            nrj_bc_lost += nrj_lost_per_thd[ithd];
     }
     else if (!particles.isTestParticles) { // immobile particle (at the moment only project density)
         for (iPart=0 ; iPart<nParticles; iPart++ ) {

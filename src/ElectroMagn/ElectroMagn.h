@@ -164,10 +164,12 @@ public:
     std::vector<Field*> Vx_s_avg;
     std::vector<Field*> Vx_s_global;
     std::vector<Field*> Vx_s_global_avg;
+
     std::vector<Field*> Vy_s;
     std::vector<Field*> Vy_s_avg;
     std::vector<Field*> Vy_s_global;
     std::vector<Field*> Vy_s_global_avg;
+    
     std::vector<Field*> Vz_s;
     std::vector<Field*> Vz_s_avg;
     std::vector<Field*> Vz_s_global;

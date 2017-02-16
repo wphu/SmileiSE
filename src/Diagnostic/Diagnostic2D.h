@@ -16,6 +16,13 @@ public :
     //! Runs the diag for all patches for local diags.
     virtual void run( SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMagn* EMfields, int itime ) {};
 
+    vector< vector<double> > particleFlux;             // not implemented
+	vector< vector<double> > heatFlux;                 // not implemented
+    vector< vector< vector<double> > > angleDist;      // not implemented
+
+    // calculate velocity and temperature of each species
+    // not implemented
+	void calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMagn* EMfields, int itime){};
 
 protected :
 

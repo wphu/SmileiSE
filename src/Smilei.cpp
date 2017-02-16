@@ -27,7 +27,6 @@
 
 #include "SmileiMPIFactory.h"
 #include "GridFactory.h"
-
 #include "SpeciesFactory.h"
 #include "PartSourceFactory.h"
 #include "CollisionsFactory.h"
@@ -38,6 +37,7 @@
 #include "SmileiIOFactory.h"
 #include "PSIFactory.h"
 #include "ElectroMagnBC_Factory.h"
+#include "DiagnosticFactory.h"
 
 #include "Timer.h"
 #include <omp.h>
@@ -269,6 +269,8 @@ int main (int argc, char* argv[])
         }
 
         // Project particles
+        // Seperation of Project from Interpolate and Push is to solve absorbing particle when the
+        // particle crossing MPI boudary, especially for 2D case
         for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
         {
             EMfields->restartRhoJs(ispec, 0);
@@ -308,7 +310,7 @@ int main (int argc, char* argv[])
             MESSAGE("timestep = " << itime);
             //> gather time-average fields to process 0 to output
             EMfields->gatherAvgFields(smpi);
-            sio->write(params,smpi,EMfields,vecSpecies);
+            sio->write(params, smpi, EMfields, vecSpecies, diag);
         }
         smpi->barrier();
 
