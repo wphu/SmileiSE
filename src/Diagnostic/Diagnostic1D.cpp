@@ -47,7 +47,7 @@ void Diagnostic1D::run( SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMa
 			for(int iDirection = 0; iDirection < 2; iDirection++)
 			{
 				particleFlux[ispec][iDirection] = 0.0;
-				heatFlux	[ispec][iDirection] 	= 0.0;
+				heatFlux	[ispec][iDirection] = 0.0;
 				for(int iA = 0; iA < 90; iA++)
 				{
 					angleDist[ispec][iDirection][iA] = 0.0;
@@ -124,7 +124,7 @@ void Diagnostic1D::run( SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMa
 	}
 
 	// calculate velocity and temperature of each species
-	//calVT(smpi, vecSpecies, EMfields, itime);
+	calVT(smpi, vecSpecies, EMfields, itime);
 
 
 
@@ -158,17 +158,17 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 
 		Field1D* T1D_s = static_cast<Field1D*>(EMfields->T_s[iSpec]);
 		Field1D* T1D_s_avg = static_cast<Field1D*>(EMfields->T_s_avg[iSpec]);
-		m_ov_3e = s1->species_param.mass / ( const_e * 3.0 );
 
+		m_ov_3e = s1->species_param.mass / ( const_e * 3.0 );
 		Vx1D_s->put_to(0.0);
 		Vy1D_s->put_to(0.0);
 		Vz1D_s->put_to(0.0);
 		T1D_s->put_to(0.0);
 		if( (itime % (dump_step + 1)) == 0 ) {
-			(EMfields->Vx_s_avg[iSpec])->put_to(0.0);
-			(EMfields->Vy_s_avg[iSpec])->put_to(0.0);
-			(EMfields->Vz_s_avg[iSpec])->put_to(0.0);
-			(EMfields->T_s_avg[iSpec]) ->put_to(0.0);
+			Vx1D_s_avg->put_to(0.0);
+			Vy1D_s_avg->put_to(0.0);
+			Vz1D_s_avg->put_to(0.0);
+			T1D_s_avg ->put_to(0.0);
 		}
 
 		// calculate macroscopic velocity (average velocity) and particle number at grid points
@@ -187,9 +187,12 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 		}
 		for(int i = 0; i < ptclNum1D->dims_[0]; i++)
 		{
-			(*Vx1D_s)(i) /= (*ptclNum1D)(i);
-			(*Vy1D_s)(i) /= (*ptclNum1D)(i);
-			(*Vz1D_s)(i) /= (*ptclNum1D)(i);
+			if( (*ptclNum1D)(i) != 0.0 )
+			{
+				(*Vx1D_s)(i) /= (*ptclNum1D)(i);
+				(*Vy1D_s)(i) /= (*ptclNum1D)(i);
+				(*Vz1D_s)(i) /= (*ptclNum1D)(i);
+			}
 		}
 
 		// calculate temperature
@@ -200,15 +203,19 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 			i      = floor(xjn);                   		// index of the central node
 			xjmxi  = xjn - (double)i;              		// normalized distance to the nearest grid point
 
+			i -= index_domain_begin;
 			vx = p1->momentum(0, iPart) - (*Vx1D_s)(i);
 			vy = p1->momentum(1, iPart) - (*Vy1D_s)(i);
 			vz = p1->momentum(2, iPart) - (*Vz1D_s)(i);
-			i -= index_domain_begin;
 			(*T1D_s)(i) 		+= ( vx * vx + vy * vy + vz * vz );
 		}
 		for(int i = 0; i < ptclNum1D->dims_[0]; i++)
 		{
-			(*T1D_s)(i) = (*T1D_s)(i) * m_ov_3e / (*ptclNum1D)(i);
+			if( (*ptclNum1D)(i) != 0.0 )
+			{
+				(*T1D_s)(i) = (*T1D_s)(i) * m_ov_3e / (*ptclNum1D)(i);
+			}
+
 		}
 
 		// sum velocity and temperature
@@ -231,12 +238,13 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 
 			// another way: firstly gather V, T, ptclNum, then calculate V_global, T_global
 			SmileiMPI_Cart1D* smpi1D = static_cast<SmileiMPI_Cart1D*>(smpi);
-			smpi1D->gatherField( static_cast<Field1D*>(EMfields->Vx_s_global_avg[i]), Vx1D_s_avg );
-			smpi1D->gatherField( static_cast<Field1D*>(EMfields->Vy_s_global_avg[i]), Vy1D_s_avg );
-			smpi1D->gatherField( static_cast<Field1D*>(EMfields->Vz_s_global_avg[i]), Vz1D_s_avg );
-			smpi1D->gatherField( static_cast<Field1D*>(EMfields->T_s_global_avg[i]), T1D_s_avg );
+			smpi1D->gatherRho( static_cast<Field1D*>(EMfields->Vx_s_global_avg[iSpec]), Vx1D_s_avg );
+			smpi1D->gatherRho( static_cast<Field1D*>(EMfields->Vy_s_global_avg[iSpec]), Vy1D_s_avg );
+			smpi1D->gatherRho( static_cast<Field1D*>(EMfields->Vz_s_global_avg[iSpec]), Vz1D_s_avg );
+			smpi1D->gatherRho( static_cast<Field1D*>(EMfields->T_s_global_avg [iSpec]), T1D_s_avg );
 		}
 
 	}
+	delete ptclNum1D;
 
 }
