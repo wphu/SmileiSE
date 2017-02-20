@@ -33,7 +33,8 @@ void Diagnostic1D::run( SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMa
 	Species *s1;
 	Particles *p1;
 	double v_square, v_magnitude;
-	double mass_ov_2, weight;
+	double mass_ov_2;
+	double wlt;			// weight * cell_length / time for calculating flux
 	int iAngle;
 	double flux_temp;
 	vector<double> angle_temp;
@@ -103,10 +104,12 @@ void Diagnostic1D::run( SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMa
 	if( (itime % dump_step) == 0 ) {
 		for(int ispec = 0; ispec < n_species; ispec++)
 		{
-			particleFlux[ispec][0] /= (timestep * dump_step);
-			particleFlux[ispec][1] /= (timestep * dump_step);
-			heatFlux[ispec][0] /= (timestep * dump_step);
-			heatFlux[ispec][1] /= (timestep * dump_step);
+			s1 = vecSpecies[ispec];
+			wlt = s1->species_param.weight / (dx_inv_ * timestep * dump_step);
+			particleFlux[ispec][0] *= wlt;
+			particleFlux[ispec][1] *= wlt;
+			heatFlux[ispec][0] 	   *= wlt;
+			heatFlux[ispec][1]     *= wlt;
 
 			for(int iDirection = 0; iDirection < 2; iDirection++)
 			{
@@ -160,6 +163,7 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 		Field1D* T1D_s_avg = static_cast<Field1D*>(EMfields->T_s_avg[iSpec]);
 
 		m_ov_3e = s1->species_param.mass / ( const_e * 3.0 );
+		ptclNum1D->put_to(0.0);
 		Vx1D_s->put_to(0.0);
 		Vy1D_s->put_to(0.0);
 		Vz1D_s->put_to(0.0);
