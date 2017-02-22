@@ -30,7 +30,7 @@ public:
     double cross_section(double ke);
 
     //! Method called in the main smilei loop to apply collisions at each timestep
-    void collide(PicParams&, SmileiMPI* smpi, std::vector<Species*>&, int);
+    void collide(PicParams&, SmileiMPI* smpi, ElectroMagn* fields, std::vector<Species*>&, int);
 
 
     // ================DSMC parameters============================

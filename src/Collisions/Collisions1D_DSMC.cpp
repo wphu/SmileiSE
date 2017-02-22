@@ -56,7 +56,7 @@ Collisions1D_DSMC::~Collisions1D_DSMC()
 }
 
 // Calculates the collisions for a given Collisions1D object
-void Collisions1D_DSMC::collide(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime)
+void Collisions1D_DSMC::collide(PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, int itime)
 {
     INDEXM(vecSpecies);
     COLLM(vecSpecies);
@@ -67,6 +67,25 @@ void Collisions1D_DSMC::collide(PicParams& params, SmileiMPI* smpi, vector<Speci
     }
 
 }
+
+// if SubCells need to be considered, spg_cell_info should be added
+void Collisions1D_DSMC::INDEXM(vector<Species*>& vecSpecies)
+{
+    Species *sp;
+    for(int MM=0; MM<NumSpGroups; MM++)
+    {
+        for(int ibin=0; ibin<totbins; ibin++)
+        {
+            cell_info[ibin][MM].count = 0;
+            for(int iSpecies=0; iSpecies<species_group[MM].size(); iSpecies++)
+            {
+                sp = vecSpecies[ species_group[MM][iSpecies] ];
+                cell_info[ibin][MM].count += ( sp->bmax[ibin] - sp->bmin[ibin] );
+            }
+        }
+    }
+}
+
 
 
 // Calculates the collisions for a given Collisions1D object
@@ -149,24 +168,6 @@ void Collisions1D_DSMC::SAMPLE_INIT()
     }
 }
 
-
-// if SubCells need to be considered, spg_cell_info should be added
-void Collisions1D_DSMC::INDEXM(vector<Species*>& vecSpecies)
-{
-    Species *sp;
-    for(int MM=0; MM<NumSpGroups; MM++)
-    {
-        for(int ibin=0; ibin<totbins; ibin++)
-        {
-            cell_info[ibin][MM].count = 0;
-            for(int iSpecies=0; iSpecies<species_group[MM].size(); iSpecies++)
-            {
-                sp = vecSpecies[ species_group[MM][iSpecies] ];
-                cell_info[ibin][MM].count += ( sp->bmax[ibin] - sp->bmin[ibin] );
-            }
-        }
-    }
-}
 
 
 void Collisions1D_DSMC::INIT0(vector<Species*>& vecSpecies)

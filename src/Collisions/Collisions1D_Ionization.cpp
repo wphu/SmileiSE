@@ -48,7 +48,7 @@ Collisions1D_Ionization::~Collisions1D_Ionization()
 
 
 // Calculates the collisions for a given Collisions1D object
-void Collisions1D_Ionization::collide(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime)
+void Collisions1D_Ionization::collide(PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, int itime)
 {
     vector<unsigned int> *sg1, *sg2, *sg3;
 

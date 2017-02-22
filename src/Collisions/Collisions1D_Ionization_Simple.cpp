@@ -55,7 +55,7 @@ Collisions1D_Ionization_Simple::~Collisions1D_Ionization_Simple()
 
 
 // Calculates the collisions for a given Collisions1D object
-void Collisions1D_Ionization_Simple::collide(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime)
+void Collisions1D_Ionization_Simple::collide(PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, int itime)
 {
 
     unsigned int nbins = vecSpecies[0]->bmin.size(); // number of bins

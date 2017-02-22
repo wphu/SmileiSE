@@ -49,7 +49,7 @@ Collisions1D_ChargeExchange::~Collisions1D_ChargeExchange()
 
 
 // Calculates the collisions for a given Collisions1D object
-void Collisions1D_ChargeExchange::collide(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime)
+void Collisions1D_ChargeExchange::collide(PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, int itime)
 {
     unsigned int nbins = vecSpecies[0]->bmin.size(); // number of bins
     vector<unsigned int> *sg1, *sg2;

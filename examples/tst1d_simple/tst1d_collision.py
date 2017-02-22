@@ -180,7 +180,7 @@ Collisions(
 	species1 = ["e"],
 	species2 = ["e"],
 	coulomb_log = 1,
-	collisions_type = "coulomb"mpiexec -genv I_MPI_DEVICE rdssm -n 10 ../../src/smilei tst1d_simple.py
+	collisions_type = "coulomb"
 )
 Collisions(
 	species1 = ["D1"],

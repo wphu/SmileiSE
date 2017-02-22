@@ -1,6 +1,8 @@
 #include "Collisions1D_Coulomb.h"
 #include "SmileiMPI.h"
+#include "Field1D.h"
 #include "Field2D.h"
+#include "ElectroMagn.h"
 #include "H5.h"
 
 
@@ -128,9 +130,9 @@ void Collisions1D_Coulomb::calculate_debye_length(PicParams& params, vector<Spec
 }
 
 
-// Calculates the collisions for a given Collisions1D object
+// relativistic case
 // the code corresponds to the ref: improved modeing of relativistic collisions and collisional ionization in paritcle in cell codes
-void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime)
+void Collisions1D_Coulomb::collide_relativistic(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime)
 {
 
     unsigned int nbins = vecSpecies[0]->bmin.size(); // number of bins
@@ -357,7 +359,7 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, vector<Sp
             // equation (22) and (23)
             logL = coulomb_log;
             if( logL <= 0. ) { // if auto-calculation requested
-                bmin = max( coeff1/p_COM , abs(coeff2*qq12*term3*term5*term5) ); // min impact parameter
+                bmin = max( coeff1/p_COM , abs(coeff2*qq12*term3*term5) ); // min impact parameter
                 logL = 0.5*log(1.+debye_length_squared[ibin]/pow(bmin,2));
                 if (logL < 2.) logL = 2.;
             }
@@ -460,6 +462,7 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, vector<Sp
 // It involves the "s" parameter (~ collision frequency * deflection expectation)
 //   and a random number "U".
 // Technique slightly modified in http://dx.doi.org/10.1063/1.4742167
+// ref: improved modeing of relativistic collisions and collisional ionization in paritcle in cell codes
 inline double Collisions1D_Coulomb::cos_chi(double s)
 {
 
@@ -483,4 +486,210 @@ inline double Collisions1D_Coulomb::cos_chi(double s)
     }
     return 2.*U - 1.;
 
+}
+
+
+
+
+// non-relativistic, same weight case: Nanbu theory
+// the code corresponds to the ref: Probability theory of electron-molecule ion-molecule molecule-molecule and
+// coulomb collisions for particle modeling of materials processing plasmas and gases
+void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, int itime)
+{
+
+    unsigned int nbins = vecSpecies[0]->bmin.size(); // number of bins
+    vector<unsigned int> *sg1, *sg2, *sgtmp, bmin1, bmax1, bmin2, bmax2, index1, index2;
+    unsigned int nspec1, nspec2; // numbers of species in each group
+    unsigned int npart1, npart2; // numbers of macro-particles in each group
+    unsigned int npairs; // number of pairs of macro-particles
+    vector<unsigned int> np1, np2; // numbers of macro-particles in each species, in each group
+    double n1, n2, n12, n123, n223; // densities of particles
+    unsigned int i1, i2, ispec1, ispec2, iSpec1, iSpec2;
+    Species   *s1, *s2;
+    Particles *p1, *p2;
+    double m1, m2, m12, mr1, mr2, W1, W2, gamma1, gamma2, gx, gy, gz, g_magnitude, g_square, g_3, g_p,
+           g12_square, hx, hy, hz, s, T1, T2, V1, V2, A12,
+           cosX, sinX, phi, twoPi, debye_length, debye_squared, time_coulomb;
+    double e_ov_ephi0;
+    double charge1, charge2, charge, Vx, Vy, Vz, ni, Ti, Vi;
+
+
+
+    //!!!=======species_group1 must contain one species like e, D1 and so on;
+    // as same for species_group2;
+    // species_group1 can be the same as species_group2
+    sg1 = &species_group1;
+    sg2 = &species_group2;
+
+    s1 = vecSpecies[(*sg1)[0]];         s2 = vecSpecies[(*sg2)[0]];
+    p1 = &(s1->particles);              p2 = &(s2->particles);
+    m1 = s1->species_param.mass;        m2 = s2->species_param.mass;
+    W1 = s1->species_param.weight;      W2 = s2->species_param.weight;
+    charge1 = s1->species_param.charge; charge2 = s2->species_param.charge;
+
+    // =========Calculate some constants in the formulas used below============
+    twoPi = 2.0 * const_pi;
+    e_ov_ephi0 = const_e / const_ephi0;
+    time_coulomb = params.timesteps_coulomb * params.timestep;
+    // used in equation (104a) and (104b)
+    mr1 = m1 / (m1 + m2);
+    mr2 = m2 / (m1 + m2);
+    // the reduced mass
+    m12 = m1 * m2 / (m1 + m2);
+    // used in equation (96)
+    gamma1 = 4.0 * const_pi * const_ephi0 * m12 / abs(charge1 * charge2);
+    // used in equation (95)
+    gamma2 = 4.8 / ( gamma1 * gamma1 );
+
+
+    // Loop on bins
+    for (unsigned int ibin=0 ; ibin<nbins ; ibin++) {
+
+        // get bin start/end for all necessary species, and number of particles
+        for (unsigned int i=0; i<2; i++) { // try twice to ensure group 1 has more macro-particles
+            nspec1 = sg1->size();
+            nspec2 = sg2->size();
+            bmin1.resize(nspec1); // bin starting point, for each of species group 1
+            bmax1.resize(nspec1); // bin  ending  point, for each of species group 1
+            np1  .resize(nspec1); // number of particles in that bin
+            bmin2.resize(nspec2); // bin starting point, for each of species group 2
+            bmax2.resize(nspec2); // bin  ending  point, for each of species group 2
+            np2  .resize(nspec2); // number of particles in that bin
+            npart1 = 0; npart2 = 0;
+            for (ispec1=0 ; ispec1<nspec1 ; ispec1++) {
+                s1 = vecSpecies[(*sg1)[ispec1]];
+                bmin1[ispec1] = s1->bmin[ibin];
+                bmax1[ispec1] = s1->bmax[ibin];
+                np1[ispec1] = bmax1[ispec1] - bmin1[ispec1];
+                npart1 += np1[ispec1];
+            }
+            for (ispec2=0 ; ispec2<nspec2 ; ispec2++) {
+                s2 = vecSpecies[(*sg2)[ispec2]];
+                bmin2[ispec2] = s2->bmin[ibin];
+                bmax2[ispec2] = s2->bmax[ibin];
+                np2[ispec2] = bmax2[ispec2] - bmin2[ispec2];
+                npart2 += np2[ispec2];
+            }
+            if (npart2 <= npart1) break; // ok if group1 has more macro-particles
+            else { // otherwise, we exchange groups and try again
+                sgtmp = sg1; sg1 = sg2; sg2 = sgtmp;
+            }
+        }
+        // now group1 has more macro-particles than group2
+
+        // skip to next bin if no particles
+        if (npart1==0 or npart2==0) continue;
+
+        // Shuffle particles to have random pairs
+        //    (It does not really exchange them, it is just a temporary re-indexing)
+        index1.resize(npart1);
+        for (unsigned int i=0; i<npart1; i++) index1[i] = i; // first, we make an ordered array
+        //! \todo benchmark and improve the shuffling method ?
+        random_shuffle(index1.begin(), index1.end()); // shuffle the index array
+        if (intra_collisions) { // In the case of collisions within one species
+            npairs = (int) ceil(((double)npart1)/2.); // half as many pairs as macro-particles
+            index2.resize(npairs);
+            for (unsigned int i=0; i<npairs; i++) index2[i] = index1[i+npart1-npairs]; // index2 is second half
+            index1.resize(npairs); // index2 is first half
+        } else { // In the case of collisions between two species
+            npairs = npart1; // as many pairs as macro-particles in group 1 (most numerous)
+            index2.resize(npairs);
+            for (unsigned int i=0; i<npart1; i++) index2[i] = i % npart2;
+        }
+
+        // Calculate density of group 1
+        n1 = 0.;
+        for (ispec1=0 ; ispec1<nspec1 ; ispec1++)
+            for (unsigned int iPart=bmin1[ispec1] ; iPart<bmax1[ispec1] ; iPart++)
+                n1 += vecSpecies[(*sg1)[ispec1]]->particles.weight(iPart);
+        n1 /= params.n_cell_per_cluster;
+
+        // Calculate density of group 2
+        n2 = 0.;
+        for (ispec2=0 ; ispec2<nspec2 ; ispec2++)
+            for (unsigned int iPart=bmin2[ispec2] ; iPart<bmax2[ispec2] ; iPart++)
+                n2 += vecSpecies[(*sg2)[ispec2]]->particles.weight(iPart);
+        n2 /= params.n_cell_per_cluster;
+
+        iSpec1 = (*sg1)[0];
+        iSpec2 = (*sg2)[0];
+
+        // Pre-calculate some numbers before the big loop
+        Field1D* T1_s = static_cast<Field1D*>(fields->T_s[iSpec1]);
+        Field1D* T2_s = static_cast<Field1D*>(fields->T_s[iSpec2]);
+        Field1D* Vx1_s = static_cast<Field1D*>(fields->Vx_s[iSpec1]);
+        Field1D* Vy1_s = static_cast<Field1D*>(fields->Vy_s[iSpec1]);
+        Field1D* Vz1_s = static_cast<Field1D*>(fields->Vz_s[iSpec1]);
+
+        Field1D* Vx2_s = static_cast<Field1D*>(fields->Vx_s[iSpec2]);
+        Field1D* Vy2_s = static_cast<Field1D*>(fields->Vy_s[iSpec2]);
+        Field1D* Vz2_s = static_cast<Field1D*>(fields->Vz_s[iSpec2]);
+
+        T1 = (*T1_s)(ibin + oversize[0]) * 3.0 * const_e / m1;
+        T2 = (*T2_s)(ibin + oversize[0]) * 3.0 * const_e / m2;
+        Vx = (*Vx1_s)(ibin + oversize[0]) - (*Vx2_s)(ibin + oversize[0]);
+        Vy = (*Vy1_s)(ibin + oversize[0]) - (*Vy2_s)(ibin + oversize[0]);
+        Vz = (*Vz1_s)(ibin + oversize[0]) - (*Vz2_s)(ibin + oversize[0]);
+        // the formula below equation (96)
+        g12_square = T1 + T2 + Vx*Vx + Vy*Vy + Vz*Vz;
+
+        // Calculate debye_length
+        for( int iSpec = 0; iSpec < vecSpecies.size(); iSpec++ )
+        {
+            Field1D* T1D_s = static_cast<Field1D*>(fields->T_s[iSpec]);
+            Field1D* rho1D_s = static_cast<Field1D*>(fields->rho_s[iSpec]);
+            charge = vecSpecies[iSpec]->species_param.charge;
+            ni = (*rho1D_s)(ibin + oversize[0]);
+            Ti =   (*T1D_s)(ibin + oversize[0]);
+            debye_squared += ( ni * charge * charge / ( const_ephi0 * const_e * Ti ) );
+        }
+        debye_length = sqrt( 1.0 / debye_squared );
+        // equation (95)
+        A12 = gamma2 * n2 * log( gamma1 * g12_square * debye_length );
+
+
+        // Now start the real loop on pairs of particles
+        // See equations in http://dx.doi.org/10.1063/1.4742167
+        // ----------------------------------------------------
+        for (unsigned int i=0; i<npairs; i++) {
+
+            // find species and index i1 of particle "1"
+            i1 = index1[i] + bmin1[ispec1];
+            // find species and index i2 of particle "2"
+            i2 = index2[i] + bmin2[ispec2];
+
+            // Calculate stuff
+            gx = p1->momentum(0,i1) - p2->momentum(0,i2);
+            gy = p1->momentum(1,i1) - p2->momentum(1,i2);
+            gz = p1->momentum(2,i1) - p2->momentum(2,i2);
+            g_square = gx*gx + gy*gy + gz*gz;
+            g_magnitude = sqrt( g_square );
+            g_3 = g_square * g_magnitude;
+            g_p = sqrt( gy*gy + gz*gz );
+            // the formula below the equation (101)
+            s = A12 * time_coulomb / g_3;
+
+            // Pick the deflection angles according to Nanbu's theory
+            // ref: improved modeing of relativistic collisions and collisional ionization in paritcle in cell codes
+            cosX = cos_chi(s);
+            sinX = sqrt( 1. - cosX*cosX );
+
+            //!\todo make a faster rand by preallocating ??
+            phi = twoPi * ((double)rand() / RAND_MAX);
+            hx = g_p * cos(phi);
+            hy = -( gx * gy * cos(phi) + g_magnitude * gz * sin(phi) ) / g_p;
+            hz = -( gx * gz * cos(phi) - g_magnitude * gy * sin(phi) ) / g_p;
+
+            // Apply the deflection
+            p1->momentum(0,i1) -= mr2 * ( gx * (1-cosX) + hx * sinX );
+            p1->momentum(1,i1) -= mr2 * ( gy * (1-cosX) + hy * sinX );
+            p1->momentum(2,i1) -= mr2 * ( gz * (1-cosX) + hz * sinX );
+
+            p2->momentum(0,i2) += mr1 * ( gx * (1-cosX) + hx * sinX );
+            p2->momentum(1,i2) += mr1 * ( gy * (1-cosX) + hy * sinX );
+            p2->momentum(2,i2) += mr1 * ( gz * (1-cosX) + hz * sinX );
+
+        } // end loop on pairs of particles
+
+    } // end loop on bins
 }

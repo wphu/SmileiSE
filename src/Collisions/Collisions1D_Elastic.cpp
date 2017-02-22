@@ -52,7 +52,7 @@ Collisions1D_Elastic::~Collisions1D_Elastic()
 
 
 // Calculates the collisions for a given Collisions1D object
-void Collisions1D_Elastic::collide(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime)
+void Collisions1D_Elastic::collide(PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, int itime)
 {
 
 

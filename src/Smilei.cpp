@@ -218,7 +218,7 @@ int main (int argc, char* argv[])
         // -----------------------------
         for (unsigned int icoll=0 ; icoll<vecCollisions.size(); icoll++)
         {
-            vecCollisions[icoll]->collide(params, smpi, vecSpecies,itime);
+            vecCollisions[icoll]->collide(params, smpi, EMfields, vecSpecies,itime);
         }
 
 

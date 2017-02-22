@@ -36,8 +36,9 @@ public:
     virtual double cos_chi(double);
 
 
-    //! Method called in the main smilei loop to apply collisions at each timestep
-    void collide(PicParams&, SmileiMPI* smpi, std::vector<Species*>&,int);
+    virtual void collide_relativistic(PicParams&, SmileiMPI* smpi, std::vector<Species*>&,int);
+    // non-relativistic case
+    virtual void collide(PicParams&, SmileiMPI* smpi, ElectroMagn* fields, std::vector<Species*>&,int);
 
 
 private:

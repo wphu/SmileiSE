@@ -54,7 +54,7 @@ Collisions2D_DSMC::~Collisions2D_DSMC()
 
 
 // Calculates the collisions for a given Collisions2D object
-void Collisions2D_DSMC::collide(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime)
+void Collisions2D_DSMC::collide(PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, int itime)
 {
 
     unsigned int nbins = vecSpecies[0]->bmin.size(); // number of bins

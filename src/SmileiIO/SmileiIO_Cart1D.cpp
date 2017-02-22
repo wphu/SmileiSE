@@ -63,15 +63,15 @@ void SmileiIO_Cart1D::createFieldsPattern( PicParams& params, SmileiMPI* smpi, E
     fieldsGroup.status = H5Awrite(fieldsGroup.attribute_id, H5T_NATIVE_INT, fieldsGroup.ndims_);
 
 
-    addField(fields->rho_global);
-    addField(fields->phi_global);
-    addField(fields->Ex_global);
+    //addField(fields->rho_global);
+    //addField(fields->phi_global);
+    //addField(fields->Ex_global);
     addField(fields->rho_global_avg);
     addField(fields->phi_global_avg);
     addField(fields->Ex_global_avg);
     for(int i = 0; i < fields->rho_s.size(); i++)
     {
-        addField(fields->rho_s_global[i]);
+        //addField(fields->rho_s_global[i]);
         addField(fields->rho_s_global_avg[i]);
         addField(fields->Vx_s_global_avg[i]);
         addField(fields->Vy_s_global_avg[i]);

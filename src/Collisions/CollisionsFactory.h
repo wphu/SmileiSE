@@ -219,6 +219,8 @@ public:
 				species_group.resize(0);
 
 		        // Obtain the lists of species numbers from the lists of species names.
+				// Now only support 3 groups, each grous has the approximate mass
+				// like [H, D, T] or [S, Cl, Ar]
 		        sgroup1 = params.FindSpecies(sg1);
 		        sgroup2 = params.FindSpecies(sg2);
 				sgroup3 = params.FindSpecies(sg3);

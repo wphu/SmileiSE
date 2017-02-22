@@ -57,6 +57,7 @@ public:
         new_particles1.initialize(0, params);
         new_particles2.initialize(0, params);
         new_particles3.initialize(0, params);
+        oversize = params.oversize;
     };
     virtual ~Collisions(){};
 
@@ -103,7 +104,11 @@ public:
     int debug_every;
 
     //! Method called in the main smilei loop to apply collisions at each timestep
-    virtual void collide(PicParams&, SmileiMPI* smpi, std::vector<Species*>&,int){};
+    // relativistic case
+    virtual void collide_relativistic(PicParams&, SmileiMPI* smpi, std::vector<Species*>&,int){};
+
+    // non-relativistic case
+    virtual void collide(PicParams&, SmileiMPI* smpi, ElectroMagn* fields, std::vector<Species*>&,int){};
 
     virtual void readCrossSection(){
         ifstream inFile;
@@ -151,9 +156,11 @@ public:
     double const_ephi0;
     double const_h;
     double timestep;
+    std::vector<unsigned int> oversize;
 
     string crossSection_fileName;
     vector< vector<double> > crossSection;
+
 
 
 
