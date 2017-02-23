@@ -73,8 +73,12 @@ public:
     // SPM(N,M,L) information on the interaction between L-M molecules
     struct SpeciesInteraction
     {
+        // The molecule and atom diameters are from the following refs:
+        // Bird' book: page 410
+        // The mathematical theory of non-uniform gases: page238, page237, page228,
         double sigma;			//--N=1  the reference cross-section (diameter in the data)
         double ref_temp;		//--N=2  the reference temperature
+        // visc_temp_index is from Bird' book: page411
         double visc_temp_index;				//--N=3  the viscosity-temperature power law
         double vss_scat_inv;				//--N=4  the reciprocal of the VSS scattering parameter
         double reduced_mass;	//--N=5  the reduced mass

@@ -56,6 +56,8 @@ Collisions1D_DSMC::~Collisions1D_DSMC()
 }
 
 // Calculates the collisions for a given Collisions1D object
+// Now only support 3 groups, each grous has the approximate mass
+// like [H, D, T] or [S, Cl, Ar]
 void Collisions1D_DSMC::collide(PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, int itime)
 {
     INDEXM(vecSpecies);
@@ -72,6 +74,7 @@ void Collisions1D_DSMC::collide(PicParams& params, SmileiMPI* smpi, ElectroMagn*
 void Collisions1D_DSMC::INDEXM(vector<Species*>& vecSpecies)
 {
     Species *sp;
+    // In one species group, different species are treated as the same species
     for(int MM=0; MM<NumSpGroups; MM++)
     {
         for(int ibin=0; ibin<totbins; ibin++)
@@ -91,8 +94,11 @@ void Collisions1D_DSMC::INDEXM(vector<Species*>& vecSpecies)
 // Calculates the collisions for a given Collisions1D object
 void Collisions1D_DSMC::COLLM(vector<Species*>& vecSpecies)
 {
+    // Loop on bins(cells)
     for(int ibin = 0; ibin < totbins; ibin++ )
     {
+        // Loop on species, NN == MM: the like species; NN != MM unlike species
+        // Like species may contain some different species with like mass, like [H, D, T]
         for(NN = 0; NN < NumSpGroups; NN++ )
         {
             for(MM = 0; MM < NumSpGroups; MM++)
@@ -201,7 +207,7 @@ void Collisions1D_DSMC::INIT0(vector<Species*>& vecSpecies)
     }
 }
 
-
+// calculate the the two species, particles and iPart particepating the collision
 void Collisions1D_DSMC::SELECT(int ibin, vector<Species*>& vecSpecies)
 {
     double RF = (double)random() / RAND_MAX;
@@ -209,6 +215,9 @@ void Collisions1D_DSMC::SELECT(int ibin, vector<Species*>& vecSpecies)
     int iSpecies = 0;
     iSL = species_group[NN][iSpecies];
     indexL = K;
+
+    // iSL and iSM are species number: Species *s = vecSpecies[iSL/iSM]
+    // indexL and indexM is the particles indexes
     while (iSpecies < species_group[NN].size() && indexL >= species_count[ibin][iSL]) {
         indexL -= species_count[ibin][iSL];
         iSpecies++;
@@ -240,9 +249,12 @@ void Collisions1D_DSMC::SELECT(int ibin, vector<Species*>& vecSpecies)
     }
     VRR = VRC[0]*VRC[0] + VRC[1]*VRC[1] + VRC[2]*VRC[2];
     VR = sqrt(VRR);
+    // Calculate cross section * relative velocity
+    // the collision cross-section is based on eqn (4.63)
     CVR=VR*species_interaction[iSL][iSM].sigma*
-    				pow(2.*BOLTZ*species_interaction[iSL][iSM].ref_temp/(species_interaction[iSL][iSM].reduced_mass*VRR),
-    				species_interaction[iSL][iSM].visc_temp_index-0.5)/species_interaction[iSL][iSM].gamma;
+    				pow( 2.*BOLTZ*species_interaction[iSL][iSM].ref_temp/(species_interaction[iSL][iSM].reduced_mass*VRR),
+    				species_interaction[iSL][iSM].visc_temp_index-0.5 ) /
+                    species_interaction[iSL][iSM].gamma;
 }
 
 
