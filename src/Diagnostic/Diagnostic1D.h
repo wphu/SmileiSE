@@ -18,6 +18,8 @@ public :
 	vector< vector<double> > particleFlux;             //particleFlux[ispec][iDirection]
 	vector< vector<double> > heatFlux;                 //heatFlux[ispec][iDirection]
     vector< vector< vector<double> > > angleDist;      //angleDist[ispec][iDirection][iAngle]
+    vector< int > particleNumber;                      // particleNumber[ispec]
+    vector< double > kineticEnergy;                    // kineticEnergy[ispec]
 
     // calculate velocity and temperature of each species
 	void calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMagn* EMfields, int itime);

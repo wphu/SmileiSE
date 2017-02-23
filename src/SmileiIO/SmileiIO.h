@@ -50,6 +50,7 @@ public:
     herr_t      status;
 
     double* data_;
+    int* data_int;
 
     //! Space dimension of a particle
     unsigned int nDim_particle;

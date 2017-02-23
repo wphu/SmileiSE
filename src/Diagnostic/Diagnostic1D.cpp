@@ -15,6 +15,8 @@ Diagnostic(params)
 	particleFlux.resize(n_species);
 	heatFlux.resize(n_species);
 	angleDist.resize(n_species);
+	particleNumber.resize(n_species);
+	kineticEnergy.resize(n_species);
 	for(int ispec = 0; ispec < n_species; ispec++)
 	{
 		particleFlux[ispec].resize(2);
@@ -122,7 +124,6 @@ void Diagnostic1D::run( SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMa
 				MPI_Allreduce( &angleDist[ispec][iDirection][0], &angle_temp[0], 90, MPI_DOUBLE,MPI_SUM, MPI_COMM_WORLD);
 				angleDist[ispec][iDirection] = angle_temp;
 			}
-
 		}
 	}
 
@@ -141,10 +142,16 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 	int i;
 	double xjn,xjmxi;
 	double m_ov_3e;
+	double m_ov_2;
 	double vx, vy, vz;
 	double dump_step_inv_;
+	double v_square;
+	vector<int> number_temp;
+	vector<double> energy_temp;
 	Field1D *ptclNum1D = new Field1D(EMfields->dimPrim, "ptclNum");
 
+	number_temp.resize(n_species);
+	energy_temp.resize(n_species);
 	dump_step_inv_ = 1.0 / dump_step;
 	for(int iSpec = 0; iSpec < vecSpecies.size(); iSpec++)
 	{
@@ -163,11 +170,19 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 		Field1D* T1D_s_avg = static_cast<Field1D*>(EMfields->T_s_avg[iSpec]);
 
 		m_ov_3e = s1->species_param.mass / ( const_e * 3.0 );
+		m_ov_2 = s1->species_param.mass / 2.0;
 		ptclNum1D->put_to(0.0);
 		Vx1D_s->put_to(0.0);
 		Vy1D_s->put_to(0.0);
 		Vz1D_s->put_to(0.0);
 		T1D_s->put_to(0.0);
+
+		// reset particleNumber and kineticEnergy
+		particleNumber[iSpec] = 0;
+		kineticEnergy[iSpec] = 0.0;
+		// get particleNumber
+		particleNumber[iSpec] = p1->size();
+
 		if( (itime % (dump_step + 1)) == 0 ) {
 			Vx1D_s_avg->put_to(0.0);
 			Vy1D_s_avg->put_to(0.0);
@@ -188,6 +203,10 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 			(*Vx1D_s)(i) 		+= p1->momentum(0, iPart);
 			(*Vy1D_s)(i) 		+= p1->momentum(1, iPart);
 			(*Vz1D_s)(i) 		+= p1->momentum(2, iPart);
+
+			// calculate total kineticEnergy
+			v_square = p1->momentum(0, iPart) * p1->momentum(0, iPart) + p1->momentum(1, iPart) * p1->momentum(1, iPart) + p1->momentum(2, iPart) * p1->momentum(2, iPart);
+			kineticEnergy[iSpec] += ( m_ov_2 * v_square );
 		}
 		for(int i = 0; i < ptclNum1D->dims_[0]; i++)
 		{
@@ -246,9 +265,16 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 			smpi1D->gatherRho( static_cast<Field1D*>(EMfields->Vy_s_global_avg[iSpec]), Vy1D_s_avg );
 			smpi1D->gatherRho( static_cast<Field1D*>(EMfields->Vz_s_global_avg[iSpec]), Vz1D_s_avg );
 			smpi1D->gatherRho( static_cast<Field1D*>(EMfields->T_s_global_avg [iSpec]), T1D_s_avg );
+
 		}
 
 	}
+	// gather particleNumber and kineticEnergy to master process
+	MPI_Allreduce( &particleNumber[0], &number_temp[0], n_species , MPI_INT,MPI_SUM, MPI_COMM_WORLD);
+	particleNumber = number_temp;
+	MPI_Allreduce( &kineticEnergy[0], &energy_temp[0], n_species , MPI_DOUBLE,MPI_SUM, MPI_COMM_WORLD);
+	kineticEnergy = energy_temp;
+
 	delete ptclNum1D;
 
 }
