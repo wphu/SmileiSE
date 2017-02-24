@@ -218,6 +218,7 @@ int main (int argc, char* argv[])
         // -----------------------------
         for (unsigned int icoll=0 ; icoll<vecCollisions.size(); icoll++)
         {
+            //MESSAGE("collision : "<<icoll<<"  time:  "<<itime);
             vecCollisions[icoll]->collide(params, smpi, EMfields, vecSpecies,itime);
         }
 
@@ -251,6 +252,7 @@ int main (int argc, char* argv[])
         timer[2].restart();
         for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
         {
+            //MESSAGE("MPI exchange particles ===="<<ispec);
             // Loop on dims to manage exchange in corners
             for ( int iDim = 0 ; iDim<(int)params.nDim_particle ; iDim++ )
             {
@@ -273,6 +275,7 @@ int main (int argc, char* argv[])
         // particle crossing MPI boudary, especially for 2D case
         for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
         {
+            //MESSAGE("Project ===="<<ispec);
             EMfields->restartRhoJs(ispec, 0);
             vecSpecies[ispec]->Project(time_dual, ispec, EMfields, Proj, smpi, params);
             smpi->barrier();

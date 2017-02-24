@@ -379,9 +379,12 @@ void Species::initMomentum(unsigned int nPart, unsigned int iPart, double *temp,
     } else if (initMomentum_type == "rectangular") {
 
         for (unsigned int p= iPart; p<iPart+nPart; p++) {
-            particles.momentum(0,p) = (2.*(double)rand() / RAND_MAX - 1.) * sqrt(temp[0]/species_param.mass);
-            particles.momentum(1,p) = (2.*(double)rand() / RAND_MAX - 1.) * sqrt(temp[1]/species_param.mass);
-            particles.momentum(2,p) = (2.*(double)rand() / RAND_MAX - 1.) * sqrt(temp[2]/species_param.mass);
+            particles.momentum(0,p) = 2.0 * (2.*(double)rand() / RAND_MAX - 1.) * sqrt(2.0 * temp[0] * params.const_e / species_param.mass);
+            particles.momentum(1,p) = (0.00001 * 2.*(double)rand() / RAND_MAX - 1.) * sqrt(2.0 * temp[0] * params.const_e / species_param.mass);
+            particles.momentum(2,p) = (0.00001 * 2.*(double)rand() / RAND_MAX - 1.) * sqrt(2.0 * temp[0] * params.const_e / species_param.mass);
+            //if( isinf(particles.momentum(0,p)) || isinf(particles.momentum(1,p)) || isinf(particles.momentum(2,p)) ) {
+            //    cout<<particles.momentum(0,p)<<" "<<particles.momentum(1,p)<<" "<<particles.momentum(2,p)<<endl;
+            //}
         }
     }//END if initMomentum_type
 

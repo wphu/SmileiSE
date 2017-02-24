@@ -60,13 +60,17 @@ Collisions1D_DSMC::~Collisions1D_DSMC()
 // like [H, D, T] or [S, Cl, Ar]
 void Collisions1D_DSMC::collide(PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, int itime)
 {
-    INDEXM(vecSpecies);
-    COLLM(vecSpecies);
-    sample_it++;
-    while(sample_it == SampleNumIt) {
-        sample_it = 0;
-        SAMPLE0();
+    if( (itime % params.timesteps_DSMC) == 0 )
+    {
+        INDEXM(vecSpecies);
+        COLLM(vecSpecies);
+        sample_it++;
+        while(sample_it == SampleNumIt) {
+            sample_it = 0;
+            SAMPLE0();
+        }
     }
+
 
 }
 

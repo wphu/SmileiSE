@@ -53,6 +53,8 @@ public:
     {
         const_e = params.const_e;
         timestep = params.timestep;
+        const_pi = params.const_pi;
+        const_ephi0 = params.const_ephi0;
 
         new_particles1.initialize(0, params);
         new_particles2.initialize(0, params);
