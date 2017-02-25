@@ -23,7 +23,7 @@ Collisions1D_DSMC::Collisions1D_DSMC(PicParams& params, vector<Species*>& vecSpe
     n_collisions    = n_col;
     species_group   = sg;
 
-
+    DeltaT = params.timesteps_DSMC * params.timestep;
 
 
     // Calculate total number of bins In The Current process
@@ -33,9 +33,14 @@ Collisions1D_DSMC::Collisions1D_DSMC(PicParams& params, vector<Species*>& vecSpe
     NumSpGroups = species_group.size();
     // NumSpecies is the number for DSMC, not including electron or ions
     NumSpecies = 0;
+    SpeciesList.resize(NumSpecies);
     for(int iSG=0; iSG<NumSpGroups; iSG++)
     {
         NumSpecies += species_group[iSG].size();
+        for(int iS = 0; iS < species_group[iSG].size(); iS++)
+        {
+            SpeciesList.push_back( species_group[iSG][iS] );
+        }
     }
 
     SampleNumIt = 4;
@@ -44,6 +49,13 @@ Collisions1D_DSMC::Collisions1D_DSMC(PicParams& params, vector<Species*>& vecSpe
     SPI = sqrt(PI);
     BOLTZ = params.const_boltz;
     CellVolume = pow(params.cell_length[0], 3);
+    StreamTemp = 300.0;
+
+    species_interaction.resize(NumSpecies);
+    for( int iSpec = 0; iSpec < NumSpecies; iSpec++ )
+    {
+        species_interaction[iSpec].resize(NumSpecies);
+    }
 
     INIT0(vecSpecies);
     SAMPLE_INIT();
@@ -182,15 +194,19 @@ void Collisions1D_DSMC::SAMPLE_INIT()
 
 void Collisions1D_DSMC::INIT0(vector<Species*>& vecSpecies)
 {
+    int iSM, iSN;
     for(int N=0; N<NumSpecies; N++)
     {
+        iSN = SpeciesList[N];
         for(int M=0; M<NumSpecies; M++)
         {
-            species_interaction[N][M].sigma = 0.25*PI*pow((vecSpecies[N]->species_param.diameter + vecSpecies[M]->species_param.diameter), 2);
-            species_interaction[N][M].ref_temp = 0.5*(vecSpecies[N]->species_param.ref_temperature + vecSpecies[M]->species_param.ref_temperature);
-            species_interaction[N][M].visc_temp_index = 0.5*(vecSpecies[N]->species_param.visc_temp_index + vecSpecies[M]->species_param.visc_temp_index);
-            species_interaction[N][M].vss_scat_inv = 0.5*(vecSpecies[N]->species_param.vss_scat_inv + vecSpecies[M]->species_param.vss_scat_inv);
-            species_interaction[N][M].reduced_mass = vecSpecies[N]->species_param.mass * vecSpecies[M]->species_param.mass / (vecSpecies[N]->species_param.mass + vecSpecies[M]->species_param.mass);
+            iSM = SpeciesList[M];
+            species_interaction[N][M].sigma = 0.25*PI*pow((vecSpecies[iSN]->species_param.diameter + vecSpecies[iSM]->species_param.diameter), 2);
+            species_interaction[N][M].ref_temp = 0.5*(vecSpecies[iSN]->species_param.ref_temperature + vecSpecies[iSM]->species_param.ref_temperature);
+            species_interaction[N][M].visc_temp_index = 0.5*(vecSpecies[iSN]->species_param.visc_temp_index + vecSpecies[iSM]->species_param.visc_temp_index);
+            species_interaction[N][M].vss_scat_inv = 0.5*(vecSpecies[iSN]->species_param.vss_scat_inv + vecSpecies[iSM]->species_param.vss_scat_inv);
+            species_interaction[N][M].reduced_mass = vecSpecies[iSN]->species_param.mass * vecSpecies[iSM]->species_param.mass /
+                                                    (vecSpecies[iSN]->species_param.mass + vecSpecies[iSM]->species_param.mass);
             species_interaction[N][M].gamma = GAM(2.5 - species_interaction[N][M].visc_temp_index);
         }
     }

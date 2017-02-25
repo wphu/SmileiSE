@@ -212,18 +212,33 @@ public:
 				sg3.resize(0);
 				int NumSpGroups = 3;
 		        ifile.extract("species1",sg1,"Collisions",n_collisions);
-		        if( !ifile.extract("species2",sg2,"Collisions",n_collisions) ) { NumSpGroups--; }
-				if( !ifile.extract("species3",sg3,"Collisions",n_collisions) ) { NumSpGroups--; }
+				sgroup1 = params.FindSpecies(sg1);
 
+		        if( !ifile.extract("species2",sg2,"Collisions",n_collisions) )
+				{
+					NumSpGroups--;
+				}
+				else
+				{
+					sgroup2 = params.FindSpecies(sg2);
+				}
+				if( !ifile.extract("species3",sg3,"Collisions",n_collisions) )
+				{
+					NumSpGroups--;
+				}
+				else
+				{
+					sgroup3 = params.FindSpecies(sg3);
+				}
+
+				// Obtain the lists of species numbers from the lists of species names.
+				// Now only support 3 groups, each grous has the approximate mass
+				// like [H, D, T] or [S, Cl, Ar]
 				vector< vector<unsigned int> > species_group;
 				species_group.resize(0);
 
-		        // Obtain the lists of species numbers from the lists of species names.
-				// Now only support 3 groups, each grous has the approximate mass
-				// like [H, D, T] or [S, Cl, Ar]
-		        sgroup1 = params.FindSpecies(sg1);
-		        sgroup2 = params.FindSpecies(sg2);
-				sgroup3 = params.FindSpecies(sg3);
+
+
 
 		        // Each group of species sgroup1 and sgroup2 must not be empty
 		        if (sgroup1.size()==0) ERROR("No valid `species1` requested in collisions #" << n_collisions);

@@ -39,8 +39,52 @@ public:
     int NumSpecies;		//MNSP is the maximum number of molecular species
 	int NumSpGroups;		//MNSG is the number of species groups for collision sampling
     int NumCells;		//MNC  is the maximum number of sub
+    vector<int> SpeciesList;      //species list of all collision particles
 
 	int SampleNumIt;	//NIS is the number of time steps between samples 4
+
+    /*comp block*/
+	double Spwt;    ////FNUM  is the number of real molecules represented by a simulated mol.
+	double DeltaT;     ////DTM is the time step
+	int SteadyFlowEstimateCycles;     ////NPS is the estimated number of samples to steady flow
+
+	/*geom block*/
+    double CellVolume;
+	double CellWidth;      ////CW is the cell width
+	int SubCellsPerCell;     ////NSC is the number of sub-cells per cell
+	double XMIN;      ////XF is the minimum x coordinate
+	double XMAX;      ////XR is the maximum x coordinate
+
+
+    /*const block*/
+	double PI;      ////PI is pi and SPI is the square root of pi
+	double SPI;
+	double BOLTZ;   ////BOLTZ is the Boltzmann constant
+
+	/*elast block*/
+	double VRC[3];
+	double VRR;
+	double VR;
+	int LS,MS;
+	int L,M;
+    int iSL,iSM;            // Species number of group L, M
+    int indexL,indexM;      // particle number in a Cell of species iSL,iSM
+    int iL,iM;              // particle number of species iSL,iSM
+    Species *sL, *sM;
+    Particles *pL, *pM;
+	int MSC;
+	double CVR;
+	//int K,L,M,N;
+	int MM,MN,NN;
+
+
+    double StreamTemp;
+    int TotNumSamples;
+    int TotNumSelections;
+    double CVR_MAX;
+    int sample_it;
+
+
 
     //sampled_info(N,M,L) sampled information on species_group L in cell M
     //---- N=1 number sum
@@ -84,47 +128,10 @@ public:
         double reduced_mass;	//--N=5  the reduced mass
         double gamma;			//--N=6  the Gamma function of (5/2 - viscosity-temperature power law)
     };
+
     vector< vector<SpeciesInteraction> > species_interaction;
 
-    /*comp block*/
-	double Spwt;    ////FNUM  is the number of real molecules represented by a simulated mol.
-	double DeltaT;     ////DTM is the time step
-	int SteadyFlowEstimateCycles;     ////NPS is the estimated number of samples to steady flow
 
-	/*geom block*/
-    double CellVolume;
-	double CellWidth;      ////CW is the cell width
-	int SubCellsPerCell;     ////NSC is the number of sub-cells per cell
-	double XMIN;      ////XF is the minimum x coordinate
-	double XMAX;      ////XR is the maximum x coordinate
-
-	/*const block*/
-	double PI;      ////PI is pi and SPI is the square root of pi
-	double SPI;
-	double BOLTZ;   ////BOLTZ is the Boltzmann constant
-
-	/*elast block*/
-	double VRC[3];
-	double VRR;
-	double VR;
-	int LS,MS;
-	int L,M;
-    int iSL,iSM;            // Species number of group L, M
-    int indexL,indexM;      // particle number in a Cell of species iSL,iSM
-    int iL,iM;              // particle number of species iSL,iSM
-    Species *sL, *sM;
-    Particles *pL, *pM;
-	int MSC;
-	double CVR;
-	//int K,L,M,N;
-	int MM,MN,NN;
-
-
-    double StreamTemp;
-    int TotNumSamples;
-    int TotNumSelections;
-    double CVR_MAX;
-    int sample_it;
 
     void COLLM(vector<Species*>& vecSpecies);
     void SAMPLE_INIT();
