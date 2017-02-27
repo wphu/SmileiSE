@@ -356,6 +356,21 @@ void PicParams::readSpecies(InputData &ifile) {
         //ifile.extract("temperature",tmpSpec.thermT);
         ifile.extract("temperature", tmpSpec.thermT, "Species",ispec);
 
+
+        // DSMC parameters
+        if( !ifile.extract("diameter",tmpSpec.diameter ,"Species",ispec) ) {
+            ERROR("For species #" << ispec << ", diameter not defined.");
+        }
+        if( !ifile.extract("ref_temperature",tmpSpec.ref_temperature ,"Species",ispec) ) {
+            ERROR("For species #" << ispec << ", ref_temperature not defined.");
+        }
+        if( !ifile.extract("visc_temp_index",tmpSpec.visc_temp_index ,"Species",ispec) ) {
+            ERROR("For species #" << ispec << ", visc_temp_index not defined.");
+        }
+        if( !ifile.extract("vss_scat_inv",tmpSpec.vss_scat_inv ,"Species",ispec) ) {
+            ERROR("For species #" << ispec << ", vss_scat_inv not defined.");
+        }
+
         // Save the Species params
         // -----------------------
         species_param.push_back(tmpSpec);

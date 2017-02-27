@@ -30,10 +30,24 @@ Collisions1D_DSMC::Collisions1D_DSMC(PicParams& params, vector<Species*>& vecSpe
     nbins = vecSpecies[0]->bmin.size();
     totbins = nbins;
 
-    NumSpGroups = species_group.size();
-    // NumSpecies is the number for DSMC, not including electron or ions
+    SampleNumIt = 4;
+    sample_it = 0;
+    PI = params.const_pi;
+    SPI = sqrt(PI);
+    BOLTZ = params.const_boltz;
+    CellVolume = pow(params.cell_length[0], 3);
+    StreamTemp = 300.0;
+    TotNumSelections = 0;
+    // Spwt is weight of paritcles
+    // !!!Now all collision species should have the same weight
+    // the weight has been divided by the cell volume, so equation(11.3) should not contain the cell volume
+    Spwt = vecSpecies[0]->species_param.weight;
+
+    // NumSpecies is the number of all species for DSMC, not including electron or ions
+    // NumSpGroups is the number of species groups
     NumSpecies = 0;
-    SpeciesList.resize(NumSpecies);
+    NumSpGroups = species_group.size();
+    // init SpeciesList[iSpecies]: list of all species participating the collision
     for(int iSG=0; iSG<NumSpGroups; iSG++)
     {
         NumSpecies += species_group[iSG].size();
@@ -43,19 +57,37 @@ Collisions1D_DSMC::Collisions1D_DSMC(PicParams& params, vector<Species*>& vecSpe
         }
     }
 
-    SampleNumIt = 4;
-    sample_it = 0;
-    PI = params.const_pi;
-    SPI = sqrt(PI);
-    BOLTZ = params.const_boltz;
-    CellVolume = pow(params.cell_length[0], 3);
-    StreamTemp = 300.0;
+    // init species_count[totbins][NumSpecies]
+    species_count.resize(totbins);
+    for(int ibin = 0; ibin < totbins; ibin++)
+    {
+        species_count[ibin].resize( vecSpecies.size() );
+    }
+
+    // init sampled_info[totbins][NumSpGroups], the accumulated info all the time
+    // init cell_info[totbins][NumSpGroups], the info at the current time
+    // init spg_col_data[totbins][NumSpGroups][NumSpGroups]: max cross section and rem
+    sampled_info.resize(totbins);
+    cell_info.resize(totbins);
+    spg_col_data.resize(totbins);
+    for(int ibin = 0; ibin < totbins; ibin++)
+    {
+        sampled_info[ibin].resize(NumSpGroups);
+        cell_info[ibin].resize(NumSpGroups);
+        spg_col_data[ibin].resize(NumSpGroups);
+
+        for(int iSG=0; iSG<NumSpGroups; iSG++)
+        {
+            spg_col_data[ibin][iSG].resize(NumSpGroups);
+        }
+    }
 
     species_interaction.resize(NumSpecies);
     for( int iSpec = 0; iSpec < NumSpecies; iSpec++ )
     {
         species_interaction[iSpec].resize(NumSpecies);
     }
+
 
     INIT0(vecSpecies);
     SAMPLE_INIT();
@@ -86,115 +118,11 @@ void Collisions1D_DSMC::collide(PicParams& params, SmileiMPI* smpi, ElectroMagn*
 
 }
 
-// if SubCells need to be considered, spg_cell_info should be added
-void Collisions1D_DSMC::INDEXM(vector<Species*>& vecSpecies)
-{
-    Species *sp;
-    // In one species group, different species are treated as the same species
-    for(int MM=0; MM<NumSpGroups; MM++)
-    {
-        for(int ibin=0; ibin<totbins; ibin++)
-        {
-            cell_info[ibin][MM].count = 0;
-            for(int iSpecies=0; iSpecies<species_group[MM].size(); iSpecies++)
-            {
-                sp = vecSpecies[ species_group[MM][iSpecies] ];
-                cell_info[ibin][MM].count += ( sp->bmax[ibin] - sp->bmin[ibin] );
-            }
-        }
-    }
-}
-
-
-
-// Calculates the collisions for a given Collisions1D object
-void Collisions1D_DSMC::COLLM(vector<Species*>& vecSpecies)
-{
-    // Loop on bins(cells)
-    for(int ibin = 0; ibin < totbins; ibin++ )
-    {
-        // Loop on species, NN == MM: the like species; NN != MM unlike species
-        // Like species may contain some different species with like mass, like [H, D, T]
-        for(NN = 0; NN < NumSpGroups; NN++ )
-        {
-            for(MM = 0; MM < NumSpGroups; MM++)
-            {
-                double SN = sampled_info[ibin][MM].num_sum;
-                double AVN;
-                if(SN > 1.0) {
-                    AVN = SN / TotNumSamples;
-                }
-                else {
-                    AVN = cell_info[ibin][MM].count;
-                }
-
-                //*--ASEL is the number of pairs to be selected, see eqn (11.5)
-				double ASEL=0.5*cell_info[ibin][NN].count*AVN*Spwt*
-						spg_col_data[ibin][NN][MM].sigma_g_max*DeltaT/CellVolume+spg_col_data[ibin][NN][MM].rem;
-                int NSEL = ASEL;
-                spg_col_data[ibin][NN][MM].rem=ASEL-NSEL;
-                if(NSEL > 0) {
-                    //*--if there are insufficient molecules to calculate collisions,
-					//*--the number NSEL is added to the remainer CCG(2,N,NN,MM)
-                    if(  ( (NN!=MM)  &&  (cell_info[ibin][NN].count<1 || cell_info[ibin][MM].count<1) )
-					   ||( (NN==MM) && (cell_info[ibin][NN].count<2) )  ) {
-                        spg_col_data[ibin][NN][MM].rem=spg_col_data[ibin][NN][MM].rem+NSEL;
-                    }
-                    else {
-                        double CVR_MAX=spg_col_data[ibin][NN][MM].sigma_g_max;
-                        TotNumSelections=TotNumSelections+NSEL;
-                        for(int ISEL=0;ISEL<NSEL;ISEL++)
-						{
-							/*note, this sets L and M as well as LS and MS*/
-							SELECT(ibin, vecSpecies);
-
-							//*--if necessary, the maximum product in CVM is upgraded
-							if(CVR>CVR_MAX) CVR_MAX=CVR;
-
-							//*--the collision is accepted with the probability of eqn (11.6)
-                            double RF = (double)rand() / RAND_MAX;
-							if(RF < CVR/spg_col_data[ibin][NN][MM].sigma_g_max) {
-								//TotNumCols++;
-								//SumColPairSeparations=SumColPairSeparations+Math.abs(part[L].x-part[M].x);
-								//COL[LS][MS]++;
-								//COL[MS][LS]++;
-
-								ELASTIC(vecSpecies);
-							}
-						}
-						spg_col_data[ibin][NN][MM].sigma_g_max=CVR_MAX;
-                    }
-
-                }
-
-            }
-        }
-    }
-
-}
-
-
-void Collisions1D_DSMC::SAMPLE_INIT()
-{
-    for(int L=0; L<NumSpGroups; L++)
-    {
-        for(int ibin=0; ibin<totbins; ibin++)
-        {
-            sampled_info[ibin][L].num_sum=1.0e-6;
-            //for (int i=0;i<3;i++)
-            //{
-            //    sampled_info[N][L].v_sum[i]=0.0;
-            //    sampled_info[N][L].v2_sum[i]=0.0;
-            //}
-        }
-    }
-}
-
-
 
 void Collisions1D_DSMC::INIT0(vector<Species*>& vecSpecies)
 {
     int iSM, iSN;
+    int iSL, iSK;
     for(int N=0; N<NumSpecies; N++)
     {
         iSN = SpeciesList[N];
@@ -219,7 +147,17 @@ void Collisions1D_DSMC::INIT0(vector<Species*>& vecSpecies)
             {
                 //*--the maximum value of the (rel. speed)*(cross-section) is set to a
 				//*--reasonable, but low, initial value and will be increased as necessary
-                spg_col_data[ibin][L][K].sigma_g_max=species_interaction[0][0].sigma*300.*sqrt(StreamTemp/300.);
+                double VR = 0.5 * sqrt(2.0 * BOLTZ * vecSpecies[SpeciesList[0]]->species_param.ref_temperature /
+                            vecSpecies[SpeciesList[0]]->species_param.mass);
+                double VRR = VR * VR;
+                double sigma_g_max_temp = VR*species_interaction[0][0].sigma*
+                				pow( 2.*BOLTZ*species_interaction[0][0].ref_temp/(species_interaction[0][0].reduced_mass*VRR),
+                				species_interaction[0][0].visc_temp_index-0.5 ) /
+                                species_interaction[0][0].gamma;
+
+                spg_col_data[ibin][L][K].sigma_g_max = sigma_g_max_temp;
+                //cout<<"sigma_g_max_temp = "<<sigma_g_max_temp<<endl;
+                //spg_col_data[ibin][L][K].sigma_g_max = species_interaction[0][0].sigma * 300. * sqrt(StreamTemp/300.);
                 double RF = (double)random() /RAND_MAX;
 				spg_col_data[ibin][L][K].rem=RF;
             }
@@ -227,15 +165,149 @@ void Collisions1D_DSMC::INIT0(vector<Species*>& vecSpecies)
     }
 }
 
+
+void Collisions1D_DSMC::SAMPLE_INIT()
+{
+    TotNumSamples = 0;
+    for(int ibin=0; ibin<totbins; ibin++)
+    {
+        for(int L=0; L<NumSpGroups; L++)
+        {
+            sampled_info[ibin][L].num_sum=1.0e-6;
+            //for (int i=0;i<3;i++)
+            //{
+            //    sampled_info[N][L].v_sum[i]=0.0;
+            //    sampled_info[N][L].v2_sum[i]=0.0;
+            //}
+        }
+    }
+}
+
+
+void Collisions1D_DSMC::SAMPLE0()
+{
+    TotNumSamples++;
+    for(int MM=0; MM<NumSpGroups; MM++)
+    {
+        for(int ibin=0; ibin<totbins; ibin++)
+        {
+            sampled_info[ibin][MM].num_sum += cell_info[ibin][MM].count;
+
+        }
+    }
+
+}
+
+
+// if SubCells need to be considered, spg_cell_info should be added
+void Collisions1D_DSMC::INDEXM(vector<Species*>& vecSpecies)
+{
+    Species *sp;
+    // In one species group, different species are treated as the same species
+    for(int ibin=0; ibin<totbins; ibin++)
+    {
+        for(int MM=0; MM<NumSpGroups; MM++)
+        {
+            cell_info[ibin][MM].count = 0;
+            for(int iSpecies=0; iSpecies<species_group[MM].size(); iSpecies++)
+            {
+                sp = vecSpecies[ species_group[MM][iSpecies] ];
+                species_count[ibin][ species_group[MM][iSpecies] ] = ( sp->bmax[ibin] - sp->bmin[ibin] );
+                cell_info[ibin][MM].count += species_count[ibin][ species_group[MM][iSpecies] ];
+            }
+        }
+    }
+}
+
+
+// Calculates the collisions for a given Collisions1D object
+void Collisions1D_DSMC::COLLM(vector<Species*>& vecSpecies)
+{
+    double ASEL;
+    TotNumCols = 0;
+    // Loop on bins(cells)
+
+    for(int ibin = 0; ibin < totbins; ibin++ )
+    {
+        // Loop on species, NN == MM: the like species; NN != MM unlike species
+        // Like species may contain some different species with like mass, like [H, D, T]
+        for(NN = 0; NN < NumSpGroups; NN++ )
+        {
+            for(MM = 0; MM < NumSpGroups; MM++)
+            {
+                double SN = sampled_info[ibin][MM].num_sum;
+                double AVN;
+                if(SN > 1.0) {
+                    AVN = SN / TotNumSamples;
+                }
+                else {
+                    AVN = cell_info[ibin][MM].count;
+                }
+
+                //*--ASEL is the number of pairs to be selected, see eqn (11.5)
+                // rem is to handle the problem: the particle number is odd
+				ASEL = 0.5 * cell_info[ibin][NN].count * AVN * Spwt * spg_col_data[ibin][NN][MM].sigma_g_max * DeltaT
+                              + spg_col_data[ibin][NN][MM].rem;
+                int NSEL = ASEL;
+                spg_col_data[ibin][NN][MM].rem=ASEL-NSEL;
+
+                if(NSEL > 0) {
+                    //*--if there are insufficient molecules to calculate collisions,
+					//*--the number NSEL is added to the remainer CCG(2,N,NN,MM)
+                    if(  ( (NN!=MM)  &&  (cell_info[ibin][NN].count<1 || cell_info[ibin][MM].count<1) )
+					   ||( (NN==MM) && (cell_info[ibin][NN].count<2) )  ) {
+                        spg_col_data[ibin][NN][MM].rem=spg_col_data[ibin][NN][MM].rem+NSEL;
+                    }
+                    else {
+                        TotNumSelections = TotNumSelections+NSEL;
+                        double CVR_MAX = spg_col_data[ibin][NN][MM].sigma_g_max;
+                        for(int ISEL=0;ISEL<NSEL;ISEL++)
+						{
+							/*note, this sets L and M as well as LS and MS*/
+							SELECT(ibin, vecSpecies);
+
+                            //cout<<"ASEL ========== "<<ASEL<<" "<<TotNumSelections<<endl;
+
+							//*--if necessary, the maximum product in CVM is upgraded
+							if(CVR > CVR_MAX) CVR_MAX = CVR;
+
+							//*--the collision is accepted with the probability of eqn (11.6)
+                            double RF = (double)rand() / RAND_MAX;
+							if(RF < CVR / spg_col_data[ibin][NN][MM].sigma_g_max) {
+								TotNumCols++;
+								//SumColPairSeparations=SumColPairSeparations+Math.abs(part[L].x-part[M].x);
+								//COL[LS][MS]++;
+								//COL[MS][LS]++;
+
+								ELASTIC(vecSpecies);
+							}
+						}
+						spg_col_data[ibin][NN][MM].sigma_g_max=CVR_MAX;
+                    }
+
+                }
+
+            }
+        }
+    }
+    //MESSAGE("TotNumCols = "<<TotNumCols);
+    //MESSAGE("TotNumSelections = "<<TotNumSelections);
+
+}
+
+
 // calculate the the two species, particles and iPart particepating the collision
 void Collisions1D_DSMC::SELECT(int ibin, vector<Species*>& vecSpecies)
 {
-    double RF = (double)random() / RAND_MAX;
-    int K = (int)( RF*cell_info[ibin][NN].count );
-    int iSpecies = 0;
-    iSL = species_group[NN][iSpecies];
-    indexL = K;
+    double RF;
+    int K;
+    int iSpecies;
 
+    RF = (double)random() / RAND_MAX;
+    K = (int)( RF*cell_info[ibin][NN].count );
+    indexL = K;
+    iSpecies = 0;
+    iSL = species_group[NN][iSpecies];
     // iSL and iSM are species number: Species *s = vecSpecies[iSL/iSM]
     // indexL and indexM is the particles indexes
     while (iSpecies < species_group[NN].size() && indexL >= species_count[ibin][iSL]) {
@@ -246,10 +318,10 @@ void Collisions1D_DSMC::SELECT(int ibin, vector<Species*>& vecSpecies)
 
     do {
         RF = (double)random() / RAND_MAX;
-        K = (int)( RF*cell_info[ibin][MM].count );
+        K = (int)( RF * cell_info[ibin][MM].count );
+        indexM = K;
         iSpecies = 0;
         iSM = species_group[MM][iSpecies];
-        indexM = K;
         while (iSpecies < species_group[MM].size() && indexM >= species_count[ibin][iSM]) {
             indexM -= species_count[ibin][iSM];
             iSpecies++;
@@ -278,15 +350,12 @@ void Collisions1D_DSMC::SELECT(int ibin, vector<Species*>& vecSpecies)
 }
 
 
-
-
-
 void Collisions1D_DSMC::ELASTIC(vector<Species*>& vecSpecies)
 {
     double VRCP[3];		//VRCP(3) are the post-collision components of the relative velocity
     double VCCM[3];		//VCCM(3) are the components of the centre of mass velocity
-    double RML=species_interaction[iSL][iSM].reduced_mass/sM->species_param.mass;
-    double RMM=species_interaction[iSL][iSM].reduced_mass/sL->species_param.mass;
+    double RML = species_interaction[iSL][iSM].reduced_mass / sM->species_param.mass;
+    double RMM = species_interaction[iSL][iSM].reduced_mass / sL->species_param.mass;
     double A,B,C,D;
     double OC,SC;
 
@@ -297,14 +366,14 @@ void Collisions1D_DSMC::ELASTIC(vector<Species*>& vecSpecies)
 
     //use the VHS logic
     double RF = (double)random() / RAND_MAX;
-	B=2.*RF-1.0;	//B is the cosine of a random elevation angle
-	A=sqrt(1.-B*B);
-	VRCP[0]=B*VR;
-	C=2.*PI*RF; //C is a random azimuth angle
-	VRCP[1]=A*cos(C)*VR;
-	VRCP[2]=A*sin(C)*VR;
+	B = 2.0 * RF - 1.0;	//B is the cosine of a random elevation angle
+	A = sqrt(1.0 - B * B);
+	VRCP[0] = B * VR;
+	C = 2.0 * PI * RF; //C is a random azimuth angle
+	VRCP[1] = A * cos(C) * VR;
+	VRCP[2] = A * sin(C) * VR;
 
-    for (int i=0;i<3;i++)
+    for (int i = 0; i < 3; i++)
 	{
         pL->momentum(i,iL) = VCCM[i] + VRCP[i]*RMM;
         pM->momentum(i,iM) = VCCM[i] - VRCP[i]*RML;
@@ -312,19 +381,6 @@ void Collisions1D_DSMC::ELASTIC(vector<Species*>& vecSpecies)
 }
 
 
-void Collisions1D_DSMC::SAMPLE0()
-{
-    TotNumSamples++;
-    for(int MM=0; MM<NumSpGroups; MM++)
-    {
-        for(int ibin=0; ibin<totbins; ibin++)
-        {
-            sampled_info[ibin][MM].num_sum += cell_info[ibin][MM].count;
-
-        }
-    }
-
-}
 
 
 double Collisions1D_DSMC::GAM(double X)

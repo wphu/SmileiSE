@@ -81,7 +81,7 @@ public:
     double StreamTemp;
     int TotNumSamples;
     int TotNumSelections;
-    double CVR_MAX;
+    int TotNumCols;
     int sample_it;
 
 
