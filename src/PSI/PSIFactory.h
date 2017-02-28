@@ -4,10 +4,13 @@
 #include "PSI1D_Injection.h"
 #include "PSI1D_SEE.h"
 #include "PSI1D_Sputtering.h"
+#include "PSI1D_Backscattering.h"
+#include "PSI1D_Recycling.h"
 
 #include "PSI2D_Injection.h"
 #include "PSI2D_SEE.h"
 #include "PSI2D_Sputtering.h"
+
 
 #include <string>
 #include <cmath>
@@ -39,6 +42,7 @@ public:
 		double work_function;
 		double emitJ;
 		unsigned int nPartEmit;
+		double recycling_factor;
 		string relSpecies;
 
 
@@ -136,6 +140,55 @@ public:
 		        vecPSI.push_back( new PSI1D_Sputtering(params, smpi,sgroup1[0],sgroup2[0], emitPos, emitTemp) );
 
 			}
+			else if(params.geometry == "1d3v" && PSI_type == "BackScattering"){
+				MESSAGE("Parameters for PSI #" << n_PSI << " :");
+
+
+		        ifile.extract("species1",sg1,"PSI",n_PSI);
+				ifile.extract("species2",sg2,"PSI",n_PSI);
+		        // Obtain the lists of species numbers from the lists of species names.
+		        sgroup1 = params.FindSpecies(sg1);
+				sgroup2 = params.FindSpecies(sg2);
+		        // Each group of species sgroup1 and sgroup2 must not be empty
+		        if (sgroup1.size()==0) ERROR("No valid `species1` requested in PSI #" << n_PSI);
+				if (sgroup2.size()==0) ERROR("No valid `species2` requested in PSI #" << n_PSI);
+
+				// Injection logarithm (if negative or unset, then automatically computed)
+		        emitPos = "left"; // default
+		        ifile.extract("emitPos",emitPos,"PSI",n_PSI);
+
+		        // Number of timesteps between each debug output (if 0 or unset, no debug)
+		        emitTemp = 0.0; // default
+		        ifile.extract("emitTemp",emitTemp,"PSI",n_PSI);
+
+		        vecPSI.push_back( new PSI1D_Backscattering(params, smpi,sgroup1[0],sgroup2[0], emitPos, emitTemp) );
+			}
+
+			else if(params.geometry == "1d3v" && PSI_type == "Recycling"){
+				MESSAGE("Parameters for PSI #" << n_PSI << " :");
+
+
+		        ifile.extract("species1",sg1,"PSI",n_PSI);
+				ifile.extract("species2",sg2,"PSI",n_PSI);
+		        // Obtain the lists of species numbers from the lists of species names.
+		        sgroup1 = params.FindSpecies(sg1);
+		        // Each group of species sgroup1 and sgroup2 must not be empty
+		        if (sgroup1.size()==0) ERROR("No valid `species1` requested in PSI #" << n_PSI);
+
+				// Injection logarithm (if negative or unset, then automatically computed)
+		        emitPos = "left"; // default
+		        ifile.extract("emitPos",emitPos,"PSI",n_PSI);
+
+		        // Number of timesteps between each debug output (if 0 or unset, no debug)
+		        emitTemp = 0.0; // default
+		        ifile.extract("emitTemp",emitTemp,"PSI",n_PSI);
+
+				recycling_factor = 0.0; // default
+				ifile.extract("recycling_factor",recycling_factor,"PSI",n_PSI);
+
+		        vecPSI.push_back( new PSI1D_Recycling(params, smpi,sgroup1[0], emitPos, emitTemp, recycling_factor) );
+			}
+
 			else if(params.geometry == "1d3v" && PSI_type == "SEE"){
 				MESSAGE("Parameters for PSI #" << n_PSI << " :");
 

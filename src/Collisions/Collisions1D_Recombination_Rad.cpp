@@ -1,4 +1,4 @@
-#include "Collisions1D_Ionization.h"
+#include "Collisions1D_Recombination_Rad.h"
 #include "SmileiMPI.h"
 #include "Field2D.h"
 #include "H5.h"
@@ -14,13 +14,13 @@ using namespace std;
 
 
 // Constructor
-Collisions1D_Ionization::Collisions1D_Ionization(PicParams& params, vector<Species*>& vecSpecies, SmileiMPI* smpi,
-                       unsigned int n_col,
-                       vector<unsigned int> sg1,
-                       vector<unsigned int> sg2,
-                       vector<unsigned int> sg3,
-                       string CS_fileName)
-: Collisions1D(params)
+Collisions1D_Recombination_Rad::Collisions1D_Recombination_Rad( PicParams& params, vector<Species*>& vecSpecies, SmileiMPI* smpi,
+    unsigned int n_col,
+    vector<unsigned int> sg1,
+    vector<unsigned int> sg2,
+    vector<unsigned int> sg3,
+    string CS_fileName)
+    : Collisions1D(params)
 {
 
     n_collisions    = n_col;
@@ -41,14 +41,14 @@ Collisions1D_Ionization::Collisions1D_Ionization(PicParams& params, vector<Speci
 
 }
 
-Collisions1D_Ionization::~Collisions1D_Ionization()
+Collisions1D_Recombination_Rad::~Collisions1D_Recombination_Rad()
 {
 
 }
 
 
 // Calculates the collisions for a given Collisions1D object
-void Collisions1D_Ionization::collide(PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, int itime)
+void Collisions1D_Recombination_Rad::collide( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, int itime)
 {
     vector<unsigned int> *sg1, *sg2, *sg3;
 
@@ -71,11 +71,15 @@ void Collisions1D_Ionization::collide(PicParams& params, SmileiMPI* smpi, Electr
     double  v_square, v_magnitude, v_magnitude_primary, v_magnitude_secondary;
 
 
+    // Raction: e + H+ = H + hv
+    // Species1: e
+    // Species2: H+
+    // Species3: H
     sg1 = &species_group1;
     sg2 = &species_group2;
     sg3 = &species_group3;
 
-    // electons                         atoms or primary ions              ionized ions
+    // electons                         ions                            atoms
     s1 = vecSpecies[(*sg1)[0]];      s2 = vecSpecies[(*sg2)[0]];        s3 = vecSpecies[(*sg3)[0]];
     p1 = &(s1->particles);           p2 = &(s2->particles);             p3 = &(s3->particles);
     m1 = s1->species_param.mass;     m2 = s2->species_param.mass;       m3 = s3->species_param.mass;
@@ -171,39 +175,18 @@ void Collisions1D_Ionization::collide(PicParams& params, SmileiMPI* smpi, Electr
             double ran_p = (double)rand() / RAND_MAX;
 
             if(ran_P < P_collision){
+                // erase i1 electron and ion
+                count_of_particles_to_erase_s1[ibin]++;
+                indexes_of_particles_to_erase_s1.push_back(i1);
                 count_of_particles_to_erase_s2[ibin]++;
-                //>calculate the scatter velocity of primary electron
-                momentum_unit[0] = p1->momentum(0,i1) / v_magnitude_primary;
-                momentum_unit[1] = p1->momentum(1,i1) / v_magnitude_primary;
-                momentum_unit[2] = p1->momentum(2,i1) / v_magnitude_primary;
-                //MESSAGE("v_magnitude"<<"  "<<v_magnitude_primary<<"  "<<v_magnitude_secondary);
-                //MESSAGE("momentum1"<<" "<<p1->momentum(0, i1)<<"  "<<p1->momentum(1, i1)<<"  "<<p1->momentum(2, i1));
-                calculate_scatter_velocity(v_magnitude_primary, m1, m2, momentum_unit, momentum_temp);
-                p1->momentum(0,i1) = momentum_temp[0];
-                p1->momentum(1,i1) = momentum_temp[1];
-                p1->momentum(2,i1) = momentum_temp[2];
+                indexes_of_particles_to_erase_s2.push_back(i2);
 
-                //>calculate the scatter velocity of secondary electron
-                calculate_scatter_velocity(v_magnitude_secondary, m1, m2, momentum_unit, momentum_temp);
-                //>create new particle in the end of p1, we should sort_part when all bins are done!!!
-                //MESSAGE("momentum2"<<" "<<p1->momentum(0, i1)<<"  "<<p1->momentum(1, i1)<<"  "<<p1->momentum(2, i1));
-                p1->cp_particle(i1, new_particles1);
-                //MESSAGE("momentum1"<<" "<<new_particles1.momentum(0, idNew)<<"  "<<new_particles1.momentum(1, idNew));
-
-                idNew = new_particles1.size() - 1;
-                new_particles1.momentum(0, idNew) = momentum_temp[0];
-                new_particles1.momentum(1, idNew) = momentum_temp[1];
-                new_particles1.momentum(2, idNew) = momentum_temp[2];
-                count_of_particles_to_insert_s1[ibin]++;
-                //MESSAGE("momentum3"<<" "<<p1->momentum(0, idNew)<<"  "<<p1->momentum(1, idNew)<<"  "<<p1->momentum(2, idNew));
-
+                // Copy the particle of species2 to species3, and change the charge
                 p2->cp_particle(i2, new_particles3);
-                //>create the ionized ion (species3)
+                count_of_particles_to_insert_s3[ibin]++;
                 idNew = new_particles3.size() - 1;
                 new_particles3.charge(idNew) = s3->species_param.charge;
-                count_of_particles_to_insert_s3[ibin]++;
 
-                indexes_of_particles_to_erase_s2.push_back(i2);
                 totNCollision++;
             }
             //MESSAGE("nparis222"<<"  "<<i);
@@ -216,12 +199,13 @@ void Collisions1D_Ionization::collide(PicParams& params, SmileiMPI* smpi, Electr
     //MESSAGE("aaaa"<<" "<<s1->bmax.back()<<" "<<p1->size());
     // swap lost particles to the end for ionized neutrals
 
+    s1->erase_particles_from_bins(indexes_of_particles_to_erase_s1);
+    indexes_of_particles_to_erase_s1.clear();
+
     s2->erase_particles_from_bins(indexes_of_particles_to_erase_s2);
     indexes_of_particles_to_erase_s2.clear();
 
-    s1->insert_particles_to_bins(new_particles1, count_of_particles_to_insert_s1);
     s3->insert_particles_to_bins(new_particles3, count_of_particles_to_insert_s3);
-    new_particles1.clear();
     new_particles3.clear();
 
     //smpi->barrier();
@@ -232,7 +216,7 @@ void Collisions1D_Ionization::collide(PicParams& params, SmileiMPI* smpi, Electr
 
 }
 
-double Collisions1D_Ionization::maxCV(Particles* particles, double eMass){
+double Collisions1D_Recombination_Rad::maxCV(Particles* particles, double eMass){
     int nPart = particles->size();
     double v_square;
     double v_magnitude;
@@ -257,8 +241,8 @@ double Collisions1D_Ionization::maxCV(Particles* particles, double eMass){
 //>the method is eqution (11) from the ref: a Monte Carlo collision model for the particle in cell method: applications to
 //>argon and oxygen discharges.
 //>and the code is transformed from C.F. Sang's fortran code
-void Collisions1D_Ionization::calculate_scatter_velocity(double v_magnitude, double mass1, double mass2,
-vector<double>& momentum_unit, vector<double>& momentum_temp)
+void Collisions1D_Recombination_Rad::calculate_scatter_velocity( double v_magnitude, double mass1, double mass2,
+    vector<double>& momentum_unit, vector<double>& momentum_temp)
 {
     double up1, up2, up3;
     double r11, r12, r13, r21, r22, r23, r31, r32, r33;
@@ -309,7 +293,7 @@ vector<double>& momentum_unit, vector<double>& momentum_temp)
 
 
 
-double Collisions1D_Ionization::cross_section(double ke)
+double Collisions1D_Recombination_Rad::cross_section(double ke)
 {
 
 }

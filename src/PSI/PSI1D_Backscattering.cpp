@@ -1,4 +1,4 @@
-#include "PSI1D_Sputtering.h"
+#include "PSI1D_Backscattering.h"
 #include "SmileiMPI.h"
 #include "Field2D.h"
 #include "H5.h"
@@ -14,7 +14,7 @@ using namespace std;
 
 
 // Constructor
-PSI1D_Sputtering::PSI1D_Sputtering(
+PSI1D_Backscattering::PSI1D_Backscattering(
     PicParams& params,
     SmileiMPI* smpi,
     unsigned int psi_species1,
@@ -32,7 +32,7 @@ PSI1D(params, smpi)
     const_e = params.const_e;
 }
 
-PSI1D_Sputtering::~PSI1D_Sputtering()
+PSI1D_Backscattering::~PSI1D_Backscattering()
 {
 
 }
@@ -40,7 +40,7 @@ PSI1D_Sputtering::~PSI1D_Sputtering()
 
 
 // Calculates the PSI1D for a given Collisions object
-void PSI1D_Sputtering::performPSI(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime, ElectroMagn* fields)
+void PSI1D_Backscattering::performPSI(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime, ElectroMagn* fields)
 {
     // the angle of particle velocity with the surface normal
     double theta;
@@ -121,9 +121,8 @@ void PSI1D_Sputtering::performPSI(PicParams& params, SmileiMPI* smpi, vector<Spe
 }
 
 
-
-
-void PSI1D_Sputtering::emit(PicParams& params, vector<Species*>& vecSpecies, unsigned int species_emit){
+void PSI1D_Backscattering::emit(PicParams& params, vector<Species*>& vecSpecies, unsigned int species_emit)
+{
     Species   *s1;
     s1 = vecSpecies[species_emit];
 
@@ -171,10 +170,8 @@ void PSI1D_Sputtering::emit(PicParams& params, vector<Species*>& vecSpecies, uns
 }
 
 
-
-
 // from Shuyu Dai' c code
-double PSI1D_Sputtering::phy_sput_yield(double ke, double theta)
+double PSI1D_Backscattering::phy_sput_yield(double ke, double theta)
 {
     double	 reducedE, stopcs, yldphy;
     double	 f,q,anu,ang_opt,eta,fs,psi,Sigma,t,angcntrb;

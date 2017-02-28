@@ -18,7 +18,10 @@ class PSI
 
 public:
     //! Constructor for PSI between two species
-    PSI(PicParams&, SmileiMPI*){};
+    PSI(PicParams& params, SmileiMPI* smpi)
+    {
+            const_e = params.const_e;
+    };
     virtual ~PSI(){};
 
 

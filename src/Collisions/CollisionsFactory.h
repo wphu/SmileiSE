@@ -7,6 +7,9 @@
 #include "Collisions1D_Elastic.h"
 #include "Collisions1D_Ionization.h"
 #include "Collisions1D_Ionization_Simple.h"
+#include "Collisions1D_Recombination_TB.h"
+#include "Collisions1D_Recombination_Rad.h"
+#include "Collisions1D_Excitation.h"
 
 #include "Collisions2D_ChargeExchange.h"
 #include "Collisions2D_Coulomb.h"
@@ -161,6 +164,138 @@ public:
 		        vecCollisions.push_back( new Collisions1D_Ionization(params,vecSpecies,smpi,n_collisions,sgroup1,sgroup2,sgroup3, crossSection_fileName) );
 
 			}
+
+			else if(params.geometry == "1d3v" && collisions_type == "Recombination_TB"){
+				MESSAGE("Parameters for collisions #" << n_collisions << " :");
+
+		        // Read the input file by searching for the keywords "species1" and "species2"
+		        // which are the names of the two species that will collide
+		        sg1.resize(0);
+		        sg2.resize(0);
+				sg3.resize(0);
+		        ifile.extract("species1",sg1,"Collisions",n_collisions);
+		        ifile.extract("species2",sg2,"Collisions",n_collisions);
+				ifile.extract("species3",sg3,"Collisions",n_collisions);
+
+
+		        // Obtain the lists of species numbers from the lists of species names.
+		        sgroup1 = params.FindSpecies(sg1);
+		        sgroup2 = params.FindSpecies(sg2);
+				sgroup3 = params.FindSpecies(sg3);
+
+		        // Each group of species sgroup1 and sgroup2 must not be empty
+		        if (sgroup1.size()==0) ERROR("No valid `species1` requested in collisions #" << n_collisions);
+		        if (sgroup2.size()==0) ERROR("No valid `species2` requested in collisions #" << n_collisions);
+				if (sgroup3.size()==0) ERROR("No valid `species3` requested in collisions #" << n_collisions);
+
+				if( !ifile.extract("crossSection_fileName",crossSection_fileName,"Collisions",n_collisions) ) {
+					ERROR("No valid `cross sectrion file` requested in collisions #" << n_collisions);
+				}
+
+		        // Print collisions parameters
+		        mystream.str(""); // clear
+		        for (unsigned int rs=0 ; rs<sgroup1.size() ; rs++) mystream << " #" << sgroup1[rs];
+		        MESSAGE(1,"First  group of species :" << mystream.str());
+		        mystream.str(""); // clear
+		        for (unsigned int rs=0 ; rs<sgroup2.size() ; rs++) mystream << " #" << sgroup2[rs];
+		        MESSAGE(1,"Second group of species :" << mystream.str());
+				mystream.str(""); // clear
+		        for (unsigned int rs=0 ; rs<sgroup3.size() ; rs++) mystream << " #" << sgroup3[rs];
+		        MESSAGE(1,"Third group of species :" << mystream.str());
+
+
+				// Add new Collisions objects to vector
+				//> Three species participate in the ionization collision
+		        vecCollisions.push_back( new Collisions1D_Recombination_TB(params,vecSpecies,smpi,n_collisions,sgroup1,sgroup2,sgroup3, crossSection_fileName) );
+
+			}
+
+			else if(params.geometry == "1d3v" && collisions_type == "Recombination_Rad"){
+				MESSAGE("Parameters for collisions #" << n_collisions << " :");
+
+		        // Read the input file by searching for the keywords "species1" and "species2"
+		        // which are the names of the two species that will collide
+		        sg1.resize(0);
+		        sg2.resize(0);
+				sg3.resize(0);
+		        ifile.extract("species1",sg1,"Collisions",n_collisions);
+		        ifile.extract("species2",sg2,"Collisions",n_collisions);
+				ifile.extract("species3",sg3,"Collisions",n_collisions);
+
+
+		        // Obtain the lists of species numbers from the lists of species names.
+		        sgroup1 = params.FindSpecies(sg1);
+		        sgroup2 = params.FindSpecies(sg2);
+				sgroup3 = params.FindSpecies(sg3);
+
+		        // Each group of species sgroup1 and sgroup2 must not be empty
+		        if (sgroup1.size()==0) ERROR("No valid `species1` requested in collisions #" << n_collisions);
+		        if (sgroup2.size()==0) ERROR("No valid `species2` requested in collisions #" << n_collisions);
+				if (sgroup3.size()==0) ERROR("No valid `species3` requested in collisions #" << n_collisions);
+
+				if( !ifile.extract("crossSection_fileName",crossSection_fileName,"Collisions",n_collisions) ) {
+					ERROR("No valid `cross sectrion file` requested in collisions #" << n_collisions);
+				}
+
+		        // Print collisions parameters
+		        mystream.str(""); // clear
+		        for (unsigned int rs=0 ; rs<sgroup1.size() ; rs++) mystream << " #" << sgroup1[rs];
+		        MESSAGE(1,"First  group of species :" << mystream.str());
+		        mystream.str(""); // clear
+		        for (unsigned int rs=0 ; rs<sgroup2.size() ; rs++) mystream << " #" << sgroup2[rs];
+		        MESSAGE(1,"Second group of species :" << mystream.str());
+				mystream.str(""); // clear
+		        for (unsigned int rs=0 ; rs<sgroup3.size() ; rs++) mystream << " #" << sgroup3[rs];
+		        MESSAGE(1,"Third group of species :" << mystream.str());
+
+
+				// Add new Collisions objects to vector
+				//> Three species participate in the ionization collision
+		        vecCollisions.push_back( new Collisions1D_Recombination_Rad(params,vecSpecies,smpi,n_collisions,sgroup1,sgroup2,sgroup3, crossSection_fileName) );
+
+			}
+
+			else if(params.geometry == "1d3v" && collisions_type == "Excitation"){
+				MESSAGE("Parameters for collisions #" << n_collisions << " :");
+
+				// Read the input file by searching for the keywords "species1" and "species2"
+				// which are the names of the two species that will collide
+				sg1.resize(0);
+				sg2.resize(0);
+				ifile.extract("species1",sg1,"Collisions",n_collisions);
+				ifile.extract("species2",sg2,"Collisions",n_collisions);
+
+				// Obtain the lists of species numbers from the lists of species names.
+				sgroup1 = params.FindSpecies(sg1);
+				sgroup2 = params.FindSpecies(sg2);
+
+				// Each group of species sgroup1 and sgroup2 must not be empty
+				if (sgroup1.size()==0) ERROR("No valid `species1` requested in collisions #" << n_collisions);
+				if (sgroup2.size()==0) ERROR("No valid `species2` requested in collisions #" << n_collisions);
+
+				if( !ifile.extract("crossSection_fileName",crossSection_fileName,"Collisions",n_collisions) ) {
+					ERROR("No valid `cross sectrion file` requested in collisions #" << n_collisions);
+				}
+
+				// Print collisions parameters
+				mystream.str(""); // clear
+				for (unsigned int rs=0 ; rs<sgroup1.size() ; rs++) mystream << " #" << sgroup1[rs];
+				MESSAGE(1,"First  group of species :" << mystream.str());
+				mystream.str(""); // clear
+				for (unsigned int rs=0 ; rs<sgroup2.size() ; rs++) mystream << " #" << sgroup2[rs];
+				MESSAGE(1,"Second group of species :" << mystream.str());
+				mystream.str(""); // clear
+				for (unsigned int rs=0 ; rs<sgroup3.size() ; rs++) mystream << " #" << sgroup3[rs];
+				MESSAGE(1,"Third group of species :" << mystream.str());
+
+
+				// Add new Collisions objects to vector
+				//> Three species participate in the ionization collision
+				vecCollisions.push_back( new Collisions1D_Excitation(params,vecSpecies,smpi,n_collisions,sgroup1,sgroup2,crossSection_fileName) );
+
+			}
+
+
 			else if(params.geometry == "1d3v" && collisions_type == "ChargeExchange"){
 				MESSAGE("Parameters for collisions #" << n_collisions << " :");
 
