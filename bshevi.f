@@ -44,9 +44,9 @@ c	ne	= number of constituent elements in the target.
 c	nz2	= array for atomic numbers of the constituents.
 c	nw	= array for relative numbers of the constituents.
 c
-c	example : for Tritium ions of 1 KeV energy incident on the TiO2 
+c	example : for Tritium ions of 1 KeV energy incident on the TiO2
 c		( Titanium Dioxide ) target, Energy=1000 , nz1=1 ,
-c		m1=3 , ne=2 , nz2(1)=22 , nw(1)=1 , nz2(2)=8 and 
+c		m1=3 , ne=2 , nz2(1)=22 , nw(1)=1 , nz2(2)=8 and
 c		nw(2)=2 .
 c
 c  tables prepared
@@ -60,13 +60,13 @@ c
       real*8 a1t(95) , a2t(92) , d(92)
       dimension nz2(ne) ,nw(ne)
 c
-c  data table a1t : * * * * * * * * * * * * * * * * * * * * * * * * * * 
+c  data table a1t : * * * * * * * * * * * * * * * * * * * * * * * * * *
 c
       data a1t /
 c  z1 = 1 ( for hydrogen , deuterium and tritium )
      # 1.0072766,2.0135536,3.1055011,
 c  z1 = 2 ( for helium-3 and helium-4 )
-     # 3.0149325,4.0015059, 
+     # 3.0149325,4.0015059,
 c  z1 = 3-10
      # 6.941,9.01218,10.811,12.011,14.0067,15.9994,18.998403,20.179,
 c  z1 = 11 - 20
@@ -95,7 +95,7 @@ c  z1 = 81 - 90
 c  z12 = 91 - 92
      # 231.0,238.0289 /
 c
-c  data table a2t : * * * * * * * * * * * * * * * * * * * * * * * * * * 
+c  data table a2t : * * * * * * * * * * * * * * * * * * * * * * * * * *
 c
       data a2t /
 c  z2 = 1 - 10
@@ -127,9 +127,9 @@ c  z2 = 81 - 90
 c  z2 = 91 - 92
      # 231.0,238.0289 /
 c
-c  data table d : * * * * * * * * * * * * * * * * * * * * * * * * * * 
+c  data table d : * * * * * * * * * * * * * * * * * * * * * * * * * *
 c
-      data d / 
+      data d /
 c  z2 = 1 - 10
      # 0.9341d0,0.6693d0,0.6654d0,0.9712d0,1.007d0,1.024d0,1.111d0,
      # 0.9699d0,0.7357d0,0.6842d0,
@@ -241,6 +241,9 @@ c	write(*,*)'delta = ',delta
      #  sb )
       sbeff = sbeff + wi * sb
  70   continue
+
+
+ 
       z2 = z2eff / sum
       a2 = a2eff / sum
       sa = saeff
@@ -288,7 +291,7 @@ c	write(*,*)'did light projectile calculation delta < 0.5 '
 
       feps = (2.d0 * eps - 3.d0 ) / ( eps + 1.d0 )
       r0 = 0.705d0 * sa / sb / ( 1.0d0 + a1/a2 ) ** feps
-      r0 = r0 / (1.d0 + (eps/0.047d0) ** 0.597d0 + ( eps / 0.619d0 ) ** 
+      r0 = r0 / (1.d0 + (eps/0.047d0) ** 0.597d0 + ( eps / 0.619d0 ) **
      #	1.5d0 )
       th = theta * 1.745329d-2
       if (n.eq.1) go to 80

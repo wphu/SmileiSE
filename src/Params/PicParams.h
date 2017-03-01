@@ -66,12 +66,7 @@ struct SpeciesStructure {
     double weight;
 
 
-    //! atomic number
-    unsigned int atomic_number;     // H 1; D 1; C 6; Ar 18;
-    // atomic mass
-    double atomic_mass;             // unit is amu, H 1.008; D 2.016; T 3.024; Be 9.012182; Ar 39.95
-    // surface_binding_energy
-    double surface_binding_energy;
+
 
     //! thermalizing temperature [\f$m_e c^2\f$]
     std::vector<double> thermT;
@@ -129,6 +124,19 @@ struct SpeciesStructure {
     double ref_temperature;        // reference temperature
     double visc_temp_index;
     double vss_scat_inv;
+
+    // ==============Parameters for physical sputtering and backscattering============
+    //! atomic number
+    unsigned int atomic_number;     // H 1; D 1; C 6; Ar 18;
+    // atomic mass
+    double atomic_mass;             // unit is amu, H 1.008; D 2.016; T 3.024; Be 9.012182; Ar 39.95
+    // surface_binding_energy
+    double surface_binding_energy;
+
+    // ============Parameters for backscattering as the target
+    int ne;             // number of constituent elements in the target.
+    std::vector<int> nz2;	// array for atomic numbers of the constituents.
+    std::vector<int> nw;     // array for relative numbers of the constituents.
 
 };
 

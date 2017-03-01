@@ -1,3 +1,12 @@
+/* ==============================================================
+Subroutine to evaluate sputtering yeilds of any
+monoatomic target material due to Physical Sputtering
+Ref: Subroutines for some plasma surface interaction processes:
+     hpysical sputtering, chemical erosion, radiation enhanced
+     sublimation, backscattering and thermal evaporation.
+================================================================*/
+
+
 
 #ifndef PSI1D_SPUTTERING_H
 #define PSI1D_SPUTTERING_H
