@@ -132,6 +132,7 @@ struct SpeciesStructure {
     double atomic_mass;             // unit is amu, H 1.008; D 2.016; T 3.024; Be 9.012182; Ar 39.95
     // surface_binding_energy
     double surface_binding_energy;
+    double density_solid;           // number density---unit-- C/A**3 ---*
 
     // ============Parameters for backscattering as the target
     int ne;             // number of constituent elements in the target.

@@ -10,36 +10,25 @@ Ref: Subroutines for some plasma surface interaction processes:
 #define PSI1D_BACKSCATTERING_H
 
 #include <vector>
+#include <math.h>
+using namespace std;
 
-#include "Tools.h"
-#include "PicParams.h"
-#include "InputData.h"
-#include "Species.h"
-#include "PSI1D.h"
-#include "H5.h"
-
-class PSI1D_Backscattering : public PSI1D
+class PSI1D_Backscattering
 {
 
 public:
     //! Constructor for Collisions between two species
     PSI1D_Backscattering(
-        PicParams& params,
-        SmileiMPI* smpi,
-        unsigned int psi_species1,
-        unsigned int psi_species2,
-        string psiPosition,
-        double emitTemperature
-    );
+        int nz1_in,
+        int m1_in,
+        int ne_in,
+        vector<int> nz2_in,
+        vector<int> nw_in );
 
 
     ~PSI1D_Backscattering();
 
-    //! Method called in the main smilei loop to apply PSI at each timestep
-    void performPSI(PicParams&, SmileiMPI* smpi, std::vector<Species*>&,int, ElectroMagn*);
 
-    // emit particles
-    void emit(PicParams&, vector<Species*>&, unsigned int);
 
     // parameters for sputtering
     // the name is from original fortran77 code
@@ -62,6 +51,9 @@ public:
 
     double rangen(double eps, double energy);
     double expint(double x);
+
+
+
 
 
 

@@ -1,147 +1,29 @@
-#include "PSI1D_Backscattering.h"
-#include "SmileiMPI.h"
-#include "Field2D.h"
-#include "H5.h"
-
-
 #include <cmath>
-#include <iomanip>
-#include <algorithm>
-#include <ostream>
-#include <sstream>
+#include <iostream>
+#include "PSI1D_Backscattering.h"
 
 using namespace std;
 
 
 // Constructor
 PSI1D_Backscattering::PSI1D_Backscattering(
-    PicParams& params,
-    SmileiMPI* smpi,
-    unsigned int psi_species1,
-    unsigned int psi_species2,
-    string psiPosition,
-    double emitTemperature
-):
-PSI1D(params, smpi)
+    int nz1_in,
+    int m1_in,
+    int ne_in,
+    vector<int> nz2_in,
+    vector<int> nw_in )
 {
-    species1 = psi_species1;
-    species2 = psi_species2;
-    psiPos = psiPosition;
-    emitTemp = emitTemperature;
-
-    const_e = params.const_e;
+    nz1     = nz1_in;
+    m1      = m1_in;
+    ne      = ne_in;
+    nz2     = nz2_in;
+    nw      = nw_in;
 }
 
 PSI1D_Backscattering::~PSI1D_Backscattering()
 {
 
 }
-
-
-
-// Calculates the PSI1D for a given Collisions object
-void PSI1D_Backscattering::performPSI(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime, ElectroMagn* fields)
-{
-    // the angle of particle velocity with the surface normal
-    double theta;
-    // kinetic energy_ion
-    double ke;
-    // Backscattering number and energy cofficients
-    double rn, re;
-    double v_square, v_magnitude;
-    // sputtering probability
-    double pSput;
-    int iDim;
-    Species   *s1, *s2;
-    Particles *p1, *p2;
-
-
-    s1 = vecSpecies[species1];
-    s2 = vecSpecies[species2];
-    p1 = &(s1->psi_particles);
-    p2 = &(s2->psi_particles);
-
-    nz1 = s1->species_param.atomic_number;
-    m1 = s1->species_param.atomic_mass;
-    ne = s2->species_param.ne;
-    nz2 = s2->species_param.nz2;
-    nw = s2->species_param.nw;
-
-
-    iDim = 0;
-    nPartEmit = 0;
-    int nPart = s1->indexes_of_particles_to_exchange_per_thd[0].size();
-    for(unsigned int iPart = 0; iPart < nPart; iPart++)
-    {
-        if( p1->position(iDim,iPart) < smpi->getDomainLocalMin(iDim) || p1->position(iDim,iPart) > smpi->getDomainLocalMax(iDim) ) {
-            v_square = pow(p1->momentum(0,iPart),2) + pow(p1->momentum(1,iPart),2) + pow(p1->momentum(2,iPart),2);
-            theta = abs( p1->momentum(0,iPart) ) / sqrt( v_square );
-            theta *= ( 180.0 / params.const_pi );
-            ke = 0.5 * s1->species_param.mass * v_square;
-            //ke *= params.norm_temperature;
-            scatter( rn, re, theta, ke/const_e );
-            double ran_p = (double)rand() / RAND_MAX;
-            if( rn > ran_p ) {
-                emitTemp = re * ke;
-                new_particles.create_particle();
-                if(psiPos == "left")
-                {
-                    new_particles.position(0,iPart)=(((double)rand() / RAND_MAX))*params.cell_length[0]*posOffset;
-                    new_particles.position_old(0,iPart) = new_particles.position(0,iPart);
-
-                    // initialize using the Maxwell distribution function in x-direction
-                    double psm = sqrt(2.0 * emitTemp / s1->species_param.mass) * sqrt(-log((double)rand() / RAND_MAX));
-                    double theta = M_PI*(double)rand() / RAND_MAX;
-                    double phi   = 2.0 * M_PI*(double)rand() / RAND_MAX;
-                    new_particles.momentum(0,iPart) = abs( psm*sin(theta)*cos(phi) );
-                }
-                else if(psiPos == "right")
-                {
-                    new_particles.position(0,iPart)=params.cell_length[0]*params.n_space_global[0] - (((double)rand() / RAND_MAX))*params.cell_length[0]*posOffset;
-                    new_particles.position_old(0,iPart) = new_particles.position(0,iPart);
-
-                    // initialize using the Maxwell distribution function in x-direction
-                    double psm = sqrt(2.0 * emitTemp / s1->species_param.mass) * sqrt(-log((double)rand() / RAND_MAX));
-                    double theta = M_PI*(double)rand() / RAND_MAX;
-                    double phi   = 2.0 * M_PI*(double)rand() / RAND_MAX;
-                    new_particles.momentum(0,iPart) = -abs( psm*sin(theta)*cos(phi) );
-                }
-                else
-                {
-                    return;
-                }
-                new_particles.momentum(1,nPartEmit) = 0.0;
-                new_particles.momentum(2,nPartEmit) = 0.0;
-
-                new_particles.weight(iPart) = weight_const;
-                new_particles.charge(iPart) = s1->species_param.charge;
-                nPartEmit++;
-            }
-        }
-    };
-
-    //SmileiMPI_Cart1D* smpi1D = static_cast<SmileiMPI_Cart1D*>(smpi);
-
-    // PSIs usually create new particles, insert new particles to the end of particles, no matter the boundary is left or right
-    // not affect the indexes_of_particles_to_exchange before exchanging particles using MPI
-    if( smpi->isWestern() || smpi->isEastern() ) {
-        unsigned int iPart = s1->getNbrOfParticles();
-        new_particles.cp_particles(nPartEmit, *p1, iPart);
-        new_particles.clear();
-        unsigned int ibin = s1->bmin.size();
-        s1->bmax[ibin] += nPartEmit;
-    };
-
-
-
-}
-
-
-void PSI1D_Backscattering::emit(PicParams& params, vector<Species*>& vecSpecies, unsigned int species_emit)
-{
-
-}
-
 
 void PSI1D_Backscattering::scatter(double &rnion, double &reion, double theta, double energy)
 {
@@ -153,7 +35,7 @@ void PSI1D_Backscattering::scatter(double &rnion, double &reion, double theta, d
     {
         if(m1 < 1 || m1 > 3)
         {
-            ERROR("BackScattering Error:  1");
+            cout<<"BackScattering Error:  1"<<endl;
             return;
         }
         a1 = a1t[ m1-1 ];
@@ -162,7 +44,7 @@ void PSI1D_Backscattering::scatter(double &rnion, double &reion, double theta, d
     {
         if(m1 < 3 || m1 > 4)
         {
-            ERROR("BackScattering Error:  2");
+            cout<<"BackScattering Error:  2"<<endl;
             return;
         }
         a1 = a1t[ m1 ];
@@ -182,12 +64,12 @@ void PSI1D_Backscattering::scatter(double &rnion, double &reion, double theta, d
         delta = a1 / a2;
         if( delta > 4.5 )
         {
-            MESSAGE("BackScattering delta > 4.5 "<<delta);
+            cout<<"BackScattering Message:  3"<<endl;
         }
     }
     else
     {
-        ERROR("BackScattering Error:  4");
+        cout<<"BackScattering Error:  4"<<endl;
         return;
     }
 
@@ -330,6 +212,7 @@ void PSI1D_Backscattering::scatter(double &rnion, double &reion, double theta, d
             reion = r0;
         }
 
+
         // ============Calculate rnion===============================
 		// write(*,*)'did light projectile calculation for rnion'
         r = 1.0 / ( 1.0 + pow( (eps/0.133), 0.285 ) ) + 0.530 / ( 1.0 + pow(85.0/eps, 1.46) );
@@ -347,6 +230,7 @@ void PSI1D_Backscattering::scatter(double &rnion, double &reion, double theta, d
         }
 
         //return
+
 
     }
 

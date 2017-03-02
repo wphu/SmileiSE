@@ -17,6 +17,7 @@ using namespace std;
 PSI1D_Sputtering::PSI1D_Sputtering(
     PicParams& params,
     SmileiMPI* smpi,
+    vector<Species*>& vecSpecies,
     unsigned int psi_species1,
     unsigned int psi_species2,
     string psiPosition,
@@ -30,6 +31,8 @@ PSI1D(params, smpi)
     emitTemp = emitTemperature;
 
     const_e = params.const_e;
+
+    init(vecSpecies);
 }
 
 PSI1D_Sputtering::~PSI1D_Sputtering()
@@ -58,30 +61,6 @@ void PSI1D_Sputtering::performPSI(PicParams& params, SmileiMPI* smpi, vector<Spe
     s2 = vecSpecies[species2];
     p1 = &(s1->psi_particles);
     p2 = &(s2->psi_particles);
-
-    an1 = s1->species_param.atomic_number;
-    am1 = s1->species_param.atomic_mass;
-    an2 = s2->species_param.atomic_number;
-    am2 = s2->species_param.atomic_mass;
-    es = s2->species_param.surface_binding_energy;
-
-    //ionflag -> flag for light/heavy ion.
-    //ionflag = 0 => light ion sputtering.
-    //ionflag = 1 => heavy ion sputtering.
-    if (am1<=4.0)
-    	ionflag = 0;
-    else
-    	ionflag = 1;
-
-    Mratio = am2 / am1;
-    Q = 1.633 * pow( an1,(2.0/3.0) ) * pow( an2,(2.0/3.0) ) * pow( ( pow(an1,(2.0/3.0)) +  pow(an2,(2.0/3.0)) ),(1.0/3.0) )
-    	* pow( am1,(5.0/6.0) ) * pow( am2,(1.0/6.0) ) / (am1+ am2) * (0.15 + 0.05 * Mratio) / (1 + 0.05 * pow( Mratio,(1.6)))
-    	/ pow(es,(2.0/3.0));
-
-    eth = ( 7.0 * pow( Mratio,(-0.54) ) + 0.15 * pow( Mratio,(1.12) ) ) * es;
-    mu = 4.0 * am1 * am2 / pow( (am1+am2),2.0 );
-    eth1 = es / ( mu * (1-mu) ) ;
-    etf = 30.74 * (am1+am2)/am2  * an1 * an2 * pow( ( pow(an1,(2.0/3.0)) +  pow(an2,(2.0/3.0)) ),(1.0/2.0) ) ;
 
 
     iDim = 0;
@@ -123,7 +102,8 @@ void PSI1D_Sputtering::performPSI(PicParams& params, SmileiMPI* smpi, vector<Spe
 
 
 
-void PSI1D_Sputtering::emit(PicParams& params, vector<Species*>& vecSpecies, unsigned int species_emit){
+void PSI1D_Sputtering::emit(PicParams& params, vector<Species*>& vecSpecies, unsigned int species_emit)
+{
     Species   *s1;
     s1 = vecSpecies[species_emit];
 
@@ -168,6 +148,48 @@ void PSI1D_Sputtering::emit(PicParams& params, vector<Species*>& vecSpecies, uns
     else {
         ERROR("no such psiPos: " << psiPos);
     }
+}
+
+
+
+// Calculates the PSI1D for a given Collisions object
+void PSI1D_Sputtering::init(vector<Species*>& vecSpecies)
+{
+    Species   *s1, *s2;
+    Particles *p1, *p2;
+
+
+    s1 = vecSpecies[species1];
+    s2 = vecSpecies[species2];
+    p1 = &(s1->psi_particles);
+    p2 = &(s2->psi_particles);
+
+    an1 = s1->species_param.atomic_number;
+    am1 = s1->species_param.atomic_mass;
+    an2 = s2->species_param.atomic_number;
+    am2 = s2->species_param.atomic_mass;
+    es = s2->species_param.surface_binding_energy;
+    n = s2->species_param.density_solid;
+
+    //ionflag -> flag for light/heavy ion.
+    //ionflag = 0 => light ion sputtering.
+    //ionflag = 1 => heavy ion sputtering.
+    if (am1<=4.0)
+    	ionflag = 0;
+    else
+    	ionflag = 1;
+
+    Mratio = am2 / am1;
+    Q = 1.633 * pow( an1,(2.0/3.0) ) * pow( an2,(2.0/3.0) ) * pow( ( pow(an1,(2.0/3.0)) +  pow(an2,(2.0/3.0)) ),(1.0/3.0) )
+    	* pow( am1,(5.0/6.0) ) * pow( am2,(1.0/6.0) ) / (am1+ am2) * (0.15 + 0.05 * Mratio) / (1 + 0.05 * pow( Mratio,(1.6)))
+    	/ pow(es,(2.0/3.0));
+
+    eth = ( 7.0 * pow( Mratio,(-0.54) ) + 0.15 * pow( Mratio,(1.12) ) ) * es;
+    mu = 4.0 * am1 * am2 / pow( (am1+am2),2.0 );
+    eth1 = es / ( mu * (1-mu) ) ;
+    etf = 30.74 * (am1+am2)/am2  * an1 * an2 * pow( ( pow(an1,(2.0/3.0)) +  pow(an2,(2.0/3.0)) ),(1.0/2.0) ) ;
+    aL = 0.4685 * pow( ( pow(an1,(2.0/3.0)) +  pow(an2,(2.0/3.0)) ),(-1.0/2.0) );
+
 }
 
 
