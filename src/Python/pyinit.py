@@ -82,6 +82,13 @@ class Species(SmileiComponent):
     bc_part_type_north = None
     bc_part_type_south = None
     ionization_model = "none"
+
+    diameter = None
+    ref_temperature = None
+    visc_temp_index = None
+    vss_scat_inv = None
+
+
     atomic_number = None
     atomic_mass = None
     surface_binding_energy = None

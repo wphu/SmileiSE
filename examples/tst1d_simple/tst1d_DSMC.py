@@ -9,19 +9,16 @@
 import math
 
 l0 = 0.5e-5     # nu.norm_l is reference time, the value's unit before / is m (SI)
-t0 = 1.0e-12
 Lsim = [100.*l0]	# length of the simulation
 
-
-
-#Tsim = 10000.*t0			# duration of the simulation
+t0 = 1.0e-12
 Tsim = 2000.*t0			# duration of the simulation
+
 
 #> number of timestep of incrementing averaged electromagnetic fields
 ntime_step_avg = 100
 
 #> Timestep to output some fields into hdf5 file
-#dump_step = 10000
 dump_step = ntime_step_avg
 
 timesteps_coulomb = 5
@@ -37,23 +34,8 @@ timesteps_DSMC = 2
 #
 dim = '1d3v'
 
-# order of interpolation
-#
-interpolation_order = 1
+number_of_procs = [24]
 
-# SIMULATION BOX : for all space directions (use vector)
-# cell_length: length of the cell
-# sim_length: length of the simulation in units of the normalization wavelength
-#
-cell_length = [l0]
-sim_length  = Lsim
-
-# SIMULATION TIME
-# timestep: duration of the timestep
-# sim_time: duration of the simulation in units of the normalization period
-#
-timestep = t0
-sim_time = Tsim
 #print sim_time / timestep
 # ELECTROMAGNETIC BOUNDARY CONDITIONS
 # bc_em_type_x/y/z : boundary conditions used for EM fields
@@ -79,15 +61,30 @@ vy = ion_sound_velocity * math.cos(angle)
 vz = 0.0
 
 
-#Topology:
-#number_of_procs: Number of MPI processes in each direction.
-#clrw: width of a cluster in number of cell. Warning: clrw must divide nspace_win_x.
-number_of_procs = [24]
 
 
 # RANDOM seed
 # this is used to randomize the random number generator
 random_seed = 0
+
+
+# order of interpolation
+#
+interpolation_order = 1
+
+# SIMULATION BOX : for all space directions (use vector)
+# cell_length: length of the cell
+# sim_length: length of the simulation in units of the normalization wavelength
+#
+cell_length = [l0]
+sim_length  = Lsim
+
+# SIMULATION TIME
+# timestep: duration of the timestep
+# sim_time: duration of the simulation in units of the normalization period
+#
+timestep = t0
+sim_time = Tsim
 
 
 
@@ -108,9 +105,6 @@ random_seed = 0
 # temperature        = list of floats or functions, temperature in units of m_e c^2
 # Predefined functions: constant, trapezoidal, gaussian, polygonal, cosine
 #
-
-
-
 
 
 Species(
