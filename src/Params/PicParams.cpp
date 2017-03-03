@@ -287,10 +287,14 @@ void PicParams::readSpecies(InputData &ifile) {
         tmpSpec.ionization_model = "none"; // default value
         ifile.extract("ionization_model", tmpSpec.ionization_model, "Species",ispec);
 
-        ok = ifile.extract("atomic_number", tmpSpec.atomic_number, "Species",ispec);
-        if( !ok && tmpSpec.ionization_model!="none" ) {
-            ERROR("For species #" << ispec << ", `atomic_number` not found => required for the ionization model .");
-        }
+        ifile.extract("atomic_number", tmpSpec.atomic_number, "Species",ispec);
+        ifile.extract("atomic_mass", tmpSpec.atomic_mass, "Species",ispec);
+        ifile.extract("surface_binding_energy", tmpSpec.surface_binding_energy, "Species",ispec);
+        ifile.extract("density_solid", tmpSpec.density_solid, "Species",ispec);
+        ifile.extract("ne", tmpSpec.ne, "Species",ispec);
+        ifile.extract("nz2", tmpSpec.nz2, "Species",ispec);
+        ifile.extract("nw", tmpSpec.nw, "Species",ispec);
+
 
         tmpSpec.isTest = false; // default value
         ifile.extract("isTest",tmpSpec.isTest ,"Species",ispec);

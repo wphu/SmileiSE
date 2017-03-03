@@ -44,7 +44,7 @@ public:
     void performPSI(PicParams&, SmileiMPI* smpi, std::vector<Species*>&,int, ElectroMagn*);
 
     // emit particles
-    void emit(PicParams&, vector<Species*>&, unsigned int);
+    void emit(PicParams&, vector<Species*>&);
 
     // parameters for sputtering
     double an1;     // atomic number of incident atomic

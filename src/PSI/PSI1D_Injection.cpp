@@ -40,24 +40,22 @@ b_FN (b_FN),
 work_function (work_function)
 
 {
-    emitKind = psi_emitKind;
-    species1 = psi_species1;
-    relSpecies = psi_relSpecies;
-    psiPos =psiPosition,
-    emitTemp = emitTemperature,
-    dt_ov_dx = params.timestep / params.cell_length[0];
-    dt = params.timestep;
-    YZArea = 1.0;
+    emitKind    = psi_emitKind;
+    species1    = psi_species1;
+    relSpecies  = psi_relSpecies;
+    psiPos      = psiPosition;
+    emitTemp    = emitTemperature;
+    dt_ov_dx    = params.timestep / params.cell_length[0];
+    dt          = params.timestep;
+    YZArea      = 1.0;
 
-    ySqrt_factor = pow(params.const_e, 3.0) / (4.0 * params.const_pi * params.const_ephi0 * work_function *work_function);
-    a_factor = a_FN * params.const_e * params.const_e / work_function;
-    b_factor = -b_FN * pow(work_function, 1.5) / params.const_e;
+    ySqrt_factor    = pow(params.const_e, 3.0) / (4.0 * params.const_pi * params.const_ephi0 * work_function *work_function);
+    a_factor        = a_FN * params.const_e * params.const_e / work_function;
+    b_factor        = -b_FN * pow(work_function, 1.5) / params.const_e;
 
     if(weight_const == 0.0) {
         weight_const = nominalDensity * pow(params.cell_length[0], 3) / nomPtclsPerCell;
     }
-
-    count_of_particles_to_insert_s1.resize(params.n_space[0]);
 }
 
 PSI1D_Injection::~PSI1D_Injection()
@@ -106,17 +104,10 @@ void PSI1D_Injection::performPSI(PicParams& params, SmileiMPI* smpi, vector<Spec
         }
     }
 
-    // PSIs usually create new particles, insert new particles to the end of particles, no matter the boundary is left or right
-    // not affect the indexes_of_particles_to_exchange before exchanging particles using MPI
     if( psiPos=="left" && smpi1D->isWestern() || psiPos=="right" && smpi1D->isEastern() ) {
-        //MESSAGE("Befor particle number: "<<s1->getNbrOfParticles());
         emit(params, vecSpecies);
-        unsigned int iPart = s1->getNbrOfParticles();
         s1->insert_particles_to_bins(new_particles, count_of_particles_to_insert_s1);
         new_particles.clear();
-        //MESSAGE("Now particle number: "<<s1->getNbrOfParticles());
-        //MESSAGE("Now particle capacity: "<<s1->getParticlesCapacity());
-
     }
 }
 

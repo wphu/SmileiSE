@@ -85,6 +85,10 @@ class Species(SmileiComponent):
     atomic_number = None
     atomic_mass = None
     surface_binding_energy = None
+    density_solid = None
+    ne = None
+    nz2 = [0]
+    nw = [0]
     isTest = False
 
 

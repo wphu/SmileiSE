@@ -39,7 +39,7 @@ public:
     void performPSI(PicParams&, SmileiMPI* smpi, std::vector<Species*>&,int, ElectroMagn*);
 
     // emit particles
-    void emit(PicParams&, vector<Species*>&, unsigned int);
+    void emit(PicParams&, vector<Species*>&);
 
     // parameters for sputtering
     // the name is from original fortran77 code
@@ -67,7 +67,7 @@ public:
 
 
     // ===========data table alt:======================================
-    const double  a1t[95] =
+    double  a1t[95] =
     {
         // z1 = 1 ( for hydrogen , deuterium and tritium )
         1.0072766,2.0135536,3.1055011,
@@ -103,7 +103,7 @@ public:
     };
 
     // ===========data table a2t =========================================
-    const double a2t[92] =
+    double a2t[92] =
     {
         //z2 = 1 - 10
         1.00794,4.002602,6.941,9.01218,10.811,12.011,14.0067,15.9994,
@@ -136,7 +136,7 @@ public:
     };
 
     // ===============data table d :======================================
-    const double  d[92] =
+    double  d[92] =
     {
         //z2 = 1 - 10
         0.9341e0,0.6693e0,0.6654e0,0.9712e0,1.007e0,1.024e0,1.111e0,

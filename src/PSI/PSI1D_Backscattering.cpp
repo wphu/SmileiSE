@@ -120,26 +120,28 @@ void PSI1D_Backscattering::performPSI(PicParams& params, SmileiMPI* smpi, vector
         }
     };
 
-    //SmileiMPI_Cart1D* smpi1D = static_cast<SmileiMPI_Cart1D*>(smpi);
-
-    // PSIs usually create new particles, insert new particles to the end of particles, no matter the boundary is left or right
-    // not affect the indexes_of_particles_to_exchange before exchanging particles using MPI
     if( smpi->isWestern() || smpi->isEastern() ) {
-        unsigned int iPart = s1->getNbrOfParticles();
-        new_particles.cp_particles(nPartEmit, *p1, iPart);
+        emit(params, vecSpecies);
+        s1->insert_particles_to_bins(new_particles, count_of_particles_to_insert_s1);
         new_particles.clear();
-        unsigned int ibin = s1->bmin.size();
-        s1->bmax[ibin] += nPartEmit;
     };
-
-
-
 }
 
 
-void PSI1D_Backscattering::emit(PicParams& params, vector<Species*>& vecSpecies, unsigned int species_emit)
+void PSI1D_Backscattering::emit(PicParams& params, vector<Species*>& vecSpecies)
 {
-
+    if(psiPos == "left")
+    {
+        count_of_particles_to_insert_s1.front() = nPartEmit;
+    }
+    else if(psiPos == "right")
+    {
+        count_of_particles_to_insert_s1.back() = nPartEmit;
+    }
+    else
+    {
+        ERROR("no such emitPos: " << psiPos);
+    }
 }
 
 

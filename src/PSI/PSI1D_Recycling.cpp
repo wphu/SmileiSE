@@ -24,10 +24,10 @@ PSI1D_Recycling::PSI1D_Recycling(
 ):
 PSI1D(params, smpi)
 {
-    species1 = psi_species1;
-    psiPos = psiPosition;
-    emitTemp = emitTemperature;
-    recycling_factor = recycling_factor_temp;
+    species1            = psi_species1;
+    psiPos              = psiPosition;
+    emitTemp            = emitTemperature;
+    recycling_factor    = recycling_factor_temp;
 
 }
 
@@ -72,22 +72,13 @@ void PSI1D_Recycling::performPSI(PicParams& params, SmileiMPI* smpi, vector<Spec
         {
             nPartEmit++;
         }
-
-        nPartEmit *= recycling_factor;
-
     };
+    nPartEmit *= recycling_factor;
 
-    //SmileiMPI_Cart1D* smpi1D = static_cast<SmileiMPI_Cart1D*>(smpi);
-
-    // PSIs usually create new particles, insert new particles to the end of particles, no matter the boundary is left or right
-    // not affect the indexes_of_particles_to_exchange before exchanging particles using MPI
     if( smpi->isWestern() || smpi->isEastern() ) {
         emit(params, vecSpecies, species2);
-        unsigned int iPart = s1->getNbrOfParticles();
-        new_particles.cp_particles(nPartEmit, *p1, iPart);
+        s1->insert_particles_to_bins(new_particles, count_of_particles_to_insert_s1);
         new_particles.clear();
-        unsigned int ibin = s1->bmin.size();
-        s1->bmax[ibin] += nPartEmit;
     };
 
 }
@@ -103,8 +94,9 @@ void PSI1D_Recycling::emit(PicParams& params, vector<Species*>& vecSpecies, unsi
 
     new_particles.initialize(nPartEmit, params);
     if(psiPos == "left"){
-         for(int iPart=0; iPart<nPartEmit; iPart++)
-         {
+        count_of_particles_to_insert_s1.front() = nPartEmit;
+        for(int iPart=0; iPart<nPartEmit; iPart++)
+        {
             new_particles.position(0,iPart)=(((double)rand() / RAND_MAX))*params.cell_length[0]*posOffset;
             new_particles.position_old(0,iPart) = new_particles.position(0,iPart);
 
@@ -121,6 +113,7 @@ void PSI1D_Recycling::emit(PicParams& params, vector<Species*>& vecSpecies, unsi
         }
     }
     else if(psiPos == "right"){
+        count_of_particles_to_insert_s1.back() = nPartEmit;
         for(int iPart=0; iPart<nPartEmit; iPart++)
         {
            new_particles.position(0,iPart)=params.cell_length[0]*params.n_space_global[0] - (((double)rand() / RAND_MAX))*params.cell_length[0]*posOffset;

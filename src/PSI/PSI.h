@@ -21,6 +21,7 @@ public:
     PSI(PicParams& params, SmileiMPI* smpi)
     {
             const_e = params.const_e;
+            count_of_particles_to_insert_s1.resize(params.n_space[0]);
     };
     virtual ~PSI(){};
 
@@ -58,6 +59,9 @@ public:
 
     //! Method called in the main smilei loop to apply PSI at each timestep
     virtual void performPSI(PicParams&, SmileiMPI* smpi, std::vector<Species*>&,int, ElectroMagn* ){};
+
+    // emit particles
+    void emit(PicParams&, vector<Species*>&);
 
     Particles new_particles;
     vector<int> count_of_particles_to_insert_s1;
