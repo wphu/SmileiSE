@@ -216,7 +216,6 @@ int main (int argc, char* argv[])
         {
             vecPartSource[iPS]->emitLoad(params,smpi,vecSpecies,itime, EMfields);
         }
-        smpi->barrier();
         timer[1].update();
 
 
@@ -226,7 +225,6 @@ int main (int argc, char* argv[])
         {
             vecCollisions[icoll]->collide(params, smpi, EMfields, vecSpecies,itime);
         }
-        smpi->barrier();
         timer[2].update();
 
         // ================== Interpolate and Move ===============================
@@ -237,7 +235,6 @@ int main (int argc, char* argv[])
             vecSpecies[ispec]->dynamics(time_dual, ispec, EMfields, Interp, Proj, smpi, params);
             smpi->barrier();
         }
-        smpi->barrier();
         timer[3].update();
 
         // ================== MPI Exchange Particle ============================================
@@ -250,7 +247,6 @@ int main (int argc, char* argv[])
             }
             vecSpecies[ispec]->sort_part(); // Should we sort test particles ?? (JD)
         }
-        smpi->barrier();
         timer[4].update();
 
         // ================== Absorb Particle for 2D ====================================
@@ -262,7 +258,6 @@ int main (int argc, char* argv[])
                 smpi->barrier();
             }
         }
-        smpi->barrier();
         timer[5].update();
 
         // ================== Project Particle =========================================
@@ -272,7 +267,6 @@ int main (int argc, char* argv[])
             EMfields->restartRhoJs(ispec, 0);
             vecSpecies[ispec]->Project(time_dual, ispec, EMfields, Proj, smpi, params);
         }
-        smpi->barrier();
         timer[6].update();
 
         // ================== Plasma Surface Interacton ==================================
@@ -281,13 +275,11 @@ int main (int argc, char* argv[])
         {
             vecPSI[ipsi]->performPSI(params,smpi,vecSpecies,itime, EMfields);
         }
-        smpi->barrier();
         timer[7].update();
 
         // ================== Run Diagnostic =============================================
         timer[8].restart();
         diag->run(smpi, vecSpecies, EMfields, itime);
-        smpi->barrier();
         timer[8].update();
 
         // ================== Solve Electromagnetic Fields ===============================
@@ -295,7 +287,6 @@ int main (int argc, char* argv[])
         EMfields->restartRhoJ();
         EMfields->computeTotalRhoJ();
         (*solver)(EMfields, smpi);
-        smpi->barrier();
         timer[9].update();
 
         // ================== Write IO ====================================================
@@ -308,7 +299,6 @@ int main (int argc, char* argv[])
             EMfields->gatherAvgFields(smpi);
             sio->write(params, smpi, EMfields, vecSpecies, diag);
         }
-        smpi->barrier();
         timer[10].update();
 
     }//END of the time loop
