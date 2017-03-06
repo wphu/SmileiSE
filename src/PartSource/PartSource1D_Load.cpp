@@ -20,7 +20,7 @@ PartSource1D_Load::PartSource1D_Load(
     unsigned int load_species1,
     vector<double> mean_vel,
     string load_kind,
-    int load_step,
+    int load_number,
     double load_dn,
     double load_density,
     double load_temperature,
@@ -36,7 +36,7 @@ PartSource1D (params, smpi)
     species1        = load_species1;
     mean_velocity   = mean_vel;
     loadKind        = load_kind;
-    loadStep        = load_step;
+    loadNumber      = load_number;
     loadDn          = load_dn;
     loadDensity     = load_density;
     loadTemperature = load_temperature;
@@ -52,6 +52,13 @@ PartSource1D (params, smpi)
             numPart_in_each_bin[ibin] = loadDensity / params.species_param[species1].weight;
             //cout<<"numPart_in_each_bin "<<numPart_in_each_bin[ibin]<<endl;
         }
+    }
+    else if(loadKind == "dn")
+    {
+        loadStep = 1.0 + loadNumber * params.species_param[species1].weight / (loadDn * params.timestep);
+        loadRem = loadDn * loadStep * params.timestep / params.species_param[species1].weight - loadNumber;
+        loadRemTot = 0.0;
+        MESSAGE("loadStep = "<<loadStep);
     }
 
     // the MPI domain is not in the source region
@@ -132,7 +139,8 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
     double *temp=new double[3];
     double *vel=new double[3];
 
-    if(loadKind == "nT" && loadBin_end != loadBin_start) {
+    if(loadKind == "nT" && loadBin_end != loadBin_start)
+    {
         s1 = vecSpecies[species1];
         p1 = &(s1->particles);
 
@@ -214,10 +222,23 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
         vel[1] = mean_velocity[1];
         vel[2] = mean_velocity[2];
 
+        double loadNumber_temp;
+        loadRemTot += loadRem;
+        loadNumber_temp = loadNumber;
+        if(loadRemTot > 1.0)
+        {
+            loadNumber_temp = loadNumber + 1;
+            loadRemTot -= 1.0;
+        }
+
         for(int ibin = 0; ibin < count_of_particles_to_insert.size(); ibin++ )
         {
             count_of_particles_to_insert[ibin] = 0;
-            if(ibin >= loadBin_start && ibin <= loadBin_end) { count_of_particles_to_insert[ibin] = loadDn * loadStep * params.timestep / s1->species_param.weight; }
+            if(ibin >= loadBin_start && ibin <= loadBin_end)
+            {
+
+                count_of_particles_to_insert[ibin] = loadNumber_temp;
+            }
         }
         //cout<<"number: "<<loadDensity * params.timestep / s1->species_param.weight<<endl;
 

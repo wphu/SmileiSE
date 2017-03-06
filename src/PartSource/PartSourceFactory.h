@@ -43,7 +43,7 @@ public:
 		string relSpecies;
 
 		string loadKind;
-		int loadStep;
+		int loadNumber;
 		int everyTime;
 		double loadDensity;
 	    double loadTemperature;
@@ -138,7 +138,7 @@ public:
 				ifile.extract("mean_velocity",mean_velocity,"PartSource",n_PartSource);
 
 		        ifile.extract("loadKind",loadKind,"PartSource",n_PartSource);
-				ifile.extract("loadStep",loadStep,"PartSource",n_PartSource);
+				ifile.extract("loadNumber",loadNumber,"PartSource",n_PartSource);
 
 		        loadDensity = 0.0; // default
 		        ifile.extract("loadDensity",loadDensity,"PartSource",n_PartSource);
@@ -162,7 +162,7 @@ public:
 
 		        // Add new PSI objects to vector
 		        //vecPartSource.push_back( new PartSource1D_Load(params, smpi, sgroup1[0], loadDensity, loadTemperature, loadPos_start, loadPos_end) );
-				vecPartSource.push_back( new PartSource1D_Load(params, smpi, sgroup1[0], mean_velocity, loadKind, loadStep, loadDn,loadDensity,
+				vecPartSource.push_back( new PartSource1D_Load(params, smpi, sgroup1[0], mean_velocity, loadKind, loadNumber, loadDn,loadDensity,
 				loadTemperature, loadPos_start, loadPos_end) );
 
 			}
@@ -180,7 +180,7 @@ public:
 				ifile.extract("mean_velocity",mean_velocity,"PartSource",n_PartSource);
 
 		        ifile.extract("loadKind",loadKind,"PartSource",n_PartSource);
-				ifile.extract("loadStep",loadStep,"PartSource",n_PartSource);
+				ifile.extract("loadNumber",loadNumber,"PartSource",n_PartSource);
 				ifile.extract("everyTime",everyTime,"PartSource",n_PartSource);
 
 		        loadDensity = 0.0; // default
@@ -211,7 +211,7 @@ public:
 
 		        // Add new PSI objects to vector
 		        //vecPartSource.push_back( new PartSource1D_Load(params, smpi, sgroup1[0], loadDensity, loadTemperature, loadPos_start, loadPos_end) );
-				vecPartSource.push_back( new PartSource2D_Load(params, smpi, sgroup1[0], mean_velocity, loadKind, loadStep, everyTime, loadDn,loadDensity,
+				vecPartSource.push_back( new PartSource2D_Load(params, smpi, sgroup1[0], mean_velocity, loadKind, loadNumber, everyTime, loadDn,loadDensity,
 				loadTemperature, loadPos_start, loadPos_end, loadPos_Ystart, loadPos_Yend) );
 
 			}

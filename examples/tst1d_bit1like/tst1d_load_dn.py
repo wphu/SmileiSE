@@ -171,7 +171,7 @@ PartSource(
 	species1 = ["e"],
 	PartSource_type = "Load",
 	loadKind = "dn",
-	loadStep = 1000,
+	loadNumber = 2,
 	#loadDensity = 1.0e19,
 	loadTemperature = 210.0,
 	loadDn = 2.0e25,
@@ -187,7 +187,7 @@ PartSource(
 	species1 = ["D1"],
 	PartSource_type = "Load",
 	loadKind = "dn",
-	loadStep = 1000,
+	loadNumber = 2,
 	#loadDensity = 1.0e19,
 	loadTemperature = 260.0,
 	loadDn = 2.0e25,
@@ -195,4 +195,3 @@ PartSource(
 	loadPos_end = 		Lsim[0] / 2.0 + 200.0*l0,
 
 )
-
