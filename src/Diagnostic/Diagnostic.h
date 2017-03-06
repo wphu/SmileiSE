@@ -29,6 +29,9 @@ protected :
     double timestep;
     double const_e;
 
+    // Phi is the angle between the magnetic field and the y-direction
+    double sinPhi, cosPhi;
+
     vector<double> sim_length;
 };
 

@@ -161,10 +161,12 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 		Field1D* Vx1D_s = static_cast<Field1D*>(EMfields->Vx_s[iSpec]);
 		Field1D* Vy1D_s = static_cast<Field1D*>(EMfields->Vy_s[iSpec]);
 		Field1D* Vz1D_s = static_cast<Field1D*>(EMfields->Vz_s[iSpec]);
+		Field1D* Vp1D_s = static_cast<Field1D*>(EMfields->Vp_s[iSpec]);
 
 		Field1D* Vx1D_s_avg = static_cast<Field1D*>(EMfields->Vx_s_avg[iSpec]);
 		Field1D* Vy1D_s_avg = static_cast<Field1D*>(EMfields->Vy_s_avg[iSpec]);
 		Field1D* Vz1D_s_avg = static_cast<Field1D*>(EMfields->Vz_s_avg[iSpec]);
+		Field1D* Vp1D_s_avg = static_cast<Field1D*>(EMfields->Vp_s_avg[iSpec]);
 
 		Field1D* T1D_s = static_cast<Field1D*>(EMfields->T_s[iSpec]);
 		Field1D* T1D_s_avg = static_cast<Field1D*>(EMfields->T_s_avg[iSpec]);
@@ -175,6 +177,7 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 		Vx1D_s->put_to(0.0);
 		Vy1D_s->put_to(0.0);
 		Vz1D_s->put_to(0.0);
+		Vp1D_s->put_to(0.0);
 		T1D_s->put_to(0.0);
 
 		// reset particleNumber and kineticEnergy
@@ -187,6 +190,7 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 			Vx1D_s_avg->put_to(0.0);
 			Vy1D_s_avg->put_to(0.0);
 			Vz1D_s_avg->put_to(0.0);
+			Vp1D_s_avg->put_to(0.0);
 			T1D_s_avg ->put_to(0.0);
 		}
 
@@ -203,6 +207,7 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 			(*Vx1D_s)(i) 		+= p1->momentum(0, iPart);
 			(*Vy1D_s)(i) 		+= p1->momentum(1, iPart);
 			(*Vz1D_s)(i) 		+= p1->momentum(2, iPart);
+			(*Vp1D_s)(i) 		+= (p1->momentum(0, iPart) * sinPhi + p1->momentum(1, iPart) * cosPhi);
 
 			// calculate total kineticEnergy
 			v_square = p1->momentum(0, iPart) * p1->momentum(0, iPart) + p1->momentum(1, iPart) * p1->momentum(1, iPart) + p1->momentum(2, iPart) * p1->momentum(2, iPart);
@@ -215,6 +220,7 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 				(*Vx1D_s)(i) /= (*ptclNum1D)(i);
 				(*Vy1D_s)(i) /= (*ptclNum1D)(i);
 				(*Vz1D_s)(i) /= (*ptclNum1D)(i);
+				(*Vp1D_s)(i) /= (*ptclNum1D)(i);
 			}
 		}
 
@@ -247,6 +253,7 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 			(*Vx1D_s_avg)(i) += (*Vx1D_s)(i);
 			(*Vy1D_s_avg)(i) += (*Vy1D_s)(i);
 			(*Vz1D_s_avg)(i) += (*Vz1D_s)(i);
+			(*Vp1D_s_avg)(i) += (*Vp1D_s)(i);
 			(*T1D_s_avg)(i) += (*T1D_s)(i);
 		}
 		// Calculate the average parameters and MPI gather
@@ -256,6 +263,7 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 				(*Vx1D_s_avg)(i) *= dump_step_inv_;
 				(*Vy1D_s_avg)(i) *= dump_step_inv_;
 				(*Vz1D_s_avg)(i) *= dump_step_inv_;
+				(*Vp1D_s_avg)(i) *= dump_step_inv_;
 				(*T1D_s_avg)(i)  *= dump_step_inv_;
 			}
 
@@ -264,6 +272,7 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 			smpi1D->gatherRho( static_cast<Field1D*>(EMfields->Vx_s_global_avg[iSpec]), Vx1D_s_avg );
 			smpi1D->gatherRho( static_cast<Field1D*>(EMfields->Vy_s_global_avg[iSpec]), Vy1D_s_avg );
 			smpi1D->gatherRho( static_cast<Field1D*>(EMfields->Vz_s_global_avg[iSpec]), Vz1D_s_avg );
+			smpi1D->gatherRho( static_cast<Field1D*>(EMfields->Vp_s_global_avg[iSpec]), Vp1D_s_avg );
 			smpi1D->gatherRho( static_cast<Field1D*>(EMfields->T_s_global_avg [iSpec]), T1D_s_avg );
 
 		}

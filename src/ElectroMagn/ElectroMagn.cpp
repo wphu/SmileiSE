@@ -124,6 +124,11 @@ oversize(params.oversize)
         Vz_s_global[ispec]      = NULL;
         Vz_s_global_avg[ispec]  = NULL;
 
+        Vp_s[ispec]             = NULL;
+        Vp_s_avg[ispec]         = NULL;
+        Vp_s_global[ispec]      = NULL;
+        Vp_s_global_avg[ispec]  = NULL;
+
         T_s[ispec]              = NULL;
         T_s_avg[ispec]          = NULL;
         T_s_global[ispec]       = NULL;

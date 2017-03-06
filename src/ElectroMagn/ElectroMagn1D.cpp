@@ -151,6 +151,12 @@ isEastern(smpi->isEastern())
         Vz_s_global[ispec]      = new Field1D(dim_global, ("Vz_global_"+params.species_param[ispec].species_type).c_str());
         Vz_s_global_avg[ispec]  = new Field1D(dim_global, ("Vz_global_"+params.species_param[ispec].species_type+"_avg").c_str());
 
+
+        Vp_s[ispec]             = new Field1D(dimPrim, ("Vparallel_"+params.species_param[ispec].species_type).c_str());
+        Vp_s_avg[ispec]         = new Field1D(dimPrim, ("Vparallel_"+params.species_param[ispec].species_type+"_avg").c_str());
+        Vp_s_global[ispec]      = new Field1D(dim_global, ("Vparallel_global_"+params.species_param[ispec].species_type).c_str());
+        Vp_s_global_avg[ispec]  = new Field1D(dim_global, ("Vparallel_global_"+params.species_param[ispec].species_type+"_avg").c_str());
+
         T_s[ispec]              = new Field1D(dimPrim, ("T_"+params.species_param[ispec].species_type).c_str());
         T_s_avg[ispec]          = new Field1D(dimPrim, ("T_"+params.species_param[ispec].species_type+"_avg").c_str());
         T_s_global[ispec]       = new Field1D(dim_global, ("T_global_"+params.species_param[ispec].species_type).c_str());

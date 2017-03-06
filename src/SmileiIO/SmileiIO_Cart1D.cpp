@@ -76,6 +76,7 @@ void SmileiIO_Cart1D::createFieldsPattern( PicParams& params, SmileiMPI* smpi, E
         addField(fields->Vx_s_global_avg[i]);
         addField(fields->Vy_s_global_avg[i]);
         addField(fields->Vz_s_global_avg[i]);
+        addField(fields->Vp_s_global_avg[i]);
         addField(fields->T_s_global_avg[i]);
 
     }

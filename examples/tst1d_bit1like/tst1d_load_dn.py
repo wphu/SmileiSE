@@ -143,25 +143,6 @@ Species(
 )
 
 
-Species(
-	species_type = 'T1',
-	initPosition_type = 'random',
-	initMomentum_type = 'maxwell',
-	ionization_model = 'none',
-	n_part_per_cell = 0,
-	n_part_per_cell_for_weight = 200,
-	c_part_max = 1.0,
-	mass = 3 * 1.67262158e-27,
-	charge = 1.6021766208e-19,
-	nb_density = 0.5e19,
-	temperature = [20.0],
-	time_frozen = 0.0,
-	bc_part_type_west  = 'supp',
-	bc_part_type_east  = 'supp',
-)
-
-
-
 
 # PartSource
 # species1    = list of strings, the names of the first species that performPSI

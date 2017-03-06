@@ -298,6 +298,7 @@ int main (int argc, char* argv[])
         if(itime % params.dump_step == 0){
             EMfields->gatherAvgFields(smpi);
             sio->write(params, smpi, EMfields, vecSpecies, diag);
+            MESSAGE("time step = "<<itime);
         }
         timer[10].update();
 
