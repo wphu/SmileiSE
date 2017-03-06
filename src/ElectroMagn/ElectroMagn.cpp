@@ -96,6 +96,11 @@ oversize(params.oversize)
     Vz_s_global.resize(n_species);
     Vz_s_global_avg.resize(n_species);
 
+    Vp_s.resize(n_species);
+    Vp_s_avg.resize(n_species);
+    Vp_s_global.resize(n_species);
+    Vp_s_global_avg.resize(n_species);
+
     T_s.resize(n_species);
     T_s_avg.resize(n_species);
     T_s_global.resize(n_species);
