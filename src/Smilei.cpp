@@ -170,10 +170,6 @@ int main (int argc, char* argv[])
     Projector* Proj = ProjectorFactory::create(params, smpi);
     smpi->barrier();
 
-    TITLE("Solve the field first time before PIC loop");
-    (*solver)(EMfields, smpi);
-    smpi->barrier();
-
     // ------------------------------------------------------------------------
     // Initialize the simulation times time_prim at n=0 and time_dual at n=+1/2
     // ------------------------------------------------------------------------
@@ -183,9 +179,15 @@ int main (int argc, char* argv[])
     // time at half-integer time-steps (dual grid)
     double time_dual = (stepStart +0.5) * params.timestep;
 
+    int itime = stepStart;
+    sio->reloadP(params, smpi, vecSpecies, itime);
+
+    TITLE("Solve the field first time before PIC loop");
+    (*solver)(EMfields, smpi);
+    smpi->barrier();
+
     // Count timer
     vector<Timer> timer(11);
-
     timer[0].init(smpi, "Total time");
     timer[1].init(smpi, "EmitLoad");
     timer[2].init(smpi, "Collide");
@@ -204,8 +206,9 @@ int main (int argc, char* argv[])
     TITLE("Time-Loop is started: number of time-steps n_time = " << params.n_time);
     smpi->barrier();
     timer[0].restart();
-    for (unsigned int itime=stepStart+1 ; itime <= stepStop ; itime++)
+    while(itime <= stepStop)
     {
+        itime++;
         time_prim += params.timestep;
         time_dual += params.timestep;
 
@@ -291,7 +294,7 @@ int main (int argc, char* argv[])
 
         // ================== Write IO ====================================================
         timer[10].restart();
-        if (params.ntime_step_avg)
+        if(params.ntime_step_avg)
         {
             EMfields->incrementAvgFields(itime, params.ntime_step_avg);
         }
@@ -299,6 +302,10 @@ int main (int argc, char* argv[])
             EMfields->gatherAvgFields(smpi);
             sio->write(params, smpi, EMfields, vecSpecies, diag);
             MESSAGE("time step = "<<itime);
+        }
+        if(itime % params.timesteps_restore == 0)
+        {
+            sio->storeP(params, smpi, vecSpecies, itime);
         }
         timer[10].update();
 

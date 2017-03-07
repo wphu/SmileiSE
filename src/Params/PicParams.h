@@ -278,6 +278,10 @@ public:
     // number of timestep of performing DSMC collisions
     unsigned int timesteps_DSMC;
 
+    // number of timestep of performing DSMC collisions
+    unsigned int timesteps_restore;
+
+
     //! Human minutes to dump everything
     double dump_minutes;
 

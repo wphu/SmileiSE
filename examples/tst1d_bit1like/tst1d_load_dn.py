@@ -25,6 +25,7 @@ timesteps_coulomb = 5
 
 timesteps_DSMC = 2
 
+timesteps_restore = Tsim / t0 / 10
 
 # dim: Geometry of the simulation
 #      1d3v = cartesian grid with 1d in space + 3d in velocity
@@ -48,7 +49,7 @@ bc_em_type_x = ['Dirichlet', 'Dirichlet']
 
 bc_em_value_x = [0.0, 0.0]
 
-B = 0.0
+B = 2.0
 angle = 5.0 * math.pi / 180.0
 Bx = B * math.sin(angle)
 By = B * math.cos(angle)

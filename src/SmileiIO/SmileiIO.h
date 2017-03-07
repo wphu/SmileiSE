@@ -44,9 +44,19 @@ public:
     virtual void write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, Diagnostic* diag){};
     virtual void calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies){};
 
+    // store Particles to restart
+    virtual void storeP(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime );
 
-    //> Id of "Fields_global.h5", contains global fields, such as potential, rho ...
+    // reload Particles to restart
+    virtual void reloadP(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int &itime );
+
+    // store Particles to restart
+    virtual void endStoreP(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime );
+
+    // Id of "Fields_global.h5", contains global fields, such as potential, rho ...
     hid_t       global_file_id_;
+    // Id of "Restore000.h5", contains paritcles information to restart
+    hid_t       restore_file_id_;
     herr_t      status;
 
     double* data_;
