@@ -22,7 +22,7 @@ public:
     //! Destructor for SmileiIO
     ~SmileiIO_Cart2D();
 
-    virtual void write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, Diagnostic* diag);
+    virtual void write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, Diagnostic* diag, int itime);
 
     //! Build memory and file space for // HDF5 write/read
     void createFieldsPattern( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields );

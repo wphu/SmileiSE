@@ -23,6 +23,7 @@ SmileiIO_Cart1D::SmileiIO_Cart1D( PicParams& params, SmileiMPI* smpi, ElectroMag
     Diagnostic1D* diag1D = static_cast<Diagnostic1D*>(diag);
     initVDF(params, smpi, fields, vecSpecies);
     if(smpi->isMaster()) {
+        global_file_id_  = H5Fcreate( "Fields_global.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
         createFieldsPattern(params, smpi, fields);
         createPartsPattern(params, smpi, fields, vecSpecies);
         createDiagsPattern(params, smpi, diag1D );
@@ -510,7 +511,7 @@ void SmileiIO_Cart1D::calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* f
 
 
 //! write potential, rho and so on into hdf5 file every some timesteps
-void SmileiIO_Cart1D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, Diagnostic* diag)
+void SmileiIO_Cart1D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, Diagnostic* diag, int itime)
 {
 
     Diagnostic1D* diag1D = static_cast<Diagnostic1D*>(diag);
@@ -518,9 +519,10 @@ void SmileiIO_Cart1D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fi
 
     if(smpi->isMaster()) {
 
+        ndims_t = itime / params.dump_step - 1;
+
         // reopen attribute, dataset, dataspace, group, and so on
         global_file_id_  = H5Fopen( "Fields_global.h5", H5F_ACC_RDWR, H5P_DEFAULT);
-
 
         // =============write fields============================================
         fieldsGroup.group_id = H5Gopen(global_file_id_, "/Fields", H5P_DEFAULT);
@@ -698,8 +700,6 @@ void SmileiIO_Cart1D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fi
         }
         diagsGroup.status = H5Gclose( diagsGroup.group_id );
 
-
-        ndims_t++;
         status = H5Fclose(global_file_id_);
     }
 

@@ -300,7 +300,7 @@ int main (int argc, char* argv[])
         }
         if(itime % params.dump_step == 0){
             EMfields->gatherAvgFields(smpi);
-            sio->write(params, smpi, EMfields, vecSpecies, diag);
+            sio->write(params, smpi, EMfields, vecSpecies, diag, itime);
             MESSAGE("time step = "<<itime);
         }
         if(itime % params.timesteps_restore == 0)
@@ -310,6 +310,7 @@ int main (int argc, char* argv[])
         timer[10].update();
 
     }//END of the time loop
+    sio->endStoreP(params, smpi, vecSpecies, itime);
     smpi->barrier();
 
 

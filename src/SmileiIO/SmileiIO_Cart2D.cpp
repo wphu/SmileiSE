@@ -22,6 +22,7 @@ SmileiIO_Cart2D::SmileiIO_Cart2D( PicParams& params, SmileiMPI* smpi, ElectroMag
     Diagnostic2D* diag2D = static_cast<Diagnostic2D*>(diag);
     if(smpi->isMaster())
     {
+        global_file_id_  = H5Fcreate( "Fields_global.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
         createFieldsPattern(params, smpi, fields);
         createPartsPattern(params, smpi, fields, vecSpecies);
         status = H5Fclose(global_file_id_);
@@ -317,12 +318,14 @@ void SmileiIO_Cart2D::calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* f
 
 
 //! write potential, rho and so on into hdf5 file every some timesteps
-void SmileiIO_Cart2D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, Diagnostic* diag)
+void SmileiIO_Cart2D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, Diagnostic* diag, int itime)
 {
     Diagnostic2D* diag2D = static_cast<Diagnostic2D*>(diag);
     calVDF( params, smpi, fields, vecSpecies);
 
     if(smpi->isMaster()) {
+
+        ndims_t = itime / params.dump_step - 1;
 
         // reopen attribute, dataset, dataspace, group, and so on
         global_file_id_  = H5Fopen( "Fields_global.h5", H5F_ACC_RDWR, H5P_DEFAULT);
@@ -396,8 +399,6 @@ void SmileiIO_Cart2D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fi
             ptclsGroup.status = H5Dclose( ptclsGroup.dataset_id[i] );
         }
         ptclsGroup.status = H5Gclose( ptclsGroup.group_id );
-
-        ndims_t++;
 
         status = H5Fclose(global_file_id_);
     }

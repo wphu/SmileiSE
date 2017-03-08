@@ -41,7 +41,7 @@ public:
 
     void addField(Field* field);
     //! Basic write field on its own file (debug)
-    virtual void write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, Diagnostic* diag){};
+    virtual void write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, Diagnostic* diag, int itime){};
     virtual void calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies){};
 
     // store Particles to restart
@@ -62,11 +62,16 @@ public:
     double* data_;
     int* data_int;
 
-    //! Space dimension of a particle
+    // Space dimension of a particle
     unsigned int nDim_particle;
 
-    //> dimensions of time, which means total timestep number to output
+    // dimensions of time, which means total timestep number to output
     int ndims_t;
+
+    // If is_restart == 1, it means no need to create file "Fields_global.h5"
+    int is_restart;
+
+    int stepStart;
 
     // H5Group is for fields and particles( velocity distribution funtion )
     struct H5Group
