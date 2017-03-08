@@ -32,7 +32,7 @@ PicParams::PicParams(InputData &ifile) {
     timesteps_DSMC = 1000000000000;
     ifile.extract("timesteps_DSMC", timesteps_DSMC);
 
-    timesteps_restore = 1;
+    timesteps_restore = 1000000000;
     ifile.extract("timesteps_restore", timesteps_restore);
 
     exit_after_dump=true;
