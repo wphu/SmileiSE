@@ -177,15 +177,17 @@ class PSI(SmileiComponent):
     species1 = None
     species2 = None
     PSI_type = None
-    posEmit = None
+    psiPos = None
     nPartEmit = 0
-    tempEmit = 0.0
+    emitTemp = 0.0
+    emitKind = None
     jEmit = 0.0
     weight_const = 1.0
     emitOffset = 1.0
     a_FN = 1.5414e-6
     b_FN = 6.8309e9
     work_function = 4.5
+    recycling_factor = 0
 
 
 

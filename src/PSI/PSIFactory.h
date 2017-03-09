@@ -33,7 +33,7 @@ public:
 		string emitKind;
 	    vector<string> sg1, sg2;
 	    vector<unsigned int> sgroup1, sgroup2;
-	    string emitPos;
+	    string psiPos;
 		double emitTemp;
 		double weight_const;
 		double emitOffset;
@@ -41,6 +41,7 @@ public:
 		double b_FN;
 		double work_function;
 		double emitJ;
+		double emitFlux;
 		unsigned int nPartEmit;
 		double recycling_factor;
 		string relSpecies;
@@ -70,12 +71,12 @@ public:
 				weight_const = vecSpecies[sgroup1[0]]->species_param.weight; // default
 
 				// Injection logarithm (if negative or unset, then automatically computed)
-		        emitKind = "fieldEmit"; // default
+		        emitKind = "regular"; // default
 		        ifile.extract("emitKind",emitKind,"PSI",n_PSI);
 
 		        // Injection logarithm (if negative or unset, then automatically computed)
-		        emitPos = "left"; // default
-		        ifile.extract("emitPos",emitPos,"PSI",n_PSI);
+		        psiPos = "left"; // default
+		        ifile.extract("psiPos",psiPos,"PSI",n_PSI);
 
 		        // Number of timesteps between each debug output (if 0 or unset, no debug)
 		        emitTemp = 0.0; // default
@@ -97,6 +98,9 @@ public:
 				emitJ = 0;		// default
 		        if( !ifile.extract("emitJ",emitJ,"PSI",n_PSI) );
 
+				emitFlux = 0;		// default
+		        if( !ifile.extract("emitFlux",emitFlux,"PSI",n_PSI) );
+
 				// Number of timesteps between each debug output (if 0 or unset, no debug)
 				nPartEmit = 0;		// default
 		        if( !ifile.extract("nPartEmit",nPartEmit,"PSI",n_PSI) );
@@ -111,8 +115,8 @@ public:
 		        MESSAGE(1,"First  group of species :" << mystream.str());
 
 		        // Add new PSI objects to vector
-		        vecPSI.push_back( new PSI1D_Injection(params, smpi, emitKind, sgroup1[0], emitPos, nPartEmit,
-								  emitTemp, emitJ, weight_const, emitOffset, a_FN, b_FN, work_function, relSpecies) );
+		        vecPSI.push_back( new PSI1D_Injection(params, smpi, emitKind, sgroup1[0], psiPos, nPartEmit,
+								  emitTemp, emitJ, emitFlux, weight_const, emitOffset, a_FN, b_FN, work_function, relSpecies) );
 
 			}
 
@@ -130,14 +134,14 @@ public:
 				if (sgroup2.size()==0) ERROR("No valid `species2` requested in PSI #" << n_PSI);
 
 				// Injection logarithm (if negative or unset, then automatically computed)
-		        emitPos = "left"; // default
-		        ifile.extract("emitPos",emitPos,"PSI",n_PSI);
+		        psiPos = "left"; // default
+		        ifile.extract("psiPos",psiPos,"PSI",n_PSI);
 
 		        // Number of timesteps between each debug output (if 0 or unset, no debug)
 		        emitTemp = 0.0; // default
 		        ifile.extract("emitTemp",emitTemp,"PSI",n_PSI);
 
-		        vecPSI.push_back( new PSI1D_Sputtering(params, smpi,vecSpecies, sgroup1[0],sgroup2[0], emitPos, emitTemp) );
+		        vecPSI.push_back( new PSI1D_Sputtering(params, smpi,vecSpecies, sgroup1[0],sgroup2[0], psiPos, emitTemp) );
 
 			}
 			else if(params.geometry == "1d3v" && PSI_type == "BackScattering"){
@@ -154,14 +158,14 @@ public:
 				if (sgroup2.size()==0) ERROR("No valid `species2` requested in PSI #" << n_PSI);
 
 				// Injection logarithm (if negative or unset, then automatically computed)
-		        emitPos = "left"; // default
-		        ifile.extract("emitPos",emitPos,"PSI",n_PSI);
+		        psiPos = "left"; // default
+		        ifile.extract("psiPos",psiPos,"PSI",n_PSI);
 
 		        // Number of timesteps between each debug output (if 0 or unset, no debug)
 		        emitTemp = 0.0; // default
 		        ifile.extract("emitTemp",emitTemp,"PSI",n_PSI);
 
-		        vecPSI.push_back( new PSI1D_Backscattering(params, smpi,sgroup1[0],sgroup2[0], emitPos, emitTemp) );
+		        vecPSI.push_back( new PSI1D_Backscattering(params, smpi,sgroup1[0],sgroup2[0], psiPos, emitTemp) );
 			}
 
 			else if(params.geometry == "1d3v" && PSI_type == "Recycling"){
@@ -176,8 +180,8 @@ public:
 		        if (sgroup1.size()==0) ERROR("No valid `species1` requested in PSI #" << n_PSI);
 
 				// Injection logarithm (if negative or unset, then automatically computed)
-		        emitPos = "left"; // default
-		        ifile.extract("emitPos",emitPos,"PSI",n_PSI);
+		        psiPos = "left"; // default
+		        ifile.extract("psiPos",psiPos,"PSI",n_PSI);
 
 		        // Number of timesteps between each debug output (if 0 or unset, no debug)
 		        emitTemp = 0.0; // default
@@ -186,7 +190,7 @@ public:
 				recycling_factor = 0.0; // default
 				ifile.extract("recycling_factor",recycling_factor,"PSI",n_PSI);
 
-		        vecPSI.push_back( new PSI1D_Recycling(params, smpi,sgroup1[0], emitPos, emitTemp, recycling_factor) );
+		        vecPSI.push_back( new PSI1D_Recycling(params, smpi,sgroup1[0], psiPos, emitTemp, recycling_factor) );
 			}
 
 			else if(params.geometry == "1d3v" && PSI_type == "SEE"){
@@ -203,8 +207,8 @@ public:
 				if (sgroup2.size()==0) ERROR("No valid `species2` requested in PSI #" << n_PSI);
 
 				// Injection logarithm (if negative or unset, then automatically computed)
-		        emitPos = "left"; // default
-		        ifile.extract("emitPos",emitPos,"PSI",n_PSI);
+		        psiPos = "left"; // default
+		        ifile.extract("psiPos",psiPos,"PSI",n_PSI);
 
 		        // Number of timesteps between each debug output (if 0 or unset, no debug)
 		        emitTemp = 0.0; // default
@@ -214,7 +218,7 @@ public:
 		        double SEEYield = 0.0; // default
 		        ifile.extract("SEEYield",SEEYield,"PSI",n_PSI);
 
-		        vecPSI.push_back( new PSI1D_SEE(params, smpi,sgroup1[0],sgroup2[0], emitPos, emitTemp, SEEYield) );
+		        vecPSI.push_back( new PSI1D_SEE(params, smpi,sgroup1[0],sgroup2[0], psiPos, emitTemp, SEEYield) );
 
 			}
 

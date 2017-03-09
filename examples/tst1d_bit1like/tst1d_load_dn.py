@@ -177,3 +177,70 @@ PartSource(
 	loadPos_end = 		Lsim[0] / 2.0 + 200.0*l0,
 
 )
+
+#==================== PSI =================================
+PSI(
+	species1 = ["D"],
+	PSI_type = "Recycling",
+	psiPos = "left",
+	emitTemp = 2,
+	recycling_factor = 0.5
+)
+
+PSI(
+	species1 = ["D"],
+	PSI_type = "Recycling",
+	psiPos = "right",
+	emitTemp = 2,
+	recycling_factor = 0.5
+)
+
+
+PSI(
+	species1 = ["C"],
+	PSI_type = "Injection",
+	emitKind = "regular",
+	psiPos = "left",
+	emitOffset = 0.2,
+	emitTemp = 2,
+	emitFlux = 1.0e12
+)
+
+PSI(
+	species1 = ["C"],
+	PSI_type = "Injection",
+	emitKind = "regular",
+	psiPos = "right",
+	emitOffset = 0.2,
+	emitTemp = 2,
+	emitFlux = 1.0e12
+)
+
+
+
+#==================== Collisions =================================
+Collisions(
+	collisions_type = "Ionization"
+	species1 = ["e"],
+	species2 = ["D"],
+	species3 = ["D1"],
+	crossSection_fileName = "Ionization_Cu_to_Cu+1.dat"
+)
+
+Collisions(
+	collisions_type = "Excitation"
+	species1 = ["e"],
+	species2 = ["D"],
+	crossSection_fileName = "Ionization_Cu_to_Cu+1.dat"
+)
+
+
+
+
+Collisions(
+	collisions_type = "Ionization"
+	species1 = ["e"],
+	species2 = ["C"],
+	species3 = ["C1"],
+	crossSection_fileName = "Ionization_Cu_to_Cu+1.dat"
+)

@@ -22,6 +22,7 @@ public:
         unsigned int nPartEmit,
         double emitTemperature,
         double emitJ,
+        double emitFlux,
         double weight_const,
         double emitOffset,
         double a_FN,
@@ -54,6 +55,8 @@ private:
     double emitField;
     // Emitting current density from boundary
     double emitJ;
+    // Emitting particle flux from boundary
+    double emitFlux;
     // weight of emitting particles
     double weight_const;
     // nominalDensity and nomPtclsPerCell is used to set the weight_const
