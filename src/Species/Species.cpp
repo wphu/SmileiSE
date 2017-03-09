@@ -1067,6 +1067,11 @@ int Species::createParticles(vector<unsigned int> n_space_to_create, vector<doub
     //    particles.initialize(n_existing_particles+npart_effective, params_->nDim_particle);
     // }
     //MESSAGE(1,"density__end");
+    int npart_reserve = params.species_param[speciesNumber].c_part_max
+                        * params.species_param[speciesNumber].n_part_per_cell_for_weight
+                        * n_space_to_create[0] * n_space_to_create[1] * n_space_to_create[2];
+    particles.reserve(npart_reserve, ndim);
+
     int n_existing_particles = particles.size();
     particles.initialize(n_existing_particles+npart_effective, params, speciesNumber);
     psi_particles.initialize(0, params);
