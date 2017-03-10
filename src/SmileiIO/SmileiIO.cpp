@@ -41,15 +41,6 @@ void SmileiIO::addField(Field* field)
     string fieldName = field->name;
     const char* name = fieldName.c_str();
     fieldsGroup.dataset_name.push_back(name);
-
-    /* Create the data space for the dataset. */
-    fieldsGroup.dataspace_id = H5Screate_simple(4, fieldsGroup.dims_global, NULL);
-    int dataset_size = fieldsGroup.dataset_id.size();
-    hid_t id = H5Dcreate2(fieldsGroup.group_id, name, H5T_NATIVE_DOUBLE, fieldsGroup.dataspace_id,
-                                  H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-
-    fieldsGroup.dataset_id.push_back(id);
-
     fieldsGroup.dataset_data.push_back(field->data_);
 }
 
