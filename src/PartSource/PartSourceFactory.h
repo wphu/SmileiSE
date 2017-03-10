@@ -79,7 +79,7 @@ public:
 				weight_const = vecSpecies[sgroup1[0]]->species_param.weight; // default
 
 				// Injection logarithm (if negative or unset, then automatically computed)
-		        emitKind = "fieldEmit"; // default
+		        emitKind = "regular"; // default
 		        ifile.extract("emitKind",emitKind,"PartSource",n_PartSource);
 
 		        // Injection logarithm (if negative or unset, then automatically computed)

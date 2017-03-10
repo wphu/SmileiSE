@@ -15,17 +15,17 @@ using namespace std;
 
 // Constructor
 PartSource1D_Load::PartSource1D_Load(
-    PicParams& params,
-    SmileiMPI* smpi,
-    unsigned int load_species1,
-    vector<double> mean_vel,
-    string load_kind,
-    int load_number,
-    double load_dn,
-    double load_density,
-    double load_temperature,
-    double load_Pos_start,
-    double load_Pos_end
+    PicParams&      params,
+    SmileiMPI*      smpi,
+    unsigned int    load_species1,
+    vector<double>  mean_vel,
+    string          load_kind,
+    int             load_number,
+    double          load_dn,
+    double          load_density,
+    double          load_temperature,
+    double          load_Pos_start,
+    double          load_Pos_end
 ):
 PartSource1D (params, smpi)
 
@@ -115,8 +115,6 @@ PartSource1D (params, smpi)
         loadPos_end = smpi->getDomainLocalMin(0) + (loadBin_end+1)*params.cell_length[0];
 
     }
-
-    emitKind = "none";
 
 }
 

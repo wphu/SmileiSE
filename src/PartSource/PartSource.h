@@ -45,56 +45,25 @@ public:
 
     vector<double> mean_velocity;
 
-
-    // =================Parameters for emitting particles=================
-    //! Identification number of the PartSource object
-    int n_PartSource;
+    string PartSource_type;
 
     // emit kind, regular or fieldEmit for injection PSI
     string emitKind;
-
-    // PSI position : only left and right for 1D case
-    string emitPos;
-
-    // position offset of injected or sputtered particles
-    double posOffset;
-    // the energy/temperature of the new particles
-    double emitTemp;
-    double weight_const;
+    // load Kind: "dn" or "nT"
+    string loadKind;
 
     // relevant PSI, emitting number of two species may be relevant
     // such as nPartEmit(A) = relCoff * nPartEmit(B)
     PartSource *relPartSource;
     string relSpecies;
-    void setRelPartSource(PartSource* relevantPartSource)
+    virtual void setRelPartSource(PartSource* relevantPartSource)
     {
         relPartSource = relevantPartSource;
     }
 
+    int n_PartSource;
 
-    // =================Parameters for loading particles=================
-    string loadKind;
-    double loadDensity;
-    double loadTemperature;
-    // load density per second [m-3 s-1]
-    double loadDn;
-    int loadStep;
-    // Number of particles loaded in one cell at one loadStep
-    int loadNumber;
-    // loadRem = loadStep * loadDn *... - loadNumber
-    double loadRem;
-    double loadRemTot;
-
-    // Position for loading particles in the current MPI region!!!
-    double loadPos_start;
-    double loadPos_end;
-    int loadBin_start;
-    int loadBin_end;
-
-    double loadPos_Ystart;
-    double loadPos_Yend;
-    int loadBin_Ystart;
-    int loadBin_Yend;
+    double weight_const;
 
     int everyTime;
 

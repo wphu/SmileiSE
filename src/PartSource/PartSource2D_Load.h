@@ -36,12 +36,31 @@ public:
     //! Method called in the main smilei loop to apply collisions at each timestep
     void emitLoad(PicParams&, SmileiMPI* smpi, std::vector<Species*>&,int, ElectroMagn* );
 
-    // emit particles
-    void emit(PicParams&, vector<Species*>&);
+    // =================Parameters for loading particles=================
+    string loadKind;
+    double loadDensity;
+    double loadTemperature;
+    // load density per second [m-3 s-1]
+    double loadDn;
+    int loadStep;
+    // Number of particles loaded in one cell at one loadStep
+    int loadNumber;
+    // loadRem = loadStep * loadDn *... - loadNumber
+    double loadRem;
+    double loadRemTot;
+
+    // Position for loading particles in the current MPI region!!!
+    double loadPos_start;
+    double loadPos_end;
+    int loadBin_start;
+    int loadBin_end;
+
+    double loadPos_Ystart;
+    double loadPos_Yend;
+    int loadBin_Ystart;
+    int loadBin_Yend;
 
 
-    //particle number emitted every timestep
-    unsigned int nPartEmit;
 
 
 

@@ -14,20 +14,20 @@ class PartSource1D_Emit : public PartSource1D
 public:
     //! Constructor for Collisions between two species
     PartSource1D_Emit(
-        PicParams& params,
-        SmileiMPI* smpi,
-        string emit_emitKind,
-        unsigned int emit_species1,
-        string emitPosition,
-        unsigned int nPartEmit,
-        double emitTemperature,
-        double emitJ,
-        double weight_const,
-        double emitOffset,
-        double a_FN,
-        double b_FN,
-        double work_function,
-        string emit_relSpecies);
+        PicParams&      params,
+        SmileiMPI*      smpi,
+        string          emit_emitKind,
+        unsigned int    emit_species1,
+        string          emitPosition,
+        int             emitNumber,
+        double          emitTemperature,
+        double          emitJ,
+        double          emitFlux,
+        double          emitOffset,
+        double          a_FN,
+        double          b_FN,
+        double          work_function,
+        string          emit_relSpecies );
 
     ~PartSource1D_Emit();
 
@@ -43,8 +43,25 @@ public:
     //particle number emitted every timestep
     unsigned int nPartEmit;
 
+    // PSI position : only left and right for 1D case
+    string emitPos;
 
+    // the energy/temperature of the new particles
+    double emitTemp;
 
+    // Emitted particle flux from boundary
+    double emitFlux;
+
+    // emitting tempreature
+    double emitOffset;
+
+    // The particle number emitted from boundary at one time (emitStep), not one timestep(!!!)
+    int emitNumber;
+    int emitStep;
+
+    // emitRem = emitStep * emitDn *... - emitNumber
+    double emitRem;
+    double emitRemTot;
 
 private:
     double dt_ov_dx;
@@ -52,16 +69,14 @@ private:
     double YZArea;
     // electric field used for field emit, equal to electric field on the boundary
     double emitField;
-    // Emitting current density from boundary
+    // Emitted current density from boundary
     double emitJ;
-    // weight of emitting particles
-    double weight_const;
+
     // nominalDensity and nomPtclsPerCell is used to set the weight_const
     // weight_cosnt = nominalDensity * CellVolume / nomPtclsPerCell
     double nominalDensity;
     double nomPtclsPerCell;
-    // emitting tempreature
-    double emitOffset;
+
 
     // some parameters for field emission
     // from "modelling vacuum arcs: from plasma initiation to surface interactions"

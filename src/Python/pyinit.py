@@ -139,15 +139,18 @@ class PartSource(SmileiComponent):
     species2 = None
     PartSource_type = None
     mean_velocity = [0.0]
-    posEmit = None
+
+    emitKind = None
+    emitPos = None
     nPartEmit = 0
-    tempEmit = 0.0
-    jEmit = 0.0
+    emitTemp = 0.0
+    emitJ = 0.0
     weight_const = 1.0
     emitOffset = 1.0
     a_FN = 1.5414e-6
     b_FN = 6.8309e9
     work_function = 4.5
+
     loadKind = None
     loadDensity = 0.0
     loadTemperature = 0.0

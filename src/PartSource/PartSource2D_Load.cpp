@@ -174,8 +174,6 @@ PartSource2D (params, smpi)
     }
 
 
-    emitKind = "none";
-
 }
 
 PartSource2D_Load::~PartSource2D_Load()

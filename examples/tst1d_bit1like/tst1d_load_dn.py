@@ -15,10 +15,10 @@ t0 = 0.5e-12
 Tsim = 200000000.*t0			# duration of the simulation
 
 
-#> number of timestep of incrementing averaged electromagnetic fields
+# number of timestep of incrementing averaged electromagnetic fields
 ntime_step_avg = 2000000
 
-#> Timestep to output some fields into hdf5 file
+# Timestep to output some fields into hdf5 file
 dump_step = ntime_step_avg
 
 timesteps_coulomb = 5
@@ -46,7 +46,6 @@ number_of_procs = [24]
 #
 bc_em_type_x = ['Dirichlet', 'Dirichlet']
 #bc_em_type_x = ['Neumann', 'Dirichlet']
-
 bc_em_value_x = [0.0, 0.0]
 
 B = 2.0
@@ -68,22 +67,18 @@ vz = 0.0
 # this is used to randomize the random number generator
 random_seed = 0
 
-
 # order of interpolation
-#
 interpolation_order = 1
 
 # SIMULATION BOX : for all space directions (use vector)
 # cell_length: length of the cell
 # sim_length: length of the simulation in units of the normalization wavelength
-#
 cell_length = [l0]
 sim_length  = Lsim
 
 # SIMULATION TIME
 # timestep: duration of the timestep
 # sim_time: duration of the simulation in units of the normalization period
-#
 timestep = t0
 sim_time = Tsim
 
@@ -91,7 +86,7 @@ sim_time = Tsim
 
 
 
-# DEFINE ALL SPECIES
+# ======================= DEFINE ALL SPECIES ================================================
 # species_type       = string, given name to the species (e.g. ion, electron, positron, test ...)
 # initPosition_type  = string, "regular" or "random"
 # initMomentum_type  = string "cold", "maxwell-juettner" or "rectangular"
@@ -145,10 +140,7 @@ Species(
 
 
 
-# PartSource
-# species1    = list of strings, the names of the first species that performPSI
-# species2    = list of strings, the names of the second species that performPSI
-#               (can be the same as species1)
+# =================== PartSource =============================================
 PartSource(
 	species1 = ["e"],
 	PartSource_type = "Load",
@@ -178,6 +170,29 @@ PartSource(
 
 )
 
+
+PartSource(
+	PartSource_type = "Emit",
+	species1 = ["C"],
+	emitKind = "regular",
+	psiPos = "left",
+	emitOffset = 0.2,
+	emitTemp = 2,
+	emitFlux = 1.0e12
+)
+
+PartSource(
+	PartSource_type = "Emit",
+	species1 = ["C"],
+	emitKind = "regular",
+	psiPos = "right",
+	emitOffset = 0.2,
+	emitTemp = 2,
+	emitFlux = 1.0e12
+)
+
+
+
 #==================== PSI =================================
 PSI(
 	species1 = ["D"],
@@ -193,27 +208,6 @@ PSI(
 	psiPos = "right",
 	emitTemp = 2,
 	recycling_factor = 0.5
-)
-
-
-PSI(
-	species1 = ["C"],
-	PSI_type = "Injection",
-	emitKind = "regular",
-	psiPos = "left",
-	emitOffset = 0.2,
-	emitTemp = 2,
-	emitFlux = 1.0e12
-)
-
-PSI(
-	species1 = ["C"],
-	PSI_type = "Injection",
-	emitKind = "regular",
-	psiPos = "right",
-	emitOffset = 0.2,
-	emitTemp = 2,
-	emitFlux = 1.0e12
 )
 
 
