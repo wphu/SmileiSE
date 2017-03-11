@@ -137,11 +137,6 @@ int main (int argc, char* argv[])
     smpi->barrier();
 
 
-    //Create mpi i/o environment
-    TITLE("Output environment");
-    SmileiIO*  sio  = SmileiIOFactory::create(params, smpi, EMfields, vecSpecies, diag);
-    smpi->barrier();
-
     TITLE("Creating Solver");
     Solver* solver = SolverFactory::create(params, input_data, grid, smpi);
 
@@ -162,7 +157,6 @@ int main (int argc, char* argv[])
     smpi->barrier();
 
     TITLE("Creating Interp/Proj");
-
     // interpolation operator (virtual)
     Interpolator* Interp = InterpolatorFactory::create(params, smpi);
 
@@ -170,17 +164,22 @@ int main (int argc, char* argv[])
     Projector* Proj = ProjectorFactory::create(params, smpi);
     smpi->barrier();
 
+    //Create mpi i/o environment
+    TITLE("Creating IO output environment");
+    SmileiIO*  sio  = SmileiIOFactory::create(params, smpi, EMfields, vecSpecies, diag);
+    smpi->barrier();
+
     // ------------------------------------------------------------------------
     // Initialize the simulation times time_prim at n=0 and time_dual at n=+1/2
     // ------------------------------------------------------------------------
-    unsigned int stepStart=0, stepStop=params.n_time;
+    unsigned int stepStart = sio->stepStart, stepStop=params.n_time;
     // time at integer time-steps (primal grid)
     double time_prim = stepStart * params.timestep;
     // time at half-integer time-steps (dual grid)
     double time_dual = (stepStart +0.5) * params.timestep;
 
     int itime = stepStart;
-    sio->reloadP(params, smpi, vecSpecies, itime);
+
 
     TITLE("Solve the field first time before PIC loop");
     (*solver)(EMfields, smpi);

@@ -40,6 +40,10 @@ public:
     virtual ~SmileiIO();
 
     void addField(Field* field);
+    virtual void createFieldsGroup( ElectroMagn* fields );
+    virtual void createPartsGroup( vector<Species*>& vecSpecies );
+
+
     //! Basic write field on its own file (debug)
     virtual void write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, Diagnostic* diag, int itime){};
     virtual void calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies){};
@@ -48,15 +52,15 @@ public:
     virtual void storeP(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime );
 
     // reload Particles to restart
-    virtual void reloadP(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int &itime );
+    virtual void reloadP(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies );
 
     // store Particles to restart
     virtual void endStoreP(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime );
 
+    string global_file_name_;
+
     // Id of "Fields_global.h5", contains global fields, such as potential, rho ...
     hid_t       global_file_id_;
-    // Id of "Restore000.h5", contains paritcles information to restart
-    hid_t       restore_file_id_;
     herr_t      status;
 
     double* data_;
@@ -67,11 +71,6 @@ public:
 
     // dimensions of time, which means total timestep number to output
     int ndims_t;
-
-    // If is_restart == 1, it means no need to create file "Fields_global.h5"
-    int is_restart;
-
-    int stepStart;
 
     // H5Group is for fields and particles( velocity distribution funtion )
     struct H5Group
@@ -86,11 +85,13 @@ public:
         hid_t       memspace_id;
         // ndims_ is used to output the dimensitons as attribute
         int ndims_[4];
+        // aDims is for For attribute
+        hsize_t     aDims;
 
-        std::vector<hid_t> dataset_id;
-        std::vector<std::string> dataset_stringName;
-        std::vector<const char*> dataset_name;
-        std::vector<double*> dataset_data;
+        std::vector<hid_t>          dataset_id;
+        std::vector<std::string>    dataset_stringName;
+        std::vector<const char*>    dataset_name;
+        std::vector<double*>        dataset_data;
 
         //> data dimensions to be outputed: t, z, y, x
         //> [1] = 1 for 2d; [1] = [2] = 1 for 1d
@@ -122,6 +123,16 @@ public:
     double vx_d;
     int vx_dim;
 
+    // ======================= Some paramter for restart =======================
+    // Id of "Restore000.h5", contains paritcles information to restart
+    hid_t       restore_file_id_;
+    string      restore_file_dir_;
+
+    // If is_restart == 1, it means no need to create file "Fields_global.h5"
+    int is_restart;
+
+    int stepStart;
+    int nSpecies;
 
 
 private:

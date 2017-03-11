@@ -42,6 +42,9 @@ PicParams::PicParams(InputData &ifile) {
     ifile.extract("restart", restart);
     if (restart) MESSAGE("Code running from restart"); //! \todo Give info on restart properties
 
+    is_continue = 0;
+    ifile.extract("is_continue", is_continue);
+
     //!\todo MG is this still used ?? I cannot find it anywhere
     check_stop_file=false;
     ifile.extract("check_stop_file", check_stop_file);

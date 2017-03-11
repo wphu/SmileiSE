@@ -29,6 +29,7 @@ public:
 
     //! Build memory and file space for // HDF5 write/read
     void createFieldsPattern( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields );
+    
 
     // Create particles h5 file pattern
     void createPartsPattern( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies );

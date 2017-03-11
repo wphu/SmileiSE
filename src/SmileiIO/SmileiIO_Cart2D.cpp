@@ -20,13 +20,42 @@ SmileiIO_Cart2D::SmileiIO_Cart2D( PicParams& params, SmileiMPI* smpi, ElectroMag
 : SmileiIO( params, smpi )
 {
     Diagnostic2D* diag2D = static_cast<Diagnostic2D*>(diag);
+    reloadP(params, smpi, vecSpecies);
     if(smpi->isMaster())
     {
-        global_file_id_  = H5Fcreate( "Fields_global.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+        if(!is_restart)
+        {
+            global_file_id_  = H5Fcreate( global_file_name_.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+        }
+        else
+        {
+            global_file_id_  = H5Fopen( global_file_name_.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
+        }
         createFieldsPattern(params, smpi, fields);
         createPartsPattern(params, smpi, fields, vecSpecies);
         status = H5Fclose(global_file_id_);
     }
+
+}
+
+SmileiIO_Cart2D::~SmileiIO_Cart2D()
+{
+}
+
+//> create hdf5 file, datespace, dateset and so on
+void SmileiIO_Cart2D::createFieldsPattern( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields )
+{
+
+    fieldsGroup.dims_global[3] = params.n_space_global[1] + 1;
+    fieldsGroup.dims_global[2] = params.n_space_global[0] + 1;
+    fieldsGroup.dims_global[1] = 1;
+    fieldsGroup.dims_global[0] = params.n_time / params.dump_step;
+
+    fieldsGroup.ndims_[0] = fieldsGroup.dims_global[0];
+    fieldsGroup.ndims_[1] = fieldsGroup.dims_global[1];
+    fieldsGroup.ndims_[2] = fieldsGroup.dims_global[2];
+    fieldsGroup.ndims_[3] = fieldsGroup.dims_global[3];
+
     fieldsGroup.offset[0] = 0;
     fieldsGroup.offset[1] = 0;
     fieldsGroup.offset[2] = 0;
@@ -42,83 +71,10 @@ SmileiIO_Cart2D::SmileiIO_Cart2D( PicParams& params, SmileiMPI* smpi, ElectroMag
     fieldsGroup.block[2] = 1;
     fieldsGroup.block[3] = 1;
 
-}
+    // For attribute
+    fieldsGroup.aDims = 4;
 
-SmileiIO_Cart2D::~SmileiIO_Cart2D()
-{
-}
-
-//> create hdf5 file, datespace, dateset and so on
-void SmileiIO_Cart2D::createFieldsPattern( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields )
-{
-    hsize_t     dims;
-
-    fieldsGroup.dims_global[3] = params.n_space_global[1] + 1;
-    fieldsGroup.dims_global[2] = params.n_space_global[0] + 1;
-    fieldsGroup.dims_global[1] = 1;
-    fieldsGroup.dims_global[0] = params.n_time / params.dump_step;
-
-    fieldsGroup.ndims_[0] = fieldsGroup.dims_global[0];
-    fieldsGroup.ndims_[1] = fieldsGroup.dims_global[1];
-    fieldsGroup.ndims_[2] = fieldsGroup.dims_global[2];
-    fieldsGroup.ndims_[3] = fieldsGroup.dims_global[3];
-
-
-    data_ =  (double*)malloc(fieldsGroup.dims_global[3] * fieldsGroup.dims_global[2] * fieldsGroup.dims_global[1] * fieldsGroup.dims_global[0] * sizeof(double));
-    for( int i = 0; i < fieldsGroup.dims_global[3] * fieldsGroup.dims_global[2] * fieldsGroup.dims_global[1] * fieldsGroup.dims_global[0]; i++)
-    {
-      data_[i] = 20.0;
-    }
-
-    fieldsGroup.group_id = H5Gcreate(global_file_id_, "/Fields", H5P_DEFAULT, H5P_DEFAULT,H5P_DEFAULT);
-
-    /* Create a datagroup attribute. */
-    dims = 4;
-    fieldsGroup.dataspace_id = H5Screate_simple(1, &dims, NULL);
-    fieldsGroup.attribute_id = H5Acreate2 (fieldsGroup.group_id, "dims_global", H5T_STD_I32BE, fieldsGroup.dataspace_id,
-                                 H5P_DEFAULT, H5P_DEFAULT);
-    /* Write the attribute data. */
-    fieldsGroup.status = H5Awrite(fieldsGroup.attribute_id, H5T_NATIVE_INT, fieldsGroup.ndims_);
-
-
-    addField(fields->rho_global);
-    addField(fields->phi_global);
-    addField(fields->Ex_global);
-    addField(fields->Ey_global);
-    addField(fields->rho_global_avg);
-    addField(fields->phi_global_avg);
-    addField(fields->Ex_global_avg);
-    addField(fields->Ey_global_avg);
-
-    for(int i = 0; i < fields->rho_s.size(); i++)
-    {
-        addField(fields->rho_s_global[i]);
-        addField(fields->rho_s_global_avg[i]);
-        //addField(fields->rho_s_global_avg[i]);
-    }
-
-    //> if without below process, the method write() will go wrong, no ideas now!!!
-    //> output initial 1d_global data===========================================
-    data_ =  (double*)malloc(fieldsGroup.dims_global[3] * fieldsGroup.dims_global[2] * fieldsGroup.dims_global[1] * fieldsGroup.dims_global[0] * sizeof(double));
-    for( int i = 0; i < fieldsGroup.dims_global[3] * fieldsGroup.dims_global[2] * fieldsGroup.dims_global[1] * fieldsGroup.dims_global[0]; i++)
-    {
-      data_[i] = 20.0;
-    }
-    /* Create the second dataset in group "Group_A". */
-    for(int i = 0; i < fieldsGroup.dataset_id.size(); i++)
-    {
-        fieldsGroup.status = H5Dwrite(fieldsGroup.dataset_id[i], H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data_);
-    }
-    free(data_);
-
-    // close attribute, dataset, dataspace, group, and so on
-    fieldsGroup.status = H5Aclose( fieldsGroup.attribute_id );
-    fieldsGroup.status = H5Sclose( fieldsGroup.dataspace_id );
-    for(int i = 0; i < fieldsGroup.dataset_id.size(); i++)
-    {
-        fieldsGroup.status = H5Dclose( fieldsGroup.dataset_id[i] );
-    }
-    fieldsGroup.status = H5Gclose( fieldsGroup.group_id );
+    createFieldsGroup(fields);
 
 
 } // END createPattern
@@ -128,8 +84,6 @@ void SmileiIO_Cart2D::createFieldsPattern( PicParams& params, SmileiMPI* smpi, E
 
 void SmileiIO_Cart2D::createPartsPattern( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies )
 {
-    hsize_t     dims;
-
     // For particles, size ofdims_global should be 5: dims_global[nx][ny][nz][nvelocity][ntime]
     // But to be simple, the size is set 4, nz dimension is deleted.
     ptclsGroup.dims_global[3] = vx_dim;
@@ -141,62 +95,6 @@ void SmileiIO_Cart2D::createPartsPattern( PicParams& params, SmileiMPI* smpi, El
     ptclsGroup.ndims_[1] = ptclsGroup.dims_global[1];
     ptclsGroup.ndims_[2] = ptclsGroup.dims_global[2];
     ptclsGroup.ndims_[3] = ptclsGroup.dims_global[3];
-
-
-    ptclsGroup.group_id = H5Gcreate(global_file_id_, "/VDF", H5P_DEFAULT, H5P_DEFAULT,H5P_DEFAULT);
-
-    /* Create a datagroup attribute. */
-    dims = 4;
-    //> dataspace is to descript the structure of data: the number of data dimension and the size of each dimension
-    //> the first parameter rank=1: is the number of dimensions used in the dataspace
-    ptclsGroup.dataspace_id = H5Screate_simple(1, &dims, NULL);
-    ptclsGroup.attribute_id = H5Acreate2 (ptclsGroup.group_id, "dims_global", H5T_STD_I32BE, ptclsGroup.dataspace_id,
-                                 H5P_DEFAULT, H5P_DEFAULT);
-    /* Write the attribute data. */
-    ptclsGroup.status = H5Awrite(ptclsGroup.attribute_id, H5T_NATIVE_INT, ptclsGroup.ndims_);
-
-
-
-    Species *s;
-    Particles *p;
-
-
-    for(int isp=0; isp<vx_VDF.size(); isp++)
-    {
-        s = vecSpecies[isp];
-        p = &(s->particles);
-
-        string fieldName = "VDF_" + s->species_param.species_type;
-        const char* name = fieldName.c_str();
-        ptclsGroup.dataset_name.push_back(name);
-
-        /* Create the data space for the dataset. */
-        ptclsGroup.dataspace_id = H5Screate_simple(4, ptclsGroup.dims_global, NULL);
-        int dataset_size = ptclsGroup.dataset_id.size();
-        hid_t id = H5Dcreate2(ptclsGroup.group_id, name, H5T_NATIVE_DOUBLE, ptclsGroup.dataspace_id,
-                                      H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-
-        ptclsGroup.dataset_id.push_back(id);
-
-        ptclsGroup.dataset_data.push_back(vx_VDF_global[isp]->data_);
-
-        // for VDF_tot_ the dimension is same with VDF_, but only [nx=0] is meaningful
-        fieldName = "VDF_tot_" + s->species_param.species_type;
-        name = fieldName.c_str();
-        ptclsGroup.dataset_name.push_back(name);
-
-        /* Create the data space for the dataset. */
-        ptclsGroup.dataspace_id = H5Screate_simple(4, ptclsGroup.dims_global, NULL);
-        dataset_size = ptclsGroup.dataset_id.size();
-        id = H5Dcreate2(ptclsGroup.group_id, name, H5T_NATIVE_DOUBLE, ptclsGroup.dataspace_id,
-                                      H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-
-        ptclsGroup.dataset_id.push_back(id);
-
-        ptclsGroup.dataset_data.push_back(vx_VDF_tot_global[isp]->data_);
-
-
-    }
 
     ptclsGroup.offset[0] = 0;
     ptclsGroup.offset[1] = 0;
@@ -213,15 +111,9 @@ void SmileiIO_Cart2D::createPartsPattern( PicParams& params, SmileiMPI* smpi, El
     ptclsGroup.block[2] = 1;
     ptclsGroup.block[3] = 1;
 
+    ptclsGroup.aDims = 4;
 
-    // close attribute, dataset, dataspace, group, and so on
-    ptclsGroup.status = H5Aclose( ptclsGroup.attribute_id );
-    ptclsGroup.status = H5Sclose( ptclsGroup.dataspace_id );
-    for(int i = 0; i < ptclsGroup.dataset_id.size(); i++)
-    {
-        ptclsGroup.status = H5Dclose( ptclsGroup.dataset_id[i] );
-    }
-    ptclsGroup.status = H5Gclose( ptclsGroup.group_id );
+    createPartsGroup(vecSpecies);
 
 }
 
@@ -328,7 +220,7 @@ void SmileiIO_Cart2D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fi
         ndims_t = itime / params.dump_step - 1;
 
         // reopen attribute, dataset, dataspace, group, and so on
-        global_file_id_  = H5Fopen( "Fields_global.h5", H5F_ACC_RDWR, H5P_DEFAULT);
+        global_file_id_  = H5Fopen( global_file_name_.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
 
         fieldsGroup.group_id = H5Gopen(global_file_id_, "/Fields", H5P_DEFAULT);
         for(int i = 0; i < fieldsGroup.dataset_name.size(); i++)
