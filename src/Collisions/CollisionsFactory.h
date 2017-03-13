@@ -193,11 +193,7 @@ public:
 				mystream.str(""); // clear
 				for (unsigned int rs=0 ; rs<sgroup2.size() ; rs++) mystream << " #" << sgroup2[rs];
 				MESSAGE(1,"Second group of species :" << mystream.str());
-				mystream.str(""); // clear
-				for (unsigned int rs=0 ; rs<sgroup3.size() ; rs++) mystream << " #" << sgroup3[rs];
-				MESSAGE(1,"Third group of species :" << mystream.str());
-
-
+	
 				// Add new Collisions objects to vector
 				//> Three species participate in the ionization collision
 				vecCollisions.push_back( new Collisions1D_Excitation(params,vecSpecies,smpi,n_collisions,sgroup1,sgroup2,crossSection_fileName) );

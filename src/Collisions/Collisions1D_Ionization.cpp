@@ -34,7 +34,7 @@ Collisions1D_Ionization::Collisions1D_Ionization(PicParams& params, vector<Speci
     totbins = nbins;
 
     //MPI_Allreduce( smpi->isMaster()?MPI_IN_PLACE:&totbins, &totbins, 1, MPI_INTEGER, MPI_SUM, MPI_COMM_WORLD);
-    MPI_Reduce( smpi->isMaster()?MPI_IN_PLACE:&totbins, &totbins, 1, MPI_INTEGER, MPI_SUM, 0, MPI_COMM_WORLD);
+    //MPI_Reduce( smpi->isMaster()?MPI_IN_PLACE:&totbins, &totbins, 1, MPI_INTEGER, MPI_SUM, 0, MPI_COMM_WORLD);
 
     readCrossSection();
     energy_ionization_threshold = crossSection[0][0];
@@ -135,7 +135,7 @@ void Collisions1D_Ionization::collide(PicParams& params, SmileiMPI* smpi, Electr
         }
         random_shuffle(index2.begin(), index2.end());
 
-        smpi->barrier();
+        //smpi->barrier();
         //MESSAGE("nbinsaaaa"<<"  "<<ibin<<"  "<<n1[ibin]<<" "<<n2[ibin]);
         // Now start the real loop
         // See equations in http://dx.doi.org/10.1063/1.4742167
@@ -143,7 +143,7 @@ void Collisions1D_Ionization::collide(PicParams& params, SmileiMPI* smpi, Electr
         npairs = n1[ibin] * (1 - exp(-density2[ibin] * sigma_cr_max * timestep) );
         //if(npairs > index1.size() || npairs > index2.size()) {ERROR("npairs > index in collisions");}
 
-        smpi->barrier();
+        //smpi->barrier();
         //MESSAGE("nbins111"<<"  "<<ibin<<"  "<<n1[ibin]<<" "<<n2[ibin]);
         for(int i = 0; i < npairs; i++)
         {
@@ -208,11 +208,11 @@ void Collisions1D_Ionization::collide(PicParams& params, SmileiMPI* smpi, Electr
             }
             //MESSAGE("nparis222"<<"  "<<i);
         }
-        smpi->barrier();
+        //smpi->barrier();
         //MESSAGE("nbins222"<<"  "<<ibin);
 
     } // end loop on bins
-    smpi->barrier();
+    //smpi->barrier();
     //MESSAGE("aaaa"<<" "<<s1->bmax.back()<<" "<<p1->size());
     // swap lost particles to the end for ionized neutrals
 

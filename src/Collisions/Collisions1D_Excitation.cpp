@@ -32,7 +32,7 @@ Collisions1D_Excitation::Collisions1D_Excitation(PicParams& params, vector<Speci
     totbins = nbins;
 
     //MPI_Allreduce( smpi->isMaster()?MPI_IN_PLACE:&totbins, &totbins, 1, MPI_INTEGER, MPI_SUM, MPI_COMM_WORLD);
-    MPI_Reduce( smpi->isMaster()?MPI_IN_PLACE:&totbins, &totbins, 1, MPI_INTEGER, MPI_SUM, 0, MPI_COMM_WORLD);
+    //MPI_Reduce( smpi->isMaster()?MPI_IN_PLACE:&totbins, &totbins, 1, MPI_INTEGER, MPI_SUM, 0, MPI_COMM_WORLD);
 
     readCrossSection();
     energy_ionization_threshold = crossSection[0][0];
@@ -48,7 +48,7 @@ Collisions1D_Excitation::~Collisions1D_Excitation()
 // Calculates the collisions for a given Collisions1D object
 void Collisions1D_Excitation::collide(PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, int itime)
 {
-    vector<unsigned int> *sg1, *sg2, *sg3;
+    vector<unsigned int> *sg1, *sg2;
 
     vector<int> index1, index2;
     vector<int> n1, n2;
@@ -71,7 +71,6 @@ void Collisions1D_Excitation::collide(PicParams& params, SmileiMPI* smpi, Electr
 
     sg1 = &species_group1;
     sg2 = &species_group2;
-    sg3 = &species_group3;
 
     // electons                         atoms or primary ions
     s1 = vecSpecies[(*sg1)[0]];      s2 = vecSpecies[(*sg2)[0]];
@@ -121,7 +120,7 @@ void Collisions1D_Excitation::collide(PicParams& params, SmileiMPI* smpi, Electr
         }
         random_shuffle(index2.begin(), index2.end());
 
-        smpi->barrier();
+        //smpi->barrier();
         //MESSAGE("nbinsaaaa"<<"  "<<ibin<<"  "<<n1[ibin]<<" "<<n2[ibin]);
         // Now start the real loop
         // See equations in http://dx.doi.org/10.1063/1.4742167
@@ -129,7 +128,7 @@ void Collisions1D_Excitation::collide(PicParams& params, SmileiMPI* smpi, Electr
         npairs = n1[ibin] * (1 - exp(-density2[ibin] * sigma_cr_max * timestep) );
         //if(npairs > index1.size() || npairs > index2.size()) {ERROR("npairs > index in collisions");}
 
-        smpi->barrier();
+        //smpi->barrier();
         //MESSAGE("nbins111"<<"  "<<ibin<<"  "<<n1[ibin]<<" "<<n2[ibin]);
         for(int i = 0; i < npairs; i++)
         {
@@ -151,9 +150,9 @@ void Collisions1D_Excitation::collide(PicParams& params, SmileiMPI* smpi, Electr
             double ran_p = (double)rand() / RAND_MAX;
             if(ran_P < P_collision){
                 // Scatter the electrons
-                momentum_unit[0] = p1->momentum(0,i1) / v_magnitude_primary;
-                momentum_unit[1] = p1->momentum(1,i1) / v_magnitude_primary;
-                momentum_unit[2] = p1->momentum(2,i1) / v_magnitude_primary;
+                momentum_unit[0] = p1->momentum(0,i1) / v_magnitude;
+                momentum_unit[1] = p1->momentum(1,i1) / v_magnitude;
+                momentum_unit[2] = p1->momentum(2,i1) / v_magnitude;
                 calculate_scatter_velocity(v_magnitude_primary, m1, m2, momentum_unit, momentum_temp);
                 p1->momentum(0,i1) = momentum_temp[0];
                 p1->momentum(1,i1) = momentum_temp[1];
@@ -163,11 +162,11 @@ void Collisions1D_Excitation::collide(PicParams& params, SmileiMPI* smpi, Electr
             }
             //MESSAGE("nparis222"<<"  "<<i);
         }
-        smpi->barrier();
+        //smpi->barrier();
         //MESSAGE("nbins222"<<"  "<<ibin);
 
     } // end loop on bins
-    smpi->barrier();
+    //smpi->barrier();
     //MESSAGE("aaaa"<<" "<<s1->bmax.back()<<" "<<p1->size());
     // swap lost particles to the end for ionized neutrals
 

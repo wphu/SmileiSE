@@ -8,15 +8,15 @@
 #
 import math
 
-l0 = 5.0e-5     # nu.norm_l is reference time, the value's unit before / is m (SI)
-Lsim = [800.*l0]	# length of the simulation
+l0 = 1.0e-5     # nu.norm_l is reference time, the value's unit before / is m (SI)
+Lsim = [500.*l0]	# length of the simulation
 
-t0 = 0.5e-12
-Tsim = 200000000.*t0			# duration of the simulation
+t0 = 1.0e-12
+Tsim = 1000.*t0			# duration of the simulation
 
 
 # number of timestep of incrementing averaged electromagnetic fields
-ntime_step_avg = 2000000
+ntime_step_avg = 100
 
 # Timestep to output some fields into hdf5 file
 dump_step = ntime_step_avg
@@ -48,7 +48,7 @@ bc_em_type_x = ['Dirichlet', 'Dirichlet']
 #bc_em_type_x = ['Neumann', 'Dirichlet']
 bc_em_value_x = [0.0, 0.0]
 
-B = 2.0
+B = 0.0
 angle = 5.0 * math.pi / 180.0
 Bx = B * math.sin(angle)
 By = B * math.cos(angle)
@@ -85,8 +85,7 @@ sim_time = Tsim
 
 
 
-
-# ======================= DEFINE ALL SPECIES ================================================
+# ================ DEFINE ALL SPECIES ====================================================
 # species_type       = string, given name to the species (e.g. ion, electron, positron, test ...)
 # initPosition_type  = string, "regular" or "random"
 # initMomentum_type  = string "cold", "maxwell-juettner" or "rectangular"
@@ -109,8 +108,8 @@ Species(
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 0,
-	n_part_per_cell_for_weight = 1000,
+	n_part_per_cell = 200,
+	n_part_per_cell_for_weight = 200,
 	c_part_max = 1.0,
 	mass = 9.109382616e-31,
 	charge = -1.6021766208e-19,
@@ -126,8 +125,8 @@ Species(
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 0,
-	n_part_per_cell_for_weight = 1000,
+	n_part_per_cell = 200,
+	n_part_per_cell_for_weight = 200,
 	c_part_max = 1.0,
 	mass = 2.0 * 1.67262158e-27,
 	charge = 1.6021766208e-19,
@@ -138,13 +137,14 @@ Species(
 	bc_part_type_east  = 'supp',
 )
 
+
 Species(
 	species_type = 'D',
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 0,
-	n_part_per_cell_for_weight = 1000,
+	n_part_per_cell = 200,
+	n_part_per_cell_for_weight = 200,
 	c_part_max = 1.0,
 	mass = 2.0 * 1.67262158e-27,
 	charge = 0.0,
@@ -155,83 +155,9 @@ Species(
 	bc_part_type_east  = 'supp',
 )
 
-# =================== PartSource =============================================
-PartSource(
-	species1 = ["e"],
-	PartSource_type = "Load",
-	loadKind = "dn",
-	loadNumber = 2,
-	#loadDensity = 1.0e19,
-	loadTemperature = 210.0,
-	loadDn = 2.0e25,
-	loadPos_start 	= Lsim[0] / 2.0 - 200.0*l0,
-	loadPos_end 	= Lsim[0] / 2.0 + 200.0*l0,
 
+# ======================= Collisions ====================================
 
-
-)
-
-
-PartSource(
-	species1 = ["D1"],
-	PartSource_type = "Load",
-	loadKind = "dn",
-	loadNumber = 2,
-	#loadDensity = 1.0e19,
-	loadTemperature = 260.0,
-	loadDn = 2.0e25,
-	loadPos_start = 	Lsim[0] / 2.0 - 200.0*l0,
-	loadPos_end = 		Lsim[0] / 2.0 + 200.0*l0,
-
-)
-
-'''
-PartSource(
-	PartSource_type = "Emit",
-	species1 = ["C"],
-	emitKind = "regular",
-	emitPos = "left",
-	emitNumber = 2,
-	emitOffset = 0.2,
-	emitTemp = 50,
-	emitFlux = 1.0e24
-)
-
-PartSource(
-	PartSource_type = "Emit",
-	species1 = ["C"],
-	emitKind = "regular",
-	emitPos = "right",
-	emitNumber = 2,
-	emitOffset = 0.2,
-	emitTemp = 50,
-	emitFlux = 1.0e24
-)
-'''
-
-
-#==================== PSI =================================
-PSI(
-	species1 = ["D1"],
-	species2 = ["D"],
-	PSI_type = "Recycling",
-	psiPos = "left",
-	emitTemp = 2,
-	recycling_factor = 0.5
-)
-
-PSI(
-	species1 = ["D1"],
-	species2 = ["D"],
-	PSI_type = "Recycling",
-	psiPos = "right",
-	emitTemp = 2,
-	recycling_factor = 0.5
-)
-
-
-'''
-#==================== Collisions =================================
 Collisions(
 	collisions_type = "Ionization",
 	species1 = ["e"],
@@ -246,15 +172,3 @@ Collisions(
 	species2 = ["D"],
 	crossSection_fileName = "Ionization_Cu_to_Cu+1.dat"
 )
-
-
-
-
-Collisions(
-	collisions_type = "Ionization",
-	species1 = ["e"],
-	species2 = ["C"],
-	species3 = ["C1"],
-	crossSection_fileName = "Ionization_Cu_to_Cu+1.dat"
-)
-'''

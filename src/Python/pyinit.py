@@ -174,6 +174,8 @@ class Collisions(SmileiComponent):
     species3 = None
     coulomb_log = 0.
     debug_every = 0
+    collisions_type = None
+    crossSection_fileName = None
 
 
 class PSI(SmileiComponent):
