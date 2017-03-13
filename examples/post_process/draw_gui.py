@@ -38,7 +38,7 @@ class ApplicationWindow(QMainWindow):
 
 
         #> the left part: the hdf5 tree view
-        self.filename = "Fields_global.h5"
+        self.filename = "data_global.h5"
         self.f=h5.File(self.filename)
         try:
             dset = self.f["/Fields/Phi_global_avg"]

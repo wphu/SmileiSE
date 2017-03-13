@@ -28,6 +28,7 @@ timesteps_coulomb = 5
 
 timesteps_DSMC = 10
 
+timesteps_restore = ntime_step_avg
 
 # dim: Geometry of the simulation
 #      1d3v = cartesian grid with 1d in space + 3d in velocity
@@ -194,4 +195,3 @@ Collisions(
 	#coulomb_log = 5,
 	collisions_type = "DSMC"
 )
-

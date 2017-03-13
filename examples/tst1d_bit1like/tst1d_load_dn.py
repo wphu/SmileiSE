@@ -25,7 +25,7 @@ timesteps_coulomb = 5
 
 timesteps_DSMC = 2
 
-timesteps_restore = Tsim / t0 / 10
+timesteps_restore = ntime_step_avg
 
 # dim: Geometry of the simulation
 #      1d3v = cartesian grid with 1d in space + 3d in velocity

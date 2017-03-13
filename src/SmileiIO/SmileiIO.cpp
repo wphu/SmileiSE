@@ -25,7 +25,7 @@ SmileiIO::SmileiIO( PicParams& params, SmileiMPI* smpi )
     // Fields_global.h5
     is_restart = 0;
     stepStart  = 0;
-    global_file_name_ = "Fields_global.h5";
+    global_file_name_ = "data_global.h5";
     restore_file_dir_ = "restore";
 
 }
@@ -73,7 +73,7 @@ void SmileiIO::createFieldsGroup( ElectroMagn* fields )
     {
         fieldsGroup.group_id = H5Gcreate(global_file_id_, "/Fields", H5P_DEFAULT, H5P_DEFAULT,H5P_DEFAULT);
         // ============Create hdf5 struct for fieldsGroup===================================
-        for(int i = 0; i < fieldsGroup.dataset_id.size(); i++)
+        for(int i = 0; i < fieldsGroup.dataset_name.size(); i++)
         {
             // Create hdf5 datasets under "/Fields" group
             fieldsGroup.dataspace_id = H5Screate_simple(4, fieldsGroup.dims_global, NULL);
@@ -96,6 +96,10 @@ void SmileiIO::createFieldsGroup( ElectroMagn* fields )
 
 
         H5Gclose( fieldsGroup.group_id );
+    }
+    else
+    {
+        fieldsGroup.dataset_id.resize( fieldsGroup.dataset_name.size() );
     }
 }
 
@@ -150,7 +154,10 @@ void SmileiIO::createPartsGroup( vector<Species*>& vecSpecies )
         H5Sclose( ptclsGroup.dataspace_id );
 
         H5Gclose( ptclsGroup.group_id );
-
+    }
+    else
+    {
+        ptclsGroup.dataset_id.resize( ptclsGroup.dataset_name.size() );
     }
 }
 
@@ -197,7 +204,7 @@ void SmileiIO::storeP( PicParams& params, SmileiMPI* smpi, vector<Species*>& vec
     restore_file_id_  = H5Fcreate( fileName.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
     // ========================== Write info about restart ============================
-    string group_name = "info" ;
+    string group_name = "/info" ;
     group_id = H5Gcreate(restore_file_id_, group_name.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
     // write the variable "restart"
@@ -393,7 +400,7 @@ void SmileiIO::reloadP( PicParams& params, SmileiMPI* smpi, vector<Species*>& ve
     RANK = 1;
     maxdims[0] = H5S_UNLIMITED;
     chunk_dims[0] = 2;
-    restart = 1;
+    restart = 0;
     data_temp = 66.0;
 
 
@@ -422,12 +429,11 @@ void SmileiIO::reloadP( PicParams& params, SmileiMPI* smpi, vector<Species*>& ve
 
 
     // ======================= Read info about the restart ====================
-    group_id = H5Gopen(restore_file_id_, "info", H5P_DEFAULT);
+    group_id = H5Gopen(restore_file_id_, "/info", H5P_DEFAULT);
     // Read the variable "timestep"
     dataset_id = H5Dopen(group_id, "timestep", H5P_DEFAULT);
     status = H5Dread (dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, &stepStart);
     H5Dclose( dataset_id );
-    H5Gclose( group_id );
 
     // Read the variable "restart"
     dataset_id = H5Dopen(group_id, "restart", H5P_DEFAULT);
@@ -437,6 +443,7 @@ void SmileiIO::reloadP( PicParams& params, SmileiMPI* smpi, vector<Species*>& ve
     {
         H5Gclose(group_id);
         H5Fclose(restore_file_id_);
+        stepStart = 0;
         return;
     }
     else if(restart == 1 && params.is_continue == 0)
@@ -473,35 +480,45 @@ void SmileiIO::reloadP( PicParams& params, SmileiMPI* smpi, vector<Species*>& ve
         p1->initialize(partNumber, params);
 
 
+        // Read bmin ===================================================================
+        dataset_id = H5Dopen(group_id, "bmin", H5P_DEFAULT);
+        status = H5Dread (dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, &(s1->bmin[0]) );
+        H5Dclose (dataset_id);
+
+        // Read bmax ===================================================================
+        dataset_id = H5Dopen(group_id, "bmax", H5P_DEFAULT);
+        status = H5Dread (dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, &(s1->bmax[0]) );
+        H5Dclose (dataset_id);
+
         // Read momentum(0,iPart) ======================================================
         dataset_id = H5Dopen(group_id, "momentum0", H5P_DEFAULT);
-        status = H5Dwrite (dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &(p1->momentum(0,0)) );
+        status = H5Dread (dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &(p1->momentum(0,0)) );
         H5Dclose (dataset_id);
 
 
         // Read momentum(1,iPart) ======================================================
         dataset_id = H5Dopen(group_id, "momentum1", H5P_DEFAULT);
-        status = H5Dwrite (dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &(p1->momentum(1,0)) );
+        status = H5Dread (dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &(p1->momentum(1,0)) );
         H5Dclose (dataset_id);
 
 
 
         // Read momentum(2,iPart)  ======================================================
         dataset_id = H5Dopen(group_id, "momentum2", H5P_DEFAULT);
-        status = H5Dwrite (dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &(p1->momentum(2,0)) );
+        status = H5Dread (dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &(p1->momentum(2,0)) );
         H5Dclose (dataset_id);
 
 
         // Read position(0,iPart)  ======================================================
         dataset_id = H5Dopen(group_id, "position0", H5P_DEFAULT);
-        status = H5Dwrite (dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &(p1->position(0,0)) );
+        status = H5Dread (dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &(p1->position(0,0)) );
         H5Dclose (dataset_id);
 
         if(params.geometry == "2d3v")
         {
             // Read position(1,iPart) ======================================================
             dataset_id = H5Dopen(group_id, "position1", H5P_DEFAULT);
-            status = H5Dwrite (dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &(p1->position(1,0)) );
+            status = H5Dread (dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &(p1->position(1,0)) );
             H5Dclose (dataset_id);
 
         }
@@ -531,22 +548,18 @@ void SmileiIO::endStoreP( PicParams& params, SmileiMPI* smpi, vector<Species*>& 
     restart = 0;
 
     long long mpi_rk = smpi->getRank();
-    string fileName = "restore/Restore" + to_string( mpi_rk ) + "_global.h5";
+    string fileName = restore_file_dir_ + "/Restore" + to_string( mpi_rk ) + "_global.h5";
 
     // Restore000_global.h5
     restore_file_id_  = H5Fopen( fileName.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
-    for(int iSpec = 0; iSpec < vecSpecies.size(); iSpec++)
-    {
-        s1 = vecSpecies[iSpec];
-        p1 = &(s1->particles);
-        string group_name = "/" + s1->species_param.species_type;
-        group_id = H5Gopen(restore_file_id_, group_name.c_str(), H5P_DEFAULT);
+    string group_name = "/info";
+    group_id = H5Gopen(restore_file_id_, group_name.c_str(), H5P_DEFAULT);
 
-        // write the variable "restart" =========================================
-        dataset_id = H5Dopen(group_id, "restart", H5P_DEFAULT);
-        status = H5Dwrite (dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, &restart);
-        H5Dclose (dataset_id);
-        H5Gclose (group_id);
-    }
+    // write the variable "restart" =========================================
+    dataset_id = H5Dopen(group_id, "restart", H5P_DEFAULT);
+    status = H5Dwrite (dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, &restart);
+
+    H5Dclose (dataset_id);
+    H5Gclose (group_id);
     H5Fclose (restore_file_id_);
 }

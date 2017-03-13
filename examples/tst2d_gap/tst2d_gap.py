@@ -25,6 +25,12 @@ dump_step = 5000
 
 ntime_step_avg = dump_step
 
+timesteps_coulomb = 5
+
+timesteps_DSMC = 2
+
+timesteps_restore = ntime_step_avg
+
 # dim: Geometry of the simulation
 #      1d3v = cartesian grid with 1d in space + 3d in velocity
 #      2d3v = cartesian grid with 2d in space + 3d in velocity
@@ -293,4 +299,3 @@ PartSource(
 resx = 20.				# nb of cells in on laser wavelength
 rest = 30.				# time of timestep in one optical cycle
 wavelength_SI = 1.e-6
-

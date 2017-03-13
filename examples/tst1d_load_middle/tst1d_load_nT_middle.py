@@ -25,6 +25,7 @@ timesteps_coulomb = 5
 
 timesteps_DSMC = 2
 
+timesteps_restore = ntime_step_avg
 
 # dim: Geometry of the simulation
 #      1d3v = cartesian grid with 1d in space + 3d in velocity
@@ -204,5 +205,3 @@ PartSource(
 	loadPos_end 	= (500.0 + 50.0) * l0,
 
 )
-
-

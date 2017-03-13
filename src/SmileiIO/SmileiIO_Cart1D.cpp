@@ -247,8 +247,8 @@ void SmileiIO_Cart1D::createDiagsPattern( PicParams& params, SmileiMPI* smpi, Di
         H5Sclose( diagsGroup.dataspace_id );
 
         diagsGroup.status = H5Gclose( diagsGroup.group_id );
-
     }
+    diagsGroup.dataset_id.resize( diagsGroup.dataset_name.size() );
 }
 
 
