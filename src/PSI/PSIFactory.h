@@ -6,7 +6,6 @@
 #include "PSI1D_Backscattering.h"
 #include "PSI1D_Recycling.h"
 
-#include "PSI2D_Injection.h"
 #include "PSI2D_SEE.h"
 #include "PSI2D_Sputtering.h"
 
@@ -57,9 +56,6 @@ public:
 
 			ifile.extract("PSI_type",PSI_type,"PSI",n_PSI);
 			if(params.geometry == "1d3v" && PSI_type == "sputtering"){
-				MESSAGE("Parameters for PSI #" << n_PSI << " :");
-
-
 		        ifile.extract("species1",sg1,"PSI",n_PSI);
 				ifile.extract("species2",sg2,"PSI",n_PSI);
 		        // Obtain the lists of species numbers from the lists of species names.
@@ -81,9 +77,6 @@ public:
 
 			}
 			else if(params.geometry == "1d3v" && PSI_type == "BackScattering"){
-				MESSAGE("Parameters for PSI #" << n_PSI << " :");
-
-
 		        ifile.extract("species1",sg1,"PSI",n_PSI);
 				ifile.extract("species2",sg2,"PSI",n_PSI);
 		        // Obtain the lists of species numbers from the lists of species names.
@@ -105,15 +98,14 @@ public:
 			}
 
 			else if(params.geometry == "1d3v" && PSI_type == "Recycling"){
-				MESSAGE("Parameters for PSI #" << n_PSI << " :");
-
-
 		        ifile.extract("species1",sg1,"PSI",n_PSI);
 				ifile.extract("species2",sg2,"PSI",n_PSI);
 		        // Obtain the lists of species numbers from the lists of species names.
 		        sgroup1 = params.FindSpecies(sg1);
+				sgroup2 = params.FindSpecies(sg2);
 		        // Each group of species sgroup1 and sgroup2 must not be empty
 		        if (sgroup1.size()==0) ERROR("No valid `species1` requested in PSI #" << n_PSI);
+				if (sgroup2.size()==0) ERROR("No valid `species1` requested in PSI #" << n_PSI);
 
 				// Injection logarithm (if negative or unset, then automatically computed)
 		        psiPos = "left"; // default
@@ -126,13 +118,10 @@ public:
 				recycling_factor = 0.0; // default
 				ifile.extract("recycling_factor",recycling_factor,"PSI",n_PSI);
 
-		        vecPSI.push_back( new PSI1D_Recycling(params, smpi,sgroup1[0], psiPos, emitTemp, recycling_factor) );
+		        vecPSI.push_back( new PSI1D_Recycling(params, smpi,sgroup1[0], sgroup2[0], psiPos, emitTemp, recycling_factor) );
 			}
 
 			else if(params.geometry == "1d3v" && PSI_type == "SEE"){
-				MESSAGE("Parameters for PSI #" << n_PSI << " :");
-
-
 		        ifile.extract("species1",sg1,"PSI",n_PSI);
 				ifile.extract("species2",sg2,"PSI",n_PSI);
 		        // Obtain the lists of species numbers from the lists of species names.
@@ -162,13 +151,6 @@ public:
 				ERROR("no PSI_type match: "<<PSI_type);
 			}
 	    }
-
-
-	    // Needs wavelength_SI to be defined
-	    if (numPSI > 0)
-	        if (params.wavelength_SI <= 0.)
-	            ERROR("The parameter `wavelength_SI` needs to be defined and positive in order to compute PSI");
-
 
 	    return vecPSI;
 	};

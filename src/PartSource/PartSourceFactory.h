@@ -39,6 +39,8 @@ public:
 		double b_FN;
 		double work_function;
 		double emitJ;
+		double emitFlux;
+		int emitNumber;
 		unsigned int nPartEmit;
 		string relSpecies;
 
@@ -66,9 +68,6 @@ public:
 
 			ifile.extract("PartSource_type",PartSource_type,"PartSource",n_PartSource);
 			if(params.geometry == "1d3v" && PartSource_type == "Emit"){
-				MESSAGE("Parameters for PartSource #" << n_PartSource << " :");
-
-
 		        ifile.extract("species1",sg1,"PartSource",n_PartSource);
 		        // Obtain the lists of species numbers from the lists of species names.
 		        sgroup1 = params.FindSpecies(sg1);
@@ -106,9 +105,12 @@ public:
 				emitJ = 0;		// default
 		        if( !ifile.extract("emitJ",emitJ,"PartSource",n_PartSource) );
 
+				emitFlux = 0.0;		// default
+				if( !ifile.extract("emitFlux",emitFlux,"PartSource",n_PartSource) );
+
 				// Number of timesteps between each debug output (if 0 or unset, no debug)
-				nPartEmit = 0;		// default
-		        if( !ifile.extract("nPartEmit",nPartEmit,"PartSource",n_PartSource) );
+				emitNumber = 0;		// default
+		        if( !ifile.extract("emitNumber",emitNumber,"PartSource",n_PartSource) );
 
 				// Number of timesteps between each debug output (if 0 or unset, no debug)
 				relSpecies = "";		// default
@@ -120,15 +122,12 @@ public:
 		        MESSAGE(1,"First  group of species :" << mystream.str());
 
 		        // Add new PSI objects to vector
-		        vecPartSource.push_back( new PartSource1D_Emit(params, smpi, emitKind, sgroup1[0], emitPos, nPartEmit,
-								  emitTemp, emitJ, weight_const, emitOffset, a_FN, b_FN, work_function, relSpecies) );
+		        vecPartSource.push_back( new PartSource1D_Emit(params, smpi, emitKind, sgroup1[0], emitPos, emitNumber,
+								  emitTemp, emitJ, emitFlux, emitOffset, a_FN, b_FN, work_function, relSpecies) );
 
 			}
 
 			else if(params.geometry == "1d3v" && PartSource_type == "Load"){
-				MESSAGE("Parameters for PartSource #" << n_PartSource << " :");
-
-
 		        ifile.extract("species1",sg1,"PartSource",n_PartSource);
 		        // Obtain the lists of species numbers from the lists of species names.
 		        sgroup1 = params.FindSpecies(sg1);
@@ -168,9 +167,6 @@ public:
 			}
 
 			else if(params.geometry == "2d3v" && PartSource_type == "Load"){
-				MESSAGE("Parameters for PartSource #" << n_PartSource << " :");
-
-
 		        ifile.extract("species1",sg1,"PartSource",n_PartSource);
 		        // Obtain the lists of species numbers from the lists of species names.
 		        sgroup1 = params.FindSpecies(sg1);

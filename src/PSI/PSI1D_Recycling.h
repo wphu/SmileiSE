@@ -20,6 +20,7 @@ public:
         PicParams& params,
         SmileiMPI* smpi,
         unsigned int psi_species1,
+        unsigned int psi_species2,
         string psiPosition,
         double emitTemperature,
         double recycling_factor_temp

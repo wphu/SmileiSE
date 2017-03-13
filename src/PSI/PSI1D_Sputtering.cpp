@@ -65,7 +65,7 @@ void PSI1D_Sputtering::performPSI(PicParams& params, SmileiMPI* smpi, vector<Spe
 
     iDim = 0;
     nPartEmit = 0;
-    int nPart = s1->indexes_of_particles_to_exchange_per_thd[0].size();
+    int nPart = p1->size();
     for(unsigned int iPart = 0; iPart < nPart; iPart++)
     {
         if( p1->position(iDim,iPart) < smpi->getDomainLocalMin(iDim) || p1->position(iDim,iPart) > smpi->getDomainLocalMax(iDim) ) {
@@ -85,7 +85,7 @@ void PSI1D_Sputtering::performPSI(PicParams& params, SmileiMPI* smpi, vector<Spe
     if( smpi->isWestern() || smpi->isEastern() )
     {
         emit(params, vecSpecies);
-        s1->insert_particles_to_bins(new_particles, count_of_particles_to_insert_s1);
+        s2->insert_particles_to_bins(new_particles, count_of_particles_to_insert_s2);
         new_particles.clear();
     }
 }
@@ -101,41 +101,51 @@ void PSI1D_Sputtering::emit(PicParams& params, vector<Species*>& vecSpecies)
 
     new_particles.initialize(nPartEmit, params);
     if(psiPos == "left"){
-        count_of_particles_to_insert_s1.front() = nPartEmit;
+        count_of_particles_to_insert_s2.front() = nPartEmit;
         for(int iPart=0; iPart<nPartEmit; iPart++)
         {
             new_particles.position(0,iPart)=(((double)rand() / RAND_MAX))*params.cell_length[0]*posOffset;
             new_particles.position_old(0,iPart) = new_particles.position(0,iPart);
 
+            double ran;
+            do {
+                ran = (double)rand() / RAND_MAX;
+            }
+            while (ran == 0.0);
             // initialize using the Maxwell distribution function in x-direction
-            double psm = sqrt(2.0 * emitTemp / s1->species_param.mass) * sqrt(-log((double)rand() / RAND_MAX));
+            double psm = sqrt(2.0 * const_e * emitTemp / s1->species_param.mass) * sqrt(-log(ran));
             double theta = M_PI*(double)rand() / RAND_MAX;
             double phi   = 2.0 * M_PI*(double)rand() / RAND_MAX;
             new_particles.momentum(0,iPart) = abs( psm*sin(theta)*cos(phi) );
             new_particles.momentum(1,iPart) = 0.0;
             new_particles.momentum(2,iPart) = 0.0;
 
-            new_particles.weight(iPart) = weight_const;
-            new_particles.charge(iPart) = s1->species_param.charge_profile.profile;
+            new_particles.weight(iPart) = s1->species_param.weight;
+            new_particles.charge(iPart) = s1->species_param.charge;
         }
     }
     else if(psiPos == "right"){
-        count_of_particles_to_insert_s1.back() = nPartEmit;
+        count_of_particles_to_insert_s2.back() = nPartEmit;
         for(int iPart=0; iPart<nPartEmit; iPart++)
         {
            new_particles.position(0,iPart)=params.cell_length[0]*params.n_space_global[0] - (((double)rand() / RAND_MAX))*params.cell_length[0]*posOffset;
            new_particles.position_old(0,iPart) = new_particles.position(0,iPart);
 
+           double ran;
+           do {
+               ran = (double)rand() / RAND_MAX;
+           }
+           while (ran == 0.0);
            // initialize using the Maxwell distribution function in x-direction
-           double psm = sqrt(2.0 * emitTemp / s1->species_param.mass) * sqrt(-log((double)rand() / RAND_MAX));
+           double psm = sqrt(2.0 * const_e * emitTemp / s1->species_param.mass) * sqrt(-log(ran));
            double theta = M_PI*(double)rand() / RAND_MAX;
            double phi   = 2.0 * M_PI*(double)rand() / RAND_MAX;
            new_particles.momentum(0,iPart) = -abs( psm*sin(theta)*cos(phi) );
            new_particles.momentum(1,iPart) = 0.0;
            new_particles.momentum(2,iPart) = 0.0;
 
-           new_particles.weight(iPart) = weight_const;
-           new_particles.charge(iPart) = s1->species_param.charge_profile.profile;
+           new_particles.weight(iPart) = s1->species_param.weight;
+           new_particles.charge(iPart) = s1->species_param.charge;
        }
     }
     else {

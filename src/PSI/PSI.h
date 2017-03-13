@@ -20,8 +20,14 @@ public:
     //! Constructor for PSI between two species
     PSI(PicParams& params, SmileiMPI* smpi)
     {
-            const_e = params.const_e;
-            count_of_particles_to_insert_s1.resize(params.n_space[0]);
+        const_e = params.const_e;
+        count_of_particles_to_insert_s2.resize(params.n_space[0]);
+        for(int i = 0; i < count_of_particles_to_insert_s2.size(); i++)
+        {
+            count_of_particles_to_insert_s2[i] = 0;
+        }
+        posOffset = 0.1;
+
     };
     virtual ~PSI(){};
 
@@ -65,6 +71,7 @@ public:
 
     Particles new_particles;
     vector<int> count_of_particles_to_insert_s1;
+    vector<int> count_of_particles_to_insert_s2;
     double const_e;
 
 

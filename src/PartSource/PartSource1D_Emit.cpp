@@ -56,8 +56,13 @@ work_function   (work_function)
     emitStep    = 1.0 + emitNumber * params.species_param[species1].weight * params.cell_length[0] / ( emitFlux * params.timestep );
     emitRem     = emitFlux * emitStep * params.timestep / ( params.species_param[species1].weight * params.cell_length[0] ) - emitNumber;
     emitRemTot  = 0.0;
+    MESSAGE("emitStep = "<<emitStep);
 
     count_of_particles_to_insert_s1.resize(params.n_space[0]);
+    for(int i = 0; i < count_of_particles_to_insert_s1.size(); i++)
+    {
+        count_of_particles_to_insert_s1[i] = 0;
+    }
 }
 
 PartSource1D_Emit::~PartSource1D_Emit()
@@ -143,15 +148,20 @@ void PartSource1D_Emit::emit(PicParams& params, vector<Species*>& vecSpecies){
             new_particles.position(0,iPart)=(((double)rand() / RAND_MAX))*params.cell_length[0]*emitOffset;
             new_particles.position_old(0,iPart) = new_particles.position(0,iPart);
 
+            double ran;
+            do {
+                ran = (double)rand() / RAND_MAX;
+            }
+            while (ran == 0.0);
             // initialize using the Maxwell distribution function in x-direction
-            double psm = sqrt(2.0 * params.const_e * emitTemp / s1->species_param.mass) * sqrt(-log((double)rand() / RAND_MAX));
+            double psm = sqrt(2.0 * params.const_e * emitTemp / s1->species_param.mass) * sqrt(-log(ran));
             double theta = M_PI*(double)rand() / RAND_MAX;
             double phi   = 2.0 * M_PI*(double)rand() / RAND_MAX;
             new_particles.momentum(0,iPart) = abs( psm*sin(theta)*cos(phi) );
             new_particles.momentum(1,iPart) = 0.0;
             new_particles.momentum(2,iPart) = 0.0;
 
-            new_particles.weight(iPart) = weight_const;
+            new_particles.weight(iPart) = s1->species_param.weight;
             new_particles.charge(iPart) = s1->species_param.charge;
         }
     }
@@ -159,18 +169,23 @@ void PartSource1D_Emit::emit(PicParams& params, vector<Species*>& vecSpecies){
         count_of_particles_to_insert_s1.back() = nPartEmit;
         for(int iPart=0; iPart<nPartEmit; iPart++)
         {
-           new_particles.position(0,iPart)=params.cell_length[0]*params.n_space_global[0] - (((double)rand() / RAND_MAX))*params.cell_length[0]*emitOffset;
+           new_particles.position(0,iPart) = params.sim_length[0] - (((double)rand() / RAND_MAX))*params.cell_length[0]*emitOffset;
            new_particles.position_old(0,iPart) = new_particles.position(0,iPart);
 
+           double ran;
+           do {
+               ran = (double)rand() / RAND_MAX;
+           }
+           while (ran == 0.0);
            // initialize using the Maxwell distribution function in x-direction
-           double psm = sqrt(2.0 * emitTemp / s1->species_param.mass) * sqrt(-log((double)rand() / RAND_MAX));
+           double psm = sqrt(2.0 * params.const_e * emitTemp / s1->species_param.mass) * sqrt(-log(ran));
            double theta = M_PI*(double)rand() / RAND_MAX;
            double phi   = 2.0 * M_PI*(double)rand() / RAND_MAX;
            new_particles.momentum(0,iPart) = -abs( psm*sin(theta)*cos(phi) );
            new_particles.momentum(1,iPart) = 0.0;
            new_particles.momentum(2,iPart) = 0.0;
 
-           new_particles.weight(iPart) = weight_const;
+           new_particles.weight(iPart) = s1->species_param.weight;
            new_particles.charge(iPart) = s1->species_param.charge;
        }
     }

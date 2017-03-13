@@ -143,8 +143,10 @@ class PartSource(SmileiComponent):
     emitKind = None
     emitPos = None
     nPartEmit = 0
+    emitNumber = 0
     emitTemp = 0.0
     emitJ = 0.0
+    emitFlux = 0.0
     weight_const = 1.0
     emitOffset = 1.0
     a_FN = 1.5414e-6
