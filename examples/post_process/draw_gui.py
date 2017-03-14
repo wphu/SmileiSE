@@ -61,7 +61,7 @@ class ApplicationWindow(QMainWindow):
         #> the right part (a TabWidget): figures and data
         tab_widget = QTabWidget(self.main_widget)
         hSplitter.addWidget(tab_widget)
-        hSplitter.setStretchFactor(0, 2)
+        hSplitter.setStretchFactor(0, 4)
         hSplitter.setStretchFactor(1, 3)
 
 

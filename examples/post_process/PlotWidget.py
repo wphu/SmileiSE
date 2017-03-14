@@ -51,91 +51,46 @@ class MyStaticMplCanvas1D(MyMplCanvas):
             self.time = time
 
         val = self.dset[...]
-        val_1d = np.transpose(val[time, 0, 0, :])
+        self.ntime = val[:, 0, 0, 0].size
 
+        val_1d = np.transpose(val[time, 0, 0, :])
+        dx = 1.0
+        nx = val_1d.size
+        x = np.linspace(0,100.0,nx)
+
+        self.ymin = val.min()
+        self.ymax = 1.1 * val.max()
+
+        title = self.dset.name.rsplit('/')[-1]
+
+        self.line1, = self.axes1.plot(x, val_1d)
+        self.axes1.axis([x.min(), x.max(), self.ymin, self.ymax])
+        self.axes1.set_xlabel('x(mm)')
+        self.axes1.set_ylabel(title)
+        self.axes1.set_title(title)
+
+    def update_figure(self, time):
+
+    	#self.time = time
+    	#if self.time == self.ntime:
+    	#	self.time = 0
+
+        val = self.dset[...]
+        val_1d = np.transpose(val[time, 0, 0, :])
 
         dx = 1.0
         nx = val_1d.size
         x = np.linspace(0,100.0,nx)
 
-        title = self.dset.name.rsplit('/')[-1]
+        line1, = self.axes1.plot(x, val_1d)
+        self.axes1.axis([x.min(),x.max(),self.ymin,self.ymax])
 
-        self.axes1.plot(x, val_1d)
-        self.axes1.axis([x.min(),x.max(),val_1d.min(),val_1d.max()])
-        self.axes1.set_xlabel('x(mm)')
-        self.axes1.set_ylabel(title)
-        self.axes1.set_title(title)
-
-
-
-
-
-class MyDynamicMplCanvas1D(MyMplCanvas):
-    """A canvas that updates itself every second with a new plot."""
-    def __init__(self, *args, **kwargs):
-        MyMplCanvas.__init__(self, *args, **kwargs)
-        #> if blit=True, the figure does not show ticks, axis and so on, no idea why!!!
-        #self.ani = animation.FuncAnimation(self.fig, self.update_figure, self.ntime, blit=False, interval=800, repeat=False)
-
-    def start_animate(self):
-        try:
-            self.ani = animation.FuncAnimation(self.fig, self.update_figure, self.ntime, blit=False, interval=500, repeat=False)
-            self.draw()
-        except:
-            print "start_animate error"
-    def stop_animate(self):
-        self.ani._stop()
+        #self.line1.set_ydata(val_1d)
+        return [line1]
 
     def save_animation(self):
         self.ani = animation.FuncAnimation(self.fig, self.update_figure, self.ntime, blit=False, interval=500, repeat=False)
         self.ani.save('movie.gif', writer='imagemagick')
-
-    def compute_initial_figure(self, time, dset = None):
-        #> ==================================================================
-    	self.dset = dset
-    	self.time = time
-
-
-        val = self.dset[...]
-        val_1d = np.transpose(val[self.time, 0, 0, :])
-
-        dx = 1.0
-        nx = val_1d.size
-        x = np.linspace(0,100.0,nx)
-
-        self.ntime = val[:, 0, 0, 0].size
-
-
-        title = self.dset.name.rsplit('/')[-1]
-
-        self.axes1.set_title(title)
-        self.line1, = self.axes1.plot(x, val_1d)
-        self.axes1.axis([x.min(),x.max(),val_1d.min(),val_1d.max()])
-        self.axes1.set_xlabel('x(mm)')
-        self.axes1.set_ylabel(title)
-        self.axes1.set_title(title)
-
-
-    def update_figure(self, time):
-
-    	self.time = time
-    	if self.time == self.ntime:
-    		self.time = 0
-
-        val = self.dset[...]
-        val_1d = np.transpose(val[self.time, 0, 0, :])
-
-        dx = 1.0
-        nx = val_1d.size
-        x = np.linspace(0,100.0,nx)
-
-        self.axes1.axis([x.min(),x.max(),val_1d.min(),val_1d.max()])
-
-        self.line1.set_ydata(val_1d)
-        return [self.line1]
-
-
-
 
 
 
@@ -182,71 +137,6 @@ class MyStaticMplCanvas2D(MyMplCanvas):
         self.axes1.set_xlabel('x(mm)')
         self.axes1.set_ylabel('y(mm)')
 
-
-
-
-class MyDynamicMplCanvas2D(MyMplCanvas):
-    """A canvas that updates itself every second with a new plot."""
-    def __init__(self, *args, **kwargs):
-        MyMplCanvas.__init__(self, *args, **kwargs)
-        #> if blit=True, the figure does not show ticks, axis and so on, no idea why!!!
-        #self.ani = animation.FuncAnimation(self.fig, self.update_figure, frames=self.ntime, blit=False, interval=500, repeat=False)
-
-    def start_animate(self):
-        try:
-            self.ani = animation.FuncAnimation(self.fig, self.update_figure, frames=self.ntime, blit=False, interval=500, repeat=False)
-            self.draw()
-
-        except:
-            print "start_animate error"
-    def stop_animate(self):
-        self.ani._stop()
-
-    def save_animation(self):
-        self.ani = animation.FuncAnimation(self.fig, self.update_figure, frames=self.ntime, blit=False, interval=500, repeat=False)
-        self.ani.save('movie.gif', writer='imagemagick')
-
-
-    def compute_initial_figure(self, time, dset = None):
-        self.fig.clear()
-        self.fig.subplots_adjust(top=0.85, bottom=0.2, left=0.2)
-        self.axes1 = self.fig.add_subplot(111)
-        #> ==================================================================
-        #> ==================================================================
-        if dset != None:
-            self.dset = dset
-            self.time = time
-
-        val = self.dset[...]
-        val_2d = np.transpose(val[time, 0, :, :])
-
-        self.ntime = val[:, 0, 0, 0].size
-
-        nx = val_2d.shape[0]
-        ny = val_2d.shape[1]
-
-        dx=1.0
-        dy=1.0
-
-        self.y,self.x=np.mgrid[slice(dx,dx*(nx+1),dx), slice(dy,dy*(ny+0.5),dy)]
-
-
-        levels=MaxNLocator(nbins=100).tick_values(val_2d.min(),val_2d.max())
-
-        if(val_2d.min() == val_2d.max()):
-        	ticks_val=np.linspace(val_2d.min(),val_2d.max()+1.0,5)
-        else:
-        	ticks_val=np.linspace(val_2d.min(),val_2d.max(),5)
-
-        self.cf_temp1 = self.axes1.contourf(self.x,self.y,val_2d,cmap=cm.get_cmap('jet'),levels=levels)
-        self.fig.colorbar(self.cf_temp1,ticks=ticks_val)
-
-        self.axes1.axis([self.x.min(),self.x.max(),self.y.min(),self.y.max()])
-        self.axes1.set_yticks(np.arange(0,self.y.max(),100))
-        self.axes1.set_title('rho')
-        self.axes1.set_xlabel('x(mm)')
-        self.axes1.set_ylabel('y(mm)')
-
     def update_figure(self, time):
         self.fig.clear()
         self.fig.subplots_adjust(top=0.85, bottom=0.2, left=0.2)
@@ -280,6 +170,9 @@ class MyDynamicMplCanvas2D(MyMplCanvas):
 
         return self.im
 
+    def save_animation(self):
+        self.ani = animation.FuncAnimation(self.fig, self.update_figure, frames=self.ntime, blit=False, interval=500, repeat=False)
+        self.ani.save('movie.gif', writer='imagemagick')
 
 
 
@@ -300,7 +193,7 @@ class PlotWidget(QWidget):
         #> the up part, including sc and slider
         self.sc = None
         if (dataset.shape[2] == 1):
-            self.sc = MyStaticMplCanvas1D(self, dataset, width=5, height=4, dpi=100)
+            self.sc = MyStaticMplCanvas1D(self, dataset, width=10, height=4, dpi=100)
         elif (dataset.shape[1] == 1):
             self.sc = MyStaticMplCanvas2D(self, dataset, width=5, height=4, dpi=100)
 
@@ -322,43 +215,18 @@ class PlotWidget(QWidget):
         self.sp_layout.addWidget(self.plainTextEdit)
         self.sp_layout.addWidget(self.sp)
 
-        #> the down part, including dc and animation controlers
-        self.dc = None
-        if (dataset.shape[2] == 1):
-            self.dc = MyDynamicMplCanvas1D(self, dataset, width=5, height=4, dpi=100)
-        elif (dataset.shape[1] == 1):
-            self.dc = MyDynamicMplCanvas2D(self, dataset, width=5, height=4, dpi=100)
+        self.button_saveAnimation = QPushButton("Save Animation")
+        self.button_saveAnimation.clicked.connect(self.save_animation)
 
-
-        #> The animation controlers
-        self.aniControl_widget = QWidget(self)
-        self.aniControl_layout = QHBoxLayout(self.aniControl_widget)
-
-        self.label_ani1 = QLabel("movie")
-        self.button_ani1 = QPushButton("start")
-        self.button_ani2 = QPushButton("save")
-
-        try:
-            self.button_ani1.clicked.connect(self.ani_start)
-        except:
-            print "connect error"
-        self.button_ani2.clicked.connect(self.save_animation)
-
-        self.aniControl_layout.addWidget(self.label_ani1)
-        self.aniControl_layout.addWidget(self.button_ani1)
-        self.aniControl_layout.addWidget(self.button_ani2)
 
         self.plotVboxlayout.addWidget(self.sc)
         self.plotVboxlayout.addWidget(self.sp_widget)
-        self.plotVboxlayout.addWidget(self.dc)
-        self.plotVboxlayout.addWidget(self.aniControl_widget)
+        self.plotVboxlayout.addWidget(self.button_saveAnimation)
 
     def redraw(self, dset):
         t = 0
         self.sc.compute_initial_figure(t, dset)
-        self.dc.compute_initial_figure(t, dset)
         self.sc.draw()
-        self.dc.draw()
 
 
     def timeChange(self):
@@ -367,17 +235,7 @@ class PlotWidget(QWidget):
         self.sc.draw()
         self.plainTextEdit.setText(str(self.sp.value()))
 
-    def ani_start(self):
-        try:
-            self.dc.start_animate()
-        except:
-            print "ani_start error"
-
-
-    def ani_stop(self):
-        pass
-        #self.dc.stop_animate()
-
 
     def save_animation(self):
-        self.dc.save_animation()
+        self.sc.save_animation()
+        pass
