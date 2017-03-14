@@ -18,7 +18,7 @@ wavelength_SI = 1.e-6
 
 
 Lsim = [200.*l0,200.*l0]	# length of the simulation
-Tsim = 10.*t0			# duration of the simulation
+Tsim = 10			# duration of the simulation
 # print_every (on screen text output)
 # print_every = 60
 ntime_step_avg = 1
@@ -55,7 +55,7 @@ sim_length  = Lsim
 # sim_time: duration of the simulation in units of the normalization period
 #
 timestep = t0
-sim_time = Tsim
+n_time = Tsim
 
 # ELECTROMAGNETIC BOUNDARY CONDITIONS
 # bc_em_type_x/y/z : boundary conditions used for EM fields

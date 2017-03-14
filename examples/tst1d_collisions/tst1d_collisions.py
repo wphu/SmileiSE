@@ -12,7 +12,7 @@ l0 = 1.0e-5     # nu.norm_l is reference time, the value's unit before / is m (S
 Lsim = [500.*l0]	# length of the simulation
 
 t0 = 1.0e-12
-Tsim = 1000.*t0			# duration of the simulation
+Tsim = 1000			# duration of the simulation
 
 
 # number of timestep of incrementing averaged electromagnetic fields
@@ -80,7 +80,7 @@ sim_length  = Lsim
 # timestep: duration of the timestep
 # sim_time: duration of the simulation in units of the normalization period
 timestep = t0
-sim_time = Tsim
+n_time = Tsim
 
 
 
@@ -137,6 +137,22 @@ Species(
 	bc_part_type_east  = 'supp',
 )
 
+Species(
+	species_type = 'D1_temp',
+	initPosition_type = 'random',
+	initMomentum_type = 'maxwell',
+	ionization_model = 'none',
+	n_part_per_cell = 0,
+	n_part_per_cell_for_weight = 200,
+	c_part_max = 1.0,
+	mass = 2.0 * 1.67262158e-27,
+	charge = 1.6021766208e-19,
+	nb_density = 1.0e19,
+	temperature = [20.0],
+	time_frozen = 0.0,
+	bc_part_type_west  = 'supp',
+	bc_part_type_east  = 'supp',
+)
 
 Species(
 	species_type = 'D',
@@ -162,7 +178,7 @@ Collisions(
 	collisions_type = "Ionization",
 	species1 = ["e"],
 	species2 = ["D"],
-	species3 = ["D1"],
+	species3 = ["D1_temp"],
 	crossSection_fileName = "Ionization_Cu_to_Cu+1.dat"
 )
 

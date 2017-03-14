@@ -13,7 +13,7 @@ l0 = 0.5e-5     # nu.norm_l is reference time, the value's unit before / is m (S
 Lsim = [1000.*l0]	# length of the simulation
 
 t0 = 1.0e-12
-Tsim = 100000.*t0			# duration of the simulation
+Tsim = 100000			# duration of the simulation
 
 
 #> number of timestep of incrementing averaged electromagnetic fields
@@ -86,7 +86,7 @@ sim_length  = Lsim
 # sim_time: duration of the simulation in units of the normalization period
 #
 timestep = t0
-sim_time = Tsim
+n_time = Tsim
 
 
 

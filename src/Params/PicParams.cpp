@@ -94,7 +94,7 @@ PicParams::PicParams(InputData &ifile) {
 
     // reads timestep & cell_length
     ifile.extract("timestep", timestep);
-    res_time = 1.0/timestep;
+    ifile.extract("n_time", n_time);
     ifile.extract("cell_length",cell_length);
     if (cell_length.size()!=nDim_field) {
         ERROR("Dimension of cell_length ("<< cell_length.size() << ") != " << nDim_field << " for geometry " << geometry);
@@ -437,13 +437,6 @@ void PicParams::compute()
 {
     // time-related parameters
     // -----------------------
-
-    // number of time-steps
-    n_time   = (int)(res_time*sim_time);
-
-    //!\todo MG Is this really necessary now ?
-    // simulation time & time-step value
-    timestep = 1.0/res_time;
     sim_time = (double)(n_time) * timestep;
 
 
@@ -574,7 +567,6 @@ void PicParams::print()
     MESSAGE(1,"Geometry : " << geometry)
     MESSAGE(1,"(nDim_particle, nDim_field) : (" << nDim_particle << ", "<< nDim_field << ")");
     MESSAGE(1,"Interpolation_order : " <<  interpolation_order);
-    MESSAGE(1,"(res_time, sim_time) : (" << res_time << ", " << sim_time << ")");
     MESSAGE(1,"(n_time,   timestep) : (" << n_time << ", " << timestep << ")");
     MESSAGE(1,"           timestep  = " << timestep/dtCFL << " * CFL");
 

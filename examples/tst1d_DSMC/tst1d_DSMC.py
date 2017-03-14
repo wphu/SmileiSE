@@ -15,7 +15,7 @@ Lsim = [100.*l0]	# length of the simulation
 
 
 #Tsim = 10000.*t0			# duration of the simulation
-Tsim = 100000.*t0			# duration of the simulation
+Tsim = 100000			# duration of the simulation
 
 #> number of timestep of incrementing averaged electromagnetic fields
 ntime_step_avg = 10000
@@ -54,7 +54,7 @@ sim_length  = Lsim
 # sim_time: duration of the simulation in units of the normalization period
 #
 timestep = t0
-sim_time = Tsim
+n_time = Tsim
 #print sim_time / timestep
 # ELECTROMAGNETIC BOUNDARY CONDITIONS
 # bc_em_type_x/y/z : boundary conditions used for EM fields
