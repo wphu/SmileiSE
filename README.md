@@ -1,10 +1,8 @@
-<<<<<<< HEAD
-# Smilei_SEF
-
-This code is developed based on Smilei: http://www.maisondelasimulation.fr/projects/Smilei/html/#
-The main difference is that the electromagnetic field is changed to static electric field, and the possion solver is SuperLU for 2d, tridiagnoal for 1d. Besides, elastic collision, ionization collision and charge exchange collision are included.
-Email: wphu@qq.com
-=======
 #SmileiSE
-This code is developed based on Smilei: http://www.maisondelasimulation.fr/projects/Smilei/html/# The main difference is that the electromagnetic field is changed to static electric field, and the possion solver is SuperLU for 2d, tridiagnoal for 1d. Besides, elastic collision, ionization collision and charge exchange collision are included. Email: wanpengh@gmail.com
->>>>>>> 3a3145c649a9437da00060b528735878b7cc75b0
+This code is developed based on Smilei:
+https://github.com/SmileiPIC/Smilei
+http://www.maisondelasimulation.fr/projects/Smilei/html/#
+
+The main difference is that the electromagnetic field is changed to static electric field, and the possion solver is SuperLU for 2d, TDMA for 1d. Besides, some collisions (elastic collision, ionization collision and charge exchange collision) and PSIs (recycling and Backscattering) are included. A smiple plot tool based on Pyqt, matplotlib, hdf5 is developed.
+
+Email:  wanpengh@gmail.com | wphu@qq.com
