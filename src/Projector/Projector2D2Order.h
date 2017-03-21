@@ -18,6 +18,7 @@ public:
 
     //! Project global current charge (EMfields->rho_)
     //! Used in Species::dynamics if time_frozen
+    void operator() (Field* rho, Particles &particles, int ipart, double weight){};
     void operator() (Field* rho, Particles &particles, int ipart);
 
 
@@ -32,4 +33,3 @@ private:
 };
 
 #endif
-
