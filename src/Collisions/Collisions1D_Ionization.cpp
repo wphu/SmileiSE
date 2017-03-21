@@ -173,9 +173,9 @@ void Collisions1D_Ionization::collide(PicParams& params, SmileiMPI* smpi, Electr
             if(ran_P < P_collision){
                 count_of_particles_to_erase_s2[ibin]++;
                 //>calculate the scatter velocity of primary electron
-                momentum_unit[0] = p1->momentum(0,i1) / v_magnitude_primary;
-                momentum_unit[1] = p1->momentum(1,i1) / v_magnitude_primary;
-                momentum_unit[2] = p1->momentum(2,i1) / v_magnitude_primary;
+                momentum_unit[0] = p1->momentum(0,i1) / v_magnitude;
+                momentum_unit[1] = p1->momentum(1,i1) / v_magnitude;
+                momentum_unit[2] = p1->momentum(2,i1) / v_magnitude;
                 //MESSAGE("v_magnitude"<<"  "<<v_magnitude_primary<<"  "<<v_magnitude_secondary);
                 //MESSAGE("momentum1"<<" "<<p1->momentum(0, i1)<<"  "<<p1->momentum(1, i1)<<"  "<<p1->momentum(2, i1));
                 calculate_scatter_velocity(v_magnitude_primary, m1, m2, momentum_unit, momentum_temp);

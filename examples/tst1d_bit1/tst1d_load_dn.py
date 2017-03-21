@@ -8,24 +8,25 @@
 #
 import math
 
-l0 = 5.0e-5     # nu.norm_l is reference time, the value's unit before / is m (SI)
-Lsim = [800.*l0]	# length of the simulation
+l0 = 2.0e-5     # nu.norm_l is reference time, the value's unit before / is m (SI)
+Lsim = [500.*l0]	# length of the simulation
 
-t0 = 0.5e-12
-Tsim = 200000000			# duration of the simulation
+t0 = 2.0e-12
+Tsim = 20000000			# duration of the simulation
 
 
-# number of timestep of incrementing averaged electromagnetic fields
-ntime_step_avg = 2000000
+#> number of timestep of incrementing averaged electromagnetic fields
+ntime_step_avg = 200000
 
-# Timestep to output some fields into hdf5 file
+#> Timestep to output some fields into hdf5 file
 dump_step = ntime_step_avg
 
-timesteps_coulomb = 5
+timesteps_coulomb = 20
 
 timesteps_DSMC = 2
 
 timesteps_restore = ntime_step_avg
+
 
 # dim: Geometry of the simulation
 #      1d3v = cartesian grid with 1d in space + 3d in velocity
@@ -46,6 +47,7 @@ number_of_procs = [24]
 #
 bc_em_type_x = ['Dirichlet', 'Dirichlet']
 #bc_em_type_x = ['Neumann', 'Dirichlet']
+
 bc_em_value_x = [0.0, 0.0]
 
 B = 2.0
@@ -67,18 +69,24 @@ vz = 0.0
 # this is used to randomize the random number generator
 random_seed = 0
 
+
 # order of interpolation
+#
 interpolation_order = 1
+
+
 
 # SIMULATION BOX : for all space directions (use vector)
 # cell_length: length of the cell
 # sim_length: length of the simulation in units of the normalization wavelength
+#
 cell_length = [l0]
 sim_length  = Lsim
 
 # SIMULATION TIME
 # timestep: duration of the timestep
 # sim_time: duration of the simulation in units of the normalization period
+#
 timestep = t0
 n_time = Tsim
 
@@ -86,7 +94,7 @@ n_time = Tsim
 
 
 
-# ======================= DEFINE ALL SPECIES ================================================
+# DEFINE ALL SPECIES
 # species_type       = string, given name to the species (e.g. ion, electron, positron, test ...)
 # initPosition_type  = string, "regular" or "random"
 # initMomentum_type  = string "cold", "maxwell-juettner" or "rectangular"
@@ -110,11 +118,11 @@ Species(
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
 	n_part_per_cell = 0,
-	n_part_per_cell_for_weight = 1000,
+	n_part_per_cell_for_weight = 200,
 	c_part_max = 1.0,
 	mass = 9.109382616e-31,
 	charge = -1.6021766208e-19,
-	nb_density = 1.0e19,
+	nb_density = 2.0e19,
 	temperature = [20.0],
 	time_frozen = 0.,
 	bc_part_type_west  = 'supp',
@@ -127,16 +135,17 @@ Species(
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
 	n_part_per_cell = 0,
-	n_part_per_cell_for_weight = 1000,
+	n_part_per_cell_for_weight = 200,
 	c_part_max = 1.0,
 	mass = 2.0 * 1.67262158e-27,
 	charge = 1.6021766208e-19,
-	nb_density = 1.0e19,
+	nb_density = 2.0e19,
 	temperature = [20.0],
 	time_frozen = 0.0,
 	bc_part_type_west  = 'supp',
 	bc_part_type_east  = 'supp',
 )
+
 
 Species(
 	species_type = 'D',
@@ -144,28 +153,31 @@ Species(
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
 	n_part_per_cell = 0,
-	n_part_per_cell_for_weight = 1000,
+	n_part_per_cell_for_weight = 200,
 	c_part_max = 1.0,
 	mass = 2.0 * 1.67262158e-27,
 	charge = 0.0,
-	nb_density = 1.0e19,
+	nb_density = 2.0e19,
 	temperature = [20.0],
 	time_frozen = 0.0,
 	bc_part_type_west  = 'supp',
 	bc_part_type_east  = 'supp',
 )
 
-# =================== PartSource =============================================
+# PartSource
+# species1    = list of strings, the names of the first species that performPSI
+# species2    = list of strings, the names of the second species that performPSI
+#               (can be the same as species1)
 PartSource(
 	species1 = ["e"],
 	PartSource_type = "Load",
 	loadKind = "dn",
-	loadNumber = 2,
+	loadNumber = 4,
 	#loadDensity = 1.0e19,
 	loadTemperature = 210.0,
-	loadDn = 2.0e25,
-	loadPos_start 	= Lsim[0] / 2.0 - 200.0*l0,
-	loadPos_end 	= Lsim[0] / 2.0 + 200.0*l0,
+	loadDn = 5.0e25,
+	loadPos_start 	= Lsim[0] / 2.0 - 50.0*l0,
+	loadPos_end 	= Lsim[0] / 2.0 + 50.0*l0,
 
 
 
@@ -176,12 +188,12 @@ PartSource(
 	species1 = ["D1"],
 	PartSource_type = "Load",
 	loadKind = "dn",
-	loadNumber = 2,
+	loadNumber = 4,
 	#loadDensity = 1.0e19,
 	loadTemperature = 260.0,
-	loadDn = 2.0e25,
-	loadPos_start = 	Lsim[0] / 2.0 - 200.0*l0,
-	loadPos_end = 		Lsim[0] / 2.0 + 200.0*l0,
+	loadDn = 5.0e25,
+	loadPos_start = 	Lsim[0] / 2.0 - 50.0*l0,
+	loadPos_end = 		Lsim[0] / 2.0 + 50.0*l0,
 
 )
 
@@ -230,25 +242,25 @@ PSI(
 )
 
 
-'''
+
 #==================== Collisions =================================
 Collisions(
 	collisions_type = "Ionization",
 	species1 = ["e"],
 	species2 = ["D"],
 	species3 = ["D1"],
-	crossSection_fileName = "Ionization_Cu_to_Cu+1.dat"
+	crossSection_fileName = "Ionization_D_to_D+1.dat"
 )
 
 Collisions(
 	collisions_type = "Excitation",
 	species1 = ["e"],
 	species2 = ["D"],
-	crossSection_fileName = "Ionization_Cu_to_Cu+1.dat"
+	crossSection_fileName = "Excitation_H_1s-2p.dat"
 )
 
 
-
+'''
 
 Collisions(
 	collisions_type = "Ionization",

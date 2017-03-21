@@ -185,6 +185,9 @@ void Collisions2D_Ionization::collide(PicParams& params, SmileiMPI* smpi, Electr
                 //> the energy of the primary electron
                 ke_primary -= ke_secondary;
 
+                v_magnitude_primary = sqrt( 2.0 * ke_primary / m1 );
+                v_magnitude_secondary = sqrt( 2.0 * ke_secondary / m1 );
+
                 sigma_cr = v_magnitude * cross_section(ke1);
                 P_collision = sigma_cr / sigma_cr_max;
                 // Generate a random number between 0 and 1
