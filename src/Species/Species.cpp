@@ -488,6 +488,10 @@ void Species::dynamics(double time_dual, unsigned int ispec, ElectroMagn* EMfiel
         double gf = 1.0;
 
         psi_particles.clear();
+        for(int iDirection=0; iDirection<indexes_of_particles_to_perform_psi.size(); iDirection++)
+        {
+             indexes_of_particles_to_perform_psi[iDirection].clear();
+        }
         for (ibin = 0 ; ibin < (unsigned int)bmin.size() ; ibin++) {
             for (iPart=(unsigned int)bmin[ibin] ; iPart<(unsigned int)bmax[ibin]; iPart++ ) {
 

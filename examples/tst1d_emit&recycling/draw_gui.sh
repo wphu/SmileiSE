@@ -1,1 +1,1 @@
- python ../post_process/draw_gui.py
+ python ../../tools/pyPlot_gui/draw_gui.py

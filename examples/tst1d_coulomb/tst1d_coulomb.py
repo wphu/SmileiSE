@@ -151,7 +151,7 @@ Species(
 
 
 
-# Collisions
+# =============== Collisions ================
 
 Collisions(
 	species1 = ["e"],
