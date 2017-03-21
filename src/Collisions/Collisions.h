@@ -129,6 +129,19 @@ public:
         int low = 0;
         int high = crossSection[0].size() - 1;
         int mid = 0;
+
+        if(energy <= crossSection[0][low] )
+        {
+            return 0.0;
+        }
+        else if(energy >= crossSection[0][high])
+        {
+            low = high -1;
+            double dEnergy_inv = 1.0 / (crossSection[0][low] - crossSection[0][high]);
+            return crossSection[1][high] * (crossSection[0][low] - energy) * dEnergy_inv +
+                   crossSection[1][low] * (energy - crossSection[0][high]) * dEnergy_inv;
+        }
+
         while(low <= high){
             mid = (low + high) / 2;
             if(crossSection[0][mid] < energy){

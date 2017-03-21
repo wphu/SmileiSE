@@ -63,6 +63,48 @@ void Projector1D1Order::operator() (Field* Jx, Field* Jy, Field* Jz, Field* rho,
 // ---------------------------------------------------------------------------------------------------------------------
 //! Project global current charge
 // ---------------------------------------------------------------------------------------------------------------------
+void Projector1D1Order::operator() (Field* rho, Particles &particles, int ipart, double weight)
+{
+    Field1D* rho1D  = static_cast<Field1D*>(rho);
+
+
+    //Declaration of local variables
+    int i;
+    double xjn,xjmxi;
+    double rho_j = weight;  // charge density of the macro-particle
+
+    //Locate particle on the grid
+    xjn    = particles.position(0, ipart) * dx_inv_;  // normalized distance to the first node
+    i      = floor(xjn);                   // index of the central node
+    xjmxi  = xjn - (double)i;              // normalized distance to the nearest grid point
+
+    //cout << "Pos = " << particles.position(0, ipart) << " - i global = " << i << " - i local = " << i-index_domain_begin <<endl;
+
+    i -= index_domain_begin;
+
+    //if(i > rho1D->dims_[0] || i+1 > rho1D->dims_[0]) {
+    //    cout<<"Projection out of limits: i = "<<i<<" x = "<<particles.position(0, ipart)<<endl;
+    //    cout<<"ipart = "<<ipart<<" particle size = "<<particles.size()<<endl;
+    //    return;
+    //}
+
+    // 1nd order projection for the total density
+    //#pragma omp atomic
+    //if(i < 0 || i >= rho1D->dims_[0] - 1)
+    //{
+    //    cout<<"project error: "<<i<<endl;
+    //}
+    (*rho1D)( i  )  += (1.0 - xjmxi)    * rho_j ;
+    //#pragma omp atomic
+    (*rho1D)( i+1)  += xjmxi             * rho_j;
+
+} // END Project global current charge
+
+
+
+// ---------------------------------------------------------------------------------------------------------------------
+//! Project global current charge
+// ---------------------------------------------------------------------------------------------------------------------
 void Projector1D1Order::operator() (Field* rho, Particles &particles, int ipart)
 {
     Field1D* rho1D  = static_cast<Field1D*>(rho);

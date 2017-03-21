@@ -179,12 +179,12 @@ Collisions(
 	species1 = ["e"],
 	species2 = ["D"],
 	species3 = ["D1_temp"],
-	crossSection_fileName = "Ionization_Cu_to_Cu+1.dat"
+	crossSection_fileName = "Ionization_D_to_D+1.dat"
 )
 
 Collisions(
 	collisions_type = "Excitation",
 	species1 = ["e"],
 	species2 = ["D"],
-	crossSection_fileName = "Ionization_Cu_to_Cu+1.dat"
+	crossSection_fileName = "Ionization_D_to_D+1.dat"
 )

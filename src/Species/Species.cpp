@@ -745,7 +745,8 @@ void Species::Project(double time_dual, unsigned int ispec, ElectroMagn* EMfield
         {
             for (int iPart=(unsigned int)bmin[ibin] ; iPart<(unsigned int)bmax[ibin]; iPart++ )
             {
-                (*Proj)(EMfields->rho_s[ispec], particles, iPart);
+                (*Proj)(EMfields->rho_s[ispec], particles, iPart, species_param.weight);
+                //(*Proj)(EMfields->rho_s[ispec], particles, iPart);
             }//iPart
         }// ibin
 

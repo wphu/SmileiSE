@@ -35,7 +35,7 @@ Collisions1D_Excitation::Collisions1D_Excitation(PicParams& params, vector<Speci
     //MPI_Reduce( smpi->isMaster()?MPI_IN_PLACE:&totbins, &totbins, 1, MPI_INTEGER, MPI_SUM, 0, MPI_COMM_WORLD);
 
     readCrossSection();
-    energy_ionization_threshold = crossSection[0][0];
+    energy_excitation_threshold = crossSection[0][0];
 
 }
 
@@ -140,7 +140,7 @@ void Collisions1D_Excitation::collide(PicParams& params, SmileiMPI* smpi, Electr
             v_magnitude = sqrt(v_square);
             //>kinetic energy of species1 (electrons)
             ke1 = 0.5 * m1 * v_square;
-            ke_primary = ke1 - energy_ionization_threshold * const_e;
+            ke_primary = ke1 - energy_excitation_threshold * const_e;
             v_magnitude_primary = sqrt( 2.0 * ke_primary / m1 );
 
             sigma_cr = v_magnitude * interpCrossSection( ke1 / const_e );

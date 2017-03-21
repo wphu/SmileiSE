@@ -41,7 +41,7 @@ public:
 
 private:
     //>the ionization threshold energy
-    double energy_ionization_threshold;
+    double energy_excitation_threshold;
 
 };
 
