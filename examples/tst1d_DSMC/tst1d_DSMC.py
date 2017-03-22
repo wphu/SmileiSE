@@ -9,7 +9,7 @@
 import math
 
 l0 = 0.5e-5     # nu.norm_l is reference time, the value's unit before / is m (SI)
-t0 = 1.0e-11
+t0 = 1.0e-12
 Lsim = [100.*l0]	# length of the simulation
 
 
@@ -115,23 +115,26 @@ random_seed = 0
 
 
 Species(
-	species_type = 'D1',
+	species_type = 'H',
 	initPosition_type = 'random',
 	initMomentum_type = 'rectangular',
 	ionization_model = 'none',
-	n_part_per_cell = 500,
-	n_part_per_cell_for_weight = 100,
+	n_part_per_cell = 200,
+	n_part_per_cell_for_weight = 200,
 	c_part_max = 1.0,
-	mass = 2.5E-26,  #2.0 * 1.67262158e-27,
+	mass = 1.0 * 1.67262158e-27,
 	charge = 0.0,
-	nb_density = 1.0e20,
+	nb_density = 1.0e19,
 	temperature = [20.0],
 	mean_velocity = [vx, vy, vz],
 	time_frozen = 0.0,
 	bc_part_type_west  = 'refl',
 	bc_part_type_east  = 'refl',
 
-	diameter = 3.E-10,
+	# The molecule and atom diameters are from the following refs:
+	# Bird' book: page 410
+	# The mathematical theory of non-uniform gases: page238, page237, page228,
+	diameter = 2.745E-10,
 	ref_temperature = 273.,
 	visc_temp_index = 0.75,
 	vss_scat_inv = 1.
@@ -139,23 +142,23 @@ Species(
 
 
 Species(
-	species_type = 'D2',
+	species_type = 'D',
 	initPosition_type = 'random',
 	initMomentum_type = 'rectangular',
 	ionization_model = 'none',
-	n_part_per_cell = 500,
-	n_part_per_cell_for_weight = 100,
+	n_part_per_cell = 200,
+	n_part_per_cell_for_weight = 200,
 	c_part_max = 1.0,
-	mass = 2.0E-26,  #2.0 * 1.67262158e-27,
+	mass = 2.0 * 1.67262158e-27,
 	charge = 0.0,
-	nb_density = 1.0e20,
+	nb_density = 1.0e19,
 	temperature = [20.0],
 	mean_velocity = [vx, vy, vz],
 	time_frozen = 0.0,
 	bc_part_type_west  = 'refl',
 	bc_part_type_east  = 'refl',
 
-	diameter = 3.E-10,
+	diameter = 2.751E-10,
 	ref_temperature = 273.,
 	visc_temp_index = 0.75,
 	vss_scat_inv = 1.
@@ -163,23 +166,23 @@ Species(
 
 
 Species(
-	species_type = 'D3',
+	species_type = 'C',
 	initPosition_type = 'random',
 	initMomentum_type = 'rectangular',
 	ionization_model = 'none',
-	n_part_per_cell = 500,
-	n_part_per_cell_for_weight = 100,
+	n_part_per_cell = 200,
+	n_part_per_cell_for_weight = 200,
 	c_part_max = 1.0,
-	mass = 4.0E-27,  #2.0 * 1.67262158e-27,
+	mass = 1.993e-26,
 	charge = 0.0,
-	nb_density = 1.0e20,
+	nb_density = 1.0e19,
 	temperature = [20.0],
 	mean_velocity = [vx, vy, vz],
 	time_frozen = 0.0,
 	bc_part_type_west  = 'refl',
 	bc_part_type_east  = 'refl',
 
-	diameter = 4.E-10,
+	diameter = 3.784E-10,
 	ref_temperature = 273.,
 	visc_temp_index = 0.75,
 	vss_scat_inv = 1.
@@ -190,8 +193,8 @@ Species(
 # Collisions
 
 Collisions(
-	species1 = ["D1", "D2"],
-	species2 = ["D3" ],
+	species1 = ["H", "D"],
+	species2 = ["C" ],
 	#coulomb_log = 5,
 	collisions_type = "DSMC"
 )

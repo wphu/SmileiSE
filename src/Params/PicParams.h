@@ -119,7 +119,7 @@ struct SpeciesStructure {
 
     ProfileStructure ppc_profile;
 
-    // parameters for DSMC
+    // =============== parameters for DSMC ===================================
     double diameter;
     double ref_temperature;        // reference temperature
     double visc_temp_index;

@@ -288,7 +288,7 @@ void SmileiIO_Cart1D::initVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* 
 
 
 
-void SmileiIO_Cart1D::calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies)
+void SmileiIO_Cart1D::calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, int itime)
 {
     Species *s;
     Particles *p;
@@ -326,7 +326,11 @@ void SmileiIO_Cart1D::calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* f
         }
         smpi->gatherVDF(vx_VDF_global[isp], vx_VDF[isp]);
 
-        vx_VDF_tot_global[isp]->put_to(0.0);
+        if( (itime % (params.dump_step + 1)) == 0 )
+        {
+            vx_VDF_tot_global[isp]->put_to(0.0);
+        }
+
         for (int ibin = 0; ibin < vx_VDF_global[isp]->dims_[0]; ibin++)
         {
             for (int ivx = 0; ivx < vx_VDF_global[isp]->dims_[3]; ivx++)
@@ -336,6 +340,13 @@ void SmileiIO_Cart1D::calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* f
 
         }
 
+        if( (itime % (params.dump_step)) == 0 )
+        {
+            for (int ivx = 0; ivx < vx_VDF_global[isp]->dims_[3]; ivx++)
+            {
+                (*vx_VDF_tot_global[isp])(0,0,0,ivx) /= params.dump_step;
+            }
+        }
 
     }
 }
@@ -347,7 +358,7 @@ void SmileiIO_Cart1D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fi
 {
 
     Diagnostic1D* diag1D = static_cast<Diagnostic1D*>(diag);
-    calVDF( params, smpi, fields, vecSpecies);
+    calVDF( params, smpi, fields, vecSpecies, itime);
 
     if(smpi->isMaster()) {
 

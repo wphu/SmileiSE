@@ -29,7 +29,7 @@ public:
 
     //! Build memory and file space for // HDF5 write/read
     void createFieldsPattern( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields );
-    
+
 
     // Create particles h5 file pattern
     void createPartsPattern( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies );
@@ -39,7 +39,7 @@ public:
 
     void initVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies );
     // calculate velocity distribution function
-    void calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies);
+    void calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, int itime);
 
 
 

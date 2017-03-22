@@ -8,7 +8,7 @@
 #
 import math
 
-l0 = 1.0e-5     # nu.norm_l is reference time, the value's unit before / is m (SI)
+l0 = 0.25e-5     # nu.norm_l is reference time, the value's unit before / is m (SI)
 Lsim = [500.*l0]	# length of the simulation
 
 t0 = 1.0e-12
@@ -116,8 +116,8 @@ Species(
 	nb_density = 1.0e19,
 	temperature = [20.0],
 	time_frozen = 0.,
-	bc_part_type_west  = 'supp',
-	bc_part_type_east  = 'supp',
+	bc_part_type_west  = 'refl',
+	bc_part_type_east  = 'refl',
 )
 
 Species(
@@ -133,8 +133,8 @@ Species(
 	nb_density = 1.0e19,
 	temperature = [20.0],
 	time_frozen = 0.0,
-	bc_part_type_west  = 'supp',
-	bc_part_type_east  = 'supp',
+	bc_part_type_west  = 'refl',
+	bc_part_type_east  = 'refl',
 )
 
 Species(
@@ -150,8 +150,8 @@ Species(
 	nb_density = 1.0e19,
 	temperature = [20.0],
 	time_frozen = 0.0,
-	bc_part_type_west  = 'supp',
-	bc_part_type_east  = 'supp',
+	bc_part_type_west  = 'refl',
+	bc_part_type_east  = 'refl',
 )
 
 Species(
@@ -159,7 +159,7 @@ Species(
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 200,
+	n_part_per_cell = 50,
 	n_part_per_cell_for_weight = 200,
 	c_part_max = 1.0,
 	mass = 2.0 * 1.67262158e-27,
@@ -167,8 +167,8 @@ Species(
 	nb_density = 1.0e19,
 	temperature = [20.0],
 	time_frozen = 0.0,
-	bc_part_type_west  = 'supp',
-	bc_part_type_east  = 'supp',
+	bc_part_type_west  = 'refl',
+	bc_part_type_east  = 'refl',
 )
 
 
@@ -181,6 +181,7 @@ Collisions(
 	species3 = ["D1_temp"],
 	crossSection_fileName = "Ionization_D_to_D+1.dat"
 )
+
 
 Collisions(
 	collisions_type = "Excitation",
