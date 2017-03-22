@@ -133,7 +133,7 @@ int main (int argc, char* argv[])
     smpi->barrier();
 
     TITLE("Creating Diagnostic");
-    Diagnostic*  diag  = DiagnosticFactory::create(params, smpi);
+    Diagnostic*  diag  = DiagnosticFactory::create(params, smpi, EMfields);
     smpi->barrier();
 
 

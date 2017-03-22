@@ -10,7 +10,7 @@ class Diagnostic2D : public Diagnostic {
 
 public :
 
-    Diagnostic2D(PicParams& params, SmileiMPI* smpi);
+    Diagnostic2D(PicParams& params, SmileiMPI* smpi, ElectroMagn* EMfields);
     virtual ~Diagnostic2D() {};
 
     //! Runs the diag for all patches for local diags.

@@ -15,7 +15,7 @@ Lsim = [100.*l0]	# length of the simulation
 
 
 #Tsim = 10000.*t0			# duration of the simulation
-Tsim = 200000			# duration of the simulation
+Tsim = 20000000			# duration of the simulation
 
 #> number of timestep of incrementing averaged electromagnetic fields
 ntime_step_avg = 10000

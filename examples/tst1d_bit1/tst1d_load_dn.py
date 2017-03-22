@@ -94,7 +94,7 @@ n_time = Tsim
 
 
 
-# DEFINE ALL SPECIES
+# ================= DEFINE ALL SPECIES ===========================================
 # species_type       = string, given name to the species (e.g. ion, electron, positron, test ...)
 # initPosition_type  = string, "regular" or "random"
 # initMomentum_type  = string "cold", "maxwell-juettner" or "rectangular"
@@ -144,6 +144,11 @@ Species(
 	time_frozen = 0.0,
 	bc_part_type_west  = 'supp',
 	bc_part_type_east  = 'supp',
+
+	diameter = 2.751E-10,
+	ref_temperature = 273.,
+	visc_temp_index = 0.75,
+	vss_scat_inv = 1.
 )
 
 
@@ -162,12 +167,115 @@ Species(
 	time_frozen = 0.0,
 	bc_part_type_west  = 'supp',
 	bc_part_type_east  = 'supp',
+
+	diameter = 2.751E-10,
+	ref_temperature = 273.,
+	visc_temp_index = 0.75,
+	vss_scat_inv = 1.
 )
 
-# PartSource
-# species1    = list of strings, the names of the first species that performPSI
-# species2    = list of strings, the names of the second species that performPSI
-#               (can be the same as species1)
+
+Species(
+	species_type = 'C',
+	initPosition_type = 'random',
+	initMomentum_type = 'rectangular',
+	ionization_model = 'none',
+	n_part_per_cell = 0,
+	n_part_per_cell_for_weight = 200,
+	c_part_max = 1.0,
+	mass = 1.993e-26,
+	charge = 0.0,
+	nb_density = 2.0e19,
+	temperature = [20.0],
+	mean_velocity = [vx, vy, vz],
+	time_frozen = 0.0,
+	bc_part_type_west  = 'supp',
+	bc_part_type_east  = 'supp',
+
+	diameter = 3.784E-10,
+	ref_temperature = 273.,
+	visc_temp_index = 0.75,
+	vss_scat_inv = 1.
+)
+
+
+Species(
+	species_type = 'C1',
+	initPosition_type = 'random',
+	initMomentum_type = 'rectangular',
+	ionization_model = 'none',
+	n_part_per_cell = 0,
+	n_part_per_cell_for_weight = 200,
+	c_part_max = 1.0,
+	mass = 1.993e-26,
+	charge = 1.6021766208e-19,
+	nb_density = 2.0e19,
+	temperature = [20.0],
+	mean_velocity = [vx, vy, vz],
+	time_frozen = 0.0,
+	bc_part_type_west  = 'supp',
+	bc_part_type_east  = 'supp',
+
+	diameter = 3.784E-10,
+	ref_temperature = 273.,
+	visc_temp_index = 0.75,
+	vss_scat_inv = 1.
+)
+
+
+Species(
+	species_type = 'C2',
+	initPosition_type = 'random',
+	initMomentum_type = 'rectangular',
+	ionization_model = 'none',
+	n_part_per_cell = 0,
+	n_part_per_cell_for_weight = 200,
+	c_part_max = 1.0,
+	mass = 1.993e-26,
+	charge = 2.0 * 1.6021766208e-19,
+	nb_density = 2.0e19,
+	temperature = [20.0],
+	mean_velocity = [vx, vy, vz],
+	time_frozen = 0.0,
+	bc_part_type_west  = 'supp',
+	bc_part_type_east  = 'supp',
+
+	diameter = 3.784E-10,
+	ref_temperature = 273.,
+	visc_temp_index = 0.75,
+	vss_scat_inv = 1.
+)
+
+
+Species(
+	species_type = 'C3',
+	initPosition_type = 'random',
+	initMomentum_type = 'rectangular',
+	ionization_model = 'none',
+	n_part_per_cell = 0,
+	n_part_per_cell_for_weight = 200,
+	c_part_max = 1.0,
+	mass = 1.993e-26,
+	charge = 3.0 * 1.6021766208e-19,
+	nb_density = 2.0e19,
+	temperature = [20.0],
+	mean_velocity = [vx, vy, vz],
+	time_frozen = 0.0,
+	bc_part_type_west  = 'supp',
+	bc_part_type_east  = 'supp',
+
+	diameter = 3.784E-10,
+	ref_temperature = 273.,
+	visc_temp_index = 0.75,
+	vss_scat_inv = 1.
+)
+
+
+
+
+
+
+# ================ PartSource ========================================
 PartSource(
 	species1 = ["e"],
 	PartSource_type = "Load",
@@ -178,8 +286,6 @@ PartSource(
 	loadDn = 5.0e25,
 	loadPos_start 	= Lsim[0] / 2.0 - 50.0*l0,
 	loadPos_end 	= Lsim[0] / 2.0 + 50.0*l0,
-
-
 
 )
 
@@ -197,7 +303,7 @@ PartSource(
 
 )
 
-'''
+
 PartSource(
 	PartSource_type = "Emit",
 	species1 = ["C"],
@@ -205,8 +311,8 @@ PartSource(
 	emitPos = "left",
 	emitNumber = 2,
 	emitOffset = 0.2,
-	emitTemp = 50,
-	emitFlux = 1.0e24
+	emitTemp = 5,
+	emitFlux = 0.5e22
 )
 
 PartSource(
@@ -216,10 +322,10 @@ PartSource(
 	emitPos = "right",
 	emitNumber = 2,
 	emitOffset = 0.2,
-	emitTemp = 50,
-	emitFlux = 1.0e24
+	emitTemp = 5,
+	emitFlux = 0.5e22
 )
-'''
+
 
 
 #==================== PSI =================================
@@ -244,29 +350,211 @@ PSI(
 
 
 #==================== Collisions =================================
+# For D ==================
 Collisions(
 	collisions_type = "Ionization",
 	species1 = ["e"],
 	species2 = ["D"],
 	species3 = ["D1"],
-	crossSection_fileName = "Ionization_D_to_D+1.dat"
+	crossSection_fileName = "crossSection/Ionization_D_to_D+1.dat"
 )
 
 Collisions(
 	collisions_type = "Excitation",
 	species1 = ["e"],
 	species2 = ["D"],
-	crossSection_fileName = "Excitation_H_1s-2p.dat"
+	crossSection_fileName = "crossSection/Excitation_H_1s-2p.dat"
+)
+
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["D"],
+	crossSection_fileName = "crossSection/Excitation_H_1s-3p.dat"
+)
+
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["D"],
+	crossSection_fileName = "crossSection/Excitation_H_1s-4p.dat"
 )
 
 
-'''
-
+# For C ==========
 Collisions(
 	collisions_type = "Ionization",
 	species1 = ["e"],
 	species2 = ["C"],
 	species3 = ["C1"],
-	crossSection_fileName = "Ionization_Cu_to_Cu+1.dat"
+	crossSection_fileName = "crossSection/Ionization_C_to_C+1.dat"
 )
-'''
+
+Collisions(
+	collisions_type = "Ionization",
+	species1 = ["e"],
+	species2 = ["C1"],
+	species3 = ["C2"],
+	crossSection_fileName = "crossSection/Ionization_C+1_to_C+2.dat"
+)
+
+Collisions(
+	collisions_type = "Ionization",
+	species1 = ["e"],
+	species2 = ["C2"],
+	species3 = ["C3"],
+	crossSection_fileName = "crossSection/Ionization_C+2_to_C+3.dat"
+)
+
+# For C Excitation
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["C"],
+	crossSection_fileName = "crossSection/Excitation_C_2s22p21D-2s2p33D.dat"
+)
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["C"],
+	crossSection_fileName = "crossSection/Excitation_C_2s22p21D-2s22p3s1P.dat"
+)
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["C"],
+	crossSection_fileName = "crossSection/Excitation_C_2s22p23P-2s2p33D.dat"
+)
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["C"],
+	crossSection_fileName = "crossSection/Excitation_C_2s22p23P-2s2p33P.dat"
+)
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["C"],
+	crossSection_fileName = "crossSection/Excitation_C_2s22p23P-2s2p33S.dat"
+)
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["C"],
+	crossSection_fileName = "crossSection/Excitation_C_2s22p23P-2s2p35S.dat"
+)
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["C"],
+	crossSection_fileName = "crossSection/Excitation_C_2s22p23P-2s22p3d3D.dat"
+)
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["C"],
+	crossSection_fileName = "crossSection/Excitation_C_2s22p23P-2s22p3p3P.dat"
+)
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["C"],
+	crossSection_fileName = "crossSection/Excitation_C_2s22p23P-2s22p3s3P.dat"
+)
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["C"],
+	crossSection_fileName = "crossSection/Excitation_C_2s22p23P-2s22p21D.dat"
+)
+
+
+# For C+1 Excitation
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["C1"],
+	crossSection_fileName = "crossSection/Excitation_C+1_2s22p2P-2s2p22D.dat"
+)
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["C1"],
+	crossSection_fileName = "crossSection/Excitation_C+1_2s22p2P-2s2p22P.dat"
+)
+
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["C1"],
+	crossSection_fileName = "crossSection/Excitation_C+1_2s22p2P-2s2p22S.dat"
+)
+
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["C1"],
+	crossSection_fileName = "crossSection/Excitation_C+1_2s22p2P-2s2p24P.dat"
+)
+
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["C1"],
+	crossSection_fileName = "crossSection/Excitation_C+1_2s22p2P-2s23d2D.dat"
+)
+
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["C1"],
+	crossSection_fileName = "crossSection/Excitation_C+1_2s22p2P-2s23p2P.dat"
+)
+
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["C1"],
+	crossSection_fileName = "crossSection/Excitation_C+1_2s22p2P-2s23s2S.dat"
+)
+
+# For C+2 Excitation
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["C2"],
+	crossSection_fileName = "crossSection/Excitation_C+2_2p23P-2p21D.dat"
+)
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["C2"],
+	crossSection_fileName = "crossSection/Excitation_C+2_2s2p1P-2p21D.dat"
+)
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["C2"],
+	crossSection_fileName = "crossSection/Excitation_C+2_2s2p3P-2p23P.dat"
+)
+
+
+# For C+3 Excitation
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["C3"],
+	crossSection_fileName = "crossSection/Excitation_C+3_2p2P-3d2D.dat"
+)
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["C3"],
+	crossSection_fileName = "crossSection/Excitation_C+3_2p2P-3s2S.dat"
+)
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["C3"],
+	crossSection_fileName = "crossSection/Excitation_C+3_2s2S-2p2P.dat"
+)

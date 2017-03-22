@@ -6,6 +6,8 @@ import math
 import matplotlib.pyplot as plt
 
 # ============= Excitation: equation (6/7) ==========================
+id = 0
+maxCS = 1.0e-19
 
 Vif = 0.0
 A = 0.0
@@ -30,6 +32,7 @@ def excitation7( Te ):
 
 
 # 1 Excitation_C+2_2s21S-2s2p3P =====================
+id = id + 1
 Vif = 6.5
 A   = -4.024e-2
 B   = 2.914
@@ -56,13 +59,14 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 # 2 Excitation_C+2_2s21S-2s2p1P =====================
+id = id + 1
 Vif = 12.7
 A   = 6.261e-1
 B   = 3.044
@@ -87,13 +91,14 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 # 3 Excitation_C+2_2s21S-2p23P =====================
+id = id + 1
 Vif = 17.2
 A   = -5.732e-3
 B   = 8.467e-2
@@ -120,13 +125,14 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 # 4 Excitation_C+2_2s21S-2p21D =====================
+id = id + 1
 Vif = 18.2
 A   = 2.915e-1
 B   = 1.655e-1
@@ -151,13 +157,14 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 # 5 Excitation_C+2_2s21S-2p21S =====================
+id = id + 1
 Vif = 22.9
 A   = 2.092e-2
 B   = 2.289e-1
@@ -182,13 +189,14 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 # 6 Excitation_C+2_2s21S-2s3s3S =====================
+id = id + 1
 Vif = 29.5
 A   = 3.910e-3
 B   = 2.740e-1
@@ -213,13 +221,14 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 # 7 Excitation_C+2_2s21S-2s3s1S =====================
+id = id + 1
 Vif = 30.6
 A   = 4.260e-1
 B   = 4.350e-1
@@ -244,14 +253,15 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 
 # 8 Excitation_C+2_2s21S-2s3p1P =====================
+id = id + 1
 Vif = 32.1
 A   = -1.140e-1
 B   = -5.230e-1
@@ -276,14 +286,15 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 
 # 9 Excitation_C+2_2s21S-2s3p3P =====================
+id = id + 1
 Vif = 32.2
 A   = -2.190e-2
 B   = 3.660e-1
@@ -307,14 +318,15 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 
 # 10 Excitation_C+2_2s21S-2s3d3D =====================
+id = id + 1
 Vif = 33.5
 A   = 4.190e-2
 B   = 6.490e-2
@@ -339,13 +351,14 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 # 11 Excitation_C+2_2s21S-2s3d1D =====================
+id = id + 1
 Vif = 34.3
 A   = 7.330e-1
 B   = 5.400e-2
@@ -370,14 +383,15 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 
 # 12 Excitation_C+2_2s2p3P-2p23P =====================
+id = id + 1
 Vif = 10.6
 A   = 9.842
 B   = -8.660
@@ -402,13 +416,14 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 # 13 Excitation_C+2_2s2p3P-2p21D =====================
+id = id + 1
 Vif = 11.7
 A   = -1.822e-1
 B   = 4.490
@@ -433,13 +448,14 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 # 14 Excitation_C+2_2s2p3P-2p21S =====================
+id = id + 1
 Vif = 16.5
 A   = 3.280e-4
 B   = 1.676e-1
@@ -464,13 +480,14 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 # 15 Excitation_C+2_2s2p3P-2s3s1S =====================
+id = id + 1
 Vif = 24.1
 A   = -1.200e-2
 B   = 1.310
@@ -495,13 +512,14 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 # 16 Excitation_C+2_2s2p3P-2s3p1P =====================
+id = id + 1
 Vif = 25.6
 A   = -1.310e-2
 B   = 1.580
@@ -526,13 +544,14 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 # 17 Excitation_C+2_2s2p3P-2s3p3P =====================
+id = id + 1
 Vif = 25.7
 A   = 1.980
 B   = 1.490e1
@@ -557,13 +576,14 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 # 18 Excitation_C+2_2s2p3P-2s3d3D  =====================
+id = id + 1
 Vif = 27.0
 A   = -2.900e-1
 B   = 2.090
@@ -588,14 +608,15 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 
 # 19 Excitation_C+2_2s2p3P-2s3s1D =====================
+id = id + 1
 Vif = 27.8
 A   = 9.840e-3
 B   = 5.080e-1
@@ -620,13 +641,14 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 # 20 Excitation_C+2_2s2p1P-2p23P =====================
+id = id + 1
 Vif = 4.3
 A   = -8.624e-3
 B   = 4.141
@@ -654,13 +676,14 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 # 21 Excitation_C+2_2s2p1P-2p21D =====================
+id = id + 1
 Vif = 4.3
 A   = 3.762
 B   = 9.351
@@ -685,14 +708,15 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 
 # 22 Excitation_C+2_2s2p1P-2p21S =====================
+id = id + 1
 Vif = 10.1
 A   = 3.032
 B   = -2.357
@@ -717,14 +741,15 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 
 # 23 Excitation_C+2_2p23P-2p21D =====================
+id = id + 1
 Vif = 1.01
 A   = 1.925
 B   = 1.440e1
@@ -749,13 +774,14 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 # 24 Excitation_C+2_2p23P-2p21S =====================
+id = id + 1
 Vif = 5.8
 A   = 4.319e-2
 B   = 1.004
@@ -780,13 +806,14 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 # 25 Excitation_C+2_2p21D-2p21S =====================
+id = id + 1
 Vif = 4.79
 A   = 8.948e-1
 B   = -8.607e-1
@@ -811,16 +838,16 @@ for energy in np.arange(100.0, 1000.0, 10.0):
 
 data_np = np.asarray(data)
 data_np = np.transpose(data_np)
-np.savetxt(excitation_id+".dat", data_np, fmt='%1.4e')
-
-plt.plot(data_np[:,0], data_np[:,1], label = excitation_id)
+if data_np[:,1].max() >= maxCS:
+    np.savetxt(excitation_id+".dat", data_np, fmt='%1.5e')
+    plt.plot(data_np[:,0], data_np[:,1], label = str(id))
 
 
 
 
 
 plt.xlim((0.0, 100))
-#plt.legend()
+plt.legend()
 plt.savefig("fig/Excitation_C+2.png")
 
 

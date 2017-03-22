@@ -4,13 +4,14 @@
 #include "Diagnostic.h"
 #include "PicParams.h"
 #include "SmileiMPI.h"
+#include "Field1D.h"
 
 class Diagnostic1D : public Diagnostic {
 
 public :
 
-    Diagnostic1D(PicParams& params, SmileiMPI* smpi);
-    virtual ~Diagnostic1D() {};
+    Diagnostic1D(PicParams& params, SmileiMPI* smpi, ElectroMagn* EMfields);
+    virtual ~Diagnostic1D();
 
     //! Runs the diag for all patches for local diags.
     virtual void run( SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMagn* EMfields, int itime ) ;
@@ -24,6 +25,7 @@ public :
     // calculate velocity and temperature of each species
 	void calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMagn* EMfields, int itime);
 
+    Field1D *ptclNum1D;
 
 
 protected :

@@ -16,4 +16,5 @@ for id in np.arange(2,11):
 
 plt.legend()
 plt.xlim((0.0, 1000.0))
+#plt.ylim((0.0, 1.0e-21))
 plt.savefig("fig/Excitation_H.png")

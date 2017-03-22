@@ -1,11 +1,10 @@
 #include "Diagnostic1D.h"
 #include "Species.h"
 #include "SmileiMPI_Cart1D.h"
-#include "Field1D.h"
 #include "ElectroMagn.h"
 
 
-Diagnostic1D::Diagnostic1D(PicParams& params, SmileiMPI* smpi) :
+Diagnostic1D::Diagnostic1D(PicParams& params, SmileiMPI* smpi, ElectroMagn* EMfields) :
 Diagnostic(params)
 {
 	SmileiMPI_Cart1D* smpi1D = static_cast<SmileiMPI_Cart1D*>(smpi);
@@ -27,7 +26,14 @@ Diagnostic(params)
 			angleDist[ispec][iDirection].resize(90);
 		}
 	}
+	ptclNum1D = new Field1D(EMfields->dimPrim, "ptclNum");
 }
+
+Diagnostic1D::~Diagnostic1D()
+{
+	delete ptclNum1D;
+}
+
 
 
 void Diagnostic1D::run( SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMagn* EMfields, int itime )
@@ -148,7 +154,6 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 	double v_square;
 	vector<int> number_temp;
 	vector<double> energy_temp;
-	Field1D *ptclNum1D = new Field1D(EMfields->dimPrim, "ptclNum");
 
 	number_temp.resize(n_species);
 	energy_temp.resize(n_species);
@@ -284,6 +289,5 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 	MPI_Allreduce( &kineticEnergy[0], &energy_temp[0], n_species , MPI_DOUBLE,MPI_SUM, MPI_COMM_WORLD);
 	kineticEnergy = energy_temp;
 
-	delete ptclNum1D;
 
 }

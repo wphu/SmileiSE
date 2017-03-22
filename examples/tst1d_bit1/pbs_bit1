@@ -1,5 +1,5 @@
 #PBS -S /bin/bash
-#PBS -N tst1d_coulomb
+#PBS -N tst1d_bit1
 #PBS -l nodes=1:ppn=24
 #PBS -m b
 #PBS -m e
@@ -18,4 +18,4 @@ echo "end time"; date
 cd $PBS_O_WORKDIR
 
 ##/opt/openmpi/bin/mpirun -machinefile mfile -n 9 ./ion_extra2parlu
-mpiexec -genv I_MPI_DEVICE rdssm -n 24 ../../src/smilei tst1d_coulomb.py
+mpiexec -genv I_MPI_DEVICE rdssm -n 24 ../../src/smilei tst1d_load_dn.py

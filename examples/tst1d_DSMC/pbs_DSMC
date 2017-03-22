@@ -1,5 +1,5 @@
 #PBS -S /bin/bash
-#PBS -N tst1d_load_left
+#PBS -N tst1d_DSMC
 #PBS -l nodes=1:ppn=24
 #PBS -m b
 #PBS -m e
