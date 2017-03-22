@@ -61,6 +61,7 @@ void Collisions1D_Ionization::collide(PicParams& params, SmileiMPI* smpi, Electr
     int totNCollision = 0;
     vector<int> bmin1, bmax1, bmin2, bmax2, bmin3, bmax3;
     unsigned int npairs; // number of pairs of macro-particles
+    double npairs_double;
     unsigned int i1, i2, i3;
     Species   *s1, *s2, *s3;
     Particles *p1, *p2, *p3;
@@ -140,7 +141,14 @@ void Collisions1D_Ionization::collide(PicParams& params, SmileiMPI* smpi, Electr
         // Now start the real loop
         // See equations in http://dx.doi.org/10.1063/1.4742167
         // ----------------------------------------------------
-        npairs = n1[ibin] * (1 - exp(-density2[ibin] * sigma_cr_max * timestep) );
+        npairs_double = n1[ibin] * (1 - exp(-density2[ibin] * sigma_cr_max * timestep) );
+        npairs = npairs_double;
+        npairsRem[ibin] += ( npairs_double - npairs );
+        if(npairsRem[ibin] > 1)
+        {
+            npairsRem[ibin] = npairsRem[ibin] - 1.0;
+            npairs++;
+        }
         //if(npairs > index1.size() || npairs > index2.size()) {ERROR("npairs > index in collisions");}
 
         //smpi->barrier();

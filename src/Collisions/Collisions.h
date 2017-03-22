@@ -172,6 +172,7 @@ public:
     double const_h;
     double timestep;
     std::vector<unsigned int> oversize;
+    std::vector< double > npairsRem;
 
     string crossSection_fileName;
     vector< vector<double> > crossSection;

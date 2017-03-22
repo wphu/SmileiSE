@@ -23,6 +23,11 @@ public:
     Collisions1D(PicParams &params)
     : Collisions(params)
     {
+        npairsRem.resize(params.n_space[0]);
+        for(int i = 0; i < npairsRem.size(); i++)
+        {
+            npairsRem[i] = 0;
+        }
     };
     virtual ~Collisions1D(){};
 private:
