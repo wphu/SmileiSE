@@ -30,6 +30,7 @@ timesteps_DSMC = 2
 
 timesteps_restore = ntime_step_avg
 
+is_calVDF = 1
 # dim: Geometry of the simulation
 #      1d3v = cartesian grid with 1d in space + 3d in velocity
 #      2d3v = cartesian grid with 2d in space + 3d in velocity

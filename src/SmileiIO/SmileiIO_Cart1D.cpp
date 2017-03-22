@@ -358,9 +358,11 @@ void SmileiIO_Cart1D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fi
 {
 
     Diagnostic1D* diag1D = static_cast<Diagnostic1D*>(diag);
-    calVDF( params, smpi, fields, vecSpecies, itime);
-
-    if(smpi->isMaster()) {
+    if(params.is_calVDF)
+    {
+        calVDF( params, smpi, fields, vecSpecies, itime);
+    }
+    if( itime % params.dump_step == 0 && smpi->isMaster() ) {
 
         ndims_t = itime / params.dump_step - 1;
 

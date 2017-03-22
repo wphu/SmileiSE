@@ -300,6 +300,9 @@ public:
     // continue simulation after reloading particles
     int is_continue;
 
+    // calculate velocity distribution function
+    int is_calVDF;
+
     //! frequency of exchange particles (default = 1, disabled for now, incompatible with sort)
     int exchange_particles_each;
 

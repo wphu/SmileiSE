@@ -299,9 +299,9 @@ int main (int argc, char* argv[])
         }
         if(itime % params.dump_step == 0){
             EMfields->gatherAvgFields(smpi);
-            sio->write(params, smpi, EMfields, vecSpecies, diag, itime);
             MESSAGE("time step = "<<itime);
         }
+        sio->write(params, smpi, EMfields, vecSpecies, diag, itime);
         if(itime % params.timesteps_restore == 0)
         {
             sio->storeP(params, smpi, vecSpecies, itime);
