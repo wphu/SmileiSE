@@ -793,4 +793,6 @@ void SmileiMPI_Cart1D::gatherVDF( Array4D* array_global, Array4D* array )
         }
     }
 
+    delete [] array_global_gather;
+
 }

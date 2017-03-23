@@ -337,6 +337,18 @@ void Collisions1D_DSMC::SELECT(int ibin, vector<Species*>& vecSpecies)
     iM = sM->bmin[ibin] + indexM;
     for(int i=0; i<3; i++)
     {
+        /*
+        if( iL >= pL->size() )
+        {
+            cout<<"DSMC iL error: "<<iL<<endl;
+            return;
+        }
+        if( iM >= pM->size() )
+        {
+            cout<<"DSMC iM error: "<<iM<<endl;
+            return;
+        }
+        */
         VRC[i] = pL->momentum(i,iL) - pM->momentum(i,iM);
     }
     VRR = VRC[0]*VRC[0] + VRC[1]*VRC[1] + VRC[2]*VRC[2];
@@ -347,6 +359,11 @@ void Collisions1D_DSMC::SELECT(int ibin, vector<Species*>& vecSpecies)
     				pow( 2.*BOLTZ*species_interaction[iSL][iSM].ref_temp/(species_interaction[iSL][iSM].reduced_mass*VRR),
     				species_interaction[iSL][iSM].visc_temp_index-0.5 ) /
                     species_interaction[iSL][iSM].gamma;
+    if( isnan(CVR) || isinf(CVR) )
+    {
+        CVR = 0.0;
+        cout<<"DSMC error !!!"<<endl;
+    }
 }
 
 

@@ -299,10 +299,6 @@ void SmileiIO_Cart1D::calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* f
         s = vecSpecies[isp];
         p = &(s->particles);
 
-        vector<double> x_cell(3,0);
-        x_cell[0] = 0;
-        x_cell[1] = 0;
-        x_cell[2] = 0;
         vxMax = 3*sqrt(2.0 * s->species_param.thermT[0] * params.const_e / s->species_param.mass);
         //WARNING("thermalVelocity" <<  s->species_param.thermT[0] );
         vxMin = -vxMax;
