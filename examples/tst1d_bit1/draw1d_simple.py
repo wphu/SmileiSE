@@ -32,10 +32,10 @@ t = 1
 
 
 ##read data from file
-f=h5.File("Fields_global.h5")
+f=h5.File("data_global.h5")
 print f.keys()
 
-group = f['/1d_global']
+group = f['/Fields']
 dims = group.attrs['dims_global']
 dims = dims[...]
 
@@ -50,7 +50,7 @@ print nx
 
 
 ##============rho======================================================
-val = f["/1d_global/Rho_global"]
+val = f["/Fields/Rho_global"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 
@@ -72,7 +72,7 @@ sp_temp1.set_ylabel('Charge density')
 
 ##============potential======================================================
 
-val = f["/1d_global/Phi_global"]
+val = f["/Fields/Phi_global"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 
@@ -104,4 +104,3 @@ plt.show()         #The command is OK
 
 #line1,=ax1.plot(flux[0,:],flux[1,:])
 #line2,=ax1.plot(flux[0,:],flux[2,:])
-

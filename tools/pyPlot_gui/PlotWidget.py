@@ -204,7 +204,7 @@ class PlotWidget(QWidget):
         self.label = QLabel("time")
         self.plainTextEdit = QTextEdit("0")
         self.plainTextEdit.setMaximumHeight(20)
-        self.plainTextEdit.setMaximumWidth(50)
+        self.plainTextEdit.setMaximumWidth(100)
         self.sp = QSlider(QtCore.Qt.Horizontal)
         self.sp.setMinimum(0)
         self.sp.setMaximum(dataset[...].shape[0]-1)

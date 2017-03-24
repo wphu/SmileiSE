@@ -196,6 +196,5 @@ Species(
 Collisions(
 	species1 = ["H", "D"],
 	species2 = ["C" ],
-	#coulomb_log = 5,
 	collisions_type = "DSMC"
 )

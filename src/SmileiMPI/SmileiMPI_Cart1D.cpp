@@ -133,7 +133,7 @@ void SmileiMPI_Cart1D::createTopology(PicParams& params)
     //>>>calculate nspace_global_gather to gather and scatter the Field and Grid data
     dims_global_gather[0] = n_space_global[0]+(1+2*params.oversize[0])*number_of_procs[0];
 
-    field_global_gather= new double[dims_global_gather[0]];
+    field_global_gather = new double[dims_global_gather[0]];
 
     dims_gather         = new int[smilei_sz];
     dims_gather_temp    = new int[smilei_sz];
