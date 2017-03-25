@@ -51,6 +51,7 @@ void PSI1D_Recycling::performPSI(PicParams& params, SmileiMPI* smpi, vector<Spec
     // sputtering probability
     double pSput;
     int iDim;
+    double nPartEmit_double;
     Species   *s1, *s2;
     Particles *p1, *p2;
 
@@ -75,7 +76,14 @@ void PSI1D_Recycling::performPSI(PicParams& params, SmileiMPI* smpi, vector<Spec
             nPartEmit++;
         }
     };
-    nPartEmit *= recycling_factor;
+    nPartEmit_double = nPartEmit * recycling_factor;
+    nPartEmit = nPartEmit_double;
+    nPartEmit_rem += ( nPartEmit_double - nPartEmit );
+    if(nPartEmit_rem >= 1.0)
+    {
+        nPartEmit++;
+        nPartEmit_rem = nPartEmit_rem - 1.0;
+    }
 
     if( smpi->isWestern() || smpi->isEastern() ) {
         emit(params, vecSpecies, species2);

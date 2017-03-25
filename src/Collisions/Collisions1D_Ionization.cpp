@@ -144,7 +144,7 @@ void Collisions1D_Ionization::collide(PicParams& params, SmileiMPI* smpi, Electr
         npairs_double = n1[ibin] * (1 - exp(-density2[ibin] * sigma_cr_max * timestep) );
         npairs = npairs_double;
         npairsRem[ibin] += ( npairs_double - npairs );
-        if(npairsRem[ibin] > 1)
+        if(npairsRem[ibin] >= 1.0)
         {
             npairsRem[ibin] = npairsRem[ibin] - 1.0;
             npairs++;
@@ -167,7 +167,8 @@ void Collisions1D_Ionization::collide(PicParams& params, SmileiMPI* smpi, Electr
 
             //> the energy of the secondary electron
             ran = (double)rand() / RAND_MAX;
-            ke_secondary = 10.0 * tan(ran * atan(ke_primary / 20.0));
+            ke_secondary = 10.0 * tan(ran * atan( (ke_primary/const_e) / 20.0));
+            ke_secondary *= const_e;
             //> the energy of the primary electron
             ke_primary -= ke_secondary;
             v_magnitude_primary = sqrt( 2.0 * ke_primary / m1 );
@@ -248,6 +249,7 @@ double Collisions1D_Ionization::maxCV(Particles* particles, double eMass){
     double maxCrossSectionV = 0.0;
     double crossSectionV;
 
+    maxCrossSectionV = 0.0;
     for(unsigned int iPart = 0; iPart < nPart; iPart++)
     {
         v_square = particles->momentum(0,iPart) * particles->momentum(0,iPart) +

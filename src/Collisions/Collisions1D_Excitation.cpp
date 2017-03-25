@@ -188,6 +188,7 @@ double Collisions1D_Excitation::maxCV(Particles* particles, double eMass){
     double maxCrossSectionV = 0.0;
     double crossSectionV;
 
+    maxCrossSectionV = 0.0;
     for(unsigned int iPart = 0; iPart < nPart; iPart++)
     {
         v_square = particles->momentum(0,iPart) * particles->momentum(0,iPart) +

@@ -119,7 +119,7 @@ public:
         inFile.open(crossSection_fileName.c_str());
         while(inFile >> energy && inFile >> cross_section){
             crossSection[0].push_back(energy);
-            crossSection[1].push_back(cross_section*2.0e4);
+            crossSection[1].push_back(cross_section);
             //crossSection[1].push_back(cross_section);
         }
         inFile.close();

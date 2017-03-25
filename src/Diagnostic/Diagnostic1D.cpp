@@ -238,6 +238,9 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 			xjmxi  = xjn - (double)i;              		// normalized distance to the nearest grid point
 
 			i -= index_domain_begin;
+			//vx = p1->momentum(0, iPart);
+			//vy = p1->momentum(1, iPart);
+			//vz = p1->momentum(2, iPart);
 			vx = p1->momentum(0, iPart) - (*Vx1D_s)(i);
 			vy = p1->momentum(1, iPart) - (*Vy1D_s)(i);
 			vz = p1->momentum(2, iPart) - (*Vz1D_s)(i);
