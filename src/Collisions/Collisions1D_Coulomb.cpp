@@ -191,6 +191,10 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
                 {
                     debye_squared += ( ni * charge * charge / ( const_ephi0 * const_e * Ti ) );
                 }
+                else
+                {
+                    continue;
+                }
 
             }
             if( debye_squared > 0.0 )
@@ -232,6 +236,10 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
                 g_magnitude = sqrt( g_square );
                 g_3 = g_square * g_magnitude;
                 g_p = sqrt( gy*gy + gz*gz );
+                if(g_p == 0.0)
+                {
+                    continue;
+                }
                 // the formula below the equation (101)
                 s = A12 * time_coulomb / g_3;
 
