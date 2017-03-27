@@ -311,7 +311,7 @@ PartSource(
 	emitPos = "left",
 	emitNumber = 2,
 	emitOffset = 0.2,
-	emitTemp = 5,
+	emitTemp = 0.03,
 	emitFlux = 0.5e22
 )
 
@@ -322,7 +322,7 @@ PartSource(
 	emitPos = "right",
 	emitNumber = 2,
 	emitOffset = 0.2,
-	emitTemp = 5,
+	emitTemp = 0.03,
 	emitFlux = 0.5e22
 )
 
@@ -334,7 +334,7 @@ PSI(
 	species2 = ["D"],
 	PSI_type = "Recycling",
 	psiPos = "left",
-	emitTemp = 2,
+	emitTemp = 0.03,
 	recycling_factor = 0.5
 )
 
@@ -343,13 +343,47 @@ PSI(
 	species2 = ["D"],
 	PSI_type = "Recycling",
 	psiPos = "right",
-	emitTemp = 2,
+	emitTemp = 0.03,
 	recycling_factor = 0.5
 )
 
 
 
 #==================== Collisions =================================
+
+'''
+# Coulomb collisions
+Collisions(
+	species1 = ["e"],
+	species2 = ["e"],
+	#coulomb_log = 1,
+	collisions_type = "coulomb"
+)
+
+Collisions(
+	species1 = ["D1"],
+	species2 = ["D1"],
+	#coulomb_log = 1,
+	collisions_type = "coulomb"
+)
+
+Collisions(
+	species1 = ["e"],
+	species2 = ["D1"],
+	#coulomb_log = 1,
+	collisions_type = "coulomb"
+)
+
+
+# DSMC
+Collisions(
+	species1 = ["D", "D1"],
+	species2 = ["C" ],
+	collisions_type = "DSMC"
+)
+
+'''
+
 # For D ==================
 Collisions(
 	collisions_type = "Ionization",

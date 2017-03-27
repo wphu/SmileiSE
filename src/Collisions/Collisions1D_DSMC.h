@@ -76,7 +76,7 @@ public:
 	double CVR;
 	//int K,L,M,N;
 	int MM,MN,NN;
-
+    int iSpeciesListL, iSpeciesListM;
 
     double StreamTemp;
     int TotNumSamples;

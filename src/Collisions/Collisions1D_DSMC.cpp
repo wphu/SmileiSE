@@ -355,10 +355,21 @@ void Collisions1D_DSMC::SELECT(int ibin, vector<Species*>& vecSpecies)
     VR = sqrt(VRR);
     // Calculate cross section * relative velocity
     // the collision cross-section is based on eqn (4.63)
-    CVR=VR*species_interaction[iSL][iSM].sigma*
-    				pow( 2.*BOLTZ*species_interaction[iSL][iSM].ref_temp/(species_interaction[iSL][iSM].reduced_mass*VRR),
-    				species_interaction[iSL][iSM].visc_temp_index-0.5 ) /
-                    species_interaction[iSL][iSM].gamma;
+    iSpeciesListL = 0;
+    iSpeciesListM = 0;
+    while( SpeciesList[iSpeciesListL] != iSL )
+    {
+        iSpeciesListL++;
+    }
+    while( SpeciesList[iSpeciesListM] != iSM )
+    {
+        iSpeciesListM++;
+    }
+
+    CVR=VR*species_interaction[iSpeciesListL][iSpeciesListM].sigma*
+    				pow( 2.*BOLTZ*species_interaction[iSpeciesListL][iSpeciesListM].ref_temp/(species_interaction[iSpeciesListL][iSpeciesListM].reduced_mass*VRR),
+    				species_interaction[iSpeciesListL][iSpeciesListM].visc_temp_index-0.5 ) /
+                    species_interaction[iSpeciesListL][iSpeciesListM].gamma;
     if( isnan(CVR) || isinf(CVR) )
     {
         CVR = 0.0;
@@ -371,8 +382,8 @@ void Collisions1D_DSMC::ELASTIC(vector<Species*>& vecSpecies)
 {
     double VRCP[3];		//VRCP(3) are the post-collision components of the relative velocity
     double VCCM[3];		//VCCM(3) are the components of the centre of mass velocity
-    double RML = species_interaction[iSL][iSM].reduced_mass / sM->species_param.mass;
-    double RMM = species_interaction[iSL][iSM].reduced_mass / sL->species_param.mass;
+    double RML = species_interaction[iSpeciesListL][iSpeciesListM].reduced_mass / sM->species_param.mass;
+    double RMM = species_interaction[iSpeciesListL][iSpeciesListM].reduced_mass / sL->species_param.mass;
     double A,B,C,D;
     double OC,SC;
 
