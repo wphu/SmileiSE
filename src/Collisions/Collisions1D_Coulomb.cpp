@@ -67,7 +67,7 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
     unsigned int npart1, npart2; // numbers of macro-particles in each group
     unsigned int npairs; // number of pairs of macro-particles
     vector<unsigned int> np1, np2; // numbers of macro-particles in each species, in each group
-    double n1, n2, n12, n123, n223; // densities of particles
+    double n1, n2, n; // densities of particles
     unsigned int i1, i2, ispec1, ispec2, iSpec1, iSpec2;
     Species   *s1, *s2;
     Particles *p1, *p2;
@@ -101,7 +101,10 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
                 bmin1 = s1->bmin[ibin];
                 bmin2 = s2->bmin[ibin];
 
-                if (npart2 <= npart1) break; // ok if group1 has more macro-particles
+                if (npart2 <= npart1)
+                {
+                    break; // ok if group1 has more macro-particles
+                }
                 else { // otherwise, we exchange groups and try again
                     sgtmp = sg1; sg1 = sg2; sg2 = sgtmp;
                 }
@@ -109,7 +112,10 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
             // now group1 has more macro-particles than group2
 
             // skip to next bin if no particles
-            if (npart1==0 or npart2==0) continue;
+            if (npart1==0 || npart2==0)
+            {
+                continue;
+            }
 
             iSpec1 = (*sg1)[0];
             iSpec2 = (*sg2)[0];
@@ -126,16 +132,22 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
             //! \todo benchmark and improve the shuffling method ?
             random_shuffle(index1.begin(), index1.end()); // shuffle the index array
             if (intra_collisions) { // In the case of collisions within one species
+                n1 = npart1 * W1;
+                n2 = 0.0;
                 npairs = (int) ceil(((double)npart1)/2.); // half as many pairs as macro-particles
                 index2.resize(npairs);
                 for (unsigned int i=0; i<npairs; i++) index2[i] = index1[i+npart1-npairs]; // index2 is second half
-                index1.resize(npairs); // index2 is first half
-            } else { // In the case of collisions between two species
+                index1.resize(npairs); // index1 is first half
+            }
+            else
+            { // In the case of collisions between two species
+                n1 = npart1 * W1;
+                n2 = npart2 * W2;
                 npairs = npart1; // as many pairs as macro-particles in group 1 (most numerous)
                 index2.resize(npairs);
                 for (unsigned int i=0; i<npart1; i++) index2[i] = i % npart2;
             }
-
+            n = n1 + n2;
 
             // =========Calculate some constants in the formulas used below============
             twoPi = 2.0 * const_pi;
@@ -151,9 +163,6 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
             // used in equation (95)
             gamma2 = 4.0 * const_pi / ( gamma1 * gamma1 );
 
-            // Calculate number density n1 and n2
-            n1 = npart1 * W1;
-            n2 = npart2 * W2;
 
             // Pre-calculate some numbers before the big loop
             Field1D* T1_s = static_cast<Field1D*>(fields->T_s[iSpec1]);
@@ -203,13 +212,18 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
             }
             else
             {
-                debye_length = params.cell_length[0];
+                continue;
             }
 
             // equation (95)
             if( g12_square > 0.0 )
             {
-                A12 = gamma2 * n2 * log( gamma1 * g12_square * debye_length );
+                A12 = gamma2 * n * log( gamma1 * g12_square * debye_length );
+                if(A12 < 0.0)
+                {
+                    cout<<"Coulomb collision: A12 "<<A12<<"debye_length = "<<debye_length<<endl;
+                    continue;
+                }
             }
             else
             {
@@ -262,6 +276,23 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
                 p2->momentum(0,i2) += mr1 * ( gx * (1-cosX) + hx * sinX );
                 p2->momentum(1,i2) += mr1 * ( gy * (1-cosX) + hy * sinX );
                 p2->momentum(2,i2) += mr1 * ( gz * (1-cosX) + hz * sinX );
+
+                /*
+                for(int idirection = 0; idirection < 3; idirection++)
+                {
+                    if( isnan(p1->momentum(idirection,i1)) || isinf(p1->momentum(idirection,i1)) )
+                    {
+                        cout<<"Species: "<<s1->species_param.species_type<<" momentum "<<p1->momentum(idirection,i1)<<endl;
+                        cout<<"info: "<<cosX<<" "<<g_p<<endl;
+                    }
+
+                    if( isnan(p2->momentum(idirection,i2)) || isinf(p2->momentum(idirection,i2)) )
+                    {
+                        cout<<"Species2: "<<s2->species_param.species_type<<" momentum "<<p2->momentum(idirection,i2)<<endl;
+                        cout<<"info: "<<cosX<<" "<<g_p<<endl;
+                    }
+                }
+                */
 
             } // end loop on pairs of particles
 

@@ -90,10 +90,12 @@ void Projector1D1Order::operator() (Field* rho, Particles &particles, int ipart,
 
     // 1nd order projection for the total density
     //#pragma omp atomic
-    //if(i < 0 || i >= rho1D->dims_[0] - 1)
-    //{
-    //    cout<<"project error: "<<i<<endl;
-    //}
+    /*
+    if(i < 0 || i >= rho1D->dims_[0] - 1)
+    {
+        cout<<"project error: "<<i<<endl;
+    }
+    */
     (*rho1D)( i  )  += (1.0 - xjmxi)    * rho_j ;
     //#pragma omp atomic
     (*rho1D)( i+1)  += xjmxi             * rho_j;
