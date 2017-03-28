@@ -303,7 +303,7 @@ PartSource(
 
 )
 
-
+'''
 PartSource(
 	PartSource_type = "Emit",
 	species1 = ["C"],
@@ -311,7 +311,7 @@ PartSource(
 	emitPos = "left",
 	emitNumber = 2,
 	emitOffset = 0.2,
-	emitTemp = 0.03,
+	emitTemp = 5,
 	emitFlux = 0.5e22
 )
 
@@ -322,19 +322,20 @@ PartSource(
 	emitPos = "right",
 	emitNumber = 2,
 	emitOffset = 0.2,
-	emitTemp = 0.03,
+	emitTemp = 5,
 	emitFlux = 0.5e22
 )
-
+'''
 
 
 #==================== PSI =================================
+'''
 PSI(
 	species1 = ["D1"],
 	species2 = ["D"],
 	PSI_type = "Recycling",
 	psiPos = "left",
-	emitTemp = 0.03,
+	emitTemp = 2,
 	recycling_factor = 0.5
 )
 
@@ -343,13 +344,22 @@ PSI(
 	species2 = ["D"],
 	PSI_type = "Recycling",
 	psiPos = "right",
-	emitTemp = 0.03,
+	emitTemp = 2,
 	recycling_factor = 0.5
 )
-
+'''
 
 
 #==================== Collisions =================================
+
+'''
+# DSMC
+Collisions(
+	species1 = ["D", "D1"],
+	species2 = ["C" ],
+	collisions_type = "DSMC"
+)
+'''
 
 '''
 # Coulomb collisions
@@ -373,17 +383,10 @@ Collisions(
 	#coulomb_log = 1,
 	collisions_type = "coulomb"
 )
-
-
-# DSMC
-Collisions(
-	species1 = ["D", "D1"],
-	species2 = ["C" ],
-	collisions_type = "DSMC"
-)
-
 '''
 
+
+'''
 # For D ==================
 Collisions(
 	collisions_type = "Ionization",
@@ -413,8 +416,10 @@ Collisions(
 	species2 = ["D"],
 	crossSection_fileName = "crossSection/Excitation_H_1s-4p.dat"
 )
+'''
 
 
+'''
 # For C ==========
 Collisions(
 	collisions_type = "Ionization",
@@ -592,3 +597,5 @@ Collisions(
 	species2 = ["C3"],
 	crossSection_fileName = "crossSection/Excitation_C+3_2s2S-2p2P.dat"
 )
+
+'''

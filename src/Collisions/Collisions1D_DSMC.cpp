@@ -397,6 +397,8 @@ void Collisions1D_DSMC::ELASTIC(vector<Species*>& vecSpecies)
 	B = 2.0 * RF - 1.0;	//B is the cosine of a random elevation angle
 	A = sqrt(1.0 - B * B);
 	VRCP[0] = B * VR;
+    
+    RF = (double)random() / RAND_MAX;
 	C = 2.0 * PI * RF; //C is a random azimuth angle
 	VRCP[1] = A * cos(C) * VR;
 	VRCP[2] = A * sin(C) * VR;

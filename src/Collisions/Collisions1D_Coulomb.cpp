@@ -221,7 +221,7 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
                 A12 = gamma2 * n * log( gamma1 * g12_square * debye_length );
                 if(A12 < 0.0)
                 {
-                    cout<<"Coulomb collision: A12 "<<A12<<"debye_length = "<<debye_length<<endl;
+                    cout<<"Coulomb collision: A12 "<<A12<<"  debye_length = "<<debye_length<<endl;
                     continue;
                 }
             }
