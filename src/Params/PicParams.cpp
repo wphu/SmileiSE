@@ -26,6 +26,9 @@ PicParams::PicParams(InputData &ifile) {
     dump_minutes=0.0;
     ifile.extract("dump_minutes", dump_minutes);
 
+    timesteps_collision = 1;
+    ifile.extract("timesteps_collision", timesteps_collision);
+
     timesteps_coulomb = 1;
     ifile.extract("timesteps_coulomb", timesteps_coulomb);
 

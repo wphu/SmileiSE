@@ -127,7 +127,7 @@ void Collisions1D_ChargeExchange::collide(PicParams& params, SmileiMPI* smpi, El
         // ----------------------------------------------------
 
         sigma_cr_max = maxCV(s1, s2);
-        npairs = n1[ibin] * (1 - exp(-density2[ibin] * sigma_cr_max * timestep) );
+        npairs = n1[ibin] * (1 - exp(-density2[ibin] * sigma_cr_max * timesteps_collision * timestep) );
         for(int i = 0; i < npairs; i++)
         {
             i1 = index1[i];

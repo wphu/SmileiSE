@@ -223,11 +223,14 @@ int main (int argc, char* argv[])
 
         // ================== Collide =========================================
         timer[2].restart();
-        for (unsigned int icoll=0 ; icoll<vecCollisions.size(); icoll++)
+        if(itime % params.timesteps_collision == 0)
         {
-            vecCollisions[icoll]->collide(params, smpi, EMfields, vecSpecies,itime);
+            for (unsigned int icoll=0 ; icoll<vecCollisions.size(); icoll++)
+            {
+                vecCollisions[icoll]->collide(params, smpi, EMfields, vecSpecies,itime);
+            }
         }
-        timer[2].update();
+                timer[2].update();
 
         // ================== Interpolate and Move ===============================
         int tid(0);

@@ -23,7 +23,7 @@ dump_step = ntime_step_avg
 
 timesteps_coulomb = 20
 
-timesteps_DSMC = 2
+timesteps_DSMC = 50
 
 timesteps_restore = ntime_step_avg
 

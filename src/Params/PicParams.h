@@ -272,6 +272,11 @@ public:
     //> number of timestep of incrementing averaged electromagnetic fields
     unsigned int ntime_step_avg;
 
+
+    // timestep for all kind collisions
+    // timestep for DSMC and coulomb should be several times of this timestep
+    unsigned int timesteps_collision;
+
     // number of timestep of performing coulomb collisions
     unsigned int timesteps_coulomb;
 

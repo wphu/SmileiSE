@@ -60,6 +60,8 @@ public:
         new_particles2.initialize(0, params);
         new_particles3.initialize(0, params);
         oversize = params.oversize;
+
+        timesteps_collision = params.timesteps_collision;
     };
     virtual ~Collisions(){};
 
@@ -171,6 +173,7 @@ public:
     double const_ephi0;
     double const_h;
     double timestep;
+    int timesteps_collision;
     std::vector<unsigned int> oversize;
     std::vector< double > npairsRem;
 

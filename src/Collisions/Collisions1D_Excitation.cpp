@@ -126,7 +126,7 @@ void Collisions1D_Excitation::collide(PicParams& params, SmileiMPI* smpi, Electr
         // Now start the real loop
         // See equations in http://dx.doi.org/10.1063/1.4742167
         // ----------------------------------------------------
-        npairs_double = n1[ibin] * (1 - exp(-density2[ibin] * sigma_cr_max * timestep) );
+        npairs_double = n1[ibin] * (1 - exp(-density2[ibin] * sigma_cr_max * timesteps_collision * timestep) );
         npairs = npairs_double;
         npairsRem[ibin] += ( npairs_double - npairs );
         if(npairsRem[ibin] > 1)
