@@ -1,27 +1,30 @@
-#ifndef EF_SOLVER1D_TDMA_H
-#define EF_SOLVER1D_TDMA_H
+#ifndef EF_SOLVER1D_TDMA_IMP_H
+#define EF_SOLVER1D_TDMA_IMP_H
+
+#include <vector>
 
 #include "Solver1D.h"
 #include "SmileiMPI_Cart1D.h"
 class ElectroMagn;
 
+using namespace std;
 //  --------------------------------------------------------------------------------------------------------------------
 //! Class Pusher
 //  --------------------------------------------------------------------------------------------------------------------
-class EF_Solver1D_TDMA : public Solver1D
+class EF_Solver1D_TDMA_imp : public Solver1D
 {
 
 public:
-    //! Creator for EF_Solver1D_TDMA
-    EF_Solver1D_TDMA(PicParams &params, SmileiMPI* smpi, int nx_sou_left);
-    virtual ~EF_Solver1D_TDMA();
+    //! Creator for EF_Solver1D_TDMA_imp
+    EF_Solver1D_TDMA_imp(PicParams &params, SmileiMPI* smpi, int nx_sou_left);
+    virtual ~EF_Solver1D_TDMA_imp();
 
     //! Overloading of () operator
     virtual void operator()( ElectroMagn* fields){};
     virtual void operator()( ElectroMagn* fields, SmileiMPI* smpi);
 
-    void initTDMA();
-    void solve_TDMA(Field* rho, Field* phi);
+    void initTDMA(PicParams &params);
+    void solve_TDMA_imp(ElectroMagn* fields);
     void solve_Ex(Field* phi, Field* Ex);
 
     // no source region for electric field
@@ -50,6 +53,10 @@ public:
 protected:
 
     double *a, *b, *c, *f, *e, *d;
+    double dt;
+    // the [0,0] term of tensor chi(3,3), equation (5) and (3)
+    double chi00;
+    vector< double > factor_chi;
 
 };//END class
 

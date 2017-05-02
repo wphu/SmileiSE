@@ -205,111 +205,258 @@ int main (int argc, char* argv[])
     TITLE("Time-Loop is started: number of time-steps n_time = " << params.n_time);
     smpi->barrier();
     timer[0].restart();
-    while(itime <= stepStop)
+    if(params.method = "explicit")
     {
-        itime++;
-        time_prim += params.timestep;
-        time_dual += params.timestep;
-
-        // ================== EmitLoad =========================================
-        //> add Particle Source: emit from boundary or load in some region
-        timer[1].restart();
-        for (unsigned int iPS=0 ; iPS<vecPartSource.size(); iPS++)
+        while(itime <= stepStop)
         {
-            vecPartSource[iPS]->emitLoad(params,smpi,vecSpecies,itime, EMfields);
-        }
-        timer[1].update();
+            itime++;
+            time_prim += params.timestep;
+            time_dual += params.timestep;
 
-
-        // ================== Collide =========================================
-        timer[2].restart();
-        if(itime % params.timesteps_collision == 0)
-        {
-            for (unsigned int icoll=0 ; icoll<vecCollisions.size(); icoll++)
+            // ================== EmitLoad =========================================
+            //> add Particle Source: emit from boundary or load in some region
+            timer[1].restart();
+            for (unsigned int iPS=0 ; iPS<vecPartSource.size(); iPS++)
             {
-                vecCollisions[icoll]->collide(params, smpi, EMfields, vecSpecies,itime);
+                vecPartSource[iPS]->emitLoad(params,smpi,vecSpecies,itime, EMfields);
             }
-        }
-                timer[2].update();
+            timer[1].update();
 
-        // ================== Interpolate and Move ===============================
-        int tid(0);
-        timer[3].restart();
-        for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
-        {
-            vecSpecies[ispec]->dynamics(time_dual, ispec, EMfields, Interp, Proj, smpi, params);
-        }
-        timer[3].update();
 
-        // ================== MPI Exchange Particle ============================================
-        timer[4].restart();
-        for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
-        {
-            for ( int iDim = 0 ; iDim<(int)params.nDim_particle ; iDim++ )
+            // ================== Collide =========================================
+            timer[2].restart();
+            if(itime % params.timesteps_collision == 0)
             {
-                smpi->exchangeParticles(vecSpecies[ispec], ispec, params, tid, iDim);
+                for (unsigned int icoll=0 ; icoll<vecCollisions.size(); icoll++)
+                {
+                    vecCollisions[icoll]->collide(params, smpi, EMfields, vecSpecies,itime);
+                }
             }
-            vecSpecies[ispec]->sort_part(); // Should we sort test particles ?? (JD)
-        }
-        timer[4].update();
+                    timer[2].update();
 
-        // ================== Absorb Particle for 2D ====================================
-        timer[5].restart();
-        for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
-        {
-            if(params.geometry == "2d3v") {
-                vecSpecies[ispec]->absorb2D(time_dual, ispec, grid, smpi, params);
+            // ================== Interpolate and Move ===============================
+            int tid(0);
+            timer[3].restart();
+            for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
+            {
+                vecSpecies[ispec]->dynamics(time_dual, ispec, EMfields, Interp, Proj, smpi, params);
             }
-        }
-        timer[5].update();
+            timer[3].update();
 
-        // ================== Project Particle =========================================
-        timer[6].restart();
-        for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
+            // ================== MPI Exchange Particle ============================================
+            timer[4].restart();
+            for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
+            {
+                for ( int iDim = 0 ; iDim<(int)params.nDim_particle ; iDim++ )
+                {
+                    smpi->exchangeParticles(vecSpecies[ispec], ispec, params, tid, iDim);
+                }
+                vecSpecies[ispec]->sort_part(); // Should we sort test particles ?? (JD)
+            }
+            timer[4].update();
+
+            // ================== Absorb Particle for 2D ====================================
+            timer[5].restart();
+            for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
+            {
+                if(params.geometry == "2d3v") {
+                    vecSpecies[ispec]->absorb2D(time_dual, ispec, grid, smpi, params);
+                }
+            }
+            timer[5].update();
+
+            // ================== Project Particle =========================================
+            timer[6].restart();
+            for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
+            {
+                EMfields->restartRhoJs(ispec, 0);
+                vecSpecies[ispec]->Project(time_dual, ispec, EMfields, Proj, smpi, params);
+            }
+            timer[6].update();
+
+            // ================== Plasma Surface Interacton ==================================
+            timer[7].restart();
+            for (unsigned int ipsi=0 ; ipsi<vecPSI.size(); ipsi++)
+            {
+                vecPSI[ipsi]->performPSI(params,smpi,vecSpecies,itime, EMfields);
+            }
+            timer[7].update();
+
+            // ================== Run Diagnostic =============================================
+            timer[8].restart();
+            diag->run(smpi, vecSpecies, EMfields, itime);
+            timer[8].update();
+
+            // ================== Solve Electromagnetic Fields ===============================
+            timer[9].restart();
+            EMfields->restartRhoJ();
+            EMfields->computeTotalRhoJ();
+            (*solver)(EMfields, smpi);
+            timer[9].update();
+
+            // ================== Write IO ====================================================
+            timer[10].restart();
+            if(params.ntime_step_avg)
+            {
+                EMfields->incrementAvgFields(itime, params.ntime_step_avg);
+            }
+            if(itime % params.dump_step == 0){
+                EMfields->gatherAvgFields(smpi);
+                MESSAGE("time step = "<<itime);
+            }
+            sio->write(params, smpi, EMfields, vecSpecies, diag, itime);
+            if(itime % params.timesteps_restore == 0)
+            {
+                sio->storeP(params, smpi, vecSpecies, itime);
+            }
+            timer[10].update();
+
+        }//END of the time loop
+    }
+    else if(params.method == "implicit")
+    {
+        while(itime <= stepStop)
         {
-            EMfields->restartRhoJs(ispec, 0);
-            vecSpecies[ispec]->Project(time_dual, ispec, EMfields, Proj, smpi, params);
-        }
-        timer[6].update();
+            itime++;
+            time_prim += params.timestep;
+            time_dual += params.timestep;
 
-        // ================== Plasma Surface Interacton ==================================
-        timer[7].restart();
-        for (unsigned int ipsi=0 ; ipsi<vecPSI.size(); ipsi++)
-        {
-            vecPSI[ipsi]->performPSI(params,smpi,vecSpecies,itime, EMfields);
-        }
-        timer[7].update();
+            // ================== EmitLoad =========================================
+            //> add Particle Source: emit from boundary or load in some region
+            timer[1].restart();
+            for (unsigned int iPS=0 ; iPS<vecPartSource.size(); iPS++)
+            {
+                vecPartSource[iPS]->emitLoad(params,smpi,vecSpecies,itime, EMfields);
+            }
+            timer[1].update();
 
-        // ================== Run Diagnostic =============================================
-        timer[8].restart();
-        diag->run(smpi, vecSpecies, EMfields, itime);
-        timer[8].update();
 
-        // ================== Solve Electromagnetic Fields ===============================
-        timer[9].restart();
-        EMfields->restartRhoJ();
-        EMfields->computeTotalRhoJ();
-        (*solver)(EMfields, smpi);
-        timer[9].update();
+            // ================== Collide =========================================
+            timer[2].restart();
+            if(itime % params.timesteps_collision == 0)
+            {
+                for (unsigned int icoll=0 ; icoll<vecCollisions.size(); icoll++)
+                {
+                    vecCollisions[icoll]->collide(params, smpi, EMfields, vecSpecies,itime);
+                }
+            }
+                    timer[2].update();
 
-        // ================== Write IO ====================================================
-        timer[10].restart();
-        if(params.ntime_step_avg)
-        {
-            EMfields->incrementAvgFields(itime, params.ntime_step_avg);
-        }
-        if(itime % params.dump_step == 0){
-            EMfields->gatherAvgFields(smpi);
-            MESSAGE("time step = "<<itime);
-        }
-        sio->write(params, smpi, EMfields, vecSpecies, diag, itime);
-        if(itime % params.timesteps_restore == 0)
-        {
-            sio->storeP(params, smpi, vecSpecies, itime);
-        }
-        timer[10].update();
+            // ================== First push ===============================
+            int tid(0);
+            timer[3].restart();
+            for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
+            {
+                vecSpecies[ispec]->dynamics_imp_firstPush(time_dual, ispec, EMfields, Interp, Proj, smpi, params);
+            }
+            timer[3].update();
 
-    }//END of the time loop
+            // ================== First MPI Exchange Particle ============================================
+            timer[4].restart();
+            for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
+            {
+                for ( int iDim = 0 ; iDim<(int)params.nDim_particle ; iDim++ )
+                {
+                    smpi->exchangeParticles(vecSpecies[ispec], ispec, params, tid, iDim);
+                }
+                vecSpecies[ispec]->sort_part(); // Should we sort test particles ?? (JD)
+            }
+            timer[4].update();
+
+            // ================== First Absorb Particle for 2D ====================================
+            timer[5].restart();
+            for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
+            {
+                if(params.geometry == "2d3v") {
+                    vecSpecies[ispec]->absorb2D(time_dual, ispec, grid, smpi, params);
+                }
+            }
+            timer[5].update();
+
+            // ================== Project Particle =========================================
+            timer[6].restart();
+            for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
+            {
+                EMfields->restartRhoJs(ispec, 0);
+                vecSpecies[ispec]->Project(time_dual, ispec, EMfields, Proj, smpi, params);
+            }
+            timer[6].update();
+
+
+            // ================== Solve Electromagnetic Fields ===============================
+            timer[9].restart();
+            EMfields->restartRhoJ();
+            EMfields->computeTotalRhoJ();
+            (*solver)(EMfields, smpi);
+            timer[9].update();
+
+            // ================== Second push ===============================
+            int tid(0);
+            timer[3].restart();
+            for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
+            {
+                vecSpecies[ispec]->dynamics_imp_secondPush(time_dual, ispec, EMfields, Interp, Proj, smpi, params);
+            }
+            timer[3].update();
+
+
+            // ================== Second MPI Exchange Particle ============================================
+            timer[4].restart();
+            for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
+            {
+                for ( int iDim = 0 ; iDim<(int)params.nDim_particle ; iDim++ )
+                {
+                    smpi->exchangeParticles(vecSpecies[ispec], ispec, params, tid, iDim);
+                }
+                vecSpecies[ispec]->sort_part(); // Should we sort test particles ?? (JD)
+            }
+            timer[4].update();
+
+            // ================== Second Absorb Particle for 2D ====================================
+            timer[5].restart();
+            for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
+            {
+                if(params.geometry == "2d3v") {
+                    vecSpecies[ispec]->absorb2D(time_dual, ispec, grid, smpi, params);
+                }
+            }
+            timer[5].update();
+
+            // ================== Plasma Surface Interacton ==================================
+            timer[7].restart();
+            for (unsigned int ipsi=0 ; ipsi<vecPSI.size(); ipsi++)
+            {
+                vecPSI[ipsi]->performPSI(params,smpi,vecSpecies,itime, EMfields);
+            }
+            timer[7].update();
+
+
+            // ================== Run Diagnostic =============================================
+            timer[8].restart();
+            diag->run(smpi, vecSpecies, EMfields, itime);
+            timer[8].update();
+
+
+            // ================== Write IO ====================================================
+            timer[10].restart();
+            if(params.ntime_step_avg)
+            {
+                EMfields->incrementAvgFields(itime, params.ntime_step_avg);
+            }
+            if(itime % params.dump_step == 0){
+                EMfields->gatherAvgFields(smpi);
+                MESSAGE("time step = "<<itime);
+            }
+            sio->write(params, smpi, EMfields, vecSpecies, diag, itime);
+            if(itime % params.timesteps_restore == 0)
+            {
+                sio->storeP(params, smpi, vecSpecies, itime);
+            }
+            timer[10].update();
+
+        }//END of the time loop
+    }
+
     sio->endStoreP(params, smpi, vecSpecies, itime);
     smpi->barrier();
 

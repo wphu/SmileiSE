@@ -178,6 +178,9 @@ public:
     //! Method to find the numbers of requested species, sorted, and duplicates removed
     std::vector<unsigned int> FindSpecies(std::vector<std::string>);
 
+    // define the method of PIC: explicit or implicit
+    std::string method;
+
 
     //! defines the geometry of the simulation
     std::string geometry;

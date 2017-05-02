@@ -149,6 +149,34 @@ public:
         return Momentum[idim];
     }
 
+
+    //! Method used to get the Particle momentum
+    inline double  al_imp( int idim, int ipart ) const {
+        return Al_imp[idim][ipart];
+    }
+    //! Method used to set a new value to the Particle momentum
+    inline double& al_imp( int idim, int ipart )       {
+        return Al_imp[idim][ipart];
+    }
+      //! Method used to get the Particle momentum
+    inline std::vector<double>  al_imp( int idim ) const {
+        return Al_imp[idim];
+    }
+
+    //! Method used to get the Particle momentum
+    inline double  au_imp( int idim, int ipart ) const {
+        return Au_imp[idim][ipart];
+    }
+    //! Method used to set a new value to the Particle momentum
+    inline double& au_imp( int idim, int ipart )       {
+        return Au_imp[idim][ipart];
+    }
+      //! Method used to get the Particle momentum
+    inline std::vector<double>  au_imp( int idim ) const {
+        return Au_imp[idim];
+    }
+
+
     //! Method used to get the Particle weight
     inline double  weight(int ipart) const {
         return Weight[ipart];
@@ -198,6 +226,15 @@ public:
 
     //! charge state of the particle (multiples of e>0)
     std::vector<double> Charge;
+
+
+    // array containing the particle acceleration for implicit method: Al_imp (a_imp), Au_imp (A_imp)
+    // Ref: Wang Hongyu, implicit electrostatic particle in cell/ monte carlo simulation for
+    //                   the magnetized plasma: Algorithms and application in gas-inductive breakdown
+    // Equation (6) and (9)
+    std::vector< std::vector<double> >  Al_imp;
+    std::vector< std::vector<double> >  Au_imp;
+
 
 
 

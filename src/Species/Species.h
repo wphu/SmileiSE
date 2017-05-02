@@ -57,6 +57,12 @@ public:
     virtual void dynamics(double time, unsigned int ispec, ElectroMagn* EMfields, Interpolator* interp,
                           Projector* proj, SmileiMPI *smpi, PicParams &params);
 
+    virtual void dynamics_imp_firstPush(double time, unsigned int ispec, ElectroMagn* EMfields, Interpolator* interp,
+                          Projector* proj, SmileiMPI *smpi, PicParams &params);
+
+
+    virtual void dynamics_imp_secondPush(double time, unsigned int ispec, ElectroMagn* EMfields, Interpolator* interp,
+                          Projector* proj, SmileiMPI *smpi, PicParams &params);
     //! Method calculating the Particle dynamics (interpolation, pusher, projection)
     // Caculate the number density and the electric currents
     virtual void dynamics_EM(double time, unsigned int ispec, ElectroMagn* EMfields, Interpolator* interp,

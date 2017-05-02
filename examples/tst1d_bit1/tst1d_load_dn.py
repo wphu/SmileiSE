@@ -8,6 +8,8 @@
 #
 import math
 
+method = 'explicit'
+
 l0 = 2.0e-5     # nu.norm_l is reference time, the value's unit before / is m (SI)
 Lsim = [500.*l0]	# length of the simulation
 

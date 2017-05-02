@@ -8,6 +8,8 @@
 #
 import math
 
+method = 'explicit'
+
 l0 = 0.4e-5  #(SI)
 t0 = 2.0e-12
 

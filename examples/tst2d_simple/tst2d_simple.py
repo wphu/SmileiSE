@@ -8,6 +8,8 @@
 #
 import math
 
+method = 'explicit'
+
 l0 = 1.0e-5  #(SI)
 t0 = 1.0e-12
 resx = 20.				# nb of cells in on laser wavelength

@@ -69,6 +69,13 @@ PicParams::PicParams(InputData &ifile) {
     ifile.extract("wavelength_SI",wavelength_SI);
 
 
+    // method of PIC
+    ifile.extract("method", method);
+    if (method!="explicit" && method!="implicit") {
+        ERROR("Method " << method << " does not exist");
+    }
+
+
     // -------------------
     // Simulation box info
     // -------------------

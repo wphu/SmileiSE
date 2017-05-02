@@ -545,6 +545,201 @@ void Species::dynamics(double time_dual, unsigned int ispec, ElectroMagn* EMfiel
 
 
 
+
+// ---------------------------------------------------------------------------------------------------------------------
+// For all particles of the species
+//   - implicit method: first push
+// ---------------------------------------------------------------------------------------------------------------------
+void Species::dynamics_imp_firstPush(double time_dual, unsigned int ispec, ElectroMagn* EMfields, Interpolator* Interp,
+                       Projector* Proj, SmileiMPI *smpi, PicParams &params)
+{
+    Interpolator* LocInterp = InterpolatorFactory::create(params, smpi);
+
+    // Electric field at the particle position
+    LocalFields Epart;
+    // Magnetic field at the particle position
+    LocalFields Bpart;
+    // Ionization current
+    LocalFields Jion;
+
+    int iloc;
+    unsigned int i,j,ibin,iPart;
+
+    //! buffers for currents and charge
+    double *b_Jx,*b_Jy,*b_Jz,*b_rho;
+
+    // number of particles for this Species
+    unsigned int nParticles = getNbrOfParticles();
+    // Reset list of particles to exchange
+    int tid(0);
+    int iDirection=-1;
+
+    clearExchList(tid);
+
+    //ener_tot  = 0.;
+    //ener_lost = 0.;
+    double ener_iPart(0.);
+    //bool contribute(true);
+    // -------------------------------
+    // calculate the particle dynamics
+    // -------------------------------
+    if (time_dual>species_param.time_frozen) { // moving particle
+        double gf = 1.0;
+
+        psi_particles.clear();
+        for(int iDirection=0; iDirection<indexes_of_particles_to_perform_psi.size(); iDirection++)
+        {
+             indexes_of_particles_to_perform_psi[iDirection].clear();
+        }
+        for (ibin = 0 ; ibin < (unsigned int)bmin.size() ; ibin++) {
+            for (iPart=(unsigned int)bmin[ibin] ; iPart<(unsigned int)bmax[ibin]; iPart++ ) {
+
+                // Interpolate the fields at the particle position
+                //(*LocInterp)(EMfields, particles, iPart, &Epart);
+                (*LocInterp)(EMfields, particles, iPart, &Epart, &Bpart);
+
+                // Push the particle
+                //(*Push)(particles, iPart, Epart);
+                Push->firstPush(particles, iPart, Epart);
+                //(*Push)(particles, iPart, Epart, Bpart, gf);
+
+                // Apply boundary condition on the particles
+                // Boundary Condition may be physical or due to domain decomposition
+                // apply returns 0 if iPart is no more in the domain local
+                // if omp, create a list per thread
+                if ( !partBoundCond->apply( particles, iPart, params.species_param[ispec], ener_iPart, iDirection ) ) {
+                    addPartInExchList( tid, iPart );
+                    if(iDirection >= 0){
+                        addPartInPsiList( iDirection, iPart );
+                    }
+                }
+            }//iPart
+        }// ibin
+
+        //for (iPart=0 ; iPart<nParticles; iPart++ ) {
+        //    (*Proj)(EMfields->rho_s[ispec], particles, iPart);
+        //}
+
+        // copy PSI particles to psi_particles, because after MPi particle exchanging
+        // the PSI particles will be erased
+        for(int iDirection=0; iDirection<indexes_of_particles_to_perform_psi.size(); iDirection++)
+        {
+            for(int iPart=0; iPart<indexes_of_particles_to_perform_psi[iDirection].size(); iPart++)
+            {
+                int iPart_psi = indexes_of_particles_to_perform_psi[iDirection][iPart];
+                particles.cp_particle(iPart_psi, psi_particles);
+            }
+        }
+
+    }
+    else if (!particles.isTestParticles) { // immobile particle (at the moment only project density)
+        for (iPart=0 ; iPart<nParticles; iPart++ ) {
+            (*Proj)(EMfields->rho_s[ispec], particles, iPart);
+        }
+    }//END if time vs. time_frozen
+
+    delete LocInterp;
+
+}//END dynamic
+
+
+// ---------------------------------------------------------------------------------------------------------------------
+// For all particles of the species
+//   - implicit method: second Push
+// ---------------------------------------------------------------------------------------------------------------------
+void Species::dynamics_imp_secondPush(double time_dual, unsigned int ispec, ElectroMagn* EMfields, Interpolator* Interp,
+                       Projector* Proj, SmileiMPI *smpi, PicParams &params)
+{
+    Interpolator* LocInterp = InterpolatorFactory::create(params, smpi);
+
+    // Electric field at the particle position
+    LocalFields Epart;
+    // Magnetic field at the particle position
+    LocalFields Bpart;
+    // Ionization current
+    LocalFields Jion;
+
+    int iloc;
+    unsigned int i,j,ibin,iPart;
+
+    //! buffers for currents and charge
+    double *b_Jx,*b_Jy,*b_Jz,*b_rho;
+
+    // number of particles for this Species
+    unsigned int nParticles = getNbrOfParticles();
+    // Reset list of particles to exchange
+    int tid(0);
+    int iDirection=-1;
+
+    clearExchList(tid);
+
+    //ener_tot  = 0.;
+    //ener_lost = 0.;
+    double ener_iPart(0.);
+    //bool contribute(true);
+    // -------------------------------
+    // calculate the particle dynamics
+    // -------------------------------
+    if (time_dual>species_param.time_frozen) { // moving particle
+        double gf = 1.0;
+
+        for(int iDirection=0; iDirection<indexes_of_particles_to_perform_psi.size(); iDirection++)
+        {
+             indexes_of_particles_to_perform_psi[iDirection].clear();
+        }
+        for (ibin = 0 ; ibin < (unsigned int)bmin.size() ; ibin++) {
+            for (iPart=(unsigned int)bmin[ibin] ; iPart<(unsigned int)bmax[ibin]; iPart++ ) {
+
+                // Interpolate the fields at the particle position
+                //(*LocInterp)(EMfields, particles, iPart, &Epart);
+                (*LocInterp)(EMfields, particles, iPart, &Epart, &Bpart);
+
+                // Push the particle
+                //(*Push)(particles, iPart, Epart);
+                Push->secondPush(particles, iPart, Epart);
+                //(*Push)(particles, iPart, Epart, Bpart, gf);
+
+                // Apply boundary condition on the particles
+                // Boundary Condition may be physical or due to domain decomposition
+                // apply returns 0 if iPart is no more in the domain local
+                // if omp, create a list per thread
+                if ( !partBoundCond->apply( particles, iPart, params.species_param[ispec], ener_iPart, iDirection ) ) {
+                    addPartInExchList( tid, iPart );
+                    if(iDirection >= 0){
+                        addPartInPsiList( iDirection, iPart );
+                    }
+                }
+            }//iPart
+        }// ibin
+
+        //for (iPart=0 ; iPart<nParticles; iPart++ ) {
+        //    (*Proj)(EMfields->rho_s[ispec], particles, iPart);
+        //}
+
+        // copy PSI particles to psi_particles, because after MPi particle exchanging
+        // the PSI particles will be erased
+        for(int iDirection=0; iDirection<indexes_of_particles_to_perform_psi.size(); iDirection++)
+        {
+            for(int iPart=0; iPart<indexes_of_particles_to_perform_psi[iDirection].size(); iPart++)
+            {
+                int iPart_psi = indexes_of_particles_to_perform_psi[iDirection][iPart];
+                particles.cp_particle(iPart_psi, psi_particles);
+            }
+        }
+
+    }
+    else if (!particles.isTestParticles) { // immobile particle (at the moment only project density)
+        for (iPart=0 ; iPart<nParticles; iPart++ ) {
+            (*Proj)(EMfields->rho_s[ispec], particles, iPart);
+        }
+    }//END if time vs. time_frozen
+
+    delete LocInterp;
+
+}//END dynamic
+
+
+
 void Species::dynamics_EM(double time_dual, unsigned int ispec, ElectroMagn* EMfields, Interpolator* Interp,
                        Projector* Proj, SmileiMPI *smpi, PicParams &params)
 {
