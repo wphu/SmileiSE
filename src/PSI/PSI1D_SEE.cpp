@@ -99,13 +99,18 @@ void PSI1D_SEE::emit(PicParams& params, vector<Species*>& vecSpecies, unsigned i
                 ran = (double)rand() / RAND_MAX;
             }
             while (ran == 0.0);
-            // initialize using the Maxwell distribution function in x-direction
-            double psm = sqrt(2.0 * const_e * emitTemp / s1->species_param.mass) * sqrt(-log(ran));
-            double theta = M_PI*(double)rand() / RAND_MAX;
+            // Velocity magnitude: from Maxwell velocity distribution
+            // The angle between velocity of emitted particle and the surface normal: cosine
+            //      cos(alpha) = sqrt(random number 0-1)
+            // The azimuthal angle is uniformly distributed on the interval [0 2pi]
+            double psm = sqrt(2.0 * params.const_e * emitTemp / s1->species_param.mass) * sqrt(-log(ran));
+            double cosAlpha = sqrt((double)rand() / RAND_MAX);
+            double sinAlpha = sqrt(1.0 - cosAlpha * cosAlpha);
             double phi   = 2.0 * M_PI*(double)rand() / RAND_MAX;
-            new_particles.momentum(0,iPart) = abs( psm*sin(theta) );
-            new_particles.momentum(1,iPart) = psm*cos(theta)*sin(phi);
-            new_particles.momentum(2,iPart) = psm*cos(theta)*cos(phi);
+
+            new_particles.momentum(0,iPart) = abs( psm * cosAlpha );
+            new_particles.momentum(1,iPart) = psm * sinAlpha * cos(phi);
+            new_particles.momentum(2,iPart) = psm * sinAlpha * sin(phi);
 
             new_particles.weight(iPart) = s1->species_param.weight;
             new_particles.charge(iPart) = s1->species_param.charge;
@@ -123,13 +128,18 @@ void PSI1D_SEE::emit(PicParams& params, vector<Species*>& vecSpecies, unsigned i
                ran = (double)rand() / RAND_MAX;
            }
            while (ran == 0.0);
-           // initialize using the Maxwell distribution function in x-direction
-           double psm = sqrt(2.0 * const_e * emitTemp / s1->species_param.mass) * sqrt(-log(ran));
-           double theta = M_PI*(double)rand() / RAND_MAX;
+           // Velocity magnitude: from Maxwell velocity distribution
+           // The angle between velocity of emitted particle and the surface normal: cosine
+           //      cos(alpha) = sqrt(random number 0-1)
+           // The azimuthal angle is uniformly distributed on the interval [0 2pi]
+           double psm = sqrt(2.0 * params.const_e * emitTemp / s1->species_param.mass) * sqrt(-log(ran));
+           double cosAlpha = sqrt((double)rand() / RAND_MAX);
+           double sinAlpha = sqrt(1.0 - cosAlpha * cosAlpha);
            double phi   = 2.0 * M_PI*(double)rand() / RAND_MAX;
-           new_particles.momentum(0,iPart) = -abs( psm*sin(theta) );
-           new_particles.momentum(1,iPart) = psm*cos(theta)*sin(phi);
-           new_particles.momentum(2,iPart) = psm*cos(theta)*cos(phi);
+
+           new_particles.momentum(0,iPart) = -abs( psm * cosAlpha );
+           new_particles.momentum(1,iPart) = psm * sinAlpha * cos(phi);
+           new_particles.momentum(2,iPart) = psm * sinAlpha * sin(phi);
 
            new_particles.weight(iPart) = s1->species_param.weight;
            new_particles.charge(iPart) = s1->species_param.charge;

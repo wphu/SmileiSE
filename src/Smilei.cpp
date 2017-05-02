@@ -238,7 +238,6 @@ int main (int argc, char* argv[])
         for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
         {
             vecSpecies[ispec]->dynamics(time_dual, ispec, EMfields, Interp, Proj, smpi, params);
-            smpi->barrier();
         }
         timer[3].update();
 
@@ -260,7 +259,6 @@ int main (int argc, char* argv[])
         {
             if(params.geometry == "2d3v") {
                 vecSpecies[ispec]->absorb2D(time_dual, ispec, grid, smpi, params);
-                smpi->barrier();
             }
         }
         timer[5].update();
