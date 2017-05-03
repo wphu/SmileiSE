@@ -124,6 +124,13 @@ void PSI1D_Backscattering::performPSI(PicParams& params, SmileiMPI* smpi, vector
                 new_particles.momentum(1,nPartEmit) = 0.0;
                 new_particles.momentum(2,nPartEmit) = 0.0;
 
+                new_particles.al_imp(0,iPart) = 0.0;
+                new_particles.al_imp(1,iPart) = 0.0;
+                new_particles.al_imp(2,iPart) = 0.0;
+                new_particles.au_imp(0,iPart) = 0.0;
+                new_particles.au_imp(1,iPart) = 0.0;
+                new_particles.au_imp(2,iPart) = 0.0;
+                
                 new_particles.weight(iPart) = weight_const;
                 new_particles.charge(iPart) = s1->species_param.charge;
                 nPartEmit++;

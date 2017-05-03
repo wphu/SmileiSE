@@ -58,9 +58,6 @@ void EF_Solver1D_TDMA::operator()( ElectroMagn* fields, SmileiMPI* smpi)
     Field1D* phi1D_global   = static_cast<Field1D*>(fields->phi_global);
     Field1D* Ex1D_global    = static_cast<Field1D*>(fields->Ex_global);
 
-    smpi1D->barrier();
-    smpi1D->gatherRho(rho1D_global, rho1D);
-
     if(smpi1D->isMaster()){
         solve_TDMA(rho1D_global, phi1D_global);
         //phi1D_global->put_to(0.0);

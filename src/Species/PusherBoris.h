@@ -24,6 +24,9 @@ public:
     virtual void operator() (Particles &particles, int ipart, LocalFields Epart, LocalFields Bpart);
     virtual void operator() (Particles &particles, int ipart, LocalFields Epart);
 
+    // methods for implicit push
+    virtual void firstPush (Particles &particles, int ipart, LocalFields Epart){};
+    virtual void secondPush (Particles &particles, int ipart, LocalFields Epart){};
 };
 
 #endif

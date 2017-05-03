@@ -24,7 +24,9 @@ nDim_field(params.nDim_field),
 cell_volume(params.cell_volume),
 n_space(params.n_space),
 n_space_global(params.n_space_global),
-oversize(params.oversize)
+oversize(params.oversize),
+avg_step(params.ntime_step_avg),
+dump_step(params.dump_step)
 {
     species_param = params.species_param;
 

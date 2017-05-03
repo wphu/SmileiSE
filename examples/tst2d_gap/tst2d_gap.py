@@ -21,17 +21,23 @@ sourceLength=20
 
 Lsim = [nx*l0,ny*l0]	# length of the simulation
 
-
 Tsim = 50000			# duration of the simulation
-dump_step = 5000
 
-ntime_step_avg = dump_step
 
-timesteps_coulomb = 5
+#> number of timestep of incrementing averaged electromagnetic fields
+ntime_step_avg = 1000
 
-timesteps_DSMC = 2
+#> Timestep to output some fields into hdf5 file
+dump_step = 200000
+timesteps_restore = dump_step
 
-timesteps_restore = ntime_step_avg
+timesteps_collision = 20
+
+timesteps_coulomb = 40
+
+timesteps_DSMC = 40
+
+is_calVDF = 0
 
 # dim: Geometry of the simulation
 #      1d3v = cartesian grid with 1d in space + 3d in velocity

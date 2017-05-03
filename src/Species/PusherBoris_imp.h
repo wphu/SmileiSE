@@ -20,6 +20,11 @@ public:
     PusherBoris_imp(PicParams& params, int ispec);
     ~PusherBoris_imp();
 
+    //! Overloading of () operator
+    virtual void operator() (Particles &particles, int ipart, LocalFields Epart, LocalFields Bpart, double& gf) {};
+    virtual void operator() (Particles &particles, int ipart, LocalFields Epart, LocalFields Bpart ) {};
+    virtual void operator() (Particles &particles, int ipart, LocalFields Epart) {};
+
     virtual void firstPush (Particles &particles, int ipart, LocalFields Epart);
     virtual void secondPush (Particles &particles, int ipart, LocalFields Epart);
 

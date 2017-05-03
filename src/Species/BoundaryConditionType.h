@@ -26,6 +26,9 @@ inline int refl_particle( Particles &particles, int ipart, int direction, double
     nrj_iPart = 0.;     // no energy loss during reflection
     particles.position(direction, ipart) = limit_pos - particles.position(direction, ipart);
     particles.momentum(direction, ipart) = -particles.momentum(direction, ipart);
+
+    particles.al_imp(direction, ipart) = -particles.al_imp(direction, ipart);
+    particles.au_imp(direction, ipart) = -particles.au_imp(direction, ipart);
     return 1;
 }
 

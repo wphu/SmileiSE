@@ -21,17 +21,21 @@ wavelength_SI = 1.e-6
 
 Lsim = [200.*l0,200.*l0]	# length of the simulation
 Tsim = 10			# duration of the simulation
-# print_every (on screen text output)
-# print_every = 60
-ntime_step_avg = 1
 
-dump_step = ntime_step_avg
+#> number of timestep of incrementing averaged electromagnetic fields
+ntime_step_avg = 1000
 
-timesteps_coulomb = 5
+#> Timestep to output some fields into hdf5 file
+dump_step = 200000
+timesteps_restore = dump_step
 
-timesteps_DSMC = 2
+timesteps_collision = 20
 
-timesteps_restore = ntime_step_avg
+timesteps_coulomb = 40
+
+timesteps_DSMC = 40
+
+is_calVDF = 0
 
 # dim: Geometry of the simulation
 #      1d3v = cartesian grid with 1d in space + 3d in velocity

@@ -41,6 +41,9 @@ public:
     //! time-step (from picparams)
     const double timestep;
 
+    int dump_step;
+    int avg_step;
+
     //! cell length (from picparams)
     const std::vector<double> cell_length;
 
@@ -230,7 +233,7 @@ public:
     virtual void saveMagneticFields() = 0;
     virtual void centerMagneticFields() = 0;
 
-    virtual void incrementAvgFields(unsigned int time_step, unsigned int ntime_step_avg) = 0;
+    virtual void incrementAvgFields(unsigned int time_step) = 0;
 
     //! compute Poynting on borders
     virtual void computePoynting() = 0;
@@ -247,8 +250,11 @@ public:
     //! Check if norm of charge denisty is not null
     bool isRhoNull(SmileiMPI* smpi);
 
-    //> gather time-average fields to process 0 to output
+    // gather time-average fields to process 0 to output
     virtual void gatherAvgFields(SmileiMPI *smpi)=0;
+
+    // gather fields to process 0 to calculate EM fields
+    virtual void gatherFields(SmileiMPI *smpi)=0;
 
     double computeNRJ(unsigned int shift, SmileiMPI *smpi);
     double getLostNrjMW() const {return nrj_mw_lost;}

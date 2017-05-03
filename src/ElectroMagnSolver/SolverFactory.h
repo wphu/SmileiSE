@@ -2,6 +2,7 @@
 #define SOLVERFACTORY_H
 
 #include "EF_Solver1D_TDMA.h"
+#include "EF_Solver1D_TDMA_imp.h"
 #include "MF_Solver1D_Yee.h"
 #include "MF_Solver2D_Yee.h"
 #include "MF_Solver2D_Cowan.h"
@@ -19,7 +20,15 @@ public:
         if ( params.geometry == "1d3v" ) {
             nx_source_left = 0.0; // default
             ifile.extract("nx_source_left", nx_source_left);
-            solver = new EF_Solver1D_TDMA(params, smpi, nx_source_left);
+            if(params.method == "explicit")
+            {
+                solver = new EF_Solver1D_TDMA(params, smpi, nx_source_left);
+            }
+            else if(params.method == "implicit")
+            {
+                solver = new EF_Solver1D_TDMA_imp(params, smpi, nx_source_left);
+            }
+
         }
         else if ( params.geometry == "2d3v" ) {
 	    //if ()

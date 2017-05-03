@@ -26,7 +26,7 @@ public:
     void centerMagneticFields();
 
     //! Method used to reset/increment the averaged fields
-    void incrementAvgFields(unsigned int time_step, unsigned int ntime_step_avg);
+    void incrementAvgFields(unsigned int time_step);
 
     //! Method used to initialize the total charge densities and currents
     void restartRhoJ();
@@ -36,9 +36,11 @@ public:
     //! Method used to compute the total charge density and currents by summing over all species
     void computeTotalRhoJ();
 
-    //> gather time-average fields to process 0 to output
+    // gather time-average fields to process 0 to output
     void gatherAvgFields(SmileiMPI *smpi);
 
+    // gather fields to process 0 to calculate EM fields
+    void gatherFields(SmileiMPI *smpi);
 
     //! \todo Create properties the laser time-profile (MG & TV)
 

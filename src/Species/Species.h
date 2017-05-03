@@ -80,6 +80,9 @@ public:
     //! Method used to initialize the Particle 3d momentum in a given cell
     void initMomentum(unsigned int, unsigned int, double *, double *, std::string, std::vector<double>&, PicParams&);
 
+    // Method used to initialize the Particle acceleration for implicit method
+    void initAcceleration_imp(unsigned int nPart, unsigned int iPart);
+
     //! Method used to initialize the Particle weight (equivalent to a charge density) in a given cell
     void initWeight(unsigned int, unsigned int, unsigned int, double);
 

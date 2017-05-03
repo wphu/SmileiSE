@@ -443,6 +443,23 @@ void Species::initMomentum(unsigned int nPart, unsigned int iPart, double *temp,
 }//END initMomentum
 
 
+
+// ---------------------------------------------------------------------------------------------------------------------
+// For all (np) particles in a mesh initialize their acceleration for implicit method
+// ---------------------------------------------------------------------------------------------------------------------
+void Species::initAcceleration_imp(unsigned int nPart, unsigned int iPart)
+{
+    for (unsigned int p= iPart; p<iPart+nPart; p++) {
+        for (unsigned int i=0; i<3 ; i++) {
+            particles.al_imp(i,p) = 0.0;
+            particles.au_imp(i,p) = 0.0;
+        }
+    }
+
+}//END initAcceleration
+
+
+
 // ---------------------------------------------------------------------------------------------------------------------
 // For all particles of the species
 //   - interpolate the fields at the particle position
@@ -1373,6 +1390,8 @@ int Species::createParticles(vector<unsigned int> n_space_to_create, vector<doub
 
                     initMomentum(nPart,iPart, temp, vel,
                                  species_param.initMomentum_type, max_jutt_cumul, params);
+
+                    initAcceleration_imp(nPart, iPart);
 
                     initWeight(nPart, speciesNumber, iPart, density(i,j,k));
                     initCharge(nPart, speciesNumber, iPart, charge(i,j,k));

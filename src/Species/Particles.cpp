@@ -53,6 +53,16 @@ void Particles::initialize( int nParticles, PicParams &params)
     for (int i=0 ; i< 3 ; i++) {
         Momentum[i].resize(nParticles, 0.);
     }
+
+    Al_imp.resize(3);
+    for (int i=0 ; i< 3 ; i++) {
+        Al_imp[i].resize(nParticles, 0.);
+    }
+    Au_imp.resize(3);
+    for (int i=0 ; i< 3 ; i++) {
+        Au_imp[i].resize(nParticles, 0.);
+    }
+
     Weight.resize(nParticles, 0.);
     Charge.resize(nParticles, 0);
 
@@ -89,6 +99,16 @@ void Particles::reserve( unsigned int n_part_max, int nDim )
     for (int i=0 ; i< 3 ; i++) {
         Momentum[i].reserve(n_part_max);
     }
+
+    Al_imp.resize(3);
+    for (int i=0 ; i< 3 ; i++) {
+        Al_imp[i].reserve(n_part_max);
+    }
+    Au_imp.resize(3);
+    for (int i=0 ; i< 3 ; i++) {
+        Au_imp[i].reserve(n_part_max);
+    }
+
     Weight.reserve(n_part_max);
     Charge.reserve(n_part_max);
 
@@ -109,6 +129,14 @@ void Particles::clear()
     for (int i=0 ; i< 3 ; i++) {
         Momentum[i].clear();
     }
+
+    for (int i=0 ; i< 3 ; i++) {
+        Al_imp[i].clear();
+    }
+    for (int i=0 ; i< 3 ; i++) {
+        Au_imp[i].clear();
+    }
+
     Weight.clear();
     Charge.clear();
 
@@ -129,6 +157,14 @@ void Particles::cp_particle(int ipart, Particles &dest_parts )
     for (unsigned int i=0; i<3; i++) {
         dest_parts.Momentum[i].push_back( Momentum[i][ipart] );
     }
+
+    for (unsigned int i=0; i<3; i++) {
+        dest_parts.Al_imp[i].push_back( Al_imp[i][ipart] );
+    }
+    for (unsigned int i=0; i<3; i++) {
+        dest_parts.Au_imp[i].push_back( Au_imp[i][ipart] );
+    }
+
     dest_parts.Weight.push_back( Weight[ipart] );
     dest_parts.Charge.push_back( Charge[ipart] );
 
@@ -149,6 +185,14 @@ void Particles::cp_particle(int ipart, Particles &dest_parts, int dest_id )
     for (unsigned int i=0; i<3; i++) {
         dest_parts.Momentum[i].insert( dest_parts.Momentum[i].begin() + dest_id, Momentum[i][ipart] );
     }
+
+    for (unsigned int i=0; i<3; i++) {
+        dest_parts.Al_imp[i].insert( dest_parts.Al_imp[i].begin() + dest_id, Al_imp[i][ipart] );
+    }
+    for (unsigned int i=0; i<3; i++) {
+        dest_parts.Au_imp[i].insert( dest_parts.Au_imp[i].begin() + dest_id, Au_imp[i][ipart] );
+    }
+
     dest_parts.Weight.insert( dest_parts.Weight.begin() + dest_id, Weight[ipart] );
     dest_parts.Charge.insert( dest_parts.Charge.begin() + dest_id, Charge[ipart] );
 
@@ -170,6 +214,14 @@ void Particles::cp_particles(int nPart, Particles &dest_parts, int dest_id )
     for (unsigned int i=0; i<3; i++) {
         dest_parts.Momentum[i].insert( dest_parts.Momentum[i].begin() + dest_id, Momentum[i].begin(), Momentum[i].begin()+nPart );
     }
+
+    for (unsigned int i=0; i<3; i++) {
+        dest_parts.Al_imp[i].insert( dest_parts.Al_imp[i].begin() + dest_id, Al_imp[i].begin(), Al_imp[i].begin()+nPart );
+    }
+    for (unsigned int i=0; i<3; i++) {
+        dest_parts.Au_imp[i].insert( dest_parts.Au_imp[i].begin() + dest_id, Au_imp[i].begin(), Au_imp[i].begin()+nPart );
+    }
+
     dest_parts.Weight.insert( dest_parts.Weight.begin() + dest_id, Weight.begin(), Weight.begin()+nPart );
     dest_parts.Charge.insert( dest_parts.Charge.begin() + dest_id, Charge.begin(), Charge.begin()+nPart );
 
@@ -193,6 +245,14 @@ void Particles::cp_particles(int source_id, int nPart, Particles &dest_parts, in
     for (unsigned int i=0; i<3; i++) {
         dest_parts.Momentum[i].insert( dest_parts.Momentum[i].begin() + dest_id, Momentum[i].begin() + source_id, Momentum[i].begin() + source_id + nPart );
     }
+
+    for (unsigned int i=0; i<3; i++) {
+        dest_parts.Al_imp[i].insert( dest_parts.Al_imp[i].begin() + dest_id, Al_imp[i].begin() + source_id, Al_imp[i].begin() + source_id + nPart );
+    }
+    for (unsigned int i=0; i<3; i++) {
+        dest_parts.Au_imp[i].insert( dest_parts.Au_imp[i].begin() + dest_id, Au_imp[i].begin() + source_id, Au_imp[i].begin() + source_id + nPart );
+    }
+
     dest_parts.Weight.insert( dest_parts.Weight.begin() + dest_id, Weight.begin() + source_id, Weight.begin() + source_id + nPart );
     dest_parts.Charge.insert( dest_parts.Charge.begin() + dest_id, Charge.begin() + source_id, Charge.begin() + source_id + nPart );
 
@@ -215,6 +275,14 @@ void Particles::erase_particle(int ipart )
     for (unsigned int i=0; i<3; i++) {
         Momentum[i].erase( Momentum[i].begin()+ipart );
     }
+
+    for (unsigned int i=0; i<3; i++) {
+        Al_imp[i].erase( Al_imp[i].begin()+ipart );
+    }
+    for (unsigned int i=0; i<3; i++) {
+        Au_imp[i].erase( Au_imp[i].begin()+ipart );
+    }
+
     Weight.erase( Weight.begin()+ipart );
     Charge.erase( Charge.begin()+ipart );
 
@@ -236,6 +304,14 @@ void Particles::erase_particle_trail(int ipart)
     for (unsigned int i=0; i<3; i++) {
         Momentum[i].erase( Momentum[i].begin()+ipart,Momentum[i].end() );
     }
+
+    for (unsigned int i=0; i<3; i++) {
+        Al_imp[i].erase( Al_imp[i].begin()+ipart,Al_imp[i].end() );
+    }
+    for (unsigned int i=0; i<3; i++) {
+        Au_imp[i].erase( Au_imp[i].begin()+ipart,Au_imp[i].end() );
+    }
+
     Weight.erase( Weight.begin()+ipart,Weight.end() );
     Charge.erase( Charge.begin()+ipart,Charge.end() );
 
@@ -254,6 +330,12 @@ void Particles::print(int iPart) {
     }
     for (unsigned int i=0; i<3; i++)
         cout << Momentum[i][iPart] << " ";
+
+    for (unsigned int i=0; i<3; i++)
+        cout << Al_imp[i][iPart] << " ";
+    for (unsigned int i=0; i<3; i++)
+        cout << Au_imp[i][iPart] << " ";
+
     cout << Weight[iPart] << " ";
     cout << Charge[iPart] << endl;;
 
@@ -274,6 +356,12 @@ ostream& operator << (ostream& out, const Particles& particles) {
         }
         for (unsigned int i=0; i<3; i++)
             out << particles.Momentum[i][iPart] << " ";
+
+        for (unsigned int i=0; i<3; i++)
+            out << particles.Al_imp[i][iPart] << " ";
+        for (unsigned int i=0; i<3; i++)
+            out << particles.Au_imp[i][iPart] << " ";
+
         out << particles.Weight[iPart] << " ";
         out << particles.Charge[iPart] << endl;;
 
@@ -296,6 +384,12 @@ void Particles::swap_part(int part1, int part2)
     }
     for (unsigned int i=0; i<3; i++)
         std::swap( Momentum[i][part1], Momentum[i][part2] );
+
+    for (unsigned int i=0; i<3; i++)
+        std::swap( Al_imp[i][part1], Al_imp[i][part2] );
+    for (unsigned int i=0; i<3; i++)
+        std::swap( Au_imp[i][part1], Au_imp[i][part2] );
+
     std::swap( Charge[part1], Charge[part2] );
     std::swap( Weight[part1], Weight[part2] );
 
@@ -318,6 +412,14 @@ void Particles::overwrite_part(int part1, int part2)
     Momentum    [0][part2] = Momentum    [0][part1];
     Momentum    [1][part2] = Momentum    [1][part1];
     Momentum    [2][part2] = Momentum    [2][part1];
+
+    Al_imp      [0][part2] = Al_imp      [0][part1];
+    Al_imp      [1][part2] = Al_imp      [1][part1];
+    Al_imp      [2][part2] = Al_imp      [2][part1];
+    Au_imp      [0][part2] = Au_imp      [0][part1];
+    Au_imp      [1][part2] = Au_imp      [1][part1];
+    Au_imp      [2][part2] = Au_imp      [2][part1];
+
     Charge         [part2] = Charge         [part1];
     Weight         [part2] = Weight         [part1];
 
@@ -341,6 +443,14 @@ void Particles::overwrite_part(int part1, int part2, int N)
         Momentum    [0][part2+j] =  Momentum    [0][part1+j];
         Momentum    [1][part2+j] =  Momentum    [1][part1+j];
         Momentum    [2][part2+j] =  Momentum    [2][part1+j];
+
+        Al_imp    [0][part2+j] =  Al_imp    [0][part1+j];
+        Al_imp    [1][part2+j] =  Al_imp    [1][part1+j];
+        Al_imp    [2][part2+j] =  Al_imp    [2][part1+j];
+        Au_imp    [0][part2+j] =  Au_imp    [0][part1+j];
+        Au_imp    [1][part2+j] =  Au_imp    [1][part1+j];
+        Au_imp    [2][part2+j] =  Au_imp    [2][part1+j];
+
         Charge         [part2+j] =  Charge         [part1+j];
         Weight         [part2+j] =  Weight         [part1+j];
     }
@@ -362,6 +472,14 @@ void Particles::overwrite_part1D(int part1, int part2)
     Momentum    [0][part2] = Momentum    [0][part1];
     Momentum    [1][part2] = Momentum    [1][part1];
     Momentum    [2][part2] = Momentum    [2][part1];
+
+    Al_imp    [0][part2] = Al_imp    [0][part1];
+    Al_imp    [1][part2] = Al_imp    [1][part1];
+    Al_imp    [2][part2] = Al_imp    [2][part1];
+    Au_imp    [0][part2] = Au_imp    [0][part1];
+    Au_imp    [1][part2] = Au_imp    [1][part1];
+    Au_imp    [2][part2] = Au_imp    [2][part1];
+
     Charge         [part2] = Charge         [part1];
     Weight         [part2] = Weight         [part1];
 
@@ -381,6 +499,14 @@ void Particles::overwrite_part2D(int part1, int part2)
     Momentum    [0][part2] = Momentum    [0][part1];
     Momentum    [1][part2] = Momentum    [1][part1];
     Momentum    [2][part2] = Momentum    [2][part1];
+
+    Al_imp    [0][part2] = Al_imp    [0][part1];
+    Al_imp    [1][part2] = Al_imp    [1][part1];
+    Al_imp    [2][part2] = Al_imp    [2][part1];
+    Au_imp    [0][part2] = Au_imp    [0][part1];
+    Au_imp    [1][part2] = Au_imp    [1][part1];
+    Au_imp    [2][part2] = Au_imp    [2][part1];
+
     Charge         [part2] = Charge         [part1];
     Weight         [part2] = Weight         [part1];
 
@@ -401,6 +527,14 @@ void Particles::overwrite_part1D(int part1, int part2, int N)
         Momentum    [0][part2+j] =  Momentum    [0][part1+j];
         Momentum    [1][part2+j] =  Momentum    [1][part1+j];
         Momentum    [2][part2+j] =  Momentum    [2][part1+j];
+
+        Al_imp    [0][part2+j] =  Al_imp    [0][part1+j];
+        Al_imp    [1][part2+j] =  Al_imp    [1][part1+j];
+        Al_imp    [2][part2+j] =  Al_imp    [2][part1+j];
+        Au_imp    [0][part2+j] =  Au_imp    [0][part1+j];
+        Au_imp    [1][part2+j] =  Au_imp    [1][part1+j];
+        Au_imp    [2][part2+j] =  Au_imp    [2][part1+j];
+
         Charge         [part2+j] =  Charge         [part1+j];
         Weight         [part2+j] =  Weight         [part1+j];
     }
@@ -427,6 +561,14 @@ void Particles::overwrite_part2D(int part1, int part2, int N)
     memcpy( &Momentum    [0][part2] , &Momentum    [0][part1] , sizepart  );
     memcpy( &Momentum    [1][part2] , &Momentum    [1][part1] , sizepart  );
     memcpy( &Momentum    [2][part2] , &Momentum    [2][part1] , sizepart  );
+
+    memcpy( &Al_imp    [0][part2] , &Al_imp    [0][part1] , sizepart  );
+    memcpy( &Al_imp    [1][part2] , &Al_imp    [1][part1] , sizepart  );
+    memcpy( &Al_imp    [2][part2] , &Al_imp    [2][part1] , sizepart  );
+    memcpy( &Au_imp    [0][part2] , &Au_imp    [0][part1] , sizepart  );
+    memcpy( &Au_imp    [1][part2] , &Au_imp    [1][part1] , sizepart  );
+    memcpy( &Au_imp    [2][part2] , &Au_imp    [2][part1] , sizepart  );
+
     memcpy( &Charge         [part2] , &Charge         [part1] , sizecharge);
     memcpy( &Weight         [part2] , &Weight         [part1] , sizepart  );
 
@@ -446,6 +588,14 @@ void Particles::overwrite_part2D(int part1, Particles &dest_parts, int part2)
     dest_parts.Momentum    [0][part2] = Momentum    [0][part1];
     dest_parts.Momentum    [1][part2] = Momentum    [1][part1];
     dest_parts.Momentum    [2][part2] = Momentum    [2][part1];
+
+    dest_parts.Al_imp    [0][part2] = Al_imp    [0][part1];
+    dest_parts.Al_imp    [1][part2] = Al_imp    [1][part1];
+    dest_parts.Al_imp    [2][part2] = Al_imp    [2][part1];
+    dest_parts.Au_imp    [0][part2] = Au_imp    [0][part1];
+    dest_parts.Au_imp    [1][part2] = Au_imp    [1][part1];
+    dest_parts.Au_imp    [2][part2] = Au_imp    [2][part1];
+
     dest_parts.Charge         [part2] = Charge         [part1];
     dest_parts.Weight         [part2] = Weight         [part1];
 
@@ -469,6 +619,14 @@ void Particles::overwrite_part2D(int part1, Particles &dest_parts, int part2, in
     memcpy( &dest_parts.Momentum    [0][part2] , &Momentum    [0][part1] , sizepart  );
     memcpy( &dest_parts.Momentum    [1][part2] , &Momentum    [1][part1] , sizepart  );
     memcpy( &dest_parts.Momentum    [2][part2] , &Momentum    [2][part1] , sizepart  );
+
+    memcpy( &dest_parts.Al_imp    [0][part2] , &Al_imp    [0][part1] , sizepart  );
+    memcpy( &dest_parts.Al_imp    [1][part2] , &Al_imp    [1][part1] , sizepart  );
+    memcpy( &dest_parts.Al_imp    [2][part2] , &Al_imp    [2][part1] , sizepart  );
+    memcpy( &dest_parts.Au_imp    [0][part2] , &Au_imp    [0][part1] , sizepart  );
+    memcpy( &dest_parts.Au_imp    [1][part2] , &Au_imp    [1][part1] , sizepart  );
+    memcpy( &dest_parts.Au_imp    [2][part2] , &Au_imp    [2][part1] , sizepart  );
+
     memcpy( &dest_parts.Charge         [part2] , &Charge         [part1] , sizecharge);
     memcpy( &dest_parts.Weight         [part2] , &Weight         [part1] , sizepart  );
 
@@ -489,6 +647,14 @@ void Particles::overwrite_part1D(int part1, Particles &dest_parts, int part2, in
         dest_parts.Momentum    [0][part2+j] = Momentum    [0][part1+j];
         dest_parts.Momentum    [1][part2+j] = Momentum    [1][part1+j];
         dest_parts.Momentum    [2][part2+j] = Momentum    [2][part1+j];
+
+        dest_parts.Al_imp    [0][part2+j] = Al_imp    [0][part1+j];
+        dest_parts.Al_imp    [1][part2+j] = Al_imp    [1][part1+j];
+        dest_parts.Al_imp    [2][part2+j] = Al_imp    [2][part1+j];
+        dest_parts.Au_imp    [0][part2+j] = Au_imp    [0][part1+j];
+        dest_parts.Au_imp    [1][part2+j] = Au_imp    [1][part1+j];
+        dest_parts.Au_imp    [2][part2+j] = Au_imp    [2][part1+j];
+
         dest_parts.Charge         [part2+j] = Charge         [part1+j];
         dest_parts.Weight         [part2+j] = Weight         [part1+j];
     }
@@ -523,6 +689,18 @@ void Particles::swap_part(int part1, int part2, int N)
         memcpy(&Momentum[i][part1],&Momentum[i][part2], sizepart);
         memcpy(&Momentum[i][part2],buffer, sizepart);
     }
+
+    for (unsigned int i=0; i<3; i++){
+        memcpy(buffer,&Al_imp[i][part1], sizepart);
+        memcpy(&Al_imp[i][part1],&Al_imp[i][part2], sizepart);
+        memcpy(&Al_imp[i][part2],buffer, sizepart);
+    }
+    for (unsigned int i=0; i<3; i++){
+        memcpy(buffer,&Au_imp[i][part1], sizepart);
+        memcpy(&Au_imp[i][part1],&Au_imp[i][part2], sizepart);
+        memcpy(&Au_imp[i][part2],buffer, sizepart);
+    }
+
     memcpy(buffer,&Charge[part1], sizecharge);
     memcpy(&Charge[part1],&Charge[part2], sizecharge);
     memcpy(&Charge[part2],buffer, sizecharge);
@@ -559,6 +737,14 @@ void Particles::create_particle()
     for (unsigned int i=0; i<3; i++) {
         Momentum[i].push_back(0.);
     }
+
+    for (unsigned int i=0; i<3; i++) {
+        Al_imp[i].push_back(0.);
+    }
+    for (unsigned int i=0; i<3; i++) {
+        Au_imp[i].push_back(0.);
+    }
+
     Weight.push_back(0.);
     Charge.push_back(0);
 
@@ -580,6 +766,14 @@ void Particles::create_particles(int nAdditionalParticles )
     for (unsigned int i=0; i<3; i++) {
         Momentum[i].resize(nParticles+nAdditionalParticles,0.);
     }
+
+    for (unsigned int i=0; i<3; i++) {
+        Al_imp[i].resize(nParticles+nAdditionalParticles,0.);
+    }
+    for (unsigned int i=0; i<3; i++) {
+        Au_imp[i].resize(nParticles+nAdditionalParticles,0.);
+    }
+
     Weight.resize(nParticles+nAdditionalParticles,0.);
     Charge.resize(nParticles+nAdditionalParticles,0);
 

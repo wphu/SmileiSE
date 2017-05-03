@@ -374,8 +374,8 @@ void SmileiMPI_Cart2D::exchangeParticles(Species* species, int ispec, PicParams&
         // Proceed to effective Particles' communications
         /********************************************************************************/
 
-        // Number of properties per particles = nDim_Particles + 3 + 1 + 1
-        int nbrOfProp( 7 );
+        // Number of properties per particles = nDim_Particles + 3 +6 + 1 + 1
+        int nbrOfProp( 13 );
         MPI_Datatype typePartSend, typePartRecv;
 
         for (int iNeighbor=0 ; iNeighbor<nbNeighbors_ ; iNeighbor++) {
@@ -596,8 +596,16 @@ MPI_Datatype SmileiMPI_Cart2D::createMPIparticles( Particles* particles, int nbr
     MPI_Get_address( &(particles->momentum(0,0)), &(address[2]) );
     MPI_Get_address( &(particles->momentum(1,0)), &(address[3]) );
     MPI_Get_address( &(particles->momentum(2,0)), &(address[4]) );
-    MPI_Get_address( &(particles->weight(0)),     &(address[5]) );
-    MPI_Get_address( &(particles->charge(0)),     &(address[6]) );
+
+    MPI_Get_address( &(particles->al_imp(0,0)), &(address[5]) );
+    MPI_Get_address( &(particles->al_imp(1,0)), &(address[6]) );
+    MPI_Get_address( &(particles->al_imp(2,0)), &(address[7]) );
+    MPI_Get_address( &(particles->au_imp(0,0)), &(address[8]) );
+    MPI_Get_address( &(particles->au_imp(1,0)), &(address[9]) );
+    MPI_Get_address( &(particles->au_imp(2,0)), &(address[10]) );
+
+    MPI_Get_address( &(particles->weight(0)),     &(address[11]) );
+    MPI_Get_address( &(particles->charge(0)),     &(address[12]) );
 
     if (particles->isTestParticles)
         MPI_Get_address( &(particles->id(0)),     &(address[nbrOfProp2-1]) );

@@ -26,6 +26,7 @@ protected :
     // pi * 0.5
     double PI_ov_2;
     int dump_step;
+    int avg_step;
     double timestep;
     double const_e;
 

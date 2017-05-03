@@ -112,6 +112,13 @@ void PSI1D_SEE::emit(PicParams& params, vector<Species*>& vecSpecies, unsigned i
             new_particles.momentum(1,iPart) = psm * sinAlpha * cos(phi);
             new_particles.momentum(2,iPart) = psm * sinAlpha * sin(phi);
 
+            new_particles.al_imp(0,iPart) = 0.0;
+            new_particles.al_imp(1,iPart) = 0.0;
+            new_particles.al_imp(2,iPart) = 0.0;
+            new_particles.au_imp(0,iPart) = 0.0;
+            new_particles.au_imp(1,iPart) = 0.0;
+            new_particles.au_imp(2,iPart) = 0.0;
+
             new_particles.weight(iPart) = s1->species_param.weight;
             new_particles.charge(iPart) = s1->species_param.charge;
         }
@@ -141,6 +148,13 @@ void PSI1D_SEE::emit(PicParams& params, vector<Species*>& vecSpecies, unsigned i
            new_particles.momentum(1,iPart) = psm * sinAlpha * cos(phi);
            new_particles.momentum(2,iPart) = psm * sinAlpha * sin(phi);
 
+           new_particles.al_imp(0,iPart) = 0.0;
+           new_particles.al_imp(1,iPart) = 0.0;
+           new_particles.al_imp(2,iPart) = 0.0;
+           new_particles.au_imp(0,iPart) = 0.0;
+           new_particles.au_imp(1,iPart) = 0.0;
+           new_particles.au_imp(2,iPart) = 0.0;
+           
            new_particles.weight(iPart) = s1->species_param.weight;
            new_particles.charge(iPart) = s1->species_param.charge;
        }

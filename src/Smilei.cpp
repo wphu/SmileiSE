@@ -205,7 +205,7 @@ int main (int argc, char* argv[])
     TITLE("Time-Loop is started: number of time-steps n_time = " << params.n_time);
     smpi->barrier();
     timer[0].restart();
-    if(params.method = "explicit")
+    if(params.method == "explicit")
     {
         while(itime <= stepStop)
         {
@@ -291,6 +291,7 @@ int main (int argc, char* argv[])
             timer[9].restart();
             EMfields->restartRhoJ();
             EMfields->computeTotalRhoJ();
+            EMfields->gatherFields(smpi);
             (*solver)(EMfields, smpi);
             timer[9].update();
 
@@ -298,7 +299,7 @@ int main (int argc, char* argv[])
             timer[10].restart();
             if(params.ntime_step_avg)
             {
-                EMfields->incrementAvgFields(itime, params.ntime_step_avg);
+                EMfields->incrementAvgFields(itime);
             }
             if(itime % params.dump_step == 0){
                 EMfields->gatherAvgFields(smpi);
@@ -387,11 +388,12 @@ int main (int argc, char* argv[])
             timer[9].restart();
             EMfields->restartRhoJ();
             EMfields->computeTotalRhoJ();
+            EMfields->gatherFields(smpi);
             (*solver)(EMfields, smpi);
             timer[9].update();
 
             // ================== Second push ===============================
-            int tid(0);
+            tid = 0;
             timer[3].restart();
             for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
             {
@@ -441,7 +443,7 @@ int main (int argc, char* argv[])
             timer[10].restart();
             if(params.ntime_step_avg)
             {
-                EMfields->incrementAvgFields(itime, params.ntime_step_avg);
+                EMfields->incrementAvgFields(itime);
             }
             if(itime % params.dump_step == 0){
                 EMfields->gatherAvgFields(smpi);
