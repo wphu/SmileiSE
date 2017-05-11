@@ -1,0 +1,107 @@
+##>>>The code is used to read data from hdf5 file
+##>>>and plot on the screen and output figure file using matplotlib-python
+
+import Tkinter as tk
+from Tkinter import *
+
+import matplotlib
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
+from matplotlib import cm
+matplotlib.use('TkAgg')
+
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
+from matplotlib.figure import Figure
+
+import numpy as np
+from numpy import arange, sin, pi
+
+import ConfigParser
+
+
+
+import h5py as h5
+import numpy as np
+import matplotlib.pyplot as plt
+import math
+
+##inite the fig of matplotlib
+fig=plt.figure(figsize=(10,4))
+fig.subplots_adjust(top=0.9,bottom=0.1,wspace=0.5,hspace=0.4)
+
+
+
+##read data from file
+f=h5.File("restore/Restore1_global.h5")
+print f.keys()
+
+
+v_number = 150
+# for electron
+#m_ov_2T = 9.109382616e-31 / (2.0 * 23 * 1.602e-19)
+
+# for D+ ion
+m_ov_2T = 2.0 * 1.67262158e-27 / (2.0 * 32 * 1.602e-19)
+
+##============ Phase plot in x direction ======================================================
+sp_temp1 = fig.add_subplot(1,1,1)
+
+val = f["/D1/momentum0"]
+val = val[...]
+particle_number = val.shape[0]
+v = np.zeros(particle_number)
+
+val = f["/D1/momentum0"]
+v0 = val[...]
+for iv in np.arange(0, particle_number):
+	v[iv] = v0[iv]
+
+
+
+vmin = v.min() * 1.0
+vmax = v.max() * 1.0
+v_step = (vmax - vmin) / v_number
+v_step_half = 0.5 * v_step
+
+v_x = np.zeros(v_number)
+v_y = np.zeros(v_number)
+v_y_maxwell = np.zeros(v_number)
+
+v_x[0] = vmin
+for i in np.arange(1, v_number):
+	v_x[i] = v_x[i-1] + v_step
+
+#======= from theory
+for i in np.arange(0, v_number):
+	v_y_maxwell[i] = math.sqrt(m_ov_2T/3.14) * math.exp( -m_ov_2T * v_x[i] * v_x[i] )
+
+#======= from simulation
+for v_i in v:
+	i = int( (v_i -vmin + v_step_half) / v_step )
+	if i < 0:
+		v_y[0] = v_y[0] + 1
+	elif i >= v_number:
+		v_y[v_number-1] = v_y[v_number-1] + 1
+	else:
+		v_y[i] = v_y[i] + 1
+v_y = 1.0 * v_y / (particle_number * v_step)
+	
+cf_temp1=sp_temp1.plot(v_x, v_y)
+cf_temp1=sp_temp1.plot(v_x, v_y_maxwell)
+	
+sp_temp1.set_xlim((vmin, vmax))
+#sp_temp1.set_ylim((ymin, ymax))
+
+sp_temp1.set_xlabel('vx')
+sp_temp1.set_ylabel('vdf-velocity in x direction')
+
+
+
+
+#plt.legend()
+fig.savefig("fig.png", dpi = 300)
+#plt.axis('equal')
+plt.show()         #The command is OK
+
+
+

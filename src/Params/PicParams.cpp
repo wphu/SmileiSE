@@ -75,6 +75,11 @@ PicParams::PicParams(InputData &ifile) {
         ERROR("Method " << method << " does not exist");
     }
 
+    imp_theta = 0.1;
+    ifile.extract("imp_theta", imp_theta);
+
+    imp_iteration_number = 1;
+    ifile.extract("imp_iteration_number", imp_iteration_number);
 
     // -------------------
     // Simulation box info
@@ -89,6 +94,10 @@ PicParams::PicParams(InputData &ifile) {
 
     // interpolation order
     ifile.extract("interpolation_order", interpolation_order);
+
+    // projection order
+    ifile.extract("projection_order", projection_order);
+
     /*
     if (interpolation_order!=2 && interpolation_order!=4) {
         ERROR("Interpolation/projection order " << interpolation_order << " not defined");

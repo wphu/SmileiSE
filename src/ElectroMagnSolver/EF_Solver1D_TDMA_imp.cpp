@@ -123,7 +123,7 @@ void EF_Solver1D_TDMA_imp::initTDMA(PicParams &params)
     {
 
         charge_over_mass_ = params.species_param[iS].charge / params.species_param[iS].mass;
-        factor_chi[iS] = dt * dt * 0.5 * const_ephi0_inv * charge_over_mass_;
+        factor_chi[iS] = dt * dt * 0.5 * const_ephi0_inv * charge_over_mass_ * params.species_param[iS].charge;
         // Calculate the [0,0] term of the rotation tensor T
         Omega0_square = pow(0.5 * charge_over_mass_ * dt * params.externB[0], 2);
         Omega_square =  pow(0.5 * charge_over_mass_ * dt * params.externB[0], 2)

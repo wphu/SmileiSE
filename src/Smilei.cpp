@@ -374,45 +374,50 @@ int main (int argc, char* argv[])
             }
             timer[5].update();
 
-            // ================== Project Particle =========================================
-            timer[6].restart();
-            for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
-            {
-                EMfields->restartRhoJs(ispec, 0);
-                vecSpecies[ispec]->Project(time_dual, ispec, EMfields, Proj, smpi, params);
-            }
-            timer[6].update();
 
-
-            // ================== Solve Electromagnetic Fields ===============================
-            timer[9].restart();
-            EMfields->restartRhoJ();
-            EMfields->computeTotalRhoJ();
-            EMfields->gatherFields(smpi);
-            (*solver)(EMfields, smpi);
-            timer[9].update();
 
             // ================== Second push ===============================
-            tid = 0;
-            timer[3].restart();
-            for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
+            for(int i = 0; i < params.imp_iteration_number; i++)
             {
-                vecSpecies[ispec]->dynamics_imp_secondPush(time_dual, ispec, EMfields, Interp, Proj, smpi, params);
-            }
-            timer[3].update();
-
-
-            // ================== Second MPI Exchange Particle ============================================
-            timer[4].restart();
-            for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
-            {
-                for ( int iDim = 0 ; iDim<(int)params.nDim_particle ; iDim++ )
+                // ================== Project Particle =========================================
+                timer[6].restart();
+                for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
                 {
-                    smpi->exchangeParticles(vecSpecies[ispec], ispec, params, tid, iDim);
+                    EMfields->restartRhoJs(ispec, 0);
+                    vecSpecies[ispec]->Project(time_dual, ispec, EMfields, Proj, smpi, params);
                 }
-                vecSpecies[ispec]->sort_part(); // Should we sort test particles ?? (JD)
+                timer[6].update();
+
+
+                // ================== Solve Electromagnetic Fields ===============================
+                timer[9].restart();
+                EMfields->restartRhoJ();
+                EMfields->computeTotalRhoJ();
+                EMfields->gatherFields(smpi);
+                (*solver)(EMfields, smpi);
+                timer[9].update();
+                tid = 0;
+                timer[3].restart();
+                for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
+                {
+                    vecSpecies[ispec]->dynamics_imp_secondPush(time_dual, ispec, EMfields, Interp, Proj, smpi, params);
+                }
+                timer[3].update();
+
+
+                // ================== Second MPI Exchange Particle ============================================
+                timer[4].restart();
+                for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
+                {
+                    for ( int iDim = 0 ; iDim<(int)params.nDim_particle ; iDim++ )
+                    {
+                        smpi->exchangeParticles(vecSpecies[ispec], ispec, params, tid, iDim);
+                    }
+                    vecSpecies[ispec]->sort_part(); // Should we sort test particles ?? (JD)
+                }
+                timer[4].update();
+
             }
-            timer[4].update();
 
             // ================== Second Absorb Particle for 2D ====================================
             timer[5].restart();

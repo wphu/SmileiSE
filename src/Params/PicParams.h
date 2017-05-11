@@ -181,12 +181,21 @@ public:
     // define the method of PIC: explicit or implicit
     std::string method;
 
+    // theta of pushing particles for implicit method
+    double imp_theta;
+
+    // theta of pushing particles for implicit method
+    double imp_iteration_number;
+
 
     //! defines the geometry of the simulation
     std::string geometry;
 
-    //! defines the interpolation/projection order
+    //! defines the interpolation order
     unsigned int interpolation_order;
+
+    //! defines the projection order
+    unsigned int projection_order;
 
     //! number of space dimensions for the particles
     unsigned int nDim_particle;

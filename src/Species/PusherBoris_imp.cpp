@@ -11,7 +11,7 @@ PusherBoris_imp::PusherBoris_imp(PicParams& params, int ispec)
     : Pusher(params, ispec)
 {
     double Omega_square_p1;
-    theta = 1.0;
+    theta = params.imp_theta;
     factor0 = theta / 2.0;
     factor1 = 1.0 - factor0;
 
@@ -112,11 +112,13 @@ void PusherBoris_imp::secondPush (Particles &particles, int ipart, LocalFields E
 
     // Move the particle
     for ( int i = 0 ; i<nDim_ ; i++ ) {
-        particles.position_old(i, ipart)  = particles.position(i, ipart);
         particles.position(i, ipart)     += deltav[i] * dt;
+    }
 
+    for ( int i = 0 ; i<3 ; i++ ) {
         particles.au_imp(i, ipart) = factor0 * Al_imp_np1[i] + factor1 * particles.al_imp(i, ipart);
         particles.al_imp(i, ipart) = factor1 * Al_imp_np1[i] + factor0 * particles.al_imp(i, ipart);
     }
+
 
 }
