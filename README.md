@@ -1,5 +1,5 @@
 #SmileiSE
-This code is developed based on Smilei:
+This code is developed based on Smilei v2.0:
 https://github.com/SmileiPIC/Smilei
 http://www.maisondelasimulation.fr/projects/Smilei/html/#
 
