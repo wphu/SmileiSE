@@ -30,7 +30,7 @@ Grid2D::Grid2D(
     int ny_gapHeight_temp,
     int nx_gapWeight_temp,
     double potential_wall_temp):
-Grid(params)
+    Grid(params)
 {
     gridType = grid_type;
     gapKind = gap_kind;
@@ -68,7 +68,8 @@ Grid2D::~Grid2D()
 }
 
 
-void Grid2D::allocateDims( ){
+void Grid2D::allocateDims( )
+{
     iswall_             = new int[dims_[0]*dims_[1]];
     iswall_global_      = new int[globalDims_[0]*globalDims_[1]];
     bndr_global_        = new int[globalDims_[0]*globalDims_[1]];
@@ -109,7 +110,8 @@ void Grid2D::allocateDims( ){
 
 
 //>>>no gap geometry, with source in x direction
-void Grid2D::geometry( ){
+void Grid2D::geometry( )
+{
 
 
     dims_source.resize(2);
@@ -171,7 +173,8 @@ void Grid2D::geometry( ){
 
 
 //>>>classical gap geometry, with source in x direction
-void Grid2D::geometry_gap( ){
+void Grid2D::geometry_gap( )
+{
 
     ofstream isWall;
     ofstream bndr;

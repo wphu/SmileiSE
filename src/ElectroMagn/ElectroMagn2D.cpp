@@ -146,6 +146,34 @@ isNorthern(smpi->isNorthern())
 
         rho_s_global[ispec] = new Field2D(dim_global, ("Rho_global_"+params.species_param[ispec].species_type).c_str());
         rho_s_global_avg[ispec] = new Field2D(dim_global, ("Rho_global_"+params.species_param[ispec].species_type+"_avg").c_str());
+
+        Vx_s[ispec]             = new Field2D(dimPrim, ("Vx_"+params.species_param[ispec].species_type).c_str());
+        Vx_s_avg[ispec]         = new Field2D(dimPrim, ("Vx_"+params.species_param[ispec].species_type+"_avg").c_str());
+        Vx_s_global[ispec]      = new Field2D(dim_global, ("Vx_global_"+params.species_param[ispec].species_type).c_str());
+        Vx_s_global_avg[ispec]  = new Field2D(dim_global, ("Vx_global_"+params.species_param[ispec].species_type+"_avg").c_str());
+
+        Vy_s[ispec]             = new Field2D(dimPrim, ("Vy_"+params.species_param[ispec].species_type).c_str());
+        Vy_s_avg[ispec]         = new Field2D(dimPrim, ("Vy_"+params.species_param[ispec].species_type+"_avg").c_str());
+        Vy_s_global[ispec]      = new Field2D(dim_global, ("Vy_global_"+params.species_param[ispec].species_type).c_str());
+        Vy_s_global_avg[ispec]  = new Field2D(dim_global, ("Vy_global_"+params.species_param[ispec].species_type+"_avg").c_str());
+
+        Vz_s[ispec]             = new Field2D(dimPrim, ("Vz_"+params.species_param[ispec].species_type).c_str());
+        Vz_s_avg[ispec]         = new Field2D(dimPrim, ("Vz_"+params.species_param[ispec].species_type+"_avg").c_str());
+        Vz_s_global[ispec]      = new Field2D(dim_global, ("Vz_global_"+params.species_param[ispec].species_type).c_str());
+        Vz_s_global_avg[ispec]  = new Field2D(dim_global, ("Vz_global_"+params.species_param[ispec].species_type+"_avg").c_str());
+
+
+        Vp_s[ispec]             = new Field2D(dimPrim, ("Vparallel_"+params.species_param[ispec].species_type).c_str());
+        Vp_s_avg[ispec]         = new Field2D(dimPrim, ("Vparallel_"+params.species_param[ispec].species_type+"_avg").c_str());
+        Vp_s_global[ispec]      = new Field2D(dim_global, ("Vparallel_global_"+params.species_param[ispec].species_type).c_str());
+        Vp_s_global_avg[ispec]  = new Field2D(dim_global, ("Vparallel_global_"+params.species_param[ispec].species_type+"_avg").c_str());
+
+        T_s[ispec]              = new Field2D(dimPrim, ("T_"+params.species_param[ispec].species_type).c_str());
+        T_s_avg[ispec]          = new Field2D(dimPrim, ("T_"+params.species_param[ispec].species_type+"_avg").c_str());
+        T_s_global[ispec]       = new Field2D(dim_global, ("T_global_"+params.species_param[ispec].species_type).c_str());
+        T_s_global_avg[ispec]   = new Field2D(dim_global, ("T_global_"+params.species_param[ispec].species_type+"_avg").c_str());
+
+
     }
 
 
@@ -392,7 +420,7 @@ void ElectroMagn2D::incrementAvgFields(unsigned int time_step)
     // Calculate the sum values for global rho phi Ex and Ey
     if( (time_step % dump_step) > (dump_step - avg_step) || (time_step % dump_step) == 0 )
     {
-        for (unsigned int i=0 ; i<dim_global[0] ; i++) {
+        for (unsigned int i=0 ; i<dim_global[0]*dim_global[1] ; i++) {
             (*rho_global_avg)(i) += (*rho_global)(i);
             (*phi_global_avg)(i) += (*phi_global)(i);
             (*Ex_global_avg)(i)  += (*Ex_global)(i);
@@ -401,7 +429,7 @@ void ElectroMagn2D::incrementAvgFields(unsigned int time_step)
         // Calculate the sum values for density of each species
         for (unsigned int ispec=0; ispec<n_species; ispec++) {
             // all fields are defined on the primal grid
-            for (unsigned int ix=0 ; ix<dimPrim[0] ; ix++) {
+            for (unsigned int ix=0 ; ix<dimPrim[0]*dimPrim[1] ; ix++) {
                 (*rho_s_avg[ispec])(ix) += (*rho_s[ispec])(ix);
             }
         }//END loop on species ispec
@@ -409,13 +437,13 @@ void ElectroMagn2D::incrementAvgFields(unsigned int time_step)
 
     // calculate the averaged values
     if ( time_step % dump_step == 0 ){
-        for (unsigned int i=0 ; i<dim_global[0] ; i++) {
+        for (unsigned int i=0 ; i<dim_global[0]*dim_global[1] ; i++) {
             (*rho_global_avg)(i) /= avg_step;
             (*phi_global_avg)(i) /= avg_step;
             (*Ex_global_avg)(i)  /= avg_step;
         }
         for (unsigned int ispec=0; ispec<n_species; ispec++) {
-            for (unsigned int ix=0 ; ix<dimPrim[0] ; ix++) {
+            for (unsigned int ix=0 ; ix<dimPrim[0]*dimPrim[1] ; ix++) {
                 (*rho_s_avg[ispec])(ix) /= avg_step;
             }
         }//END loop on species ispec

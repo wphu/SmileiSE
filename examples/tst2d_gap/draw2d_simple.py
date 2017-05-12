@@ -29,11 +29,11 @@ import matplotlib.pyplot as plt
 fig=plt.figure()
 #fig=plt.figure(figsize=(10,8))
 #fig.subplots_adjust(top=0.9,bottom=0.1,wspace=0.5,hspace=0.4)
-t = 9
+t = 4
 
 
 ##read data from file
-f=h5.File("Fields_global.h5")
+f=h5.File("data_global.h5")
 print f.keys()
 
 group = f['/Fields']
@@ -58,7 +58,7 @@ print nx, ny
 
 
 ##============rho======================================================
-val = f["/Fields/Rho_global"]
+val = f["/Fields/Rho_global_D1_avg"]
 val = val[...]
 
 val_2d = np.transpose(val[t, 0, :, :])
@@ -79,7 +79,7 @@ cbar_temp1=fig.colorbar(cf_temp1,ticks=ticks_val)
 
 sp_temp1.axis([x.min(),x.max(),y.min(),y.max()])
 sp_temp1.set_yticks(np.arange(0,y.max(),100))
-sp_temp1.set_title('rho')
+sp_temp1.set_title('D1 density')
 sp_temp1.set_xlabel('x(mm)')
 sp_temp1.set_ylabel('y(mm)')
 
@@ -87,7 +87,7 @@ sp_temp1.set_ylabel('y(mm)')
 
 
 ##============potential======================================================
-val = f["/Fields/Phi_global"]
+val = f["/Fields/Phi_global_avg"]
 val = val[...]
 
 val_2d = np.transpose(val[t, 0, :, :])
@@ -132,4 +132,3 @@ plt.show()         #The command is OK
 
 #line1,=ax1.plot(flux[0,:],flux[1,:])
 #line2,=ax1.plot(flux[0,:],flux[2,:])
-

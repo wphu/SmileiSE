@@ -75,7 +75,8 @@ void EF_Solver2D_SLU::operator() ( ElectroMagn* fields , SmileiMPI* smpi)
 }
 
 
-void EF_Solver2D_SLU::initSLU_test(){
+void EF_Solver2D_SLU::initSLU_test()
+{
 
     SuperMatrix A, L, U, B;
     double   *a, *rhs;
@@ -128,7 +129,8 @@ void EF_Solver2D_SLU::initSLU_test(){
 }
 
 
-void EF_Solver2D_SLU::initSLU(){
+void EF_Solver2D_SLU::initSLU()
+{
 
 
 
@@ -309,7 +311,7 @@ void EF_Solver2D_SLU::initSLU(){
         }
     }
 
-//for(int i=0; i<grid2D->ncp*5;i++) cout<<i<<" "<<val[i]<<endl;
+    //for(int i=0; i<grid2D->ncp*5;i++) cout<<i<<" "<<val[i]<<endl;
 
 
     //>>>convert the temp "val wor col" to A (compressed column format, i.e. Harwell-Boeing format)
@@ -451,18 +453,22 @@ void EF_Solver2D_SLU::solve_SLU(Field* rho, Field* phi){
     //>>>convert SuperLU solution X to Field2D phi
     ii=0;
     for ( int i=0; i<nx; i++)
-      for ( int j=0; j<ny; j++) {
-        if ( grid2D->bndr_global_2D[i][j] == 0 || grid2D->bndr_global_2D[i][j] == 1
-        || grid2D->bndr_global_2D[i][j] == 2 || grid2D->bndr_global_2D[i][j] == 8) {
-          (*phi2D)(i,j) = rhsx[ii];
-          ii++;
-        }
+    {
+        for ( int j=0; j<ny; j++)
+        {
+          if ( grid2D->bndr_global_2D[i][j] == 0 || grid2D->bndr_global_2D[i][j] == 1
+          || grid2D->bndr_global_2D[i][j] == 2 || grid2D->bndr_global_2D[i][j] == 8) {
+            (*phi2D)(i,j) = rhsx[ii];
+            ii++;
+          }
 
-        if(grid2D->bndr_global_2D[i][j] == 5) {
-            (*phi2D)(i,j) = grid2D->bndrVal_global_2D[i][j];
-        }
+          if(grid2D->bndr_global_2D[i][j] == 5) {
+              (*phi2D)(i,j) = grid2D->bndrVal_global_2D[i][j];
+          }
 
-      }//>>>end convert
+        }//>>>end convert
+    }
+
 
     StatFree(&stat);
 

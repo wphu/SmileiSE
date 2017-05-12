@@ -13,22 +13,20 @@ method = 'explicit'
 l0 = 0.4e-5  #(SI)
 t0 = 2.0e-12
 
-nx = 700
-ny = 1200
-gapHeight = 500
-gapWidth = 125
-sourceLength=20
+nx = 200
+ny = 300
 
 Lsim = [nx*l0,ny*l0]	# length of the simulation
 
-Tsim = 50000			# duration of the simulation
+Tsim = 5000			# duration of the simulation
+
 
 
 #> number of timestep of incrementing averaged electromagnetic fields
-ntime_step_avg = 1000
+ntime_step_avg = 50
 
 #> Timestep to output some fields into hdf5 file
-dump_step = 200000
+dump_step = 500
 timesteps_restore = dump_step
 
 timesteps_collision = 20
@@ -95,7 +93,7 @@ vz = 0.0
 #Topology:
 #number_of_procs: Number of MPI processes in each direction.
 #clrw: width of a cluster in number of cell. Warning: clrw must divide nspace_win_x.
-number_of_procs = [4, 6]
+number_of_procs = [4, 4]
 
 
 # RANDOM seed
@@ -103,6 +101,10 @@ number_of_procs = [4, 6]
 random_seed = 0
 
 
+
+gapHeight = 100
+gapWidth = 50
+sourceLength=20
 
 Grid(
 	gridType = "gap",
@@ -177,57 +179,10 @@ Species(
 
 
 
-Species(
-	species_type = 'T1',
-	initPosition_type = 'random',
-	initMomentum_type = 'maxwell',
-	ionization_model = 'none',
-	n_part_per_cell = 0,
-	n_part_per_cell_for_weight = 100,
-	c_part_max = 1.0,
-	mass = 3.0 * 1.67262158e-27,
-	charge = 1.6021766208e-19,
-	nb_density = 0.5e19,
-	temperature = [20],
-	mean_velocity = [vx, vy, vz],
-	time_frozen = 0.0,
-	bc_part_type_west  = 'none',
-	bc_part_type_east  = 'none',
-	bc_part_type_south = 'supp',
-	bc_part_type_north = 'supp'
-)
 
 
 
 
-
-
-
-# COLLISIONS
-# species1    = list of strings, the names of the first species that collide
-# species2    = list of strings, the names of the second species that collide
-#               (can be the same as species1)
-# coulomb_log = float, Coulomb logarithm. If negative or zero, then automatically computed.
-'''
-Collisions(
-	species1 = ["e"],
-	species2 = ["D1"],
-	coulomb_log = 5,
-	collisions_type = "coulomb"
-)
-Collisions(
-	species1 = ["e"],
-	species2 = ["e"],
-	coulomb_log = 1,
-	collisions_type = "coulomb"
-)
-Collisions(
-	species1 = ["D1"],
-	species2 = ["D1"],
-	coulomb_log = 1,
-	collisions_type = "coulomb"
-)
-'''
 
 ### The initial particle source
 PartSource(
@@ -265,7 +220,7 @@ PartSource(
 
 )
 
-
+'''
 
 ### The every-time particle source
 PartSource(
@@ -302,8 +257,4 @@ PartSource(
 	loadPos_Yend 	= ny*l0,
 
 )
-
-
-resx = 20.				# nb of cells in on laser wavelength
-rest = 30.				# time of timestep in one optical cycle
-wavelength_SI = 1.e-6
+'''
