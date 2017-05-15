@@ -52,6 +52,7 @@ mpl.rcParams['ytick.major.size'] = 2
 
 mpl.rcParams['lines.linewidth'] = 2.0
 
+#mpl.rcParams['grid.linestyle'] = ":"
 mpl.rcParams['grid.linestyle'] = "--"
 mpl.rcParams['grid.color'] = "black"
 
@@ -93,7 +94,13 @@ sp_temp1=fig.add_subplot(3,1,1)
 val = f["/Fields/Phi_global_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
-cf_temp1=sp_temp1.plot(x, val_1d, label = "Electric potential")
+
+cf_temp1=sp_temp1.plot(x, val_1d, label = "Electric potential", color='#1f77b4')
+
+sp_temp1.set_ylabel("Electric potential", color='#1f77b4')
+sp_temp1.tick_params('y', colors='#1f77b4')
+
+
 
 #double y axis
 sp_temp2 = sp_temp1.twinx()
@@ -102,14 +109,18 @@ val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 
 sp_temp2.yaxis.set_major_formatter(yformatter)
-cf_temp1=sp_temp2.plot(x, val_1d, label = "Electric field (x)", color = "green")
+cf_temp1=sp_temp2.plot(x, val_1d, label = "Electric field (x)", color='#ff7f0e')
+
+sp_temp2.set_ylabel("Electric field (x)", color='#ff7f0e')
+sp_temp2.tick_params('y', colors='#ff7f0e')
+
+#lines1, labels1 = sp_temp1.get_legend_handles_labels()
+#lines2, labels2 = sp_temp2.get_legend_handles_labels()
+#sp_temp2.legend(lines1 + lines2, labels1 + labels2, loc = 1, fancybox = False)
 
 sp_temp1.grid(True)
-sp_temp1.legend()
-sp_temp2.legend()
 
-legend1=sp_temp1.legend(loc=(.6,.76),fontsize=16)
-legend2=sp_temp2.legend(loc=(.6,.56),fontsize=16)
+
 #sp_temp1.axis([x.min(),x.max(),val_1d.min(),val_1d.max()])
 #sp_temp1.set_yticks(np.arange(0,y.max(),100))
 sp_temp1.set_xlim((xmin, xmax))
@@ -127,7 +138,7 @@ val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Electron")
 
 ymin = 0.0
-ymax = val_1d.max() 
+ymax = val_1d.max()
 
 val = f["/Fields/Rho_global_D1_avg"]
 val = val[...]
@@ -158,7 +169,7 @@ val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "D+1")
 
 ymin = 0.0
-ymax = val_1d.max() 
+ymax = val_1d.max()
 # Plot a line
 sp_temp1.axvline(x = x_sheath, ymin = 0.0, ymax = 3.8, c="red",zorder=0, clip_on=False)
 
