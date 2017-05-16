@@ -26,15 +26,20 @@ import h5py as h5
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+from matplotlib.ticker import ScalarFormatter
+yformatter = ScalarFormatter()
+yformatter.set_powerlimits((-3,3))
+
 
 font={	'family' : 'sans-serif',
 	'weight' : 'bold',
 	'size' : 8,
 	}
 
+mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.unicode'] = True
 mpl.rcParams['font.family'] = 'sans-serif'
-mpl.rcParams['mathtext.default'] = 'regular'
+#mpl.rcParams['mathtext.default'] = 'regular'
 
 mpl.rcParams['font.size'] = 16
 mpl.rcParams['axes.linewidth'] = 2.0
@@ -44,9 +49,13 @@ mpl.rcParams['xtick.major.size'] = 2
 mpl.rcParams['ytick.major.size'] = 2
 
 mpl.rcParams['lines.linewidth'] = 2.0
-mpl.rcParams['grid.linestyle'] = "--"
+
+#mpl.rcParams['grid.linestyle'] = ":"
+mpl.rcParams['grid.linestyle'] = ":"
 mpl.rcParams['grid.color'] = "black"
 
+def get_axis_limits(ax, x_scale=0, y_scale=1.02):
+    return ax.get_xlim()[1]*x_scale, ax.get_ylim()[1]*y_scale
 
 
 
@@ -131,7 +140,7 @@ print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
 
 
 sp_temp1.grid(True)
-sp_temp1.legend()
+sp_temp1.legend(loc = 1)
 sp_temp1.set_xlim((xmin, xmax))
 sp_temp1.set_ylabel('Electron number density')
 
@@ -183,7 +192,7 @@ print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
 
 
 sp_temp1.grid(True)
-sp_temp1.legend()
+sp_temp1.legend(loc = 1)
 sp_temp1.set_xlim((xmin, xmax))
 
 

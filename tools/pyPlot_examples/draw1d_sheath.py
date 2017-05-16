@@ -27,11 +27,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 from matplotlib.ticker import ScalarFormatter
-
 yformatter = ScalarFormatter()
 yformatter.set_powerlimits((-3,3))
-
-
 
 
 font={	'family' : 'sans-serif',
@@ -39,9 +36,10 @@ font={	'family' : 'sans-serif',
 	'size' : 8,
 	}
 
+mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.unicode'] = True
 mpl.rcParams['font.family'] = 'sans-serif'
-mpl.rcParams['mathtext.default'] = 'regular'
+#mpl.rcParams['mathtext.default'] = 'regular'
 
 mpl.rcParams['font.size'] = 16
 mpl.rcParams['axes.linewidth'] = 2.0
@@ -53,8 +51,11 @@ mpl.rcParams['ytick.major.size'] = 2
 mpl.rcParams['lines.linewidth'] = 2.0
 
 #mpl.rcParams['grid.linestyle'] = ":"
-mpl.rcParams['grid.linestyle'] = "--"
+mpl.rcParams['grid.linestyle'] = ":"
 mpl.rcParams['grid.color'] = "black"
+
+def get_axis_limits(ax, x_scale=0, y_scale=1.02):
+    return ax.get_xlim()[1]*x_scale, ax.get_ylim()[1]*y_scale
 
 
 
@@ -128,6 +129,7 @@ sp_temp1.set_xlabel('x(mm)')
 sp_temp1.set_ylabel('Electric potential (V)')
 sp_temp2.set_ylabel('Electric field (V/m)')
 
+sp_temp1.annotate('(a)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
 ##============rho======================================================
 sp_temp1=fig.add_subplot(3,1,2)
@@ -146,14 +148,14 @@ val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "D+1")
 
 sp_temp1.grid(True)
-sp_temp1.legend()
+sp_temp1.legend(loc = 1)
 sp_temp1.set_xlim((xmin, xmax))
 sp_temp1.set_ylim((ymin, ymax))
 #sp_temp1.set_yticks(np.arange(0,y.max(),100))
 sp_temp1.set_xlabel('x(mm)')
 sp_temp1.set_ylabel('Number density')
 
-
+sp_temp1.annotate('(b)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
 ##============ Temperature ======================================================
 sp_temp1=fig.add_subplot(3,1,3)
@@ -175,13 +177,14 @@ sp_temp1.axvline(x = x_sheath, ymin = 0.0, ymax = 3.8, c="red",zorder=0, clip_on
 
 
 sp_temp1.grid(True)
-sp_temp1.legend()
+sp_temp1.legend(loc = 1)
 sp_temp1.set_xlim((xmin, xmax))
 sp_temp1.set_ylim((ymin, ymax))
 #sp_temp1.set_yticks(np.arange(0,y.max(),100))
 sp_temp1.set_xlabel('x(mm)')
 sp_temp1.set_ylabel('Temperature (eV)')
 
+sp_temp1.annotate('(c)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
 ##============ Velocity ======================================================
 '''

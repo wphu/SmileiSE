@@ -1,34 +1,34 @@
 ##>>>The code is used to read data from hdf5 file
 ##>>>and plot on the screen and output figure file using matplotlib-python
 
+import Tkinter as tk
+from Tkinter import *
 
 import matplotlib
 matplotlib.use('Agg')
 
-import matplotlib as mpl
+
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 from matplotlib.ticker import MaxNLocator
 from matplotlib import cm
 
 
-
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
 
 import numpy as np
 from numpy import arange, sin, pi
-import math
+
 import ConfigParser
-
-
 
 import h5py as h5
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 from matplotlib.ticker import ScalarFormatter
-
 yformatter = ScalarFormatter()
 yformatter.set_powerlimits((-3,3))
-
 
 
 font={	'family' : 'sans-serif',
@@ -36,9 +36,10 @@ font={	'family' : 'sans-serif',
 	'size' : 8,
 	}
 
+mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.unicode'] = True
 mpl.rcParams['font.family'] = 'sans-serif'
-mpl.rcParams['mathtext.default'] = 'regular'
+#mpl.rcParams['mathtext.default'] = 'regular'
 
 mpl.rcParams['font.size'] = 16
 mpl.rcParams['axes.linewidth'] = 2.0
@@ -49,8 +50,12 @@ mpl.rcParams['ytick.major.size'] = 2
 
 mpl.rcParams['lines.linewidth'] = 2.0
 
-mpl.rcParams['grid.linestyle'] = "--"
+#mpl.rcParams['grid.linestyle'] = ":"
+mpl.rcParams['grid.linestyle'] = ":"
 mpl.rcParams['grid.color'] = "black"
+
+def get_axis_limits(ax, x_scale=0, y_scale=1.02):
+    return ax.get_xlim()[1]*x_scale, ax.get_ylim()[1]*y_scale
 
 
 ##inite the fig of matplotlib
@@ -74,7 +79,7 @@ x = np.linspace(0,nx*dt,nx)
 print nx
 
 
-#============Total particle number======================================= 
+#============Total particle number=======================================
 
 val1 = f["/Diagnostic/particleNumber"]
 val1 = val1[...]
@@ -97,7 +102,7 @@ cf_temp1=sp_temp1.plot(x, val2_1d, label='D1 ion')
 xmin = 0
 xmax = x.max()
 ymin = 1.2 * min( val1_1d.min(), val2_1d.min() )
-ymax = 1.2 * max( val1_1d.max(), val2_1d.max() ) 
+ymax = 1.2 * max( val1_1d.max(), val2_1d.max() )
 
 
 #sp_temp1.plot([xmin, xmax],[-Va_D, -Va_D])
@@ -109,9 +114,9 @@ sp_temp1.set_ylabel('Particle number')
 
 #sp_temp1.ticklabel_format(style='sci')
 sp_temp1.grid(True)
-sp_temp1.legend(fancybox=True)
+sp_temp1.legend(loc = 1)
 
-
+sp_temp1.annotate('(a)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
 ##============Particle flux======================================================
 val1 = f["/Diagnostic/particleFlux"]
@@ -130,7 +135,7 @@ cf_temp1=sp_temp1.plot(x, val1_1d, label='electron')
 cf_temp1=sp_temp1.plot(x, val2_1d, label='D1 ion')
 
 ymin = 1.2 * min( val1_1d.min(), val2_1d.min() )
-ymax = 1.2 * max( val1_1d.max(), val2_1d.max() ) 
+ymax = 1.2 * max( val1_1d.max(), val2_1d.max() )
 
 
 
@@ -139,15 +144,11 @@ sp_temp1.axis([xmin,xmax,ymin, ymax])
 sp_temp1.set_ylabel('Particle Flux')
 
 sp_temp1.grid(True)
-sp_temp1.legend(fancybox=True)
+sp_temp1.legend(loc = 1)
 
-
-
-
-
+sp_temp1.annotate('(b)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
 ##============Eenergy flux======================================================
-
 val1 = f["/Diagnostic/heatFlux"]
 val1 = val1[...]
 val1_1d = np.transpose(val1[:, 0, 0, 0])
@@ -164,14 +165,16 @@ cf_temp1=sp_temp1.plot(x, val1_1d, label='electron')
 cf_temp1=sp_temp1.plot(x, val2_1d, label='D1 ion')
 
 ymin = 1.2 * min( val1_1d.min(), val2_1d.min() )
-ymax = 1.2 * max( val1_1d.max(), val2_1d.max() ) 
+ymax = 1.2 * max( val1_1d.max(), val2_1d.max() )
 
 sp_temp1.axis([xmin,xmax,ymin, ymax])
 #sp_temp1.set_yticks(np.arange(0,y.max(),100))
 sp_temp1.set_xlabel(r'time (u s)')
 sp_temp1.set_ylabel('heatFlux')
 sp_temp1.grid(True)
-sp_temp1.legend(fancybox=True)
+sp_temp1.legend(loc = 1)
+
+sp_temp1.annotate('(c)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
 fig.savefig("flux.png")
 #fig.show()       #when the program finishes,the figure disappears
@@ -186,4 +189,3 @@ fig.savefig("flux.png")
 
 #line1,=ax1.plot(flux[0,:],flux[1,:])
 #line2,=ax1.plot(flux[0,:],flux[2,:])
-

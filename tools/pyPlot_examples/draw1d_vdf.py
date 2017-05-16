@@ -5,10 +5,14 @@ import Tkinter as tk
 from Tkinter import *
 
 import matplotlib
+matplotlib.use('Agg')
+
+
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 from matplotlib.ticker import MaxNLocator
 from matplotlib import cm
-matplotlib.use('TkAgg')
+
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
@@ -18,11 +22,40 @@ from numpy import arange, sin, pi
 
 import ConfigParser
 
-
-
 import h5py as h5
 import numpy as np
 import matplotlib.pyplot as plt
+import math
+from matplotlib.ticker import ScalarFormatter
+yformatter = ScalarFormatter()
+yformatter.set_powerlimits((-3,3))
+
+
+font={	'family' : 'sans-serif',
+	'weight' : 'bold',
+	'size' : 8,
+	}
+
+mpl.rcParams['text.usetex'] = True
+mpl.rcParams['text.latex.unicode'] = True
+mpl.rcParams['font.family'] = 'sans-serif'
+#mpl.rcParams['mathtext.default'] = 'regular'
+
+mpl.rcParams['font.size'] = 16
+mpl.rcParams['axes.linewidth'] = 2.0
+#mpl.rcParams['font.weight'] = 'bold'
+
+mpl.rcParams['xtick.major.size'] = 2
+mpl.rcParams['ytick.major.size'] = 2
+
+mpl.rcParams['lines.linewidth'] = 2.0
+
+#mpl.rcParams['grid.linestyle'] = ":"
+mpl.rcParams['grid.linestyle'] = ":"
+mpl.rcParams['grid.color'] = "black"
+
+def get_axis_limits(ax, x_scale=0, y_scale=1.02):
+    return ax.get_xlim()[1]*x_scale, ax.get_ylim()[1]*y_scale
 
 
 ##inite the fig of matplotlib
@@ -52,9 +85,9 @@ for t in range(1, 700 , 100):
 	val_1d = np.transpose(val[t, 0, 0, :])
 	nx = (val_1d.shape)[0]
 	x = np.linspace(0.0, nx, nx)
-	
+
 	cf_temp1=sp_temp1.plot(x, val_1d, linewidth=2.0, label = str(time)+"$\mu$s" )
-	
+
 
 sp_temp1.set_xlabel('Velocity')
 sp_temp1.set_title('C velocity density function')
@@ -65,6 +98,3 @@ plt.legend()
 fig.savefig("fig.png", dpi = 300)
 #plt.axis('equal')
 plt.show()         #The command is OK
-
-
-
