@@ -96,9 +96,9 @@ val = f["/Fields/Phi_global_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 
-cf_temp1=sp_temp1.plot(x, val_1d, label = "Electric potential", color='#1f77b4')
+cf_temp1=sp_temp1.plot(x, val_1d, label = "Electric potential $(V)$", color='#1f77b4')
 
-sp_temp1.set_ylabel("Electric potential", color='#1f77b4')
+sp_temp1.set_ylabel("Electric potential $(V)$", color='#1f77b4')
 sp_temp1.tick_params('y', colors='#1f77b4')
 
 
@@ -112,7 +112,7 @@ val_1d = np.transpose(val[t, 0, 0, :])
 sp_temp2.yaxis.set_major_formatter(yformatter)
 cf_temp1=sp_temp2.plot(x, val_1d, label = "Electric field (x)", color='#ff7f0e')
 
-sp_temp2.set_ylabel("Electric field (x)", color='#ff7f0e')
+sp_temp2.set_ylabel("$E_x \ (V/m)$", color='#ff7f0e')
 sp_temp2.tick_params('y', colors='#ff7f0e')
 
 #lines1, labels1 = sp_temp1.get_legend_handles_labels()
@@ -125,9 +125,9 @@ sp_temp1.grid(True)
 #sp_temp1.axis([x.min(),x.max(),val_1d.min(),val_1d.max()])
 #sp_temp1.set_yticks(np.arange(0,y.max(),100))
 sp_temp1.set_xlim((xmin, xmax))
-sp_temp1.set_xlabel('x(mm)')
-sp_temp1.set_ylabel('Electric potential (V)')
-sp_temp2.set_ylabel('Electric field (V/m)')
+#sp_temp1.set_xlabel('x(mm)')
+#sp_temp1.set_ylabel('Electric potential (V)')
+#sp_temp2.set_ylabel('Electric field (V/m)')
 
 sp_temp1.annotate('(a)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
@@ -145,15 +145,15 @@ ymax = val_1d.max()
 val = f["/Fields/Rho_global_D1_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
-cf_temp1=sp_temp1.plot(x, val_1d, label = "D+1")
+cf_temp1=sp_temp1.plot(x, val_1d, label = r'$D^+ ion$')
 
 sp_temp1.grid(True)
 sp_temp1.legend(loc = 1)
 sp_temp1.set_xlim((xmin, xmax))
 sp_temp1.set_ylim((ymin, ymax))
 #sp_temp1.set_yticks(np.arange(0,y.max(),100))
-sp_temp1.set_xlabel('x(mm)')
-sp_temp1.set_ylabel('Number density')
+#sp_temp1.set_xlabel('x(mm)')
+sp_temp1.set_ylabel('Number density $(m^{-3})$')
 
 sp_temp1.annotate('(b)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
@@ -168,7 +168,7 @@ cf_temp1=sp_temp1.plot(x, val_1d, label = "Electron")
 val = f["/Fields/T_global_D1_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
-cf_temp1=sp_temp1.plot(x, val_1d, label = "D+1")
+cf_temp1=sp_temp1.plot(x, val_1d, label = r'$D^+ ion$')
 
 ymin = 0.0
 ymax = val_1d.max()
@@ -181,8 +181,8 @@ sp_temp1.legend(loc = 1)
 sp_temp1.set_xlim((xmin, xmax))
 sp_temp1.set_ylim((ymin, ymax))
 #sp_temp1.set_yticks(np.arange(0,y.max(),100))
-sp_temp1.set_xlabel('x(mm)')
-sp_temp1.set_ylabel('Temperature (eV)')
+sp_temp1.set_xlabel('x $(mm)$')
+sp_temp1.set_ylabel('Temperature $(eV)$')
 
 sp_temp1.annotate('(c)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
 

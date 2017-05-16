@@ -100,21 +100,21 @@ cf_temp1=sp_temp1.plot(x, val_1d, label = "Electron")
 val = f["/Fields/Rho_global_D1_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
-cf_temp1=sp_temp1.plot(x, val_1d, label = "D+1")
+cf_temp1=sp_temp1.plot(x, val_1d, label = r'$D^+ ion$')
 ymax = val_1d.max() * 1.1
 
 val = f["/Fields/Rho_global_D_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
-cf_temp1=sp_temp1.plot(x, val_1d, label = "D")
+cf_temp1=sp_temp1.plot(x, val_1d, label = "D atom")
 
 sp_temp1.grid(True)
 sp_temp1.legend(loc = 1)
 sp_temp1.set_xlim((xmin, xmax))
 sp_temp1.set_ylim((ymin, ymax))
 #sp_temp1.set_yticks(np.arange(0,y.max(),100))
-sp_temp1.set_xlabel('x(mm)')
-sp_temp1.set_ylabel('Number density')
+#sp_temp1.set_xlabel('x(mm)')
+sp_temp1.set_ylabel('Number density $(m^{-3}$')
 
 sp_temp1.annotate('(a)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
@@ -141,12 +141,12 @@ cf_temp1=sp_temp1.plot(x, val_1d, label = "D")
 ymin = 0
 
 sp_temp1.grid(True)
-sp_temp1.legend(loc = 1)
+#sp_temp1.legend(loc = 1)
 sp_temp1.set_xlim((xmin, xmax))
 sp_temp1.set_ylim((ymin, ymax))
 #sp_temp1.set_yticks(np.arange(0,y.max(),100))
-sp_temp1.set_xlabel('x(mm)')
-sp_temp1.set_ylabel('Temperature (eV)')
+sp_temp1.set_xlabel('x $(mm)$')
+sp_temp1.set_ylabel('Temperature $(eV)$')
 
 sp_temp1.annotate('(b)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
 

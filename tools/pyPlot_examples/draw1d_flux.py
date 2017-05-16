@@ -96,8 +96,8 @@ sp_temp1=fig.add_subplot(3,1,1)
 
 sp_temp1.yaxis.set_major_formatter(yformatter)
 
-cf_temp1=sp_temp1.plot(x, val1_1d, label='electron')
-cf_temp1=sp_temp1.plot(x, val2_1d, label='D1 ion')
+cf_temp1=sp_temp1.plot(x, val1_1d, label='Electron')
+cf_temp1=sp_temp1.plot(x, val2_1d, label=r'$D^+ ion$')
 
 xmin = 0
 xmax = x.max()
@@ -110,7 +110,7 @@ ymax = 1.2 * max( val1_1d.max(), val2_1d.max() )
 
 sp_temp1.axis([xmin,xmax,ymin, ymax])
 #sp_temp1.set_yticks(np.arange(0,y.max(),100))
-sp_temp1.set_ylabel('Particle number')
+sp_temp1.set_ylabel('Macro particle number')
 
 #sp_temp1.ticklabel_format(style='sci')
 sp_temp1.grid(True)
@@ -131,8 +131,8 @@ val2_1d = np.transpose(val2[:, 0, 1, 0])
 sp_temp1=fig.add_subplot(3,1,2)
 
 
-cf_temp1=sp_temp1.plot(x, val1_1d, label='electron')
-cf_temp1=sp_temp1.plot(x, val2_1d, label='D1 ion')
+cf_temp1=sp_temp1.plot(x, val1_1d, label='Electron')
+cf_temp1=sp_temp1.plot(x, val2_1d, label=r'$D^+ ion$')
 
 ymin = 1.2 * min( val1_1d.min(), val2_1d.min() )
 ymax = 1.2 * max( val1_1d.max(), val2_1d.max() )
@@ -141,7 +141,7 @@ ymax = 1.2 * max( val1_1d.max(), val2_1d.max() )
 
 sp_temp1.axis([xmin,xmax,ymin, ymax])
 #sp_temp1.set_yticks(np.arange(0,y.max(),100))
-sp_temp1.set_ylabel('Particle Flux')
+sp_temp1.set_ylabel('Particle flux $(m^{-3}s^{-1})$')
 
 sp_temp1.grid(True)
 sp_temp1.legend(loc = 1)
@@ -161,16 +161,16 @@ val2_1d = np.transpose(val2[:, 0, 1, 0])
 sp_temp1=fig.add_subplot(3,1,3)
 
 
-cf_temp1=sp_temp1.plot(x, val1_1d, label='electron')
-cf_temp1=sp_temp1.plot(x, val2_1d, label='D1 ion')
+cf_temp1=sp_temp1.plot(x, val1_1d, label='Electron')
+cf_temp1=sp_temp1.plot(x, val2_1d, label='r'$D^+ ion$'')
 
 ymin = 1.2 * min( val1_1d.min(), val2_1d.min() )
 ymax = 1.2 * max( val1_1d.max(), val2_1d.max() )
 
 sp_temp1.axis([xmin,xmax,ymin, ymax])
 #sp_temp1.set_yticks(np.arange(0,y.max(),100))
-sp_temp1.set_xlabel(r'time (u s)')
-sp_temp1.set_ylabel('heatFlux')
+sp_temp1.set_xlabel(r'time $(\mu s)$')
+sp_temp1.set_ylabel('Heat flux $(Wm^{-2})$')
 sp_temp1.grid(True)
 sp_temp1.legend(loc = 1)
 

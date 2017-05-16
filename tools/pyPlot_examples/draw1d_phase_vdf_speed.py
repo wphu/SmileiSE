@@ -135,8 +135,8 @@ cf_temp1=sp_temp1.plot(v_x, v_y_maxwell)
 sp_temp1.set_xlim((vmin, vmax))
 #sp_temp1.set_ylim((ymin, ymax))
 
-sp_temp1.set_xlabel('vx')
-sp_temp1.set_ylabel('vdf-speed')
+sp_temp1.set_xlabel('Speed $(m/s)$')
+sp_temp1.set_ylabel('f')
 
 
 

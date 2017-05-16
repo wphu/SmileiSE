@@ -169,7 +169,9 @@ sp_temp1.grid(True)
 sp_temp1.legend()
 #sp_temp1.set_xlim((xmin, xmax))
 sp_temp1.set_ylim((ymin, ymax))
-sp_temp1.set_ylabel('Heat flux')
+
+sp_temp1.set_xlabel(r'C flux $(m^{-2}s^{-1})$')
+sp_temp1.set_ylabel(r'Heat flux $(Wm^{-2})$')
 
 
 

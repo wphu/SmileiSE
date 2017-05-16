@@ -96,9 +96,9 @@ cf_temp1=sp_temp1.scatter(x, vx, s=3)
 sp_temp1.set_xlim((xmin, xmax))
 sp_temp1.set_ylim((vxmin, vxmax))
 
-sp_temp1.set_xlabel('x')
-sp_temp1.set_ylabel('vx')
-sp_temp1.set_title('Phase')
+sp_temp1.set_xlabel('x $(m)$')
+sp_temp1.set_ylabel(r'$v_x \ (m/s)$')
+sp_temp1.set_title('Phase Space')
 
 
 

@@ -100,31 +100,31 @@ cf_temp1=sp_temp1.plot(x, val_1d, label = "Electron")
 val = f["/Fields/Rho_global_D1_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
-cf_temp1=sp_temp1.plot(x, val_1d, label = "D+1")
+cf_temp1=sp_temp1.plot(x, val_1d, label = r'$D^+ ion$')
 
 ymax = 1.8e19
 
 val = f["/Fields/Rho_global_C_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
-cf_temp1=sp_temp1.plot(x, val_1d, label = "C")
+cf_temp1=sp_temp1.plot(x, val_1d, label = "C atom")
 
 
 
 val = f["/Fields/Rho_global_C1_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
-cf_temp1=sp_temp1.plot(x, val_1d, label = "C+1")
+cf_temp1=sp_temp1.plot(x, val_1d, label = r'$C^+ ion$')
 
 val = f["/Fields/Rho_global_C2_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
-cf_temp1=sp_temp1.plot(x, val_1d, label = "C+2")
+cf_temp1=sp_temp1.plot(x, val_1d, label = r'$C^{+2} ion$')
 
 val = f["/Fields/Rho_global_C3_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
-cf_temp1=sp_temp1.plot(x, val_1d, label = "C+3")
+cf_temp1=sp_temp1.plot(x, val_1d, label = r'$C^{+3} ion$')
 
 
 sp_temp1.grid(True)
@@ -132,8 +132,8 @@ sp_temp1.legend(loc = 1)
 sp_temp1.set_xlim((xmin, xmax))
 sp_temp1.set_ylim((ymin, ymax))
 #sp_temp1.set_yticks(np.arange(0,y.max(),100))
-sp_temp1.set_xlabel('x(mm)')
-sp_temp1.set_ylabel('Number density')
+#sp_temp1.set_xlabel('x(mm)')
+sp_temp1.set_ylabel(r'Number density $(m^(-3))$')
 
 sp_temp1.annotate('(a)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
@@ -178,12 +178,12 @@ cf_temp1=sp_temp1.plot(x, val_1d, label = "C+3")
 ymin = 0
 
 sp_temp1.grid(True)
-sp_temp1.legend(loc = 1)
+#sp_temp1.legend(loc = 1)
 sp_temp1.set_xlim((xmin, xmax))
 sp_temp1.set_ylim((ymin, ymax))
 #sp_temp1.set_yticks(np.arange(0,y.max(),100))
-sp_temp1.set_xlabel('x(mm)')
-sp_temp1.set_ylabel('Temperature (eV)')
+sp_temp1.set_xlabel('x $(mm)$')
+sp_temp1.set_ylabel('Temperature $(eV)$')
 
 sp_temp1.annotate('(b)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
 

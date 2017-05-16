@@ -113,7 +113,7 @@ f=h5.File("Recycling0.05/data_global.h5")
 val = f["/Fields/Rho_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
-cf_temp1=sp_temp1.plot(x, val_1d, label = "Recycling 0.05")
+cf_temp1=sp_temp1.plot(x, val_1d, label = "Recycling coefficient = 0.05")
 print "potential max: ", val_1d.max()
 print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
 
@@ -123,7 +123,7 @@ f=h5.File("Recycling0.10/data_global.h5")
 val = f["/Fields/Rho_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
-cf_temp1=sp_temp1.plot(x, val_1d, label = "Recycling 0.10")
+cf_temp1=sp_temp1.plot(x, val_1d, label = "Recycling coefficient = 0.10")
 print "potential max: ", val_1d.max()
 print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
 
@@ -134,7 +134,7 @@ f=h5.File("Recycling0.15/data_global.h5")
 val = f["/Fields/Rho_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
-cf_temp1=sp_temp1.plot(x, val_1d, label = "Recycling 0.15")
+cf_temp1=sp_temp1.plot(x, val_1d, label = "Recycling coefficient = 0.15")
 print "potential max: ", val_1d.max()
 print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
 
@@ -192,7 +192,7 @@ print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
 
 
 sp_temp1.grid(True)
-sp_temp1.legend(loc = 1)
+#sp_temp1.legend(loc = 1)
 sp_temp1.set_xlim((xmin, xmax))
 
 
