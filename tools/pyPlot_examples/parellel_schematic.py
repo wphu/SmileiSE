@@ -1,17 +1,40 @@
+import matplotlib
+matplotlib.use('Agg')
+
+
 import matplotlib.pyplot as plt
 from numpy.random import rand
 import numpy as np
 import matplotlib as mpl
+
+
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 mpl.rcParams['font.size'] = 16
 mpl.rcParams['axes.linewidth'] = 2.0
 #mpl.rcParams['font.weight'] = 'bold'
+#mpl.rcParams['pdf.fonttype'] = 42
+
 
 mpl.rcParams['xtick.major.size'] = 2
 mpl.rcParams['ytick.major.size'] = 2
 
 mpl.rcParams['lines.linewidth'] = 2.0
+
+
+
+#mpl.rcParams['text.usetex'] = True
+mpl.rcParams['text.latex.unicode'] = True
+mpl.rcParams['font.family'] = 'sans-serif'
+#mpl.rcParams['mathtext.default'] = 'regular'
+#mpl.rcParams['pdf.fonttype'] = 3
+
+
+
+
+
+
+
 
 
 def get_axis_limits(ax, x_scale=0, y_scale=1.03):
@@ -168,5 +191,5 @@ plt.tick_params(
     labelbottom='off')
 
 
-plt.savefig('parallel_schematic.png', dpi = 300)
-plt.show()
+plt.savefig('parallel_schematic.pdf', dpi = 300)
+#plt.show()

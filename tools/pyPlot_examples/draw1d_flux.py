@@ -8,27 +8,27 @@ import matplotlib
 matplotlib.use('Agg')
 
 
-import matplotlib.pyplot as plt
-import matplotlib as mpl
 from matplotlib.ticker import MaxNLocator
 from matplotlib import cm
-
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
 
-import numpy as np
-from numpy import arange, sin, pi
-
-import ConfigParser
-
-import h5py as h5
-import numpy as np
-import matplotlib.pyplot as plt
-import math
 from matplotlib.ticker import ScalarFormatter
 yformatter = ScalarFormatter()
 yformatter.set_powerlimits((-3,3))
+
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+import matplotlib.ticker as ticker
+
+
+from numpy import arange, sin, pi
+import numpy as np
+
+import h5py as h5
+import math
+
 
 
 font={	'family' : 'sans-serif',
@@ -36,10 +36,16 @@ font={	'family' : 'sans-serif',
 	'size' : 8,
 	}
 
-mpl.rcParams['text.usetex'] = True
-mpl.rcParams['text.latex.unicode'] = True
+#mpl.rcParams['text.usetex'] = True
+#mpl.rcParams['text.latex.unicode'] = True
 mpl.rcParams['font.family'] = 'sans-serif'
 #mpl.rcParams['mathtext.default'] = 'regular'
+#mpl.rcParams['mathtext.default'] = 'it'
+mpl.rcParams['mathtext.fontset'] = 'stix'
+#mpl.rcParams['mathtext.fontset'] = 'cm'
+mpl.rcParams['mathtext.it'] = 'serif'
+#mpl.rcParams['pdf.fonttype'] = 3
+
 
 mpl.rcParams['font.size'] = 16
 mpl.rcParams['axes.linewidth'] = 2.0
@@ -54,13 +60,19 @@ mpl.rcParams['lines.linewidth'] = 2.0
 mpl.rcParams['grid.linestyle'] = ":"
 mpl.rcParams['grid.color'] = "black"
 
-def get_axis_limits(ax, x_scale=0, y_scale=1.02):
+def get_axis_limits(ax, x_scale=0, y_scale=1.18):
     return ax.get_xlim()[1]*x_scale, ax.get_ylim()[1]*y_scale
 
 
+	
+ylabel_x = -0.058
+	
+	
 ##inite the fig of matplotlib
 fig=plt.figure(figsize=(10,8))
-fig.subplots_adjust(top=0.9,bottom=0.1,wspace=0.5,hspace=0.4)
+fig.subplots_adjust(top=0.9,bottom=0.1,wspace=0.6,hspace=0.55)
+
+
 t = 14
 dt = 1.0e-12 * 1000000 / 1.0e-6   # unit is us
 
@@ -101,16 +113,13 @@ cf_temp1=sp_temp1.plot(x, val2_1d, label=r'$D^+ ion$')
 
 xmin = 0
 xmax = x.max()
-ymin = 1.2 * min( val1_1d.min(), val2_1d.min() )
+ymin = 0.0
 ymax = 1.2 * max( val1_1d.max(), val2_1d.max() )
 
-
-#sp_temp1.plot([xmin, xmax],[-Va_D, -Va_D])
-
-
-sp_temp1.axis([xmin,xmax,ymin, ymax])
-#sp_temp1.set_yticks(np.arange(0,y.max(),100))
-sp_temp1.set_ylabel('Macro particle number')
+sp_temp1.set_xlim((xmin, xmax))
+sp_temp1.set_ylim((ymin, ymax))
+sp_temp1.set_ylabel(r'Macro particle number')
+sp_temp1.yaxis.set_label_coords(ylabel_x, 0.5)
 
 #sp_temp1.ticklabel_format(style='sci')
 sp_temp1.grid(True)
@@ -130,18 +139,19 @@ val2_1d = np.transpose(val2[:, 0, 1, 0])
 
 sp_temp1=fig.add_subplot(3,1,2)
 
+sp_temp1.yaxis.set_major_formatter(yformatter)
 
 cf_temp1=sp_temp1.plot(x, val1_1d, label='Electron')
 cf_temp1=sp_temp1.plot(x, val2_1d, label=r'$D^+ ion$')
 
-ymin = 1.2 * min( val1_1d.min(), val2_1d.min() )
+
+ymin = 0.0
 ymax = 1.2 * max( val1_1d.max(), val2_1d.max() )
 
-
-
-sp_temp1.axis([xmin,xmax,ymin, ymax])
-#sp_temp1.set_yticks(np.arange(0,y.max(),100))
-sp_temp1.set_ylabel('Particle flux $(m^{-3}s^{-1})$')
+sp_temp1.set_xlim((xmin, xmax))
+sp_temp1.set_ylim((ymin, ymax))
+sp_temp1.set_ylabel(r'Particle flux $\mathit{(m^{-2}s^{-1})}$')
+sp_temp1.yaxis.set_label_coords(ylabel_x, 0.5)
 
 sp_temp1.grid(True)
 sp_temp1.legend(loc = 1)
@@ -160,23 +170,26 @@ val2_1d = np.transpose(val2[:, 0, 1, 0])
 
 sp_temp1=fig.add_subplot(3,1,3)
 
+sp_temp1.yaxis.set_major_formatter(yformatter)
 
 cf_temp1=sp_temp1.plot(x, val1_1d, label='Electron')
-cf_temp1=sp_temp1.plot(x, val2_1d, label='r'$D^+ ion$'')
+cf_temp1=sp_temp1.plot(x, val2_1d, label=r'$D^+ ion$')
 
-ymin = 1.2 * min( val1_1d.min(), val2_1d.min() )
+
+ymin = 0.0
 ymax = 1.2 * max( val1_1d.max(), val2_1d.max() )
 
-sp_temp1.axis([xmin,xmax,ymin, ymax])
-#sp_temp1.set_yticks(np.arange(0,y.max(),100))
+sp_temp1.set_xlim((xmin, xmax))
+sp_temp1.set_ylim((ymin, ymax))
 sp_temp1.set_xlabel(r'time $(\mu s)$')
-sp_temp1.set_ylabel('Heat flux $(Wm^{-2})$')
+sp_temp1.set_ylabel(r'Heat flux $(Wm^{-2})$')
+sp_temp1.yaxis.set_label_coords(ylabel_x, 0.5)
 sp_temp1.grid(True)
 sp_temp1.legend(loc = 1)
 
 sp_temp1.annotate('(c)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
-fig.savefig("flux.png")
+fig.savefig("flux.pdf")
 #fig.show()       #when the program finishes,the figure disappears
 #plt.axis('equal')
 #plt.show()         #The command is OK

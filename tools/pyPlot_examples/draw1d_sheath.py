@@ -8,27 +8,27 @@ import matplotlib
 matplotlib.use('Agg')
 
 
-import matplotlib.pyplot as plt
-import matplotlib as mpl
 from matplotlib.ticker import MaxNLocator
 from matplotlib import cm
-
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
 
-import numpy as np
-from numpy import arange, sin, pi
-
-import ConfigParser
-
-import h5py as h5
-import numpy as np
-import matplotlib.pyplot as plt
-import math
 from matplotlib.ticker import ScalarFormatter
 yformatter = ScalarFormatter()
 yformatter.set_powerlimits((-3,3))
+
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+import matplotlib.ticker as ticker
+
+
+from numpy import arange, sin, pi
+import numpy as np
+
+import h5py as h5
+import math
+
 
 
 font={	'family' : 'sans-serif',
@@ -36,10 +36,16 @@ font={	'family' : 'sans-serif',
 	'size' : 8,
 	}
 
-mpl.rcParams['text.usetex'] = True
-mpl.rcParams['text.latex.unicode'] = True
+#mpl.rcParams['text.usetex'] = True
+#mpl.rcParams['text.latex.unicode'] = True
 mpl.rcParams['font.family'] = 'sans-serif'
 #mpl.rcParams['mathtext.default'] = 'regular'
+#mpl.rcParams['mathtext.default'] = 'it'
+mpl.rcParams['mathtext.fontset'] = 'stix'
+#mpl.rcParams['mathtext.fontset'] = 'cm'
+mpl.rcParams['mathtext.it'] = 'serif'
+#mpl.rcParams['pdf.fonttype'] = 3
+
 
 mpl.rcParams['font.size'] = 16
 mpl.rcParams['axes.linewidth'] = 2.0
@@ -54,18 +60,16 @@ mpl.rcParams['lines.linewidth'] = 2.0
 mpl.rcParams['grid.linestyle'] = ":"
 mpl.rcParams['grid.color'] = "black"
 
-def get_axis_limits(ax, x_scale=0, y_scale=1.02):
+def get_axis_limits(ax, x_scale=0, y_scale=1.18):
     return ax.get_xlim()[1]*x_scale, ax.get_ylim()[1]*y_scale
-
-
 
 
 
 ##inite the fig of matplotlib
 fig=plt.figure(figsize=(10,8))
-fig.subplots_adjust(top=0.9,bottom=0.1,wspace=0.5,hspace=0.4)
-t = 15
+fig.subplots_adjust(top=0.9,bottom=0.1,wspace=0.5,hspace=0.55)
 
+t = 19
 
 ##read data from file
 f=h5.File("data_global.h5")
@@ -85,7 +89,7 @@ x = np.linspace(0, nx * dx, nx)
 
 xmin = x.min()
 xmax = x.max() * 0.01/4
-x_sheath = 0.06
+x_sheath = 0.08
 
 
 
@@ -137,6 +141,8 @@ sp_temp1=fig.add_subplot(3,1,2)
 val = f["/Fields/Rho_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
+
+sp_temp1.yaxis.set_major_formatter(yformatter)
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Electron")
 
 ymin = 0.0
@@ -220,7 +226,7 @@ sp_temp1.set_ylabel('Vp (1.0e6 m/s)')
 '''
 
 
-fig.savefig("Sheath.png", dpi = 300)
+fig.savefig("Sheath.pdf", dpi = 300)
 ##fig.show()       #when the program finishes,the figure disappears
 #plt.axis('equal')
 plt.show()         #The command is OK

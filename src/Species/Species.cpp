@@ -301,13 +301,33 @@ void Species::initMomentum(unsigned int nPart, unsigned int iPart, double *temp,
 
         for (unsigned int p= iPart; p<iPart+nPart; p++)
         {
+            /*
             double ran;
             do {
                 ran = (double)rand() / RAND_MAX;
             }
             while (ran == 0.0);
 
-            double psm = sqrt(2.0 * temp[0] * params.const_e / species_param.mass) * sqrt(-log(ran));
+            double vt = sqrt(2.0 * temp[0] * params.const_e / species_param.mass);
+            double psm = vt * sqrt(-log(ran));
+
+            double phi     = 2.0 * M_PI*(double)rand() / RAND_MAX;
+            double theta   = M_PI*(double)rand() / RAND_MAX;
+            particles.momentum(0,p) = psm*sin(theta)*cos(phi);
+            particles.momentum(1,p) = psm*sin(theta)*sin(phi);
+            particles.momentum(2,p) = psm*cos(theta);
+            */
+
+            /*
+            double ran;
+            do {
+                ran = (double)rand() / RAND_MAX;
+            }
+            while (ran == 0.0);
+
+            double vt = sqrt(2.0 * temp[0] * params.const_e / species_param.mass);
+            double psm = vt * sqrt(-log(ran));
+
 
             double phi   = 2.0 * M_PI*(double)rand() / RAND_MAX;
             particles.momentum(0,p) = psm*sin(phi);
@@ -317,12 +337,32 @@ void Species::initMomentum(unsigned int nPart, unsigned int iPart, double *temp,
 
             phi   = 2.0 * M_PI*(double)rand() / RAND_MAX;
             particles.momentum(2,p) = psm*sin(phi);
+            */
 
+            double vt = sqrt(2.0 * temp[0] * params.const_e / species_param.mass);
+            double x1;
+            double x2;
 
-            //if( isinf(particles.momentum(0,p)) || isinf(particles.momentum(1,p)) || isinf(particles.momentum(2,p)) ) {
-            //    cout<<particles.momentum(0,p)<<" "<<particles.momentum(1,p)<<" "<<particles.momentum(2,p)<<endl;
-            //    cout<<psm<<" "<<ran<<endl;
-            //}
+            do {
+                x1 = (double)rand() / RAND_MAX;
+            }
+            while (x1 == 0.0);
+            x2 = (double)rand() / RAND_MAX;
+            particles.momentum(0,p) = vt * sqrt( -log(x1) ) * sin(2.0 * M_PI * x2);
+
+            do {
+                x1 = (double)rand() / RAND_MAX;
+            }
+            while (x1 == 0.0);
+            x2 = (double)rand() / RAND_MAX;
+            particles.momentum(1,p) = vt * sqrt( -log(x1) ) * sin(2.0 * M_PI * x2);
+
+            do {
+                x1 = (double)rand() / RAND_MAX;
+            }
+            while (x1 == 0.0);
+            x2 = (double)rand() / RAND_MAX;
+            particles.momentum(2,p) = vt * sqrt( -log(x1) ) * sin(2.0 * M_PI * x2);
 
         }
 
