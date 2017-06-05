@@ -91,9 +91,9 @@ x = np.linspace(0, nx * dx, nx)
 xmin = x.min()
 xmax = x.max()
 
-x1=5000
-x2=4500
-x3=12
+x1 = int(nx / 2)
+x2 = int(x1 - 0.1 * x1)
+x3=16
 
 # ion sound speed
 Va = - math.sqrt( 25.0 * 1.602e-19 / (2.0 * 1.67262158e-27) ) / 1.0e6
