@@ -38,6 +38,9 @@ PicParams::PicParams(InputData &ifile) {
     timesteps_restore = 1000000000;
     ifile.extract("timesteps_restore", timesteps_restore);
 
+    zoom_collision = 1.0;
+    ifile.extract("zoom_collision", zoom_collision);
+
     exit_after_dump=true;
     ifile.extract("exit_after_dump", exit_after_dump);
 

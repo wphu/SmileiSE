@@ -298,6 +298,9 @@ public:
     // number of timestep of performing DSMC collisions
     unsigned int timesteps_restore;
 
+    // artificially change the collision frequency
+    double zoom_collision;
+
 
     //! Human minutes to dump everything
     double dump_minutes;

@@ -172,6 +172,13 @@ PartSource2D (params, smpi)
             //cout<<"numPart_in_each_bin "<<numPart_in_each_bin[ibin]<<endl;
         }
     }
+    else if(loadKind == "dn")
+    {
+        loadStep = 1.0 + loadNumber * params.species_param[species1].weight / (loadDn * params.timestep);
+        loadRem = loadDn * loadStep * params.timestep / params.species_param[species1].weight - loadNumber;
+        loadRemTot = 0.0;
+        MESSAGE("loadStep = "<<loadStep);
+    }
 
 
 }
@@ -196,7 +203,8 @@ void PartSource2D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
     double *vel=new double[3];
 
     if(everyTime == 0 && itime > 1) { return; }
-    if(loadKind == "nT" && loadBin_end != loadBin_start && loadBin_Yend != loadBin_Ystart) {
+    if(loadKind == "nT" && loadBin_end != loadBin_start && loadBin_Yend != loadBin_Ystart)
+    {
         s1 = vecSpecies[species1];
         p1 = &(s1->particles);
 
@@ -261,7 +269,8 @@ void PartSource2D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
             }
         }
     }
-    else if(loadKind == "dn" && itime%loadStep == 0 && loadBin_end != loadBin_start) {
+    else if(loadKind == "dn" && itime%loadStep == 0 && loadBin_end != loadBin_start)
+    {
         s1 = vecSpecies[species1];
         p1 = &(s1->particles);
 
@@ -274,12 +283,24 @@ void PartSource2D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
         vel[1] = mean_velocity[1];
         vel[2] = mean_velocity[2];
 
+        double loadNumber_temp;
+        loadRemTot += loadRem;
+        loadNumber_temp = loadNumber;
+        if(loadRemTot > 1.0)
+        {
+            loadNumber_temp = loadNumber + 1;
+            loadRemTot -= 1.0;
+        }
+        numPart_in_each_cell = loadNumber_temp;
+
         for(int ibin = 0; ibin < count_of_particles_to_insert.size(); ibin++ )
         {
             count_of_particles_to_insert[ibin] = 0;
-            if(ibin >= loadBin_start && ibin <= loadBin_end) { count_of_particles_to_insert[ibin] = loadDn * loadStep * params.timestep / s1->species_param.weight; }
+            if(ibin >= loadBin_start && ibin <= loadBin_end)
+            {
+                count_of_particles_to_insert[ibin] = (loadBin_Yend - loadBin_Ystart + 1) * numPart_in_each_cell;
+            }
         }
-        //cout<<"number: "<<loadDensity * params.timestep / s1->species_param.weight<<endl;
 
         new_particles.clear();
         for(int ibin = loadBin_start; ibin <= loadBin_end; ibin++ )
@@ -291,19 +312,26 @@ void PartSource2D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
         // re-initialize paritcles in source region
         for(int ibin=loadBin_start; ibin<=loadBin_end; ibin++)
         {
-            iPart = s1->bmax[ibin] - count_of_particles_to_insert[ibin];
-            nPart = count_of_particles_to_insert[ibin];
-            cell_length[0] = params.cell_length[0];
-            indexes[0] = smpi->getDomainLocalMin(0) + ibin*params.cell_length[0];
+            // Because bin is only in x-direction, y-direction has no bin
+            // The "Bin" in loadBin_Ystart and loadBin_Yend is just to be consistent with the x-direction
+            for(int j = loadBin_Ystart; j <= loadBin_Yend; j++)
+            {
+                iPart = s1->bmax[ibin] - (loadBin_Yend - j + 1) * numPart_in_each_cell ;
+                nPart = numPart_in_each_cell;
+                cell_length[0] = params.cell_length[0];
+                cell_length[1] = params.cell_length[1];
+                indexes[0] = smpi->getDomainLocalMin(0) + ibin*params.cell_length[0];
+                indexes[1] = smpi->getDomainLocalMin(1) + j   *params.cell_length[1];
 
-            s1->initPosition(nPart, iPart, indexes, params.nDim_particle,
-                         cell_length, s1->species_param.initPosition_type);
+                s1->initPosition(nPart, iPart, indexes, params.nDim_particle,
+                             cell_length, s1->species_param.initPosition_type);
 
-            s1->initMomentum(nPart,iPart, temp, vel,
-                         s1->species_param.initMomentum_type, max_jutt_cumul, params);
+                s1->initMomentum(nPart,iPart, temp, vel,
+                             s1->species_param.initMomentum_type, max_jutt_cumul, params);
 
-            s1->initWeight_constant(nPart, species1, iPart, s1->species_param.weight);
-            s1->initCharge(nPart, species1, iPart, s1->species_param.charge);
+                s1->initWeight_constant(nPart, species1, iPart, s1->species_param.weight);
+                s1->initCharge(nPart, species1, iPart, s1->species_param.charge);
+            }
         }
     }
 

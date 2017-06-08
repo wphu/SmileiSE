@@ -53,8 +53,14 @@ Grid2D::Grid2D(
     ny=globalDims_[1];
 
     allocateDims();
-    //geometry();
-    geometry_gap();
+    if(gridType == "rectangle")
+    {
+            geometry();
+    }
+    else if(gridType == "gap")
+    {
+        geometry_gap();
+    }
     computeNcp();
 }
 

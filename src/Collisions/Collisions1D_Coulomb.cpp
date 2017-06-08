@@ -152,7 +152,7 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
             // =========Calculate some constants in the formulas used below============
             twoPi = 2.0 * const_pi;
             e_ov_ephi0 = const_e / const_ephi0;
-            time_coulomb = params.timesteps_coulomb * params.timestep;
+            time_coulomb = params.timesteps_coulomb * params.timestep * params.zoom_collision;
             // used in equation (104a) and (104b)
             mr1 = m1 / (m1 + m2);
             mr2 = m2 / (m1 + m2);
