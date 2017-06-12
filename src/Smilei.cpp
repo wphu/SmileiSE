@@ -180,6 +180,13 @@ int main (int argc, char* argv[])
 
     int itime = stepStart;
 
+    // control timesteps, use larger timesteps for some heavy particles
+    vector<int> timestep_control;
+    timestep_control.resize( params.species_param.size() );
+    for(int i = 0; i < params.species_param.size(); i++)
+    {
+        timestep_control[i] = 0;
+    }
 
     TITLE("Solve the field first time before PIC loop");
     (*solver)(EMfields, smpi);
@@ -239,7 +246,13 @@ int main (int argc, char* argv[])
             timer[3].restart();
             for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
             {
-                vecSpecies[ispec]->dynamics(time_dual, ispec, EMfields, Interp, Proj, smpi, params);
+                timestep_control[ispec]++;
+                if(timestep_control[ispec] == params.species_param[ispec].timestep_zoom)
+                {
+                    vecSpecies[ispec]->dynamics(time_dual, ispec, EMfields, Interp, Proj, smpi, params);
+                    timestep_control[ispec] = 0;
+                }
+
             }
             timer[3].update();
 

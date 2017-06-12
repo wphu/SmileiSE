@@ -266,6 +266,17 @@ void PicParams::readSpecies(InputData &ifile) {
             ERROR("dynamics_type different than norm not yet implemented");
         }
 
+
+        tmpSpec.Pusher_type = "EM"; // default value
+        if (!ifile.extract("Pusher_type",tmpSpec.Pusher_type ,"Species",ispec) )
+        {
+            WARNING("For species #" << ispec << ", Pusher_type not defined: assumed = 'EM'.");
+        }
+
+        tmpSpec.timestep_zoom = 1; // default value
+        ifile.extract("timestep_zoom",tmpSpec.timestep_zoom ,"Species",ispec);
+
+
         tmpSpec.time_frozen = 0.0; // default value
         ifile.extract("time_frozen",tmpSpec.time_frozen ,"Species",ispec);
         if (tmpSpec.time_frozen > 0 && \

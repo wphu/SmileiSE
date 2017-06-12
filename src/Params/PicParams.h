@@ -78,6 +78,17 @@ struct SpeciesStructure {
     //! dynamics type. Possible values: "Norm" "Radiation Reaction"
     std::string dynamics_type;
 
+    // Pusher type. Possible values: "Neutral", "SE", "EM", "GC0"
+    // Neutral: for neutral without considering electric field and magnetic field
+    // SE:      with static electric field, without magnetic field
+    // EM:      with electric field and magnetic field, consider full gyration motion
+    // GC0:     with electric field and magnetic field, consider guiding center motion,
+    //          all charge is located at the guiding center
+    std::string Pusher_type;
+
+    // control timesteps, use larger timesteps for some heavy particles
+    int timestep_zoom;
+
     //! Time for which the species is frozen
     double time_frozen;
 

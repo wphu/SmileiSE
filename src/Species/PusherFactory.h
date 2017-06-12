@@ -3,6 +3,7 @@
 
 #include "Pusher.h"
 #include "PusherBoris.h"
+#include "PusherBoris_GC0.h"
 #include "PusherBoris_imp.h"
 
 #include "PicParams.h"
@@ -28,7 +29,15 @@ public:
         {
             if(params.method == "explicit")
             {
-                Push = new PusherBoris( params, ispec );
+                if ( params.species_param[ispec].Pusher_type == "EM" )
+                {
+                    Push = new PusherBoris( params, ispec );
+                }
+                else if( params.species_param[ispec].Pusher_type == "GC0" )
+                {
+                    Push = new PusherBoris_GC0( params, ispec );
+                }
+
             }
             else if(params.method == "implicit")
             {
