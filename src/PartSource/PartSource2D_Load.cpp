@@ -20,8 +20,8 @@ PartSource2D_Load::PartSource2D_Load(
     unsigned int load_species1,
     vector<double> mean_vel,
     string load_kind,
-    int load_step,
-    int every_time,
+    int    load_number,
+    int    every_time,
     double load_dn,
     double load_density,
     double load_temperature,
@@ -39,7 +39,7 @@ PartSource2D (params, smpi)
     species1        = load_species1;
     mean_velocity   = mean_vel;
     loadKind        = load_kind;
-    loadStep        = load_step;
+    loadNumber      = load_number;
     everyTime       = every_time;
     loadDn          = load_dn;
     loadDensity     = load_density;
@@ -58,6 +58,11 @@ PartSource2D (params, smpi)
         loadBin_start = 0;
         loadPos_end = 0.0;
         loadBin_end = 0;
+
+        loadPos_Ystart = 0.0;
+        loadBin_Ystart = 0;
+        loadPos_Yend = 0.0;
+        loadBin_Yend = 0;
     }
     // the left end of source region is in the MPI domain
     else if(smpi->getDomainLocalMin(0) <= loadPos_start && smpi->getDomainLocalMax(0) > loadPos_start
@@ -110,6 +115,11 @@ PartSource2D (params, smpi)
     // define the y-direction range of source region
     // the MPI domain is not in the source region
     if(smpi->getDomainLocalMax(1) <= loadPos_Ystart || smpi->getDomainLocalMin(1) >= loadPos_Yend) {
+        loadPos_start = 0.0;
+        loadBin_start = 0;
+        loadPos_end = 0.0;
+        loadBin_end = 0;
+
         loadPos_Ystart = 0.0;
         loadBin_Ystart = 0;
         loadPos_Yend = 0.0;

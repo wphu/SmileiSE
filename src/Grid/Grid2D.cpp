@@ -159,11 +159,22 @@ void Grid2D::geometry( )
         bndr_global_2D[i][j]=5;
       }
 
+    /*
     // 8 is the periodic boundary condition
     for(int i=dims_source[0]; i<nx; i++){
       bndr_global_2D[i][0]=8;
       bndr_global_2D[i][ny-1]=8;
     }
+    */
+
+    for(int i=dims_source[0]; i<nx; i++){
+      bndr_global_2D[i][0] = 1;
+      bndrVal_global_2D[i][0] = 0.0;
+
+      bndr_global_2D[i][ny-1] = 1;
+      bndrVal_global_2D[i][ny-1] = 0.0;
+    }
+
 
     // 1 is the Dirchlet boundary condition
     for(int j=0; j<ny; j++){

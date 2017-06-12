@@ -67,7 +67,8 @@ public:
 	    for (unsigned int n_PartSource = 0; n_PartSource < numPartSource; n_PartSource++) {
 
 			ifile.extract("PartSource_type",PartSource_type,"PartSource",n_PartSource);
-			if(params.geometry == "1d3v" && PartSource_type == "Emit"){
+			if(params.geometry == "1d3v" && PartSource_type == "Emit")
+			{
 		        ifile.extract("species1",sg1,"PartSource",n_PartSource);
 		        // Obtain the lists of species numbers from the lists of species names.
 		        sgroup1 = params.FindSpecies(sg1);
@@ -127,7 +128,8 @@ public:
 
 			}
 
-			else if(params.geometry == "1d3v" && PartSource_type == "Load"){
+			else if(params.geometry == "1d3v" && PartSource_type == "Load")
+			{
 		        ifile.extract("species1",sg1,"PartSource",n_PartSource);
 		        // Obtain the lists of species numbers from the lists of species names.
 		        sgroup1 = params.FindSpecies(sg1);
@@ -166,7 +168,8 @@ public:
 
 			}
 
-			else if(params.geometry == "2d3v" && PartSource_type == "Load"){
+			else if(params.geometry == "2d3v" && PartSource_type == "Load")
+			{
 		        ifile.extract("species1",sg1,"PartSource",n_PartSource);
 		        // Obtain the lists of species numbers from the lists of species names.
 		        sgroup1 = params.FindSpecies(sg1);
