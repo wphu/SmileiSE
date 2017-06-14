@@ -67,6 +67,8 @@ class Species(SmileiComponent):
     species_type = None
     initPosition_type = None
     initMomentum_type = ""
+    Pusher_type = None
+    timestep_zoom = 1
     n_part_per_cell = None
     n_part_per_cell_for_weight = None
     c_part_max = 1.0

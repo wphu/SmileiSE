@@ -189,6 +189,11 @@ int main (int argc, char* argv[])
     }
 
     TITLE("Solve the field first time before PIC loop");
+    for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
+    {
+        EMfields->restartRhoJs(ispec, 0);
+        vecSpecies[ispec]->Project(time_dual, ispec, EMfields, Proj, smpi, params);
+    }
     (*solver)(EMfields, smpi);
     smpi->barrier();
 
@@ -219,6 +224,7 @@ int main (int argc, char* argv[])
             itime++;
             time_prim += params.timestep;
             time_dual += params.timestep;
+            //MESSAGE("timestep = "<<itime);
 
             // ================== EmitLoad =========================================
             //> add Particle Source: emit from boundary or load in some region
@@ -239,7 +245,7 @@ int main (int argc, char* argv[])
                     vecCollisions[icoll]->collide(params, smpi, EMfields, vecSpecies,itime);
                 }
             }
-                    timer[2].update();
+            timer[2].update();
 
             // ================== Interpolate and Move ===============================
             int tid(0);
@@ -250,9 +256,7 @@ int main (int argc, char* argv[])
                 if(timestep_control[ispec] == params.species_param[ispec].timestep_zoom)
                 {
                     vecSpecies[ispec]->dynamics(time_dual, ispec, EMfields, Interp, Proj, smpi, params);
-                    timestep_control[ispec] = 0;
                 }
-
             }
             timer[3].update();
 
@@ -260,11 +264,14 @@ int main (int argc, char* argv[])
             timer[4].restart();
             for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
             {
-                for ( int iDim = 0 ; iDim<(int)params.nDim_particle ; iDim++ )
+                if(timestep_control[ispec] == params.species_param[ispec].timestep_zoom)
                 {
-                    smpi->exchangeParticles(vecSpecies[ispec], ispec, params, tid, iDim);
+                    for ( int iDim = 0 ; iDim<(int)params.nDim_particle ; iDim++ )
+                    {
+                        smpi->exchangeParticles(vecSpecies[ispec], ispec, params, tid, iDim);
+                    }
+                    vecSpecies[ispec]->sort_part(); // Should we sort test particles ?? (JD)
                 }
-                vecSpecies[ispec]->sort_part(); // Should we sort test particles ?? (JD)
             }
             timer[4].update();
 
@@ -282,8 +289,12 @@ int main (int argc, char* argv[])
             timer[6].restart();
             for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
             {
-                EMfields->restartRhoJs(ispec, 0);
-                vecSpecies[ispec]->Project(time_dual, ispec, EMfields, Proj, smpi, params);
+                if(timestep_control[ispec] == params.species_param[ispec].timestep_zoom)
+                {
+                    EMfields->restartRhoJs(ispec, 0);
+                    vecSpecies[ispec]->Project(time_dual, ispec, EMfields, Proj, smpi, params);
+                    timestep_control[ispec] = 0;
+                }
             }
             timer[6].update();
 
@@ -334,6 +345,7 @@ int main (int argc, char* argv[])
             itime++;
             time_prim += params.timestep;
             time_dual += params.timestep;
+            //MESSAGE("timestep = "<<itime);
 
             // ================== EmitLoad =========================================
             //> add Particle Source: emit from boundary or load in some region
