@@ -130,7 +130,7 @@ void PSI1D_Backscattering::performPSI(PicParams& params, SmileiMPI* smpi, vector
                 new_particles.au_imp(0,iPart) = 0.0;
                 new_particles.au_imp(1,iPart) = 0.0;
                 new_particles.au_imp(2,iPart) = 0.0;
-                
+
                 new_particles.weight(iPart) = weight_const;
                 new_particles.charge(iPart) = s1->species_param.charge;
                 nPartEmit++;
@@ -143,6 +143,8 @@ void PSI1D_Backscattering::performPSI(PicParams& params, SmileiMPI* smpi, vector
         s2->insert_particles_to_bins(new_particles, count_of_particles_to_insert_s2);
         new_particles.clear();
     };
+    
+    p1->clear();
 }
 
 

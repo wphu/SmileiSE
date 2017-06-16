@@ -113,7 +113,13 @@ PartSource1D (params, smpi)
         loadBin_end = (loadPos_end - smpi->getDomainLocalMin(0)) / params.cell_length[0];
         if(loadBin_end > params.n_space[0] - 1) { loadBin_end = params.n_space[0] - 1; }
         loadPos_end = smpi->getDomainLocalMin(0) + (loadBin_end+1)*params.cell_length[0];
+    }
 
+    if(loadBin_end != loadBin_start)
+    {
+        cout<<"MPI "<<smpi->getRank()<<endl;
+        cout<<"LoadBin start and end: "<<loadBin_start<<" "<<loadBin_end<<endl;
+        cout<<"LoadPos start and end: "<<loadPos_start<<" "<<loadPos_end<<endl;
     }
 
 }

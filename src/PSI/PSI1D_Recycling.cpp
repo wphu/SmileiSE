@@ -91,6 +91,8 @@ void PSI1D_Recycling::performPSI(PicParams& params, SmileiMPI* smpi, vector<Spec
         new_particles.clear();
     };
 
+    p1->clear();
+
 }
 
 
@@ -170,7 +172,7 @@ void PSI1D_Recycling::emit(PicParams& params, vector<Species*>& vecSpecies, unsi
            new_particles.au_imp(0,iPart) = 0.0;
            new_particles.au_imp(1,iPart) = 0.0;
            new_particles.au_imp(2,iPart) = 0.0;
-           
+
            new_particles.weight(iPart) = s1->species_param.weight;
            new_particles.charge(iPart) = s1->species_param.charge;
        }

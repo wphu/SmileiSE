@@ -271,6 +271,7 @@ int main (int argc, char* argv[])
                         smpi->exchangeParticles(vecSpecies[ispec], ispec, params, tid, iDim);
                     }
                     vecSpecies[ispec]->sort_part(); // Should we sort test particles ?? (JD)
+                    timestep_control[ispec] = 0;
                 }
             }
             timer[4].update();
@@ -289,14 +290,15 @@ int main (int argc, char* argv[])
             timer[6].restart();
             for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
             {
-                if(timestep_control[ispec] == params.species_param[ispec].timestep_zoom)
-                {
-                    EMfields->restartRhoJs(ispec, 0);
-                    vecSpecies[ispec]->Project(time_dual, ispec, EMfields, Proj, smpi, params);
-                    timestep_control[ispec] = 0;
-                }
+                EMfields->restartRhoJs(ispec, 0);
+                vecSpecies[ispec]->Project(time_dual, ispec, EMfields, Proj, smpi, params);
             }
             timer[6].update();
+
+            // ================== Run Diagnostic =============================================
+            timer[8].restart();
+            diag->run(smpi, vecSpecies, EMfields, itime);
+            timer[8].update();
 
             // ================== Plasma Surface Interacton ==================================
             timer[7].restart();
@@ -305,11 +307,6 @@ int main (int argc, char* argv[])
                 vecPSI[ipsi]->performPSI(params,smpi,vecSpecies,itime, EMfields);
             }
             timer[7].update();
-
-            // ================== Run Diagnostic =============================================
-            timer[8].restart();
-            diag->run(smpi, vecSpecies, EMfields, itime);
-            timer[8].update();
 
             // ================== Solve Electromagnetic Fields ===============================
             timer[9].restart();
@@ -454,6 +451,11 @@ int main (int argc, char* argv[])
             }
             timer[5].update();
 
+            // ================== Run Diagnostic =============================================
+            timer[8].restart();
+            diag->run(smpi, vecSpecies, EMfields, itime);
+            timer[8].update();
+
             // ================== Plasma Surface Interacton ==================================
             timer[7].restart();
             for (unsigned int ipsi=0 ; ipsi<vecPSI.size(); ipsi++)
@@ -461,13 +463,6 @@ int main (int argc, char* argv[])
                 vecPSI[ipsi]->performPSI(params,smpi,vecSpecies,itime, EMfields);
             }
             timer[7].update();
-
-
-            // ================== Run Diagnostic =============================================
-            timer[8].restart();
-            diag->run(smpi, vecSpecies, EMfields, itime);
-            timer[8].update();
-
 
             // ================== Write IO ====================================================
             timer[10].restart();
