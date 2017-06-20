@@ -144,7 +144,6 @@ void PSI1D_Backscattering::performPSI(PicParams& params, SmileiMPI* smpi, vector
         new_particles.clear();
     };
     
-    p1->clear();
 }
 
 

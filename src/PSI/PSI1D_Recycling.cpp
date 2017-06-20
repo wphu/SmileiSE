@@ -91,8 +91,6 @@ void PSI1D_Recycling::performPSI(PicParams& params, SmileiMPI* smpi, vector<Spec
         new_particles.clear();
     };
 
-    p1->clear();
-
 }
 
 

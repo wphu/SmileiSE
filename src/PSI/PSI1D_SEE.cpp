@@ -78,8 +78,6 @@ void PSI1D_SEE::performPSI(PicParams& params, SmileiMPI* smpi, vector<Species*>&
         s2->insert_particles_to_bins(new_particles, count_of_particles_to_insert_s2);
         new_particles.clear();
     };
-
-    p1->clear();
 }
 
 

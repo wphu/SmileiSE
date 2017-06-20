@@ -306,6 +306,11 @@ int main (int argc, char* argv[])
             {
                 vecPSI[ipsi]->performPSI(params,smpi,vecSpecies,itime, EMfields);
             }
+            for (unsigned int ispec=0 ; ispec<params.species_param.size(); ispec++)
+            {
+                (vecSpecies[ispec]->psi_particles).clear(); // clear psi_particles to avoid unnecessary
+                                                            // repeated PSI performs for multiple ion timesteps
+            }
             timer[7].update();
 
             // ================== Solve Electromagnetic Fields ===============================

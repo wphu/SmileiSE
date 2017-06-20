@@ -89,7 +89,6 @@ void PSI1D_Sputtering::performPSI(PicParams& params, SmileiMPI* smpi, vector<Spe
         new_particles.clear();
     }
 
-    p1->clear();
 }
 
 
