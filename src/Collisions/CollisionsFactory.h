@@ -48,10 +48,11 @@ public:
 
 	    // Loop over each binary collisions group and parse info
 	    unsigned int numcollisions=ifile.nComponents("Collisions");
-	    for (unsigned int n_collisions = 0; n_collisions < numcollisions; n_collisions++) {
-
+	    for (unsigned int n_collisions = 0; n_collisions < numcollisions; n_collisions++)
+		{
 			ifile.extract("collisions_type",collisions_type,"Collisions",n_collisions);
-			if(params.geometry == "1d3v" && collisions_type == "coulomb"){
+			if(params.geometry == "1d3v" && collisions_type == "coulomb")
+			{
 				MESSAGE("Parameters for collisions #" << n_collisions << " :");
 
 		        // Read the input file by searching for the keywords "species1" and "species2"
@@ -112,15 +113,15 @@ public:
 
 			}
 
-			else if(params.geometry == "1d3v" && collisions_type == "ionization_simple"){
+			else if(params.geometry == "1d3v" && collisions_type == "ionization_simple")
+			{
 				// Add new Collisions objects to vector
 				//> Three species participate in the ionization collision
 		        vecCollisions.push_back( new Collisions1D_Ionization_Simple(params,vecSpecies,smpi,n_collisions,sgroup1,sgroup2,sgroup3,clog,intra,debug_every) );
-
 			}
 
-
-			else if(params.geometry == "1d3v" && collisions_type == "Ionization"){
+			else if(params.geometry == "1d3v" && collisions_type == "Ionization")
+			{
 				MESSAGE("Parameters for collisions #" << n_collisions << " :");
 
 		        // Read the input file by searching for the keywords "species1" and "species2"
@@ -164,7 +165,9 @@ public:
 		        vecCollisions.push_back( new Collisions1D_Ionization(params,vecSpecies,smpi,n_collisions,sgroup1,sgroup2,sgroup3, crossSection_fileName) );
 
 			}
-			else if(params.geometry == "1d3v" && collisions_type == "Excitation"){
+
+			else if(params.geometry == "1d3v" && collisions_type == "Excitation")
+			{
 				MESSAGE("Parameters for collisions #" << n_collisions << " :");
 
 				// Read the input file by searching for the keywords "species1" and "species2"
@@ -193,14 +196,15 @@ public:
 				mystream.str(""); // clear
 				for (unsigned int rs=0 ; rs<sgroup2.size() ; rs++) mystream << " #" << sgroup2[rs];
 				MESSAGE(1,"Second group of species :" << mystream.str());
-	
+
 				// Add new Collisions objects to vector
 				//> Three species participate in the ionization collision
 				vecCollisions.push_back( new Collisions1D_Excitation(params,vecSpecies,smpi,n_collisions,sgroup1,sgroup2,crossSection_fileName) );
 
 			}
 
-			else if(params.geometry == "1d3v" && collisions_type == "Recombination_TB"){
+			else if(params.geometry == "1d3v" && collisions_type == "Recombination_TB")
+			{
 				MESSAGE("Parameters for collisions #" << n_collisions << " :");
 
 		        // Read the input file by searching for the keywords "species1" and "species2"
@@ -245,7 +249,8 @@ public:
 
 			}
 
-			else if(params.geometry == "1d3v" && collisions_type == "Recombination_Rad"){
+			else if(params.geometry == "1d3v" && collisions_type == "Recombination_Rad")
+			{
 				MESSAGE("Parameters for collisions #" << n_collisions << " :");
 
 		        // Read the input file by searching for the keywords "species1" and "species2"
@@ -290,9 +295,8 @@ public:
 
 			}
 
-
-
-			else if(params.geometry == "1d3v" && collisions_type == "ChargeExchange"){
+			else if(params.geometry == "1d3v" && collisions_type == "ChargeExchange")
+			{
 				MESSAGE("Parameters for collisions #" << n_collisions << " :");
 
 				// Read the input file by searching for the keywords "species1" and "species2"
@@ -325,14 +329,13 @@ public:
 				for (unsigned int rs=0 ; rs<sgroup3.size() ; rs++) mystream << " #" << sgroup3[rs];
 				MESSAGE(1,"Third group of species :" << mystream.str());
 
-
-
 				// Add new Collisions objects to vector
 				//> Three species participate in the ionization collision
 		        vecCollisions.push_back( new Collisions1D_ChargeExchange(params,vecSpecies,smpi,n_collisions,sgroup1,sgroup2,crossSection_fileName) );
 
 			}
-			else if(params.geometry == "1d3v" && collisions_type == "DSMC"){
+			else if(params.geometry == "1d3v" && collisions_type == "DSMC")
+			{
 				// Now, maximum number of species group is Three
 				MESSAGE("Parameters for collisions #" << n_collisions << " :");
 
@@ -368,9 +371,6 @@ public:
 				vector< vector<unsigned int> > species_group;
 				species_group.resize(0);
 
-
-
-
 		        // Each group of species sgroup1 and sgroup2 must not be empty
 		        if (sgroup1.size()==0) ERROR("No valid `species1` requested in collisions #" << n_collisions);
 				species_group.push_back(sgroup1);
@@ -393,15 +393,16 @@ public:
 				}
 
 		        vecCollisions.push_back( new Collisions1D_DSMC(params,vecSpecies,smpi,n_collisions,species_group) );
-
 			}
-			else if(params.geometry == "1d3v" && collisions_type == "Elastic"){
+
+			else if(params.geometry == "1d3v" && collisions_type == "Elastic")
+			{
 				// Add new Collisions objects to vector
 				//> Only one species group participate in the ionization collision, all the particles from
 				//> different species are the same
 		        vecCollisions.push_back( new Collisions1D_Elastic(params,vecSpecies,smpi,n_collisions,sgroup1,sgroup2,clog,intra,debug_every) );
-
 			}
+
 			else {
 				//ERROR("no collisions_type match: "<<collisions_type);
 			}

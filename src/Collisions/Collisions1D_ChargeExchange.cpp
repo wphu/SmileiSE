@@ -70,6 +70,7 @@ void Collisions1D_ChargeExchange::collide(PicParams& params, SmileiMPI* smpi, El
 
     double  sigma_cr, sigma_cr_max, v_square, v_magnitude, ke1, ke_primary, ke_secondary,
             ran, P_collision, ran_P;
+    double atomic_mass;
 
 
     sg1 = &species_group1;
@@ -82,6 +83,9 @@ void Collisions1D_ChargeExchange::collide(PicParams& params, SmileiMPI* smpi, El
     W1 = p1->weight(0);              W2 = p2->weight(0);
     bmin1 = s1->bmin;                bmin2 = s2->bmin;
     bmax1 = s1->bmax;                bmax2 = s2->bmax;
+
+    atomic_mass = s1->species_param.atomic_mass;
+
     // Loop on bins
     n1.resize(bmin1.size());
     density1.resize(bmin1.size());
@@ -138,7 +142,7 @@ void Collisions1D_ChargeExchange::collide(PicParams& params, SmileiMPI* smpi, El
                        ( p1->momentum(2,i1) - p2->momentum(2,i2) ) * ( p1->momentum(2,i1) - p2->momentum(2,i2) );
             v_magnitude = sqrt(v_square);
             //>kinetic energy of species1 (electrons)
-            ke1 = 0.5 * m1 * v_square;
+            ke1 = 0.5 * m1 * v_square / atomic_mass;
 
             sigma_cr = v_magnitude * interpCrossSection( ke1 / const_e );
             P_collision = sigma_cr / sigma_cr_max;
@@ -155,7 +159,6 @@ void Collisions1D_ChargeExchange::collide(PicParams& params, SmileiMPI* smpi, El
                 p1->momentum(0,i1) = temp[0];
                 p1->momentum(1,i1) = temp[1];
                 p1->momentum(2,i1) = temp[2];
-
 
                 temp[0] = p2->position(0, i2);
                 temp[1] = p2->position(1, i2);
@@ -194,12 +197,14 @@ double Collisions1D_ChargeExchange::maxCV(Species* s1, Species* s2){
     double v_square;
     double v_magnitude;
     double mass;
+    double atomic_mass;
     double ke;
     double maxCrossSectionV;
     double crossSectionV;
 
     maxCrossSectionV = 0.0;
     mass = s1->species_param.mass;
+    atomic_mass = s1->species_param.atomic_mass;
     npairs = (nPart1 < nPart2) ? nPart1 : nPart2;
     for(unsigned int iPart = 0; iPart < npairs; iPart++)
     {
@@ -207,7 +212,7 @@ double Collisions1D_ChargeExchange::maxCV(Species* s1, Species* s2){
                    ( p1->momentum(1,iPart) - p2->momentum(1,iPart) ) * ( p1->momentum(1,iPart) - p2->momentum(1,iPart) ) +
                    ( p1->momentum(2,iPart) - p2->momentum(2,iPart) ) * ( p1->momentum(2,iPart) - p2->momentum(2,iPart) );
         v_magnitude = sqrt(v_square);
-        ke = 0.5 * mass * v_square;
+        ke = 0.5 * mass * v_square / atomic_mass;
         crossSectionV = v_magnitude * interpCrossSection( ke / const_e);
         if(crossSectionV > maxCrossSectionV) {maxCrossSectionV = crossSectionV;};
     }

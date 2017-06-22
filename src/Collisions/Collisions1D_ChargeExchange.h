@@ -32,6 +32,45 @@ public:
     // get the maximum value of crossSection*velocity
     double maxCV(Species* s1, Species* s2);
 
+
+    // interplate cross section with energy (eV)
+    double interpCrossSection(double energy){
+        int low = 0;
+        int high = crossSection[0].size() - 1;
+        int mid = 0;
+
+        if(energy <= crossSection[0][low] )
+        {
+            return crossSection[1][low];
+        }
+        else if(energy >= crossSection[0][high])
+        {
+            low = high -1;
+            double dEnergy_inv = 1.0 / (crossSection[0][low] - crossSection[0][high]);
+            return crossSection[1][high] * (crossSection[0][low] - energy) * dEnergy_inv +
+                   crossSection[1][low] * (energy - crossSection[0][high]) * dEnergy_inv;
+        }
+
+        while(low <= high){
+            mid = (low + high) / 2;
+            if(crossSection[0][mid] < energy){
+                low = mid + 1;
+            }
+            else if(crossSection[0][mid] > energy){
+                high = mid - 1;
+            }
+            else {
+                return crossSection[1][mid];
+            }
+        }
+        // now low is 1 larger than high
+        double dEnergy_inv = 1.0 / (crossSection[0][low] - crossSection[0][high]);
+        return crossSection[1][high] * (crossSection[0][low] - energy) * dEnergy_inv +
+               crossSection[1][low] * (energy - crossSection[0][high]) * dEnergy_inv;
+    };
+
+
+
 private:
     //>the ionization threshold energy
     double energy_ion;
