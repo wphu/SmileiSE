@@ -54,6 +54,7 @@ public:
 			if(params.geometry == "1d3v" && collisions_type == "coulomb")
 			{
 				MESSAGE("Parameters for collisions #" << n_collisions << " :");
+				MESSAGE("Collision type :" << collisions_type);
 
 		        // Read the input file by searching for the keywords "species1" and "species2"
 		        // which are the names of the two species that will collide
@@ -115,6 +116,7 @@ public:
 
 			else if(params.geometry == "1d3v" && collisions_type == "ionization_simple")
 			{
+				MESSAGE("Collision type :" << collisions_type);
 				// Add new Collisions objects to vector
 				//> Three species participate in the ionization collision
 		        vecCollisions.push_back( new Collisions1D_Ionization_Simple(params,vecSpecies,smpi,n_collisions,sgroup1,sgroup2,sgroup3,clog,intra,debug_every) );
@@ -123,6 +125,7 @@ public:
 			else if(params.geometry == "1d3v" && collisions_type == "Ionization")
 			{
 				MESSAGE("Parameters for collisions #" << n_collisions << " :");
+				MESSAGE("Collision type :" << collisions_type);
 
 		        // Read the input file by searching for the keywords "species1" and "species2"
 		        // which are the names of the two species that will collide
@@ -169,6 +172,7 @@ public:
 			else if(params.geometry == "1d3v" && collisions_type == "Excitation")
 			{
 				MESSAGE("Parameters for collisions #" << n_collisions << " :");
+				MESSAGE("Collision type :" << collisions_type);
 
 				// Read the input file by searching for the keywords "species1" and "species2"
 				// which are the names of the two species that will collide
@@ -206,6 +210,7 @@ public:
 			else if(params.geometry == "1d3v" && collisions_type == "Recombination_TB")
 			{
 				MESSAGE("Parameters for collisions #" << n_collisions << " :");
+				MESSAGE("Collision type :" << collisions_type);
 
 		        // Read the input file by searching for the keywords "species1" and "species2"
 		        // which are the names of the two species that will collide
@@ -252,6 +257,7 @@ public:
 			else if(params.geometry == "1d3v" && collisions_type == "Recombination_Rad")
 			{
 				MESSAGE("Parameters for collisions #" << n_collisions << " :");
+				MESSAGE("Collision type :" << collisions_type);
 
 		        // Read the input file by searching for the keywords "species1" and "species2"
 		        // which are the names of the two species that will collide
@@ -298,6 +304,7 @@ public:
 			else if(params.geometry == "1d3v" && collisions_type == "ChargeExchange")
 			{
 				MESSAGE("Parameters for collisions #" << n_collisions << " :");
+				MESSAGE("Collision type :" << collisions_type);
 
 				// Read the input file by searching for the keywords "species1" and "species2"
 				// which are the names of the two species that will collide
@@ -338,6 +345,7 @@ public:
 			{
 				// Now, maximum number of species group is Three
 				MESSAGE("Parameters for collisions #" << n_collisions << " :");
+				MESSAGE("Collision type :" << collisions_type);
 
 		        // Read the input file by searching for the keywords "species1" and "species2"
 		        // which are the names of the two species that will collide
@@ -397,6 +405,7 @@ public:
 
 			else if(params.geometry == "1d3v" && collisions_type == "Elastic")
 			{
+				MESSAGE("Collision type :" << collisions_type);
 				// Add new Collisions objects to vector
 				//> Only one species group participate in the ionization collision, all the particles from
 				//> different species are the same
@@ -404,6 +413,7 @@ public:
 			}
 
 			else {
+				MESSAGE("Collision type :" << collisions_type);
 				//ERROR("no collisions_type match: "<<collisions_type);
 			}
 	    }

@@ -63,6 +63,7 @@ void Collisions1D_ChargeExchange::collide(PicParams& params, SmileiMPI* smpi, El
     int totNCollision = 0;
     vector<int> bmin1, bmax1, bmin2, bmax2, bmin3, bmax3;
     unsigned int npairs; // number of pairs of macro-particles
+    double npairs_double;
     unsigned int i1, i2;
     Species   *s1, *s2;
     Particles *p1, *p2;
@@ -112,7 +113,7 @@ void Collisions1D_ChargeExchange::collide(PicParams& params, SmileiMPI* smpi, El
 
         for(int iPart = 0; iPart < n1[ibin]; iPart++)
         {
-            index1[iPart] = iPart;
+            index1[iPart] = bmin1[ibin] + iPart;
         }
         random_shuffle(index1.begin(), index1.end());
 
@@ -121,7 +122,7 @@ void Collisions1D_ChargeExchange::collide(PicParams& params, SmileiMPI* smpi, El
 
         for(int iPart = 0; iPart < n2[ibin]; iPart++)
         {
-            index2[iPart] = iPart;
+            index2[iPart] = bmin2[ibin] + iPart;
         }
         random_shuffle(index2.begin(), index2.end());
 
@@ -131,7 +132,15 @@ void Collisions1D_ChargeExchange::collide(PicParams& params, SmileiMPI* smpi, El
         // ----------------------------------------------------
 
         sigma_cr_max = maxCV(s1, s2);
-        npairs = n1[ibin] * (1 - exp(-density2[ibin] * sigma_cr_max * timesteps_collision * timestep) );
+        npairs_double = n1[ibin] * (1 - exp(-density2[ibin] * sigma_cr_max * timesteps_collision * timestep * params.zoom_collision) );
+        npairs = npairs_double;
+        npairsRem[ibin] += ( npairs_double - npairs );
+        if(npairsRem[ibin] >= 1.0)
+        {
+            npairsRem[ibin] = npairsRem[ibin] - 1.0;
+            npairs++;
+        }
+
         for(int i = 0; i < npairs; i++)
         {
             i1 = index1[i];
