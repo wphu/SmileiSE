@@ -134,10 +134,20 @@ void Collisions1D_Excitation::collide(PicParams& params, SmileiMPI* smpi, Electr
             npairsRem[ibin] = npairsRem[ibin] - 1.0;
             npairs++;
         }
-        //if(npairs > index1.size() || npairs > index2.size()) {ERROR("npairs > index in collisions");}
 
-        //smpi->barrier();
-        //MESSAGE("nbins111"<<"  "<<ibin<<"  "<<n1[ibin]<<" "<<n2[ibin]);
+        if(npairs > n1[ibin])
+        {
+            cout<<"npairs is larger than the particle number in a cell!!!"<<endl;
+            cout<<"npairs, n1 are: "<<npairs<<" "<<n1[ibin]<<endl;
+            npairs = n1[ibin];
+        }
+        if(npairs > n2[ibin])
+        {
+            cout<<"npairs is larger than the particle number in a cell!!!"<<endl;
+            cout<<"npairs, n2 are: "<<npairs<<" "<<n2[ibin]<<endl;
+            npairs = n2[ibin];
+        }
+
         for(int i = 0; i < npairs; i++)
         {
             //MESSAGE("nparis111"<<"  "<<i);

@@ -141,6 +141,19 @@ void Collisions1D_ChargeExchange::collide(PicParams& params, SmileiMPI* smpi, El
             npairs++;
         }
 
+        if(npairs > n1[ibin])
+        {
+            cout<<"npairs is larger than the particle number in a cell!!!"<<endl;
+            cout<<"npairs, n1 are: "<<npairs<<" "<<n1[ibin]<<endl;
+            npairs = n1[ibin];
+        }
+        if(npairs > n2[ibin])
+        {
+            cout<<"npairs is larger than the particle number in a cell!!!"<<endl;
+            cout<<"npairs, n2 are: "<<npairs<<" "<<n2[ibin]<<endl;
+            npairs = n2[ibin];
+        }
+        
         for(int i = 0; i < npairs; i++)
         {
             i1 = index1[i];
