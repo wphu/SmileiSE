@@ -68,7 +68,7 @@ void Collisions1D_Ionization::collide(PicParams& params, SmileiMPI* smpi, Electr
     double m1, m2, m3, m12, W1, W2, W3;
 
     double  sigma_cr, sigma_cr_max, ke1, ke_primary, ke_secondary,
-            ran, P_collision, ran_P;
+            ran, P_collision;
     double  v_square, v_magnitude, v_magnitude_primary, v_magnitude_secondary;
 
 
@@ -189,7 +189,7 @@ void Collisions1D_Ionization::collide(PicParams& params, SmileiMPI* smpi, Electr
             // Generate a random number between 0 and 1
             double ran_p = (double)rand() / RAND_MAX;
 
-            if(ran_P < P_collision){
+            if(ran_p < P_collision){
                 count_of_particles_to_erase_s2[ibin]++;
                 //>calculate the scatter velocity of primary electron
                 momentum_unit[0] = p1->momentum(0,i1) / v_magnitude;
@@ -205,16 +205,31 @@ void Collisions1D_Ionization::collide(PicParams& params, SmileiMPI* smpi, Electr
                 //>calculate the scatter velocity of secondary electron
                 calculate_scatter_velocity(v_magnitude_secondary, m1, m2, momentum_unit, momentum_temp);
                 //>create new particle in the end of p1, we should sort_part when all bins are done!!!
-                //MESSAGE("momentum2"<<" "<<p1->momentum(0, i1)<<"  "<<p1->momentum(1, i1)<<"  "<<p1->momentum(2, i1));
                 p1->cp_particle(i1, new_particles1);
-                //MESSAGE("momentum1"<<" "<<new_particles1.momentum(0, idNew)<<"  "<<new_particles1.momentum(1, idNew));
 
                 idNew = new_particles1.size() - 1;
                 new_particles1.momentum(0, idNew) = momentum_temp[0];
                 new_particles1.momentum(1, idNew) = momentum_temp[1];
                 new_particles1.momentum(2, idNew) = momentum_temp[2];
                 count_of_particles_to_insert_s1[ibin]++;
-                //MESSAGE("momentum3"<<" "<<p1->momentum(0, idNew)<<"  "<<p1->momentum(1, idNew)<<"  "<<p1->momentum(2, idNew));
+
+
+                DEBUGEXEC(
+                    for(int idirection = 0; idirection < 3; idirection++)
+                    {
+                        if( isnan(p1->momentum(idirection,i1)) || isinf(p1->momentum(idirection,i1)) )
+                        {
+                            cout<<"Ionization Error1: Species: "<<s1->species_param.species_type<<" momentum "<<p1->momentum(idirection,i1)<<endl;
+                        }
+
+                        if( isnan(p1->momentum(idirection,idNew)) || isinf(p1->momentum(idirection,idNew)) )
+                        {
+                            cout<<"Ionization Error2: Species: "<<s1->species_param.species_type<<" momentum "<<p1->momentum(idirection,idNew)<<endl;
+                        }
+                    }
+                );
+
+
 
                 p2->cp_particle(i2, new_particles3);
                 //>create the ionized ion (species3)
@@ -242,12 +257,6 @@ void Collisions1D_Ionization::collide(PicParams& params, SmileiMPI* smpi, Electr
     s3->insert_particles_to_bins(new_particles3, count_of_particles_to_insert_s3);
     new_particles1.clear();
     new_particles3.clear();
-
-    //smpi->barrier();
-    ///MESSAGE("totCollison"<<" "<<totNCollision<<" "<<sigma_cr_max<<"  "<<n1[3] * (1 - exp(-density2[3] * sigma_cr_max * timestep)) );
-    //MESSAGE("s1 bmax"<<" "<<s1->bmax.back()-s1->bmin.back()<<" "<<p1->size());
-    //MESSAGE("s2 bmax"<<" "<<s2->bmax.back()-s2->bmin.back()<<" "<<s2->bmax[nbins-2]-s2->bmin[nbins-2]<<" "<<p2->size());
-    //MESSAGE("s3 bmax"<<" "<<s3->bmax.back()-s3->bmin.back()<<" "<<p3->size());
 
 }
 

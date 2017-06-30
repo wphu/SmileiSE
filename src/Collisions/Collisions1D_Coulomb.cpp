@@ -250,7 +250,7 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
                 g_magnitude = sqrt( g_square );
                 g_3 = g_square * g_magnitude;
                 g_p = sqrt( gy*gy + gz*gz );
-                if(g_p == 0.0)
+                if(g_p == 0.0 || g_3 == 0.0)
                 {
                     continue;
                 }
@@ -277,22 +277,22 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
                 p2->momentum(1,i2) += mr1 * ( gy * (1-cosX) + hy * sinX );
                 p2->momentum(2,i2) += mr1 * ( gz * (1-cosX) + hz * sinX );
 
-                /*
-                for(int idirection = 0; idirection < 3; idirection++)
-                {
-                    if( isnan(p1->momentum(idirection,i1)) || isinf(p1->momentum(idirection,i1)) )
+                DEBUGEXEC(
+                    for(int idirection = 0; idirection < 3; idirection++)
                     {
-                        cout<<"Species: "<<s1->species_param.species_type<<" momentum "<<p1->momentum(idirection,i1)<<endl;
-                        cout<<"info: "<<cosX<<" "<<g_p<<endl;
-                    }
+                        if( isnan(p1->momentum(idirection,i1)) || isinf(p1->momentum(idirection,i1)) )
+                        {
+                            cout<<"Species: "<<s1->species_param.species_type<<" momentum "<<p1->momentum(idirection,i1)<<endl;
+                            cout<<"info: "<<cosX<<" "<<g_p<<endl;
+                        }
 
-                    if( isnan(p2->momentum(idirection,i2)) || isinf(p2->momentum(idirection,i2)) )
-                    {
-                        cout<<"Species2: "<<s2->species_param.species_type<<" momentum "<<p2->momentum(idirection,i2)<<endl;
-                        cout<<"info: "<<cosX<<" "<<g_p<<endl;
+                        if( isnan(p2->momentum(idirection,i2)) || isinf(p2->momentum(idirection,i2)) )
+                        {
+                            cout<<"Species2: "<<s2->species_param.species_type<<" momentum "<<p2->momentum(idirection,i2)<<endl;
+                            cout<<"info: "<<cosX<<" "<<g_p<<endl;
+                        }
                     }
-                }
-                */
+                );
 
             } // end loop on pairs of particles
 

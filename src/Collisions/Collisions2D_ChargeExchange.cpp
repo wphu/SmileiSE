@@ -78,7 +78,7 @@ void Collisions2D_ChargeExchange::collide(PicParams& params, SmileiMPI* smpi, El
            newpx_COM, newpy_COM, newpz_COM, U, vcp;
 
    double  sigma_cr, sigma_cr_max, v_square, v_magnitude, ke1, ke_primary, ke_secondary,
-           ran, P_collision, ran_P, Pi;
+           ran, P_collision, Pi;
 
     Field2D *smean, *logLmean, *ncol;//, *temperature
     ostringstream name;
@@ -170,7 +170,7 @@ void Collisions2D_ChargeExchange::collide(PicParams& params, SmileiMPI* smpi, El
                 // Generate a random number between 0 and 1
                 double ran_p = (double)rand() / RAND_MAX;
 
-                if(ran_P < Pi){
+                if(ran_p < Pi){
                     W1              = p1->weight(i1);
                     p1->weight(i1)  = p2->weight(i2);
                     p2->weight(i2)  = W1;

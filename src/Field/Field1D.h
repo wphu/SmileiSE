@@ -48,7 +48,7 @@ public:
     //! Overloading of the () operator allowing to set a new value for the ith element of a Field1D
     inline double& operator () (unsigned int i)
     {
-        DEBUGEXEC(if (i>=dims_[0]) ERROR(name << "Out of limits & "<< i));
+        DEBUGEXEC(if (i>=dims_[0]) ERROR(name << " Out of limits & "<< i));
         DEBUGEXEC(if (!std::isfinite(data_[i])) ERROR(name << " not finite at i=" << i << " = " << data_[i]));
         //if (i>=dims_[0] || i < 0) {
         //    cout<<"Out of limits & "<<i<<endl;

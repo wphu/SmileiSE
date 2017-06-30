@@ -70,7 +70,7 @@ void Collisions1D_ChargeExchange::collide(PicParams& params, SmileiMPI* smpi, El
     double m1, m2, m12, W1, W2;
 
     double  sigma_cr, sigma_cr_max, v_square, v_magnitude, ke1, ke_primary, ke_secondary,
-            ran, P_collision, ran_P;
+            ran, P_collision;
     double atomic_mass;
 
 
@@ -153,7 +153,7 @@ void Collisions1D_ChargeExchange::collide(PicParams& params, SmileiMPI* smpi, El
             cout<<"npairs, n2 are: "<<npairs<<" "<<n2[ibin]<<endl;
             npairs = n2[ibin];
         }
-        
+
         for(int i = 0; i < npairs; i++)
         {
             i1 = index1[i];
@@ -171,7 +171,7 @@ void Collisions1D_ChargeExchange::collide(PicParams& params, SmileiMPI* smpi, El
             // Generate a random number between 0 and 1
             double ran_p = (double)rand() / RAND_MAX;
 
-            if(ran_P < P_collision){
+            if(ran_p < P_collision){
                 temp[0] = p2->momentum(0, i2);
                 temp[1] = p2->momentum(1, i2);
                 temp[2] = p2->momentum(2, i2);

@@ -66,7 +66,7 @@ void Collisions1D_Excitation::collide(PicParams& params, SmileiMPI* smpi, Electr
     double m1, m2, W1, W2;
 
     double  sigma_cr, sigma_cr_max, ke1, ke_primary, ke_secondary,
-            ran, P_collision, ran_P;
+            ran, P_collision;
     double  v_square, v_magnitude, v_magnitude_primary, v_magnitude_secondary;
 
 
@@ -121,8 +121,6 @@ void Collisions1D_Excitation::collide(PicParams& params, SmileiMPI* smpi, Electr
         }
         random_shuffle(index2.begin(), index2.end());
 
-        //smpi->barrier();
-        //MESSAGE("nbinsaaaa"<<"  "<<ibin<<"  "<<n1[ibin]<<" "<<n2[ibin]);
         // Now start the real loop
         // See equations in http://dx.doi.org/10.1063/1.4742167
         // ----------------------------------------------------
@@ -150,7 +148,6 @@ void Collisions1D_Excitation::collide(PicParams& params, SmileiMPI* smpi, Electr
 
         for(int i = 0; i < npairs; i++)
         {
-            //MESSAGE("nparis111"<<"  "<<i);
             i1 = index1[i];
             i2 = index2[i];
 
@@ -166,27 +163,36 @@ void Collisions1D_Excitation::collide(PicParams& params, SmileiMPI* smpi, Electr
 
             // Generate a random number between 0 and 1
             double ran_p = (double)rand() / RAND_MAX;
-            if(ran_P < P_collision){
+            if(ran_p < P_collision){
                 // Scatter the electrons
                 momentum_unit[0] = p1->momentum(0,i1) / v_magnitude;
                 momentum_unit[1] = p1->momentum(1,i1) / v_magnitude;
                 momentum_unit[2] = p1->momentum(2,i1) / v_magnitude;
                 calculate_scatter_velocity(v_magnitude_primary, m1, m2, momentum_unit, momentum_temp);
+
+                DEBUGEXEC(
+                    for(int idirection = 0; idirection < 3; idirection++)
+                    {
+                        if( isnan(momentum_temp[idirection]) || isinf(momentum_temp[idirection]) )
+                        {
+                            cout<<"Excitation Error: Species: "<<s1->species_param.species_type<<" old momentum "<<p1->momentum(idirection,i1)<<endl;
+                            cout<<"Excitation Error: Species: "<<s1->species_param.species_type<<" new momentum "<<momentum_temp[idirection]<<endl;
+                            cout<<"v_square: "<<v_square<<" ke_primary: "<<ke_primary<<" energy_excitation_threshold: "<<energy_excitation_threshold<<endl;
+                        }
+                    }
+                );
+
                 p1->momentum(0,i1) = momentum_temp[0];
                 p1->momentum(1,i1) = momentum_temp[1];
                 p1->momentum(2,i1) = momentum_temp[2];
 
                 totNCollision++;
             }
-            //MESSAGE("nparis222"<<"  "<<i);
         }
-        //smpi->barrier();
-        //MESSAGE("nbins222"<<"  "<<ibin);
+
 
     } // end loop on bins
-    //smpi->barrier();
-    //MESSAGE("aaaa"<<" "<<s1->bmax.back()<<" "<<p1->size());
-    // swap lost particles to the end for ionized neutrals
+
 
 }
 

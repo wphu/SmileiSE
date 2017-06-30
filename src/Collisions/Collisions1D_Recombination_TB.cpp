@@ -72,7 +72,7 @@ void Collisions1D_Recombination_TB::collide(PicParams& params, SmileiMPI* smpi, 
     double m1, m2, m3, m12, W1, W2, W3;
 
     double  sigma_cr, sigma_cr_max, ke11, ke12, ke11_primary, ke_secondary,
-            ran, P_collision, ran_P;
+            ran, P_collision;
     double  v11_square, v11_magnitude, v11_magnitude_primary, v12_square, v12_magnitude;
 
 
@@ -188,7 +188,7 @@ void Collisions1D_Recombination_TB::collide(PicParams& params, SmileiMPI* smpi, 
 
             // Generate a random number between 0 and 1
             double ran_p = (double)rand() / RAND_MAX;
-            if(ran_P < P_collision){
+            if(ran_p < P_collision){
                 // erase i12 electron and ion
                 count_of_particles_to_erase_s1[ibin]++;
                 indexes_of_particles_to_erase_s1.push_back(i12);
