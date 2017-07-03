@@ -97,7 +97,7 @@ void PusherBoris::operator() (Particles &particles, int ipart, LocalFields Epart
             {
                 cout<<"Pusher Error:  "<<dl<<endl;
                 cout<<"E   "<<Epart.x<<"  "<<Epart.y<<"  "<<Epart.z<<endl;
-                cout<<"Momentum: "<<particles.momentum(i, ipart)<<"  Momentum_old: "<<particles.momentum_old(i, ipart)<<endl;
+                cout<<"Momentum: "<<particles.momentum(i, ipart)<<endl;
             }
         );
     }
