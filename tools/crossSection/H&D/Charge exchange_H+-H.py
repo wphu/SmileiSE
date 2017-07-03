@@ -1,5 +1,6 @@
 # Ref:
-# !!!The unit of H+ energy is eV/amu
+# !!!The unit of H+ energy is eV/amu, about eV/amu:
+#http://www.virginia.edu/ep/Interactions/Constants_Units_&_Conversions.htm
 import numpy as np
 import math
 import matplotlib.pyplot as plt
