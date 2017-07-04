@@ -95,7 +95,6 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
             {
                 // try twice to ensure group 1 has more macro-particles
                 s1 = vecSpecies[(*sg1)[0]];         s2 = vecSpecies[(*sg2)[0]];
-                npart1 = 0; npart2 = 0;
                 npart1 = s1->bmax[ibin] - s1->bmin[ibin];
                 npart2 = s2->bmax[ibin] - s2->bmin[ibin];
                 bmin1 = s1->bmin[ibin];
@@ -283,13 +282,13 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
                         if( isnan(p1->momentum(idirection,i1)) || isinf(p1->momentum(idirection,i1)) )
                         {
                             cout<<"Species: "<<s1->species_param.species_type<<" momentum "<<p1->momentum(idirection,i1)<<endl;
-                            cout<<"info: "<<cosX<<" "<<g_p<<endl;
+                            cout<<"Coulomb Error info: "<<cosX<<" "<<g_p<<endl;
                         }
 
                         if( isnan(p2->momentum(idirection,i2)) || isinf(p2->momentum(idirection,i2)) )
                         {
                             cout<<"Species2: "<<s2->species_param.species_type<<" momentum "<<p2->momentum(idirection,i2)<<endl;
-                            cout<<"info: "<<cosX<<" "<<g_p<<endl;
+                            cout<<"Coulomb Error info: "<<cosX<<" "<<g_p<<endl;
                         }
                     }
                 );

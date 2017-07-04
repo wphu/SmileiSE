@@ -162,6 +162,118 @@ public:
                crossSection[1][low] * (energy - crossSection[0][high]) * dEnergy_inv;
     };
 
+    // Simple method: Calculate electron scattered velocity for electron-neutral collisions
+    //>the method is eqution (11) from the ref: a Monte Carlo collision model for the particle in cell method: applications to
+    //>argon and oxygen discharges.
+    //>and the code is transformed from C.F. Sang's fortran code
+    void calculate_scatter_velocity_simple(double v_magnitude, double mass1, double mass2,
+                                    vector<double>& momentum_unit, vector<double>& momentum_temp)
+    {
+        double up1, up2, up3;
+        double r11, r12, r13, r21, r22, r23, r31, r32, r33;
+        double mag;
+
+        double ra = (double)rand() / RAND_MAX;
+        double costheta = 1.0 - 2.0 * ra;
+        double sintheta = sqrt(1.0 - abs(costheta * costheta) );
+
+        ra = (double)rand() / RAND_MAX;
+        double pi = 3.1415926;
+        double phi = 2.0 * pi * ra;
+        double cosphi = cos(phi);
+        double sinphi = sin(phi);
+
+        double ve=v_magnitude*sqrt(1.0-2.0*mass1*(1.0-costheta)/mass2);
+
+        r13 = momentum_unit[0];
+        r23 = momentum_unit[1];
+        r33 = momentum_unit[2];
+        if(r33 == 1.0 ){
+            up1= 0.;
+            up2= 1.;
+            up3= 0.;
+        }
+        else{
+            up1= 0.;
+            up2= 0.;
+            up3= 1.;
+        }
+
+        r12 = r23 * up3 - r33 * up2;
+        r22 = r33 * up1 - r13 * up3;
+        r32 = r13 * up2 - r23 * up1;
+        mag = sqrt(r12 * r12 + r22 * r22 + r32 * r32);
+        r12 = r12 / mag;
+        r22 = r22 / mag;
+        r32 = r32 / mag;
+        r11 = r22 * r33 - r32 * r23;
+        r21 = r32 * r13 - r12 * r33;
+        r31 = r12 * r23 - r22 * r13;
+        momentum_temp[0] = ve * (r11 * sintheta * cosphi + r12 * sintheta * sinphi + r13 * costheta);
+        momentum_temp[1] = ve * (r21 * sintheta * cosphi + r22 * sintheta * sinphi + r23 * costheta);
+        momentum_temp[2] = ve * (r31 * sintheta * cosphi + r32 * sintheta * sinphi + r33 * costheta);
+    };
+
+
+    // Complex method: Calculate electron scattered velocity for electron-neutral collisions
+    void calculate_scatter_velocity(double ke, double v_magnitude, double mass1, double mass2,
+                                    vector<double>& momentum_unit, vector<double>& momentum_temp)
+    {
+        double up1, up2, up3;
+        double r11, r12, r13, r21, r22, r23, r31, r32, r33;
+        double mag;
+
+        double ra = (double)rand() / RAND_MAX;
+        double cosX = ( 2.0 + ke - 2.0 * pow(1.0+ke, ra) ) / ke;
+        double sinX = sqrt(1.0 - abs(cosX * cosX) );
+
+        ra = (double)rand() / RAND_MAX;
+        double pi = 3.1415926;
+        double phi = 2.0 * pi * ra;
+        double cosphi = cos(phi);
+        double sinphi = sin(phi);
+        double sinTheta_inv;
+
+        double ve=v_magnitude*sqrt(1.0-2.0*mass1*(1.0-cosX)/mass2);
+
+        r11 = momentum_unit[0];
+        r12 = momentum_unit[1];
+        r13 = momentum_unit[2];
+
+        if(r11 == 1.0)
+        {
+            up1= 0.;
+            up2= 1.;
+            up3= 0.;
+        }
+        else
+        {
+            up1= 1.;
+            up2= 0.;
+            up3= 0.;
+        }
+
+        double cosTheta = r11 * up1 + r12 * up2 + r13 * up3;
+        sinTheta_inv = 1.0 / sqrt(1.0 - cosTheta*cosTheta);
+
+        r21 = sinTheta_inv * ( r12 * up3 - r13 * up2 );
+        r22 = sinTheta_inv * ( r13 * up1 - r11 * up3 );
+        r23 = sinTheta_inv * ( r11 * up2 - r12 * up1 );
+
+
+        r31 = sinTheta_inv * ( r22 * r13 - r23 * r12 );
+        r32 = sinTheta_inv * ( r23 * r11 - r21 * r13 );
+        r33 = sinTheta_inv * ( r21 * r12 - r22 * r11 );
+
+
+        momentum_temp[0] = ve * (r11 * cosX + r21 * sinX * sinphi + r31 * sinX*cosphi);
+        momentum_temp[1] = ve * (r12 * cosX + r22 * sinX * sinphi + r32 * sinX*cosphi);
+        momentum_temp[2] = ve * (r13 * cosX + r23 * sinX * sinphi + r33 * sinX*cosphi);
+    };
+
+
+
+
 
     int totbins;
     int nbins;
