@@ -17,7 +17,6 @@ LIBS = $(LIB_SuperLU) $(LIB_Blas)
 
 
 
-
 CFLAGS += -D__VERSION=\"$(VERSION)\" -D__COMMITDATE=\""$(COMMITDATE)"\" -I${HDF5_ROOT_DIR}/include -std=c++0x
 LDFLAGS += -lm -L${HDF5_ROOT_DIR}/lib -lhdf5 -lz
 
@@ -69,7 +68,9 @@ DEPS := $(SRCS:.cpp=.d)
 
 
 CFLAGS+=$(shell $(PYTHONCONFIG) --includes)
-LDFLAGS+=$(shell $(PYTHONCONFIG) --ldflags)
+
+PATH_Python = $(shell $(PYTHONCONFIG) --prefix)
+LDFLAGS += -L${PATH_Python}/lib $(shell $(PYTHONCONFIG) --ldflags)
 
 
 ifeq ($(config),debug)
