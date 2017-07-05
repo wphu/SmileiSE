@@ -254,8 +254,8 @@ public:
             up3= 0.;
         }
 
-        double cosTheta = r11 * up1 + r12 * up2 + r13 * up3;
-        sinTheta_inv = 1.0 / sqrt(1.0 - cosTheta*cosTheta);
+        //double cosTheta = r11 * up1 + r12 * up2 + r13 * up3;
+        //sinTheta_inv = 1.0 / sqrt(1.0 - cosTheta*cosTheta);
 
         r21 = ( r12 * up3 - r13 * up2 );
         r22 = ( r13 * up1 - r11 * up3 );
