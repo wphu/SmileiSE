@@ -217,7 +217,7 @@ public:
 
     // Complex method: Calculate electron scattered velocity for electron-neutral collisions
     void calculate_scatter_velocity(double ke, double v_magnitude, double mass1, double mass2,
-                                    vector<double>& momentum_unit, vector<double>& momentum_temp)
+                                        vector<double>& momentum_unit, vector<double>& momentum_temp)
     {
         double up1, up2, up3;
         double r11, r12, r13, r21, r22, r23, r31, r32, r33;
@@ -257,19 +257,26 @@ public:
         double cosTheta = r11 * up1 + r12 * up2 + r13 * up3;
         sinTheta_inv = 1.0 / sqrt(1.0 - cosTheta*cosTheta);
 
-        r21 = sinTheta_inv * ( r12 * up3 - r13 * up2 );
-        r22 = sinTheta_inv * ( r13 * up1 - r11 * up3 );
-        r23 = sinTheta_inv * ( r11 * up2 - r12 * up1 );
+        r21 = ( r12 * up3 - r13 * up2 );
+        r22 = ( r13 * up1 - r11 * up3 );
+        r23 = ( r11 * up2 - r12 * up1 );
 
+        // the code below is not consistent with the ref, but this is right.
+        // and the ref may be wrong in somewhere???
+        mag = sqrt( r21*r21 + r22*r22 + r23*r23 );
+        r21 /= mag;
+        r22 /= mag;
+        r23 /= mag;
 
-        r31 = sinTheta_inv * ( r22 * r13 - r23 * r12 );
-        r32 = sinTheta_inv * ( r23 * r11 - r21 * r13 );
-        r33 = sinTheta_inv * ( r21 * r12 - r22 * r11 );
+        r31 = ( r22 * r13 - r23 * r12 );
+        r32 = ( r23 * r11 - r21 * r13 );
+        r33 = ( r21 * r12 - r22 * r11 );
 
 
         momentum_temp[0] = ve * (r11 * cosX + r21 * sinX * sinphi + r31 * sinX*cosphi);
         momentum_temp[1] = ve * (r12 * cosX + r22 * sinX * sinphi + r32 * sinX*cosphi);
         momentum_temp[2] = ve * (r13 * cosX + r23 * sinX * sinphi + r33 * sinX*cosphi);
+
     };
 
 
