@@ -240,7 +240,7 @@ public:
         r12 = momentum_unit[1];
         r13 = momentum_unit[2];
 
-        if(r11 == 1.0)
+        if(r11 == 1.0 || r11 == -1.0)
         {
             up1= 0.;
             up2= 1.;

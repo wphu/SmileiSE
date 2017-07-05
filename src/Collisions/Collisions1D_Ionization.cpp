@@ -240,15 +240,10 @@ void Collisions1D_Ionization::collide(PicParams& params, SmileiMPI* smpi, Electr
                 indexes_of_particles_to_erase_s2.push_back(i2);
                 totNCollision++;
             }
-            //MESSAGE("nparis222"<<"  "<<i);
         }
-        //smpi->barrier();
-        //MESSAGE("nbins222"<<"  "<<ibin);
 
     } // end loop on bins
-    //smpi->barrier();
-    //MESSAGE("aaaa"<<" "<<s1->bmax.back()<<" "<<p1->size());
-    // swap lost particles to the end for ionized neutrals
+
 
     s2->erase_particles_from_bins(indexes_of_particles_to_erase_s2);
     indexes_of_particles_to_erase_s2.clear();
