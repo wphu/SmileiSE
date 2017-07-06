@@ -268,30 +268,76 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
                 hz = -( gx * gz * cos(phi) - g_magnitude * gy * sin(phi) ) / g_p;
 
                 // Apply the deflection
-                p1->momentum(0,i1) -= mr2 * ( gx * (1-cosX) + hx * sinX );
-                p1->momentum(1,i1) -= mr2 * ( gy * (1-cosX) + hy * sinX );
-                p1->momentum(2,i1) -= mr2 * ( gz * (1-cosX) + hz * sinX );
 
-                p2->momentum(0,i2) += mr1 * ( gx * (1-cosX) + hx * sinX );
-                p2->momentum(1,i2) += mr1 * ( gy * (1-cosX) + hy * sinX );
-                p2->momentum(2,i2) += mr1 * ( gz * (1-cosX) + hz * sinX );
+                vector<double> momentum1;
+                vector<double> momentum2;
+                momentum1.resize(3);
+                momentum2.resize(3);
 
+                momentum1[0] = p1->momentum(0,i1) - mr2 * ( gx * (1-cosX) + hx * sinX );
+                momentum1[1] = p1->momentum(1,i1) - mr2 * ( gy * (1-cosX) + hy * sinX );
+                momentum1[2] = p1->momentum(2,i1) - mr2 * ( gz * (1-cosX) + hz * sinX );
+
+                momentum2[0] = p2->momentum(0,i2) + mr1 * ( gx * (1-cosX) + hx * sinX );
+                momentum2[1] = p2->momentum(1,i2) + mr1 * ( gy * (1-cosX) + hy * sinX );
+                momentum2[2] = p2->momentum(2,i2) + mr1 * ( gz * (1-cosX) + hz * sinX );
+
+                int error = 0;
+                for(int idirection = 0; idirection < 3; idirection++)
+                {
+                    if( isnan(momentum1[idirection]) || isinf(momentum1[idirection]) )
+                    {
+                        cout<<"Coulomb Error info: "<<s<<" "<<cosX<<" "<<sinX<<" "<<g_p<<" "<<g_3<<endl;
+                        cout<<"Species1: "<<s1->species_param.species_type<<" momentum old "<<p1->momentum(idirection,i1)<<endl;
+                        cout<<"momentum new = "<<momentum1[idirection]<<endl;
+                        error = 1;
+                    }
+
+                    if( isnan(momentum2[idirection]) || isinf(momentum2[idirection]) )
+                    {
+                        cout<<"Coulomb Error info: "<<s<<" "<<cosX<<" "<<sinX<<" "<<g_p<<" "<<g_3<<endl;
+                        cout<<"Species2: "<<s2->species_param.species_type<<" momentum old "<<p2->momentum(idirection,i2)<<endl;
+                        cout<<"momentum new = "<<momentum2[idirection]<<endl;
+                        error = 1;
+                    }
+                }
+                if(error == 1)
+                {
+                    continue;
+                }
+
+
+                /*
                 DEBUGEXEC(
                     for(int idirection = 0; idirection < 3; idirection++)
                     {
                         if( isnan(p1->momentum(idirection,i1)) || isinf(p1->momentum(idirection,i1)) )
                         {
-                            cout<<"Species: "<<s1->species_param.species_type<<" momentum "<<p1->momentum(idirection,i1)<<endl;
-                            cout<<"Coulomb Error info: "<<cosX<<" "<<g_p<<endl;
+                            cout<<"Coulomb Error info: "<<s<<" "<<cosX<<" "<<sinX<<" "<<g_p<<" "<<g_3<<endl;
+                            cout<<"Species1: "<<s1->species_param.species_type<<" momentum "<<p1->momentum(idirection,i1)<<endl;
+                            cout<<"momentum_old = "<<momentum1[idirection]<<endl;
                         }
 
                         if( isnan(p2->momentum(idirection,i2)) || isinf(p2->momentum(idirection,i2)) )
                         {
+                            cout<<"Coulomb Error info: "<<s<<" "<<cosX<<" "<<sinX<<" "<<g_p<<" "<<g_3<<endl;
                             cout<<"Species2: "<<s2->species_param.species_type<<" momentum "<<p2->momentum(idirection,i2)<<endl;
-                            cout<<"Coulomb Error info: "<<cosX<<" "<<g_p<<endl;
+                            cout<<"momentum_old = "<<momentum2[idirection]<<endl;
                         }
                     }
                 );
+                */
+
+
+                p1->momentum(0,i1) = momentum1[0];
+                p1->momentum(1,i1) = momentum1[1];
+                p1->momentum(2,i1) = momentum1[2];
+
+                p2->momentum(0,i2) = momentum2[0];
+                p2->momentum(1,i2) = momentum2[1];
+                p2->momentum(2,i2) = momentum2[2];
+
+
 
             } // end loop on pairs of particles
 
