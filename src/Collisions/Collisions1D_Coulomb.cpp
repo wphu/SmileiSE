@@ -260,10 +260,11 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
                 // ref: improved modeing of relativistic collisions and collisional ionization in paritcle in cell codes
                 cosX = cos_chi(s);
                 sinX = sqrt( 1. - cosX*cosX );
-                if( cosX*cosX > 1.0 || isnan(sinX) )
+                while( cosX*cosX > 1.0 || isnan(sinX) )
                 {
                     cout<<"Coulomb1D collision: cosX, sinX = "<<cosX<<" "<<sinX<<endl;
-                    continue;
+                    cosX = cos_chi(s);
+                    sinX = sqrt( 1. - cosX*cosX );
                 }
 
                 //!\todo make a faster rand by preallocating ??
