@@ -227,6 +227,13 @@ public:
         double cosX = ( 2.0 + ke - 2.0 * pow(1.0+ke, ra) ) / ke;
         //double cosX = 1.0 - 2.0 * ra;
         double sinX = sqrt(1.0 - abs(cosX * cosX) );
+        while( cosX*cosX > 1.0 || isnan(sinX) )
+        {
+            ra = (double)rand() / RAND_MAX;
+            cosX = ( 2.0 + ke - 2.0 * pow(1.0+ke, ra) ) / ke;
+            //cosX = 1.0 - 2.0 * ra;
+            sinX = sqrt(1.0 - abs(cosX * cosX) );
+        }
 
         ra = (double)rand() / RAND_MAX;
         double pi = 3.1415926;
