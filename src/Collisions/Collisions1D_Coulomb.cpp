@@ -260,6 +260,11 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
                 // ref: improved modeing of relativistic collisions and collisional ionization in paritcle in cell codes
                 cosX = cos_chi(s);
                 sinX = sqrt( 1. - cosX*cosX );
+                if( cosX*cosX > 1.0 || isnan(sinX) )
+                {
+                    cout<<"Coulomb1D collision: cosX, sinX = "<<cosX<<" "<<sinX<<endl;
+                    continue;
+                }
 
                 //!\todo make a faster rand by preallocating ??
                 phi = twoPi * ((double)rand() / RAND_MAX);
@@ -282,52 +287,31 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
                 momentum2[1] = p2->momentum(1,i2) + mr1 * ( gy * (1-cosX) + hy * sinX );
                 momentum2[2] = p2->momentum(2,i2) + mr1 * ( gz * (1-cosX) + hz * sinX );
 
-                int error = 0;
-                for(int idirection = 0; idirection < 3; idirection++)
-                {
-                    if( isnan(momentum1[idirection]) || isinf(momentum1[idirection]) )
-                    {
-                        cout<<"Coulomb Error info: "<<s<<" "<<cosX<<" "<<sinX<<" "<<g_p<<" "<<g_3<<endl;
-                        cout<<"Species1: "<<s1->species_param.species_type<<" momentum old "<<p1->momentum(idirection,i1)<<endl;
-                        cout<<"momentum new = "<<momentum1[idirection]<<endl;
-                        error = 1;
-                    }
-
-                    if( isnan(momentum2[idirection]) || isinf(momentum2[idirection]) )
-                    {
-                        cout<<"Coulomb Error info: "<<s<<" "<<cosX<<" "<<sinX<<" "<<g_p<<" "<<g_3<<endl;
-                        cout<<"Species2: "<<s2->species_param.species_type<<" momentum old "<<p2->momentum(idirection,i2)<<endl;
-                        cout<<"momentum new = "<<momentum2[idirection]<<endl;
-                        error = 1;
-                    }
-                }
-                if(error == 1)
-                {
-                    continue;
-                }
-
-
-                /*
                 DEBUGEXEC(
+                    int error = 0;
                     for(int idirection = 0; idirection < 3; idirection++)
                     {
-                        if( isnan(p1->momentum(idirection,i1)) || isinf(p1->momentum(idirection,i1)) )
+                        if( isnan(momentum1[idirection]) || isinf(momentum1[idirection]) )
                         {
                             cout<<"Coulomb Error info: "<<s<<" "<<cosX<<" "<<sinX<<" "<<g_p<<" "<<g_3<<endl;
-                            cout<<"Species1: "<<s1->species_param.species_type<<" momentum "<<p1->momentum(idirection,i1)<<endl;
-                            cout<<"momentum_old = "<<momentum1[idirection]<<endl;
+                            cout<<"Species1: "<<s1->species_param.species_type<<" momentum old "<<p1->momentum(idirection,i1)<<endl;
+                            cout<<"momentum new = "<<momentum1[idirection]<<endl;
+                            error = 1;
                         }
 
-                        if( isnan(p2->momentum(idirection,i2)) || isinf(p2->momentum(idirection,i2)) )
+                        if( isnan(momentum2[idirection]) || isinf(momentum2[idirection]) )
                         {
                             cout<<"Coulomb Error info: "<<s<<" "<<cosX<<" "<<sinX<<" "<<g_p<<" "<<g_3<<endl;
-                            cout<<"Species2: "<<s2->species_param.species_type<<" momentum "<<p2->momentum(idirection,i2)<<endl;
-                            cout<<"momentum_old = "<<momentum2[idirection]<<endl;
+                            cout<<"Species2: "<<s2->species_param.species_type<<" momentum old "<<p2->momentum(idirection,i2)<<endl;
+                            cout<<"momentum new = "<<momentum2[idirection]<<endl;
+                            error = 1;
                         }
                     }
+                    if(error == 1)
+                    {
+                        continue;
+                    }
                 );
-                */
-
 
                 p1->momentum(0,i1) = momentum1[0];
                 p1->momentum(1,i1) = momentum1[1];
