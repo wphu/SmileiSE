@@ -47,7 +47,7 @@ mpl.rcParams['mathtext.it'] = 'serif'
 #mpl.rcParams['pdf.fonttype'] = 3
 
 
-mpl.rcParams['font.size'] = 16
+mpl.rcParams['font.size'] = 17
 mpl.rcParams['axes.linewidth'] = 2.0
 #mpl.rcParams['font.weight'] = 'bold'
 
@@ -71,6 +71,10 @@ fig.subplots_adjust(top=0.9,bottom=0.1,wspace=0.5,hspace=0.55)
 
 t = 19
 
+label_fontsize = 20
+
+
+
 ##read data from file
 f=h5.File("data_global.h5")
 print f.keys()
@@ -88,8 +92,8 @@ dx = 0.5e-2  # unit (mm)
 x = np.linspace(0, nx * dx, nx)
 
 xmin = x.min()
-xmax = x.max() * 0.01/4
-x_sheath = 0.08
+xmax = x.max() * 0.01
+x_sheath = 0.15
 
 
 
@@ -102,7 +106,7 @@ val_1d = np.transpose(val[t, 0, 0, :])
 
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Electric potential $(V)$", color='#1f77b4')
 
-sp_temp1.set_ylabel("Electric potential $(V)$", color='#1f77b4')
+sp_temp1.set_ylabel(r"$\phi\ (V)$", color='#1f77b4', fontsize = label_fontsize)
 sp_temp1.tick_params('y', colors='#1f77b4')
 
 
@@ -116,7 +120,7 @@ val_1d = np.transpose(val[t, 0, 0, :])
 sp_temp2.yaxis.set_major_formatter(yformatter)
 cf_temp1=sp_temp2.plot(x, val_1d, label = "Electric field (x)", color='#ff7f0e')
 
-sp_temp2.set_ylabel("$E_x \ (V/m)$", color='#ff7f0e')
+sp_temp2.set_ylabel(r"$E_x \ (V/m)$", color='#ff7f0e', fontsize = label_fontsize)
 sp_temp2.tick_params('y', colors='#ff7f0e')
 
 #lines1, labels1 = sp_temp1.get_legend_handles_labels()
@@ -159,7 +163,7 @@ sp_temp1.set_xlim((xmin, xmax))
 sp_temp1.set_ylim((ymin, ymax))
 #sp_temp1.set_yticks(np.arange(0,y.max(),100))
 #sp_temp1.set_xlabel('x(mm)')
-sp_temp1.set_ylabel('Number density $(m^{-3})$')
+sp_temp1.set_ylabel(r"$n\ (m^{-3})$", fontsize = label_fontsize)
 
 sp_temp1.annotate('(b)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
@@ -179,7 +183,7 @@ cf_temp1=sp_temp1.plot(x, val_1d, label = r'$D^+ ion$')
 ymin = 0.0
 ymax = val_1d.max()
 # Plot a line
-sp_temp1.axvline(x = x_sheath, ymin = 0.0, ymax = 3.8, c="red",zorder=0, clip_on=False)
+sp_temp1.axvline(x = x_sheath, ymin = 0.0, ymax = 4.1, c="red",zorder=0, clip_on=False)
 
 
 sp_temp1.grid(True)
@@ -187,8 +191,8 @@ sp_temp1.legend(loc = 1)
 sp_temp1.set_xlim((xmin, xmax))
 sp_temp1.set_ylim((ymin, ymax))
 #sp_temp1.set_yticks(np.arange(0,y.max(),100))
-sp_temp1.set_xlabel('x $(mm)$')
-sp_temp1.set_ylabel('Temperature $(eV)$')
+sp_temp1.set_xlabel('x $(mm)$', fontsize = label_fontsize)
+sp_temp1.set_ylabel(r"$T\ (eV)$", fontsize = label_fontsize)
 
 sp_temp1.annotate('(c)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
 

@@ -71,6 +71,8 @@ fig.subplots_adjust(top=0.9,bottom=0.1,wspace=0.5,hspace=0.5)
 
 t = 19
 
+label_fontsize = 20
+
 
 ##read data from file
 f=h5.File("data_global.h5")
@@ -119,7 +121,7 @@ sp_temp1.set_xlim((xmin, xmax))
 sp_temp1.set_ylim((ymin))
 #sp_temp1.set_yticks(np.arange(0,y.max(),100))
 #sp_temp1.set_xlabel('x(mm)')
-sp_temp1.set_ylabel('Number density $(m^{-3})$')
+sp_temp1.set_ylabel(r"$n\ (m^{-3})$", fontsize = label_fontsize)
 
 sp_temp1.annotate('(a)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
@@ -150,8 +152,8 @@ sp_temp1.grid(True)
 sp_temp1.set_xlim((xmin, xmax))
 sp_temp1.set_ylim((ymin, ymax))
 #sp_temp1.set_yticks(np.arange(0,y.max(),100))
-sp_temp1.set_xlabel('x $(mm)$')
-sp_temp1.set_ylabel('Temperature $(eV)$')
+sp_temp1.set_xlabel(r"$x\ (mm)$")
+sp_temp1.set_ylabel(r"$T\ (eV)$", fontsize = label_fontsize)
 
 sp_temp1.annotate('(b)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
 

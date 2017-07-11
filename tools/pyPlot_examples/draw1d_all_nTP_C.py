@@ -71,6 +71,9 @@ fig.subplots_adjust(top=0.9,bottom=0.1,wspace=0.5,hspace=0.55)
 
 t = 19
 
+label_fontsize = 20
+
+
 
 ##read data from file
 f=h5.File("ref/data_global.h5")
@@ -114,17 +117,7 @@ print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
 
 ##============ Case1 ======================================================
 
-f=h5.File("InjectC0.5/data_global.h5")
-
-val = f["/Fields/Rho_global_e_avg"]
-val = val[...]
-val_1d = np.transpose(val[t, 0, 0, :])
-cf_temp1=sp_temp1.plot(x, val_1d, label = r'C flux = $0.5\times 10^{22} \ m^{-2}s^{-1}$')
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
-
-##============ Case2 ======================================================
-f=h5.File("InjectC1.0/data_global.h5")
+f=h5.File("IC1.0/data_global.h5")
 
 val = f["/Fields/Rho_global_e_avg"]
 val = val[...]
@@ -133,14 +126,24 @@ cf_temp1=sp_temp1.plot(x, val_1d, label = r'C flux = $1.0\times 10^{22} \ m^{-2}
 print "potential max: ", val_1d.max()
 print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
 
-
-##============ Case3 ======================================================
-f=h5.File("InjectC1.5/data_global.h5")
+##============ Case2 ======================================================
+f=h5.File("IC2.0/data_global.h5")
 
 val = f["/Fields/Rho_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
-cf_temp1=sp_temp1.plot(x, val_1d, label = r'C flux = $1.5\times 10^{22} \ m^{-2}s^{-1}$')
+cf_temp1=sp_temp1.plot(x, val_1d, label = r'C flux = $2.0\times 10^{22} \ m^{-2}s^{-1}$')
+print "potential max: ", val_1d.max()
+print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
+
+##============ Case3 ======================================================
+f=h5.File("IC3.0/data_global.h5")
+
+val = f["/Fields/Rho_global_e_avg"]
+val = val[...]
+val_1d = np.transpose(val[t, 0, 0, :])
+cf_temp1=sp_temp1.plot(x, val_1d, label = r'C flux = $3.0\times 10^{22} \ m^{-2}s^{-1}$')
 print "potential max: ", val_1d.max()
 print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
 
@@ -148,7 +151,7 @@ print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
 sp_temp1.grid(True)
 sp_temp1.legend(loc = 1, fontsize = 12, framealpha = 1.0)
 sp_temp1.set_xlim((xmin, xmax))
-sp_temp1.set_ylabel('$n_e \ (m^{-3})$')
+sp_temp1.set_ylabel(r"$n_e \ (m^{-3})$" , fontsize = label_fontsize)
 
 sp_temp1.annotate('(a)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
@@ -168,17 +171,7 @@ print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
 
 ##============ Case1 ======================================================
 
-f=h5.File("InjectC0.5/data_global.h5")
-
-val = f["/Fields/T_global_e_avg"]
-val = val[...]
-val_1d = np.transpose(val[t, 0, 0, :])
-cf_temp1=sp_temp1.plot(x, val_1d, label = r'$C flux = 0.5\times 10^{22}m^{-2}s^{-1}$')
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
-
-##============ Case2 ======================================================
-f=h5.File("InjectC1.0/data_global.h5")
+f=h5.File("IC1.0/data_global.h5")
 
 val = f["/Fields/T_global_e_avg"]
 val = val[...]
@@ -187,14 +180,24 @@ cf_temp1=sp_temp1.plot(x, val_1d, label = r'$C flux = 1.0\times 10^{22}m^{-2}s^{
 print "potential max: ", val_1d.max()
 print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
 
-
-##============ Case3 ======================================================
-f=h5.File("InjectC1.5/data_global.h5")
+##============ Case2 ======================================================
+f=h5.File("IC2.0/data_global.h5")
 
 val = f["/Fields/T_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
-cf_temp1=sp_temp1.plot(x, val_1d, label = r'$C flux = 1.5\times 10^{22}m^{-2}s^{-1}$')
+cf_temp1=sp_temp1.plot(x, val_1d, label = r'$C flux = 2.0\times 10^{22}m^{-2}s^{-1}$')
+print "potential max: ", val_1d.max()
+print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
+
+##============ Case3 ======================================================
+f=h5.File("IC3.0/data_global.h5")
+
+val = f["/Fields/T_global_e_avg"]
+val = val[...]
+val_1d = np.transpose(val[t, 0, 0, :])
+cf_temp1=sp_temp1.plot(x, val_1d, label = r'$C flux = 3.0\times 10^{22}m^{-2}s^{-1}$')
 print "potential max: ", val_1d.max()
 print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
 
@@ -202,7 +205,7 @@ print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
 sp_temp1.grid(True)
 #sp_temp1.legend(loc = 1)
 sp_temp1.set_xlim((xmin, xmax))
-sp_temp1.set_ylabel(r'$T_e \ (eV)$')
+sp_temp1.set_ylabel(r"$T_e \ (eV)$", fontsize = label_fontsize)
 
 sp_temp1.annotate('(b)', xy=get_axis_limits(sp_temp1, 0.0, 1.05), annotation_clip=False)
 
@@ -223,7 +226,7 @@ print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
 
 ##============ Case1 ======================================================
 
-f=h5.File("InjectC0.5/data_global.h5")
+f=h5.File("IC1.0/data_global.h5")
 
 val = f["/Fields/Phi_global_avg"]
 val = val[...]
@@ -233,7 +236,7 @@ print "potential max: ", val_1d.max()
 print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
 
 ##============ Case2 ======================================================
-f=h5.File("InjectC1.0/data_global.h5")
+f=h5.File("IC2.0/data_global.h5")
 
 val = f["/Fields/Phi_global_avg"]
 val = val[...]
@@ -244,7 +247,7 @@ print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
 
 
 ##============ Case3 ======================================================
-f=h5.File("InjectC1.5/data_global.h5")
+f=h5.File("IC3.0/data_global.h5")
 
 val = f["/Fields/Phi_global_avg"]
 val = val[...]
@@ -264,8 +267,8 @@ sp_temp1.set_xlim((xmin, xmax))
 #legend1=sp_temp1.legend(loc=(.6,.76),fontsize=16)
 #sp_temp1.axis([x.min(),x.max(),val_1d.min(),val_1d.max()])
 #sp_temp1.set_yticks(np.arange(0,y.max(),100))
-sp_temp1.set_xlabel('x $(mm)$')
-sp_temp1.set_ylabel('Electric potential $(V)$')
+sp_temp1.set_xlabel(r"$x\ (mm)$")
+sp_temp1.set_ylabel(r"$\phi\ (V)$", fontsize = label_fontsize)
 
 
 sp_temp1.annotate('(c)', xy=get_axis_limits(sp_temp1, 0.0, 1.11), annotation_clip=False)

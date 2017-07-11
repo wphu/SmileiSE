@@ -71,6 +71,8 @@ fig.subplots_adjust(top=0.9,bottom=0.1,wspace=0.5,hspace=0.55)
 
 t = 19
 
+label_fontsize = 20
+
 
 ##read data from file
 f=h5.File("ref/data_global.h5")
@@ -89,12 +91,13 @@ dx = 0.5e-2  # unit (mm)
 x = np.zeros(4)
 y1 = np.zeros(4)
 y2 = np.zeros(4)
+y3 = np.zeros(4)
 
 
 x[0] = 0.0
-x[1] = 0.5
-x[2] = 1.0
-x[3] = 1.5
+x[1] = 0.2
+x[2] = 0.4
+x[3] = 0.6
 
 #xmin = x.min()
 #xmax = x.max()
@@ -120,7 +123,7 @@ y2[0] = val2_1d[t]
 
 ##============ Case1 ======================================================
 
-f=h5.File("Recycling0.05/data_global.h5")
+f=h5.File("Re0.2/data_global.h5")
 
 val1 = f["/Diagnostic/heatFlux"]
 val1 = val1[...]
@@ -133,7 +136,7 @@ val2_1d = np.transpose(val2[:, 0, 1, 0])
 y2[1] = val2_1d[t]
 
 ##============ Case2 ======================================================
-f=h5.File("Recycling0.10/data_global.h5")
+f=h5.File("Re0.4/data_global.h5")
 
 val1 = f["/Diagnostic/heatFlux"]
 val1 = val1[...]
@@ -147,7 +150,7 @@ y2[2] = val2_1d[t]
 
 
 ##============ Case3 ======================================================
-f=h5.File("Recycling0.15/data_global.h5")
+f=h5.File("Re0.6/data_global.h5")
 
 val1 = f["/Diagnostic/heatFlux"]
 val1 = val1[...]
@@ -159,12 +162,13 @@ val2 = val2[...]
 val2_1d = np.transpose(val2[:, 0, 1, 0])
 y2[3] = val2_1d[t]
 
-
+y3 = y1 + y2
 
 
 sp_temp1.yaxis.set_major_formatter(yformatter)
 cf_temp1=sp_temp1.plot(x, y1, marker = '8', label = r'$Electron$')
 cf_temp2=sp_temp1.plot(x, y2, marker = '^', label = r'$D^+ \ ion$')
+cf_temp3=sp_temp1.plot(x, y3, marker = 's', label =  r'$Total$')
 
 
 
@@ -175,9 +179,10 @@ sp_temp1.legend(fontsize = 23, loc = 1)
 sp_temp1.xaxis.set_ticks(x)
 
 #sp_temp1.set_xlim((xmin, xmax))
-sp_temp1.set_ylim((ymin, ymax))
-sp_temp1.set_xlabel(r'Recycling coefficient')
-sp_temp1.set_ylabel(r'Heat flux $(Wm^{-2})$')
+#sp_temp1.set_ylim((ymin, ymax))
+sp_temp1.set_xlabel(r'Recycling coefficient', fontsize = label_fontsize)
+sp_temp1.set_ylabel(r'Heat flux $(Wm^{-2})$', fontsize = label_fontsize)
+
 
 
 

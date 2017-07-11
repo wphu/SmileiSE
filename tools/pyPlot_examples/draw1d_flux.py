@@ -73,7 +73,9 @@ fig=plt.figure(figsize=(10,8))
 fig.subplots_adjust(top=0.9,bottom=0.1,wspace=0.6,hspace=0.55)
 
 
-t = 14
+t = 19
+
+label_fontsize = 20
 dt = 1.0e-12 * 1000000 / 1.0e-6   # unit is us
 
 ##read data from file
@@ -118,7 +120,7 @@ ymax = 1.2 * max( val1_1d.max(), val2_1d.max() )
 
 sp_temp1.set_xlim((xmin, xmax))
 sp_temp1.set_ylim((ymin, ymax))
-sp_temp1.set_ylabel(r'Macro particle number')
+sp_temp1.set_ylabel(r"$N_M$", fontsize = label_fontsize)
 sp_temp1.yaxis.set_label_coords(ylabel_x, 0.5)
 
 #sp_temp1.ticklabel_format(style='sci')
@@ -135,6 +137,8 @@ val1_1d = np.transpose(val1[:, 0, 0, 0])
 val2 = f["/Diagnostic/particleFlux"]
 val2 = val2[...]
 val2_1d = np.transpose(val2[:, 0, 1, 0])
+pflux_D1 = val2_1d[t]
+print 'particle flux D1: ', val2_1d[t]
 
 
 sp_temp1=fig.add_subplot(3,1,2)
@@ -150,11 +154,11 @@ ymax = 1.2 * max( val1_1d.max(), val2_1d.max() )
 
 sp_temp1.set_xlim((xmin, xmax))
 sp_temp1.set_ylim((ymin, ymax))
-sp_temp1.set_ylabel(r'Particle flux $\mathit{(m^{-2}s^{-1})}$')
+sp_temp1.set_ylabel(r"$\Gamma\ (m^{-2}s^{-1})$", fontsize = label_fontsize)
 sp_temp1.yaxis.set_label_coords(ylabel_x, 0.5)
 
 sp_temp1.grid(True)
-sp_temp1.legend(loc = 1)
+#sp_temp1.legend(loc = 1)
 
 sp_temp1.annotate('(b)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
@@ -166,7 +170,8 @@ val1_1d = np.transpose(val1[:, 0, 0, 0])
 val2 = f["/Diagnostic/heatFlux"]
 val2 = val2[...]
 val2_1d = np.transpose(val2[:, 0, 1, 0])
-
+print 'total heat flux: ', val1_1d[t] + val2_1d[t]
+print 'ionization heat flux: ', pflux_D1 * 15.5 * 1.062e-19
 
 sp_temp1=fig.add_subplot(3,1,3)
 
@@ -181,11 +186,11 @@ ymax = 1.2 * max( val1_1d.max(), val2_1d.max() )
 
 sp_temp1.set_xlim((xmin, xmax))
 sp_temp1.set_ylim((ymin, ymax))
-sp_temp1.set_xlabel(r'time $(\mu s)$')
-sp_temp1.set_ylabel(r'Heat flux $(Wm^{-2})$')
+sp_temp1.set_xlabel(r"$t\ (\mu s)$", fontsize = label_fontsize)
+sp_temp1.set_ylabel(r"$q\ (Wm^{-2})$", fontsize = label_fontsize)
 sp_temp1.yaxis.set_label_coords(ylabel_x, 0.5)
 sp_temp1.grid(True)
-sp_temp1.legend(loc = 1)
+#sp_temp1.legend(loc = 1)
 
 sp_temp1.annotate('(c)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
 

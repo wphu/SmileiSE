@@ -71,6 +71,9 @@ fig.subplots_adjust(top=0.9,bottom=0.1,wspace=0.5,hspace=0.55)
 
 t = 19
 
+label_fontsize = 20
+
+
 
 ##read data from file
 f=h5.File("data_global.h5")
@@ -93,7 +96,7 @@ xmax = x.max()
 
 x1 = int(nx / 2)
 x2 = int(x1 - 0.1 * x1)
-x3=16
+x3=30
 
 # ion sound speed
 Va = - math.sqrt( 25.0 * 1.602e-19 / (2.0 * 1.67262158e-27) ) / 1.0e6
@@ -108,7 +111,7 @@ val_1d = np.transpose(val[t, 0, 0, :])
 
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Electric potential $(V)$", color='#1f77b4')
 
-sp_temp1.set_ylabel("Electric potential $(V)$", color='#1f77b4')
+sp_temp1.set_ylabel(r"$\phi\ (V)$", color='#1f77b4', fontsize = label_fontsize)
 sp_temp1.tick_params('y', colors='#1f77b4')
 
 print "potential max: ", val_1d.max()
@@ -123,7 +126,7 @@ val_1d = np.transpose(val[t, 0, 0, :])
 sp_temp2.yaxis.set_major_formatter(yformatter)
 cf_temp1=sp_temp2.plot(x, val_1d, label = "Electric field (x)", color='#ff7f0e')
 
-sp_temp2.set_ylabel("$E_x \ (V/m)$", color='#ff7f0e')
+sp_temp2.set_ylabel(r"$E_x \ (V/m)$", color='#ff7f0e', fontsize = label_fontsize)
 sp_temp2.tick_params('y', colors='#ff7f0e')
 
 #lines1, labels1 = sp_temp1.get_legend_handles_labels()
@@ -164,7 +167,7 @@ sp_temp1.legend(loc = 1)
 sp_temp1.set_xlim((xmin, xmax))
 #sp_temp1.set_yticks(np.arange(0,y.max(),100))
 #sp_temp1.set_xlabel('x(mm)')
-sp_temp1.set_ylabel('Number density $(m^{-3})$')
+sp_temp1.set_ylabel(r"$n\ (m^{-3})$", fontsize = label_fontsize)
 
 sp_temp1.annotate('(b)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
@@ -193,8 +196,8 @@ ymax = val_1d.max() * 1.2
 sp_temp1.set_xlim((xmin, xmax))
 sp_temp1.set_ylim((ymin, ymax))
 #sp_temp1.set_yticks(np.arange(0,y.max(),100))
-sp_temp1.set_xlabel('x $(mm)$')
-sp_temp1.set_ylabel('Temperature $(eV)$')
+sp_temp1.set_xlabel('x $(mm)$', fontsize = label_fontsize)
+sp_temp1.set_ylabel(r"$T\ (eV)$", fontsize = label_fontsize)
 
 sp_temp1.annotate('(c)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
