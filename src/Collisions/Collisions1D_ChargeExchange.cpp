@@ -106,6 +106,7 @@ void Collisions1D_ChargeExchange::collide(PicParams& params, SmileiMPI* smpi, El
         if( density2[ibin] > n2_max ) { n2_max = density2[ibin]; };
     }
 
+    sigma_cr_max = maxCV(s1, s2);
     for (unsigned int ibin=0 ; ibin<nbins ; ibin++) {
 
         //>calculate the particle number of species1 in each cell, and the indexs of particles in the cell
@@ -131,7 +132,7 @@ void Collisions1D_ChargeExchange::collide(PicParams& params, SmileiMPI* smpi, El
         // See equations in http://dx.doi.org/10.1063/1.4742167
         // ----------------------------------------------------
 
-        sigma_cr_max = maxCV(s1, s2);
+
         npairs_double = n1[ibin] * (1 - exp(-density2[ibin] * sigma_cr_max * timesteps_collision * timestep * params.zoom_collision) );
         npairs = npairs_double;
         npairsRem[ibin] += ( npairs_double - npairs );
@@ -183,14 +184,12 @@ void Collisions1D_ChargeExchange::collide(PicParams& params, SmileiMPI* smpi, El
                 p1->momentum(2,i1) = temp[2];
 
                 temp[0] = p2->position(0, i2);
-                temp[1] = p2->position(1, i2);
-                temp[2] = p2->position(2, i2);
                 p2->position(0, i2) = p1->position(0, i1);
-                p2->position(1, i2) = p1->position(1, i1);
-                p2->position(2, i2) = p1->position(2, i1);
                 p1->position(0,i1) = temp[0];
-                p1->position(1,i1) = temp[1];
-                p1->position(2,i1) = temp[2];
+
+                temp[0] = p2->position_old(0, i2);
+                p2->position_old(0, i2) = p1->position_old(0, i1);
+                p1->position_old(0,i1) = temp[0];
 
                 totNCollision++;
 
