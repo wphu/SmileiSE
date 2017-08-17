@@ -116,9 +116,9 @@ class HDFTreeItem(object):
         if isinstance(self.h5node, h5.Group):
             if len(self.children) > 0:
                 return self.children[row]
-            for name in self.h5node:
-                # __class__ allows this function to work for subclasses as well
-                self.children = [self.__class__(child, parent=self) for child in self.h5node.values()]
+            #for name in self.h5node:
+            # __class__ allows this function to work for subclasses as well
+            self.children = [self.__class__(child, parent=self) for child in self.h5node.values()]
             return self.children[row]
 
     def childNumber(self):
