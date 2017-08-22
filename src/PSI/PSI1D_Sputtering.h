@@ -5,7 +5,8 @@ Ref: Subroutines for some plasma surface interaction processes:
      hpysical sputtering, chemical erosion, radiation enhanced
      sublimation, backscattering and thermal evaporation.
 
-!!! 戴舒宇和桑超峰的程序输出结果不一样，此处是改自戴舒宇的程序，但桑超峰的程序是和文献给的程序一样
+!!! 戴舒宇和桑超峰的程序，靶板密度的单位不一样，桑超峰的是g/cm^3，戴书宇的应该是atoms/Ai^3 （Ai = 10^-10 m）
+!!! 此处是改自戴舒宇的程序，但桑超峰的程序是和文献给的程序一样
 ================================================================*/
 
 
