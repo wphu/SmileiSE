@@ -79,6 +79,7 @@ labels = [r'Ion: $D-D^+$',
 		  r'Exc: D 1s-8p',
 		  r'Exc: D 1s-9p',
 		  r'Exc: D 1s-10p',
+		  r'CX:  $D-D^+$',
 		 ]
 
 filenames = ['H&D/data/Ionization_D_to_D+1.dat',
@@ -91,20 +92,31 @@ filenames = ['H&D/data/Ionization_D_to_D+1.dat',
 			 'H&D/data/Excitation_H_1s-8p.dat',
 			 'H&D/data/Excitation_H_1s-9p.dat',
 			 'H&D/data/Excitation_H_1s-10p.dat',
+			 'H&D/data/Charge_exchange_H+-H.dat',
 			]
 
 n = len(filenames)
 for i in np.arange(0, n):
 	data1 = np.loadtxt(filenames[i])
-	ax1.plot(data1[:,0], data1[:,1], label = labels[i])
+	if(i == n-1):
+		data1[:,0] = data1[:,0] * 2.0
+		ax1_double = ax1.twinx()
+		ax1_double.plot(data1[:,0], data1[:,1], label = labels[i], color = 'blue')
+		ax1_double.set_ylabel(r'CX cross section', color = 'blue')
+	else:
+		ax1.plot(data1[:,0], data1[:,1], label = labels[i])
+
 
 ax1.set_xlim((0, 500))
 #ax1.set_ylabel(r'$T_e \ (eV)$')
 #ax1.set_ylabel("Cross Section $(m^2)$")
 
-ax1.legend(fontsize = 8)
+lines1, labels1 = ax1.get_legend_handles_labels()
+lines2, labels2 = ax1_double.get_legend_handles_labels()
+ax1_double.legend(lines1 + lines2, labels1 + labels2, fontsize = 8)
+#ax1.legend(fontsize = 8)
 ax1.grid(True)
-ax1.annotate('(a) Ionization and excitation of D', xy=get_axis_limits(ax1), annotation_clip=False)
+ax1.annotate('(a) Ion, Exc and CX of D', xy=get_axis_limits(ax1), annotation_clip=False)
 
 
 
