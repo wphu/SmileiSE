@@ -39,6 +39,8 @@ public:
     double loadTemperature;
     // load density per second [m-3 s-1]
     double loadDn;
+    // load heat flux density = loadDn * loadTemperature
+    double loadq;
     int loadStep;
     // Number of particles loaded in one cell at one loadStep
     int loadNumber;
@@ -56,6 +58,11 @@ public:
     double loadPos_Yend;
     int loadBin_Ystart;
     int loadBin_Yend;
+
+    // MPI rank of source middle region
+    int mpiRank_source_middle;
+    // index of field at source middle;
+    int index_source_middle;
 
 
 private:

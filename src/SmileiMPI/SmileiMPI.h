@@ -118,6 +118,14 @@ public:
         return max_local[i];
     }
 
+
+    inline void bcast_double(double* buffer, int N, int root_rank)
+    {
+        MPI_Bcast(buffer, N, MPI_DOUBLE, root_rank, SMILEI_COMM_WORLD);
+    }
+
+
+
     //! Temporary storage of particles Id to exchange, merge from per thread storage
     //! A single communication per direction managed by thread master in OpenMP
     //! @see Species::indexes_of_particles_to_exchange_per_thrd

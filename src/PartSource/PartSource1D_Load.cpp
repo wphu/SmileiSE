@@ -44,6 +44,7 @@ PartSource1D (params, smpi)
     loadPos_end     = load_Pos_end;
 
     YZArea = 1.0;
+    loadq = loadDn * loadTemperature;
 
     // load particles by number_density and Temperature
     if(loadKind == "nT") {
@@ -60,6 +61,31 @@ PartSource1D (params, smpi)
         loadRemTot = 0.0;
         MESSAGE("loadStep = "<<loadStep);
     }
+
+    else if(loadKind == "nq")
+    {
+        loadStep = 1.0 + loadNumber * params.species_param[species1].weight / (loadDn * params.timestep);
+        loadRem = loadDn * loadStep * params.timestep / params.species_param[species1].weight - loadNumber;
+        loadRemTot = 0.0;
+        MESSAGE("loadStep = "<<loadStep);
+
+        int mpiSize = smpi->getSize();
+        if(mpiSize % 2 == 0)
+        {
+            mpiRank_source_middle = mpiSize / 2;
+            index_source_middle = 3;
+        }
+        else
+        {
+            mpiRank_source_middle = mpiSize / 2;
+            index_source_middle = params.n_space[0] / 2;
+        }
+
+
+        // get the middle position of source region
+    }
+
+
 
     // the MPI domain is not in the source region
     if(smpi->getDomainLocalMax(0) <= loadPos_start || smpi->getDomainLocalMin(0) >= loadPos_end) {
@@ -143,6 +169,39 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
     double *temp=new double[3];
     double *vel=new double[3];
 
+    // Parameters for "nq"
+    static int halfTime = 0.5 * params.sim_time / params.timestep;
+    static int timeStep_checkFor_nq = 0;
+    double source_density;
+    double zoom_factor;
+
+    if(itime > halfTime && loadKind == "nq")
+    {
+        timeStep_checkFor_nq++;
+        if(timeStep_checkFor_nq == 2 * loadStep)
+        {
+            timeStep_checkFor_nq = 0;
+            Field1D* rho1D = static_cast<Field1D*>(fields->rho_s[species1]);
+            source_density = (*rho1D)(index_source_middle);
+            smpi->bcast_double(&source_density, 1, mpiRank_source_middle);
+            if(source_density < loadDensity)
+            {
+                zoom_factor = (loadDensity - source_density) / loadDensity;
+                loadDn *= (1.0 + zoom_factor);
+            }
+            else if(source_density > loadDensity)
+            {
+                zoom_factor = (source_density - loadDensity) / source_density;
+                loadDn *= (1.0 - zoom_factor);
+            }
+            loadTemperature = loadq / loadDn;
+
+            loadStep = 1.0 + loadNumber * params.species_param[species1].weight / (loadDn * params.timestep);
+        }
+    }
+
+
+
     if(loadKind == "nT" && loadBin_end != loadBin_start)
     {
         s1 = vecSpecies[species1];
@@ -213,7 +272,8 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
             s1->initCharge(nPart, species1, iPart, s1->species_param.charge);
         }
     }
-    else if(loadKind == "dn" && itime%loadStep == 0 && loadBin_end != loadBin_start) {
+    else if(loadKind == "dn" && itime%loadStep == 0 && loadBin_end != loadBin_start)
+    {
         s1 = vecSpecies[species1];
         p1 = &(s1->particles);
 
@@ -271,7 +331,65 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
             s1->initCharge(nPart, species1, iPart, s1->species_param.charge);
         }
     }
+    else if(loadKind == "nq" && itime%loadStep == 0 && loadBin_end != loadBin_start)
+    {
+        s1 = vecSpecies[species1];
+        p1 = &(s1->particles);
 
+        cell_length.resize(params.nDim_particle);
+        max_jutt_cumul.resize(0);
+        temp[0] = loadTemperature;
+        temp[1] = loadTemperature;
+        temp[2] = loadTemperature;
+        vel[0] = mean_velocity[0];
+        vel[1] = mean_velocity[1];
+        vel[2] = mean_velocity[2];
+
+        double loadNumber_temp;
+        loadRemTot += loadRem;
+        loadNumber_temp = loadNumber;
+        if(loadRemTot > 1.0)
+        {
+            loadNumber_temp = loadNumber + 1;
+            loadRemTot -= 1.0;
+        }
+
+        for(int ibin = 0; ibin < count_of_particles_to_insert.size(); ibin++ )
+        {
+            count_of_particles_to_insert[ibin] = 0;
+            if(ibin >= loadBin_start && ibin <= loadBin_end)
+            {
+
+                count_of_particles_to_insert[ibin] = loadNumber_temp;
+            }
+        }
+        //cout<<"number: "<<loadDensity * params.timestep / s1->species_param.weight<<endl;
+
+        new_particles.clear();
+        for(int ibin = loadBin_start; ibin <= loadBin_end; ibin++ )
+        {
+            new_particles.create_particles(count_of_particles_to_insert[ibin]);
+        }
+        s1->insert_particles_to_bins(new_particles, count_of_particles_to_insert);
+
+        // re-initialize paritcles in source region
+        for(int ibin=loadBin_start; ibin<=loadBin_end; ibin++)
+        {
+            iPart = s1->bmax[ibin] - count_of_particles_to_insert[ibin];
+            nPart = count_of_particles_to_insert[ibin];
+            cell_length[0] = params.cell_length[0];
+            indexes[0] = smpi->getDomainLocalMin(0) + ibin*params.cell_length[0];
+
+            s1->initPosition(nPart, iPart, indexes, params.nDim_particle,
+                         cell_length, s1->species_param.initPosition_type);
+
+            s1->initMomentum(nPart,iPart, temp, vel,
+                         s1->species_param.initMomentum_type, max_jutt_cumul, params);
+
+            s1->initWeight_constant(nPart, species1, iPart, s1->species_param.weight);
+            s1->initCharge(nPart, species1, iPart, s1->species_param.charge);
+        }
+    }
     delete [] indexes;
     delete [] temp;
     delete [] vel;

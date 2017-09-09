@@ -16,7 +16,7 @@ s = np.cos(2*2*np.pi*t) + 2
 plt.plot(t, s)
 
 plt.xlabel(r'x label (mm): ' r'$\mu=100\ \mu s, \sigma=15^{10}\ m^{-3}$', fontsize=16)
-plt.ylabel(r'Velocity $(m/s)$', fontsize=16)
+plt.ylabel(r'$2.0\times$ Velocity $(m/s)$', fontsize=16)
 #plt.title(r'\TeX\ is Number $\displaystyle\sum_{n=1}^\infty'
 #          r'\frac{-e^{i\pi}}{2^n}$!', fontsize=16, color='r')
 plt.title(r"$\phi\ (kT_e)$",fontsize=18,fontweight='bold')
