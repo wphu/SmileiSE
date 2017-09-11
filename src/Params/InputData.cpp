@@ -16,24 +16,24 @@ namelist(""),
 py_namelist(NULL)
 {
     Py_Initialize();
-    
+
     py_namelist = PyImport_AddModule("__main__");
-    
+
     // here we add the rank, in case some script need it
     PyModule_AddIntConstant(py_namelist, "smilei_mpi_rank", smpi->getRank());
-    
+
     // First, we tell python to filter the ctrl-C kill command (or it would prevent to kill the code execution).
     // This is done separately from other scripts because we don't want it in the concatenated python namelist.
     PyTools::checkPyError();
     string command = "import signal\nsignal.signal(signal.SIGINT, signal.SIG_DFL)";
     if( !PyRun_SimpleString(command.c_str()) ) PyTools::checkPyError();
-    
+
     // Running pyinit.py
     pyRunScript(string(reinterpret_cast<const char*>(Python_pyinit_py), Python_pyinit_py_len), "pyinit.py");
-    
+
     // Running pyfunctons.py
     pyRunScript(string(reinterpret_cast<const char*>(Python_pyprofiles_py), Python_pyprofiles_py_len), "pyprofiles.py");
-    
+
     // Running the namelists
     pyRunScript("############### BEGIN USER NAMELISTS ###############\n");
     for (vector<string>::iterator it=namelistsFiles.begin(); it!=namelistsFiles.end(); it++) {
@@ -54,13 +54,13 @@ py_namelist(NULL)
         smpi->bcast(strNamelist);
         pyRunScript(strNamelist,(*it));
     }
-    pyRunScript("################ END USER NAMELISTS ################\n");    
+    pyRunScript("################ END USER NAMELISTS ################\n");
     // Running pycontrol.py
     pyRunScript(string(reinterpret_cast<const char*>(Python_pycontrol_py), Python_pycontrol_py_len),"pycontrol.py");
-    
+
     PyTools::runPyFunction("_smilei_check");
-    
-    
+
+
     // Now the string "namelist" contains all the python files concatenated
     // It is written as a file: smilei.py
     if (smpi->isMaster()) {
@@ -127,7 +127,7 @@ vector<PyObject*> InputData::extract_pyVec(string name, string component, int nC
     PyObject* py_obj = extract_py(name,component,nComponent);
     if (py_obj) {
         if (!PyTuple_Check(py_obj) && !PyList_Check(py_obj)) {
-            retvec.push_back(py_obj);
+            //retvec.push_back(py_obj);
             WARNING(name << " should be a list or tuple, not a scalar : fix it");
         } else {
             PyObject* seq = PySequence_Fast(py_obj, "expected a sequence");
@@ -156,17 +156,17 @@ int InputData::nComponents(std::string componentName) {
 
 //! run the python functions cleanup (user defined) and _keep_python_running (in pycontrol.py)
 void InputData::cleanup() {
-    
-    // call cleanup function from the user namelist (it can be used to free some memory 
+
+    // call cleanup function from the user namelist (it can be used to free some memory
     // from the python side) while keeping the interpreter running
     MESSAGE(1,"Checking for cleanup() function:");
     PyTools::runPyFunction("cleanup");
     // this will reset error in python in case cleanup doesn't exists
     PyErr_Clear();
-    
+
     // this function is defined in the Python/pyontrol.py file and should return false if we can close
     // the python interpreter
-    MESSAGE(1,"Calling python _keep_python_running() :");    
+    MESSAGE(1,"Calling python _keep_python_running() :");
     if (PyTools::runPyFunction<bool>("_keep_python_running")) {
         MESSAGE(2,"Keeping Python interpreter alive");
     } else {
@@ -175,4 +175,3 @@ void InputData::cleanup() {
         Py_Finalize();
     }
 }
-

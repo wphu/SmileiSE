@@ -23,6 +23,9 @@ public:
     double          load_dn,
     double          load_density,
     double          load_temperature,
+    vector<int>     load_timeStep_vector,
+    vector<double>  load_temperature_vector,
+    vector<double>  load_dn_vector,
     double          load_Pos_start,
     double          load_Pos_end );
 
@@ -35,6 +38,9 @@ public:
 
 
     // =================Parameters for loading particles=================
+    vector<int> loadTimeStepVector;
+    vector<double> loadTemperatureVector;
+    vector<double> loadDnVector;
     double loadDensity;
     double loadTemperature;
     // load density per second [m-3 s-1]

@@ -159,6 +159,9 @@ class PartSource(SmileiComponent):
     loadDensity = 0.0
     loadTemperature = 0.0
     loadDn = 0.0
+    loadTimeStepVector = None
+    loadTemperatureVector = None
+    loadDnVector = None
     loadPos_start = 0.0
     loadPos_end = 0.0
     loadPos_Ystart = 0.0
