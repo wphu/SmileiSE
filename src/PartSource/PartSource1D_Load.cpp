@@ -163,6 +163,7 @@ PartSource1D (params, smpi)
     halfTime = 0.5 * params.sim_time / params.timestep;
     timeStep_checkFor_nq = 0;
     temperature_pre = loadTemperature;
+    source_density_pre = 0.0;
 
     // Parameters for "dn"
     nextTimeStep = 0;
@@ -194,7 +195,7 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
     double source_density;
     double zoom_factor;
 
-    if(itime > halfTime && loadKind == "nq")
+    if(loadKind == "nq")
     {
         timeStep_checkFor_nq++;
         if(timeStep_checkFor_nq == 2 * loadStep)
@@ -203,32 +204,34 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
             Field1D* rho1D = static_cast<Field1D*>(fields->rho_s[species1]);
             source_density = (*rho1D)(index_source_middle);
             smpi->bcast_double(&source_density, 1, mpiRank_source_middle);
-            if(source_density < loadDensity)
+            if(source_density < loadDensity && source_density < source_density_pre )
             {
                 zoom_factor = (loadDensity - source_density) / loadDensity;
                 loadDn *= (1.0 + zoom_factor);
             }
-            else if(source_density > loadDensity)
+            else if(source_density > loadDensity && source_density > source_density_pre)
             {
                 zoom_factor = (source_density - loadDensity) / source_density;
                 loadDn *= (1.0 - zoom_factor);
             }
             loadTemperature = loadq / loadDn;
+            source_density_pre = source_density;
+
+            loadStep = 1.0 + loadNumber * params.species_param[species1].weight / (loadDn * params.timestep);
+            loadRem = loadDn * loadStep * params.timestep / params.species_param[species1].weight - loadNumber;
+
             if(loadTemperature/temperature_pre > 2.0 || loadTemperature/temperature_pre < 0.5)
             {
                 cout<<"Temperature pre and now: "<<temperature_pre<<" "<<loadTemperature<<endl;
                 temperature_pre = loadTemperature;
             }
-
-            loadStep = 1.0 + loadNumber * params.species_param[species1].weight / (loadDn * params.timestep);
-            loadRem = loadDn * loadStep * params.timestep / params.species_param[species1].weight - loadNumber;
         }
     }
 
 
     if(loadTimeStepVector.size() > 1)
     {
-        if(itime == nextTimeStep == 0)
+        if(nextTimeStep == 0)
         {
             nextTimeStep = loadTimeStepVector[1];
         }
@@ -238,6 +241,7 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
             loadDn = loadDnVector[nextTimeStep_index];
             if(nextTimeStep_index < loadTimeStepVector.size())
             {
+                cout<<"PartSource1D_Load: nextTimeStep_index "<<nextTimeStep_index<<endl;
                 nextTimeStep_index++;
                 nextTimeStep = loadTimeStepVector[nextTimeStep_index];
             }

@@ -92,6 +92,12 @@ public:
     //! Method used to initialize the Particle charge
     void initCharge(unsigned int, unsigned int, unsigned int, double);
 
+    //! Method used to heat particles in a given cell
+    // Zoom particle velocity while keeping direction not changed
+    void heat(unsigned int, unsigned int, double, PicParams&);
+
+
+
     //! Maximum charge at initialization
     double max_charge;
 

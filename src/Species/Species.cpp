@@ -483,6 +483,39 @@ void Species::initMomentum(unsigned int nPart, unsigned int iPart, double *temp,
 }//END initMomentum
 
 
+// ---------------------------------------------------------------------------------------------------------------------
+// For all (np) particles in a mesh initialize their momentum
+//   - at zero (init_momentum_type = cold)
+//   - using random distribution (init_momentum_type = maxwell-juettner)
+// ---------------------------------------------------------------------------------------------------------------------
+void Species::heat(unsigned int nPart, unsigned int iPart, double temp, PicParams& params)
+{
+    double momentum_unit[3];
+    double momentum_magnitude;
+
+
+    for (unsigned int p= iPart; p<iPart+nPart; p++)
+    {
+        momentum_magnitude = sqrt( particles.momentum(0,p) * particles.momentum(0,p)
+                                 + particles.momentum(1,p) * particles.momentum(1,p)
+                                 + particles.momentum(2,p) * particles.momentum(2,p) );
+        momentum_unit[0] = particles.momentum(0,p) / momentum_magnitude;
+        momentum_unit[1] = particles.momentum(1,p) / momentum_magnitude;
+        momentum_unit[2] = particles.momentum(2,p) / momentum_magnitude;
+
+        momentum_magnitude += sqrt(3.0 * temp * params.const_e / species_param.mass);
+
+        particles.momentum(0,p) = momentum_unit[0] * momentum_magnitude;
+        particles.momentum(1,p) = momentum_unit[1] * momentum_magnitude;
+        particles.momentum(2,p) = momentum_unit[2] * momentum_magnitude;
+    }
+
+
+}//END heat
+
+
+
+
 
 // ---------------------------------------------------------------------------------------------------------------------
 // For all (np) particles in a mesh initialize their acceleration for implicit method

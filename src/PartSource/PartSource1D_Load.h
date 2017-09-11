@@ -89,6 +89,7 @@ private:
     int halfTime;
     int timeStep_checkFor_nq;
     double temperature_pre;
+    double source_density_pre;
 
     // Parameters for "dn"
     int nextTimeStep = 0;
