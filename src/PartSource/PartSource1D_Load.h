@@ -83,6 +83,21 @@ private:
     // emitting tempreature
 
 
+    // ========== Some variables for emitLoad method ===================
+
+    // Parameters for "nq"
+    int halfTime;
+    int timeStep_checkFor_nq;
+    double temperature_pre;
+
+    // Parameters for "dn"
+    int nextTimeStep = 0;
+    int nextTimeStep_index = 1;
+
+
+
+
+
 };
 
 

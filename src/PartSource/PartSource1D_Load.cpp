@@ -93,8 +93,6 @@ PartSource1D (params, smpi)
             mpiRank_source_middle = mpiSize / 2;
             index_source_middle = params.n_space[0] / 2;
         }
-
-
         // get the middle position of source region
     }
 
@@ -161,6 +159,16 @@ PartSource1D (params, smpi)
         cout<<"LoadPos start and end: "<<loadPos_start<<" "<<loadPos_end<<endl;
     }
 
+    // Parameters for "nq"
+    halfTime = 0.5 * params.sim_time / params.timestep;
+    timeStep_checkFor_nq = 0;
+    temperature_pre = loadTemperature;
+
+    // Parameters for "dn"
+    nextTimeStep = 0;
+    nextTimeStep_index = 1;
+
+
 }
 
 PartSource1D_Load::~PartSource1D_Load()
@@ -183,15 +191,8 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
     double *vel=new double[3];
 
     // Parameters for "nq"
-    static int halfTime = 0.5 * params.sim_time / params.timestep;
-    static int timeStep_checkFor_nq = 0;
     double source_density;
     double zoom_factor;
-    static double temperature_pre = loadTemperature;
-
-    // Parameters for "dn"
-    static int nextTimeStep = 0;
-    static int nextTimeStep_index = 1;
 
     if(itime > halfTime && loadKind == "nq")
     {
@@ -227,7 +228,7 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
 
     if(loadTimeStepVector.size() > 1)
     {
-        if(itime == 0)
+        if(itime == nextTimeStep == 0)
         {
             nextTimeStep = loadTimeStepVector[1];
         }
@@ -247,7 +248,6 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
 
             loadStep = 1.0 + loadNumber * params.species_param[species1].weight / (loadDn * params.timestep);
             loadRem = loadDn * loadStep * params.timestep / params.species_param[species1].weight - loadNumber;
-
         }
 
     }
