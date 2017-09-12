@@ -17,6 +17,7 @@ public:
     PicParams&      params,
     SmileiMPI*      smpi,
     unsigned int    load_species1,
+    vector<unsigned int>     load_species_dependent,
     vector<double>  mean_vel,
     string          load_kind,
     int             load_number,
@@ -43,6 +44,8 @@ public:
     vector<double> loadDnVector;
     double loadDensity;
     double loadTemperature;
+    double loadTemperature_init;
+    double loadTemperature_exceed;
     // load density per second [m-3 s-1]
     double loadDn;
     // load heat flux density = loadDn * loadTemperature
@@ -90,6 +93,7 @@ private:
     int timeStep_checkFor_nq;
     double temperature_pre;
     double source_density_pre;
+    double loadTemperature_upLimit_factor;
 
     // Parameters for "dn"
     int nextTimeStep = 0;

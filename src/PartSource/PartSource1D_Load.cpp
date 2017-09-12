@@ -18,6 +18,7 @@ PartSource1D_Load::PartSource1D_Load(
     PicParams&      params,
     SmileiMPI*      smpi,
     unsigned int    load_species1,
+    vector<unsigned int>     load_species_dependent,
     vector<double>  mean_vel,
     string          load_kind,
     int             load_number,
@@ -49,6 +50,7 @@ PartSource1D (params, smpi)
     loadTimeStepVector      = load_timeStep_vector;
     loadTemperatureVector   = load_temperature_vector;
     loadDnVector            = load_dn_vector;
+    species_group_dependent = load_species_dependent;
 
     YZArea = 1.0;
     loadq = loadDn * loadTemperature;
@@ -164,6 +166,9 @@ PartSource1D (params, smpi)
     timeStep_checkFor_nq = 0;
     temperature_pre = loadTemperature;
     source_density_pre = 0.0;
+    loadTemperature_init = loadTemperature;
+    loadTemperature_exceed = 0.0;
+    loadTemperature_upLimit_factor = 1.5;
 
     // Parameters for "dn"
     nextTimeStep = 0;
@@ -201,7 +206,7 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
         if(timeStep_checkFor_nq == 2 * loadStep)
         {
             timeStep_checkFor_nq = 0;
-            Field1D* rho1D = static_cast<Field1D*>(fields->rho_s[species1]);
+            Field1D* rho1D = static_cast<Field1D*>(fields->rho_s[ species_group_dependent[0] ]);
             source_density = (*rho1D)(index_source_middle);
             smpi->bcast_double(&source_density, 1, mpiRank_source_middle);
             if(source_density < loadDensity && source_density < source_density_pre )
@@ -214,8 +219,13 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
                 zoom_factor = (source_density - loadDensity) / source_density;
                 loadDn *= (1.0 - zoom_factor);
             }
-            loadTemperature = loadq / loadDn;
+            loadTemperature_exceed = loadq / loadDn;
             source_density_pre = source_density;
+            if(loadTemperature_exceed < loadTemperature_init * loadTemperature_upLimit_factor)
+            {
+                loadTemperature = loadTemperature_exceed;
+            }
+
 
             loadStep = 1.0 + loadNumber * params.species_param[species1].weight / (loadDn * params.timestep);
             loadRem = loadDn * loadStep * params.timestep / params.species_param[species1].weight - loadNumber;
@@ -239,7 +249,7 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
         {
             loadTemperature = loadTemperatureVector[nextTimeStep_index];
             loadDn = loadDnVector[nextTimeStep_index];
-            if(nextTimeStep_index < loadTimeStepVector.size())
+            if(nextTimeStep_index < loadTimeStepVector.size() -1 )
             {
                 cout<<"PartSource1D_Load: nextTimeStep_index "<<nextTimeStep_index<<endl;
                 nextTimeStep_index++;
@@ -386,6 +396,21 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
             s1->initWeight_constant(nPart, species1, iPart, s1->species_param.weight);
             s1->initCharge(nPart, species1, iPart, s1->species_param.charge);
         }
+
+        // heat paritcles in source region
+        if(loadTemperature < loadTemperature_exceed)
+        {
+            for(int ibin=loadBin_start; ibin<=loadBin_end; ibin++)
+            {
+                nPart = count_of_particles_to_insert[ibin];
+                double temperature_heat = (loadTemperature_exceed - loadTemperature) * loadNumber / nPart;
+                s1->heat(nPart,iPart, temperature_heat, params);
+
+            }
+        }
+
+
+
     }
     else if(loadKind == "nq" && itime%loadStep == 0 && loadBin_end != loadBin_start)
     {

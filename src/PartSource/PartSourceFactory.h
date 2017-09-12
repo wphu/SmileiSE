@@ -28,8 +28,8 @@ public:
 
 		string PartSource_type;
 		string emitKind;
-	    vector<string> sg1, sg2;
-	    vector<unsigned int> sgroup1, sgroup2;
+	    vector<string> sg1, sg2, sg_dependent;
+	    vector<unsigned int> sgroup1, sgroup2, sgroup_dependent;
 		vector<double> mean_velocity;
 	    string emitPos;
 		double emitTemp;
@@ -77,7 +77,6 @@ public:
 		        sgroup1 = params.FindSpecies(sg1);
 		        // Each group of species sgroup1 and sgroup2 must not be empty
 		        if (sgroup1.size()==0) ERROR("No valid `species1` requested in PSI #" << n_PartSource);
-
 
 				weight_const = vecSpecies[sgroup1[0]]->species_param.weight; // default
 
@@ -139,6 +138,12 @@ public:
 		        // Each group of species sgroup1 and sgroup2 must not be empty
 		        if (sgroup1.size()==0) ERROR("No valid `species1` requested in PSI #" << n_PartSource);
 
+				sgroup_dependent.resize(0);
+				if(ifile.extract("species_dependent",sg_dependent,"PartSource",n_PartSource))
+				{
+					sgroup_dependent = params.FindSpecies(sg_dependent);
+				}
+
 				ifile.extract("mean_velocity",mean_velocity,"PartSource",n_PartSource);
 
 		        ifile.extract("loadKind",loadKind,"PartSource",n_PartSource);
@@ -172,8 +177,8 @@ public:
 
 		        // Add new PSI objects to vector
 		        //vecPartSource.push_back( new PartSource1D_Load(params, smpi, sgroup1[0], loadDensity, loadTemperature, loadPos_start, loadPos_end) );
-				vecPartSource.push_back( new PartSource1D_Load(params, smpi, sgroup1[0], mean_velocity, loadKind, loadNumber, loadDn,loadDensity,
-				loadTemperature, loadTimeStepVector, loadTemperatureVector, loadDnVector, loadPos_start, loadPos_end) );
+				vecPartSource.push_back( new PartSource1D_Load(params, smpi, sgroup1[0], sgroup_dependent, mean_velocity, loadKind, loadNumber, loadDn,
+															   loadDensity, loadTemperature, loadTimeStepVector, loadTemperatureVector, loadDnVector, loadPos_start, loadPos_end) );
 
 			}
 

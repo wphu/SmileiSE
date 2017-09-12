@@ -30,6 +30,8 @@ public:
     virtual ~PartSource(){};
 
     unsigned int species1;
+    // dependent species group
+    vector<unsigned int> species_group_dependent;
     Particles new_particles;
     vector<int> count_of_particles_to_insert_s1;
 
