@@ -53,6 +53,7 @@ public:
 		vector<int> loadTimeStepVector;
 		vector<double> loadTemperatureVector;
 		vector<double> loadDnVector;
+		double loadTemperature_upLimit_factor;
 	    double loadPos_start;
 	    double loadPos_end;
 		double loadPos_Ystart;
@@ -162,6 +163,11 @@ public:
 
 				ifile.extract("loadTemperatureVector",loadTemperatureVector,"PartSource",n_PartSource);
 
+				loadTemperature_upLimit_factor = 2.1;
+				ifile.extract("loadTemperature_upLimit_factor",loadTemperature_upLimit_factor,"PartSource",n_PartSource);
+
+
+
 				ifile.extract("loadDnVector",loadDnVector,"PartSource",n_PartSource);
 
 				loadPos_start = 0.0; // default
@@ -178,7 +184,8 @@ public:
 		        // Add new PSI objects to vector
 		        //vecPartSource.push_back( new PartSource1D_Load(params, smpi, sgroup1[0], loadDensity, loadTemperature, loadPos_start, loadPos_end) );
 				vecPartSource.push_back( new PartSource1D_Load(params, smpi, sgroup1[0], sgroup_dependent, mean_velocity, loadKind, loadNumber, loadDn,
-															   loadDensity, loadTemperature, loadTimeStepVector, loadTemperatureVector, loadDnVector, loadPos_start, loadPos_end) );
+															   loadDensity, loadTemperature, loadTimeStepVector, loadTemperatureVector, loadTemperature_upLimit_factor,
+															   loadDnVector, loadPos_start, loadPos_end) );
 
 			}
 

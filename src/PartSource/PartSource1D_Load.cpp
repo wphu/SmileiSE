@@ -27,6 +27,7 @@ PartSource1D_Load::PartSource1D_Load(
     double          load_temperature,
     vector<int>     load_timeStep_vector,
     vector<double>  load_temperature_vector,
+    double          load_temperature_unLimit_factor,
     vector<double>  load_dn_vector,
     double          load_Pos_start,
     double          load_Pos_end
@@ -49,6 +50,7 @@ PartSource1D (params, smpi)
 
     loadTimeStepVector      = load_timeStep_vector;
     loadTemperatureVector   = load_temperature_vector;
+    loadTemperature_upLimit_factor = load_temperature_unLimit_factor;
     loadDnVector            = load_dn_vector;
     species_group_dependent = load_species_dependent;
 
@@ -162,7 +164,6 @@ PartSource1D (params, smpi)
     }
 
     // Parameters for "nq"
-    halfTime = 0.5 * params.sim_time / params.timestep;
     timeStep_checkFor_nq = 0;
     temperature_pre = loadTemperature;
     source_density_pre = 0.0;
@@ -211,12 +212,12 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
             smpi->bcast_double(&source_density, 1, mpiRank_source_middle);
             if(source_density < loadDensity && source_density < source_density_pre )
             {
-                zoom_factor = (loadDensity - source_density) / loadDensity;
+                zoom_factor = (1.0 - 0.8*itime/params.n_time) * 0.5 * (source_density_pre - source_density) / loadDensity;
                 loadDn *= (1.0 + zoom_factor);
             }
             else if(source_density > loadDensity && source_density > source_density_pre)
             {
-                zoom_factor = (source_density - loadDensity) / source_density;
+                zoom_factor = (1.0 - 0.8*itime/params.n_time) * 0.5 * (source_density - source_density_pre) / loadDensity;
                 loadDn *= (1.0 - zoom_factor);
             }
             loadTemperature_exceed = loadq / loadDn;
