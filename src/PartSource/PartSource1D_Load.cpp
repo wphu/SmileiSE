@@ -212,12 +212,12 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
             smpi->bcast_double(&source_density, 1, mpiRank_source_middle);
             if(source_density < loadDensity && source_density < source_density_pre )
             {
-                zoom_factor = (1.0 - 0.8*itime/params.n_time) * 0.5 * (source_density_pre - source_density) / loadDensity;
+                zoom_factor = (1.0 - 0.5*itime/params.n_time) * (source_density_pre - source_density) / loadDensity;
                 loadDn *= (1.0 + zoom_factor);
             }
             else if(source_density > loadDensity && source_density > source_density_pre)
             {
-                zoom_factor = (1.0 - 0.8*itime/params.n_time) * 0.5 * (source_density - source_density_pre) / loadDensity;
+                zoom_factor = (1.0 - 0.5*itime/params.n_time) * (source_density - source_density_pre) / loadDensity;
                 loadDn *= (1.0 - zoom_factor);
             }
             loadTemperature_exceed = loadq / loadDn;
