@@ -628,6 +628,10 @@ void SmileiMPI_Cart1D::gatherRho( Field* field_global ,Field* field  )
     f1D_global->data_[0] += f1D_global->data_[nx-1];
     f1D_global->data_[nx-1] = f1D_global->data_[0];
 
+    DEBUGEXEC(
+      
+    );
+
 } // END gatherRho
 
 
