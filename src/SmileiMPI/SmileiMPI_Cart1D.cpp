@@ -4,6 +4,7 @@
 #include <cstring>
 #include <algorithm>
 #include <string>
+#include <fstream>
 
 #include <mpi.h>
 #include "Species.h"
