@@ -42,7 +42,34 @@ public:
 
 
 private:
-    hid_t fileId;
+    int n_Species;
+    int n_collisionPairs;
+    unsigned int nbins;
+
+    // calculate for all bins
+    vector<int> iSpec1, iSpec2;
+    vector<bool> isIntra;
+    vector<double> mr1, mr2, m12, m1_inv, m2_inv, gamma1, gamma2;
+
+    vector<double> debye_length, log_coulomb;
+
+    // calculate for each bins
+    vector<int> n_indexes, isOdd;
+    vector< vector<int> > index;
+    vector<int> bmin;
+    vector<int> n_particle;
+    vector<int> n_particle_begin;
+    vector<double> density;
+    double density_all;
+    double density_all_inv;
+
+    double twoPi, e_ov_ephi0, time_coulomb;
+
+
+    void cal_collision_pairs(vector<Species*>& vecSpecies);
+    void cal_log_coulomb(ElectroMagn* fields);
+
+
 
 };
 

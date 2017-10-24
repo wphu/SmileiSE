@@ -61,16 +61,20 @@ public:
 		        sg1.resize(0);
 		        sg2.resize(0);
 		        ifile.extract("species1",sg1,"Collisions",n_collisions);
-		        ifile.extract("species2",sg2,"Collisions",n_collisions);
+		        //ifile.extract("species2",sg2,"Collisions",n_collisions);
 
 		        // Obtain the lists of species numbers from the lists of species names.
 		        sgroup1 = params.FindSpecies(sg1);
-		        sgroup2 = params.FindSpecies(sg2);
+		        //sgroup2 = params.FindSpecies(sg2);
 
 		        // Each group of species sgroup1 and sgroup2 must not be empty
-		        if (sgroup1.size()==0) ERROR("No valid `species1` requested in collisions #" << n_collisions);
-		        if (sgroup2.size()==0) ERROR("No valid `species2` requested in collisions #" << n_collisions);
+		        if (sgroup1.size()==0)
+						{
+							ERROR("No valid `species1` requested in collisions #" << n_collisions);
+						}
+		        //if (sgroup2.size()==0) ERROR("No valid `species2` requested in collisions #" << n_collisions);
 
+						/*
 		        // sgroup1 and sgroup2 can be equal, but cannot have common species if they are not equal
 		        if (sgroup1 != sgroup2) {
 		            for (unsigned int i1=0; i1<sgroup1.size(); i1++) {
@@ -85,6 +89,7 @@ public:
 		        } else {
 		            intra = true;
 		        }
+						*/
 
 		        // Coulomb logarithm (if negative or unset, then automatically computed)
 		        clog = 0.; // default

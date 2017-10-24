@@ -25,7 +25,6 @@ Collisions1D_Coulomb::Collisions1D_Coulomb(PicParams& params, vector<Species*>& 
                        int debug_every_temp)
 : Collisions1D(params)
 {
-
     n_collisions    = n_col;
     species_group1  = sg1;
     species_group2  = sg2;
@@ -34,16 +33,23 @@ Collisions1D_Coulomb::Collisions1D_Coulomb(PicParams& params, vector<Species*>& 
     debug_every     = debug_every_temp;
     start           = 0;
 
+    twoPi = 2.0 * const_pi;
+    e_ov_ephi0 = const_e / const_ephi0;
+    time_coulomb = params.timesteps_coulomb * params.timestep * params.zoom_collision;
+
+    n_Species        = sg1.size();
+    n_particle.resize(n_Species);
+    density.resize(n_Species);
+    n_particle_begin.resize(n_Species);
+    index.resize(n_Species);
+    bmin.resize(n_Species);
+
+    nbins = vecSpecies[0]->bmin.size();
+    debye_length.resize(nbins);
+    log_coulomb.resize(nbins);
 
 
-    // Calculate total number of bins
-    //int nbins = vecSpecies[0]->bmin.size();
-    //totbins = nbins;
-    //MPI_Allreduce( smpi->isMaster()?MPI_IN_PLACE:&totbins, &totbins, 1, MPI_INTEGER, MPI_SUM, MPI_COMM_WORLD);
-    //MPI_Reduce( smpi->isMaster()?MPI_IN_PLACE:&totbins, &totbins, 1, MPI_INTEGER, MPI_SUM, 0, MPI_COMM_WORLD);
-
-
-
+    cal_collision_pairs(vecSpecies);
 }
 
 Collisions1D_Coulomb::~Collisions1D_Coulomb()
@@ -52,8 +58,587 @@ Collisions1D_Coulomb::~Collisions1D_Coulomb()
 }
 
 
+void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, int itime)
+{
+    unsigned int i1, i2, iS1, iS2;
+    Species   *s1, *s2;
+    Particles *p1, *p2;
+    double gx, gy, gz, g_magnitude, g_square, g_3, g_p, hx, hy, hz, s, A12, cosX, sinX, phi;
+    double charge1, charge2, charge;
 
 
+    if( (itime % params.timesteps_coulomb) == 0 )
+    {
+        cal_log_coulomb(fields);
+
+        // Loop on bins
+        for (unsigned int ibin=0 ; ibin<nbins ; ibin++)
+        {
+            cout<<"bins "<<nbins<<"  "<<ibin<<endl;
+            // calculate n_particle[], density[], bmin[]
+            density_all = 0;
+            for(int i = 0; i < n_Species; i++)
+            {
+              cout<<"n_Species "<<n_Species<<" "<<i<<endl;
+              s1 = vecSpecies[ species_group1[i] ];
+              double weight = s1->species_param.weight;
+              n_particle[i] = s1->bmax[ibin] - s1->bmin[ibin];
+              density[i] = n_particle[i] *weight;
+              density_all += density[i];
+              bmin[i] = s1->bmin[ibin];
+              n_particle_begin[i] = 0;
+            }
+            if(density_all == 0.0)
+            {
+              continue;
+            }
+            density_all_inv = 1.0 / density_all;
+
+            cout<<"11111"<<endl;
+            // calculate index[][]
+            for(int i = 0; i < n_collisionPairs - n_Species; i ++)
+            {
+              iS1 = iSpec1[i];
+              iS2 = iSpec2[i];
+              n_indexes[i] = n_particle[iS1] * density[iS2] * density_all_inv;
+              n_particle_begin[iS1] += n_indexes[i];
+              n_particle_begin[iS2] += n_indexes[i];
+              isOdd[i] = false;
+            }
+            cout<<"22222"<<endl;
+            for(int i = n_collisionPairs - n_Species; i < n_collisionPairs; i ++)
+            {
+              cout<<"aaaa"<<"i" <<endl;
+              int i_index = i - (n_collisionPairs - n_Species);
+              iS1 = iSpec1[i];
+              n_indexes[i] = n_particle[iS1] - n_particle_begin[iS1];
+              if(n_indexes[i] % 2 == 0)
+              {
+                isOdd[i] = false;
+                n_indexes[i] /= 2;
+
+                index[i_index].resize( n_particle[iS1] );
+                for (unsigned int j = 0; j < n_particle[iS1]; j++)
+                {
+                  index[i_index][j] = j;
+                }
+                random_shuffle(index[i_index].begin(), index[i_index].end());
+              }
+              else
+              {
+                isOdd[i] = true;
+                n_indexes[i] = (n_indexes[i] + 1) / 2;
+
+                index[i_index].resize( n_particle[iS1] );
+                for (unsigned int j = 0; j < n_particle[iS1]; j++)
+                {
+                  index[i_index][j] = j;
+                }
+                random_shuffle(index[i_index].begin(), index[i_index].end());
+                index[i_index].push_back( n_particle[iS1] - 1 );
+              }
+            }
+
+            cout<<"3333"<<endl;
+            for(int i = 0; i < n_Species; i++)
+            {
+              n_particle_begin[i] = 0;
+            }
+
+            // loop on collisionPairs
+            for(int i = 0; i < n_collisionPairs; i++)
+            {
+              cout<<"n_collisionPairs "<<n_collisionPairs<<"  "<<i<<endl;
+              iS1 = iSpec1[i];
+              iS2 = iSpec2[i];
+              s1 = vecSpecies[ species_group1[iS1] ];               s2 = vecSpecies[ species_group1[iS2] ];
+              p1 = &(s1->particles);                                p2 = &(s2->particles);
+
+              A12 = gamma2[i] * density_all * log_coulomb[ibin];
+              //cout<<"coulomb: "<<itime<<endl;
+
+              // loop on collision pairs of particles
+              for (unsigned int j = 0; j < n_indexes[i]; j++)
+              {
+                  cout<<"n_indexes[i] "<<n_indexes[i]<<"  "<<j<<endl;
+                  if(isIntra[i])
+                  {
+                      i1 = index[iS1][j + n_particle_begin[iS1]] + bmin[iS1];
+                      i2 = index[iS1][j + n_particle_begin[iS2] + n_indexes[i]] + bmin[iS1];
+                  }
+                  else
+                  {
+                    i1 = index[iS1][j + n_particle_begin[iS1]] + bmin[iS1];
+                    i2 = index[iS2][j + n_particle_begin[iS2]] + bmin[iS2];
+                  }
+
+                  // Calculate stuff
+                  gx = p1->momentum(0,i1) - p2->momentum(0,i2);
+                  gy = p1->momentum(1,i1) - p2->momentum(1,i2);
+                  gz = p1->momentum(2,i1) - p2->momentum(2,i2);
+                  g_square = gx*gx + gy*gy + gz*gz;
+                  g_magnitude = sqrt( g_square );
+                  g_3 = g_square * g_magnitude;
+                  g_p = sqrt( gy*gy + gz*gz );
+                  if(g_p == 0.0 || g_3 == 0.0)
+                  {
+                      continue;
+                  }
+                  // the formula below the equation (101)
+                  s = A12 * time_coulomb / g_3;
+                  if(isOdd[j])
+                  {
+                    int n_temp = n_indexes[i] * 2 -1;
+                    s *= ( n_temp / (n_temp+1) );
+                  }
+
+                  // Pick the deflection angles according to Nanbu's theory
+                  // ref: improved modeing of relativistic collisions and collisional ionization in paritcle in cell codes
+                  cosX = cos_chi(s);
+                  if(cosX < -1.0)
+                  {
+                    cosX = -1.0;
+                    cout<<"cosX < -1.0"<<endl;
+                  }
+                  else if(cosX > 1.0)
+                  {
+                    cosX = 1.0;
+                    cout<<"cosX > 1.0"<<endl;
+                  }
+
+                  if(cosX*cosX > 1.0)
+                  {
+                    cout<<"cosX * cosX > 1.0"<<endl;
+                    continue;
+                  }
+                  sinX = sqrt( 1. - cosX*cosX );
+
+
+                  //!\todo make a faster rand by preallocating ??
+                  phi = twoPi * ((double)rand() / RAND_MAX);
+                  hx = g_p * cos(phi);
+                  hy = -( gx * gy * cos(phi) + g_magnitude * gz * sin(phi) ) / g_p;
+                  hz = -( gx * gz * cos(phi) - g_magnitude * gy * sin(phi) ) / g_p;
+
+                  // Apply the deflection
+
+                  double momentum1[3];
+                  double momentum2[3];
+
+                  momentum1[0] = p1->momentum(0,i1) - mr2[j] * ( gx * (1-cosX) + hx * sinX );
+                  momentum1[1] = p1->momentum(1,i1) - mr2[j] * ( gy * (1-cosX) + hy * sinX );
+                  momentum1[2] = p1->momentum(2,i1) - mr2[j] * ( gz * (1-cosX) + hz * sinX );
+
+                  momentum2[0] = p2->momentum(0,i2) + mr1[j] * ( gx * (1-cosX) + hx * sinX );
+                  momentum2[1] = p2->momentum(1,i2) + mr1[j] * ( gy * (1-cosX) + hy * sinX );
+                  momentum2[2] = p2->momentum(2,i2) + mr1[j] * ( gz * (1-cosX) + hz * sinX );
+
+                  p1->momentum(0,i1) = momentum1[0];
+                  p1->momentum(1,i1) = momentum1[1];
+                  p1->momentum(2,i1) = momentum1[2];
+
+                  p2->momentum(0,i2) = momentum2[0];
+                  p2->momentum(1,i2) = momentum2[1];
+                  p2->momentum(2,i2) = momentum2[2];
+
+              } // end loop on pairs of particles
+              n_particle_begin[iS1] += n_indexes[i];
+              n_particle_begin[iS2] += n_indexes[i];
+            }
+
+        } // end loop on bins
+    }
+
+}
+
+void Collisions1D_Coulomb::cal_collision_pairs(vector<Species*>& vecSpecies)
+{
+  int iS1, iS2;
+  Species *s1, *s2;
+  double m1, m2;
+  double charge1, charge2;
+  n_collisionPairs = n_Species + n_Species * (n_Species - 1) / 2;
+
+  n_indexes.resize(n_collisionPairs);
+  gamma1.resize(n_collisionPairs);
+  gamma2.resize(n_collisionPairs);
+  mr1.resize(n_collisionPairs);
+  mr2.resize(n_collisionPairs);
+  m12.resize(n_collisionPairs);
+  m1_inv.resize(n_collisionPairs);
+  m2_inv.resize(n_collisionPairs);
+  isOdd.resize(n_collisionPairs);
+
+
+  for(int i = 0; i < n_Species - 1; i++)
+  {
+    for(int j = i + 1; j < n_Species; j++)
+    {
+      iSpec1.push_back(i);
+      iSpec2.push_back(j);
+      isIntra.push_back(false);
+    }
+  }
+
+  for(int i = 0; i < n_Species; i++)
+  {
+    iSpec1.push_back(i);
+    iSpec2.push_back(i);
+    isIntra.push_back(true);
+  }
+
+  for(int i = 0; i < n_collisionPairs; i++)
+  {
+    int iS1 = iSpec1[i];
+    int iS2 = iSpec2[i];
+    s1 = vecSpecies[ species_group1[iS1] ];             s2 = vecSpecies[ species_group1[iS2] ];
+    m1 = s1->species_param.mass;                        m2 = s2->species_param.mass;
+    charge1 = s1->species_param.charge;                 charge2 = s2->species_param.charge;
+    m1_inv[i] = 1.0 / m1;
+    m2_inv[i] = 1.0 / m2;
+
+    // used in equation (104a) and (104b)
+    mr1[i] = m1 / (m1 + m2);
+    mr2[i] = m2 / (m1 + m2);
+    // the reduced mass
+    m12[i] = m1 * m2 / (m1 + m2);
+    // used in equation (96)
+    gamma1[i] = 4.0 * const_pi * const_ephi0 * m12[i] / abs(charge1 * charge2);
+    // used in equation (95)
+    gamma2[i] = 4.0 * const_pi / ( gamma1[i] * gamma1[i] );
+  }
+
+  cout<<"collisionPairs"<<n_collisionPairs<<" "<<isIntra.size()<<" "<<iSpec1.size()<<endl;
+
+
+}
+
+void Collisions1D_Coulomb::cal_log_coulomb(ElectroMagn* fields)
+{
+  double g12_square;
+  int iS1, iS2;
+  double T1, T2, Vx, Vy, Vz;
+
+  // calculate electron debye_length
+  iS1 = 0;
+  Field1D* T_electron = static_cast<Field1D*>(fields->T_s[ species_group1[iS1] ]);
+  Field1D* density_electron = static_cast<Field1D*>(fields->rho_s[ species_group1[iS1] ]);
+  for(int ibin = 0; ibin < nbins; ibin++)
+  {
+    if( (*density_electron)( ibin + oversize[0] ) == 0.0 )
+    {
+      continue;
+    }
+    debye_length[ibin] = sqrt(const_ephi0 * (*T_electron)( ibin + oversize[0] ) / ( (*density_electron)( ibin + oversize[0] ) * const_e));
+  }
+
+  for(int i = 0; i < n_collisionPairs; i++)
+  {
+    iS1 = iSpec1[i];
+    iS2 = iSpec2[i];
+    Field1D* T1_s = static_cast<Field1D*>(fields->T_s[ species_group1[iS1] ]);
+    Field1D* T2_s = static_cast<Field1D*>(fields->T_s[ species_group1[iS2] ]);
+
+    Field1D* Vx1_s = static_cast<Field1D*>(fields->Vx_s[ species_group1[iS1] ]);
+    Field1D* Vy1_s = static_cast<Field1D*>(fields->Vy_s[ species_group1[iS1] ]);
+    Field1D* Vz1_s = static_cast<Field1D*>(fields->Vz_s[ species_group1[iS1] ]);
+
+    Field1D* Vx2_s = static_cast<Field1D*>(fields->Vx_s[ species_group1[iS2] ]);
+    Field1D* Vy2_s = static_cast<Field1D*>(fields->Vy_s[ species_group1[iS2] ]);
+    Field1D* Vz2_s = static_cast<Field1D*>(fields->Vz_s[ species_group1[iS2] ]);
+
+    for(int ibin = 0; ibin < nbins; ibin++)
+    {
+      T1 = (*T1_s)(ibin + oversize[0]) * 3.0 * const_e * m1_inv[i];
+      T2 = (*T2_s)(ibin + oversize[0]) * 3.0 * const_e * m2_inv[i];
+      Vx = (*Vx1_s)(ibin + oversize[0]) - (*Vx2_s)(ibin + oversize[0]);
+      Vy = (*Vy1_s)(ibin + oversize[0]) - (*Vy2_s)(ibin + oversize[0]);
+      Vz = (*Vz1_s)(ibin + oversize[0]) - (*Vz2_s)(ibin + oversize[0]);
+      // the formula below equation (96)
+      g12_square = T1 + T2 + Vx*Vx + Vy*Vy + Vz*Vz;
+      log_coulomb[ibin] = log( gamma1[i] * g12_square * debye_length[ibin] );
+    }
+  }
+
+}
+
+
+
+/*
+
+void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, int itime)
+{
+
+    unsigned int nbins = vecSpecies[0]->bmin.size(); // number of bins
+    vector<unsigned int> *sg1, *sg2, index1, index2;
+    unsigned int bmin1, bmin2;
+    unsigned int nspec1, nspec2; // numbers of species in each group
+    unsigned int npart1, npart2; // numbers of macro-particles in each group
+    unsigned int npairs[3]; // number of pairs of macro-particles
+    double n1, n2, n; // densities of particles
+    unsigned int i1, i2, iSpec1[3], iSpec2[3], iS1, iS2;
+    Species   *s1, *s2;
+    Species   *s1_pre, *s2_pre;
+    Particles *p1, *p2;
+    double m1, m2, m12, mr1, mr2, W1, W2, gamma1, gamma2, gx, gy, gz, g_magnitude, g_square, g_3, g_p,
+           g12_square, hx, hy, hz, s, T1, T2, V1, V2, A12,
+           cosX, sinX, phi, twoPi, debye_length, debye_squared, time_coulomb;
+    double e_ov_ephi0;
+    double charge1, charge2, charge, Vx, Vy, Vz, ni, Ti, Vi;
+    bool isOdd[3], intra[3];
+    int n_particle_begin[2];
+    int n_collisionPairs;
+
+
+
+    if( (itime % params.timesteps_coulomb) == 0 )
+    {
+        //!!!=======species_group1 must contain one species like e, D1 and so on;
+        // as same for species_group2;
+        // species_group1 can be the same as species_group2
+        sg1 = &species_group1;
+        sg2 = &species_group2;
+
+        iSpec1[0] = (*sg1)[0]; iSpec1[1] = (*sg1)[0]; iSpec1[2] = (*sg2)[0];
+        iSpec2[0] = (*sg2)[0]; iSpec2[1] = (*sg1)[0]; iSpec2[2] = (*sg2)[0];
+
+        // =========Calculate some constants in the formulas used below============
+        twoPi = 2.0 * const_pi;
+        e_ov_ephi0 = const_e / const_ephi0;
+        time_coulomb = params.timesteps_coulomb * params.timestep * params.zoom_collision;
+
+        // Loop on bins
+        for (unsigned int ibin=0 ; ibin<nbins ; ibin++) {
+            s1_pre = vecSpecies[(*sg1)[0]];         s2_pre = vecSpecies[(*sg2)[0]];
+            W1 = s1_pre->species_param.weight;      W2 = s2_pre->species_param.weight;
+            npart1 = s1_pre->bmax[ibin] - s1_pre->bmin[ibin];
+            npart2 = s2_pre->bmax[ibin] - s2_pre->bmin[ibin];
+            bmin1 = s1_pre->bmin[ibin];
+            bmin2 = s2_pre->bmin[ibin];
+            n_particle_begin[0] = 0;
+            n_particle_begin[1] = 0;
+
+            n1 = npart1 * W1;
+            n2 = npart2 * W2;
+            n = n1 + n2;
+
+            if(npart1 + npart2 == 0)
+            {
+              continue;
+            }
+            npairs[0] = npart1 * npart2 / (npart1 + npart2);
+
+            npairs[1] = npart1 - npairs[0];
+            if(npairs[1] % 2 == 0)
+            {
+              npairs[1] /= 2;
+              isOdd[1] = false;
+            }
+            else
+            {
+              if(npairs[1] == 1)
+              {
+                npairs[1] = 0;
+              }
+              else
+              {
+                npairs[1] = (npairs[1] + 1) / 2;
+              }
+              isOdd[1] = true;
+
+            }
+
+            npairs[2] = npart2 - npairs[0];
+            if(npairs[2] % 2 == 0)
+            {
+              npairs[2] /= 2;
+              isOdd[2] = false;
+            }
+            else
+            {
+              if(npairs[2] == 1)
+              {
+                npairs[2] = 0;
+              }
+              else
+              {
+                npairs[2] = (npairs[2] + 1) / 2;
+              }
+              isOdd[2] = true;
+            }
+            isOdd[0] = false;
+
+            // Shuffle particles to have random pairs
+            //    (It does not really exchange them, it is just a temporary re-indexing)
+
+
+            index1.resize(npart1);
+            for (unsigned int i=0; i<npart1; i++)
+            {
+              index1[i] = i;
+            }
+            random_shuffle(index1.begin(), index1.end()); // shuffle the index array
+            if(isOdd[1])
+            {
+              unsigned int index_last = index1.size() - 1;
+              index1.push_back(index_last);
+            }
+
+
+            index2.resize(npart2);
+            for (unsigned int i=0; i<npart2; i++)
+            {
+              index2[i] = i;
+            }
+            random_shuffle(index2.begin(), index2.end());
+            if(isOdd[2])
+            {
+              unsigned int index_last = index2.size() - 1;
+              index2.push_back(index_last);
+            }
+
+            intra[0] = false;
+            intra[1] = true;
+            intra[2] = true;
+
+
+            n_collisionPairs = 3;
+            for(int n_cP = 0; n_cP < n_collisionPairs; n_cP++)
+            {
+              iS1 = iSpec1[n_cP];
+              iS2 = iSpec2[n_cP];
+              s1 = vecSpecies[iS1];            s2 = vecSpecies[iS2];
+              p1 = &(s1->particles);              p2 = &(s2->particles);
+              m1 = s1->species_param.mass;        m2 = s2->species_param.mass;
+              charge1 = s1->species_param.charge; charge2 = s2->species_param.charge;
+
+              // used in equation (104a) and (104b)
+              mr1 = m1 / (m1 + m2);
+              mr2 = m2 / (m1 + m2);
+              // the reduced mass
+              m12 = m1 * m2 / (m1 + m2);
+              // used in equation (96)
+              gamma1 = 4.0 * const_pi * const_ephi0 * m12 / abs(charge1 * charge2);
+              // used in equation (95)
+              gamma2 = 4.0 * const_pi / ( gamma1 * gamma1 );
+
+
+              A12 = gamma2 * n * 15.6;
+              //cout<<"coulomb: "<<itime<<endl;
+
+              // Now start the real loop on pairs of particles
+              // See equations in http://dx.doi.org/10.1063/1.4742167
+              // ----------------------------------------------------
+              for (unsigned int i=0; i<npairs[n_cP]; i++)
+              {
+                  if(intra[n_cP])
+                  {
+                    if(iS1 == 0)
+                    {
+
+                      i1 = index1[i + n_particle_begin[iS1]] + bmin1;
+                      i2 = index1[i + n_particle_begin[iS2] + npairs[n_cP]] + bmin1;
+                    }
+                    else if(iS1 == 1)
+                    {
+                      i1 = index2[i + n_particle_begin[iS1]] + bmin2;
+                      i2 = index2[i + n_particle_begin[iS2] + npairs[n_cP]] + bmin2;
+                    }
+
+                  }
+                  else
+                  {
+                    i1 = index1[i + n_particle_begin[iS1]] + bmin1;
+                    i2 = index2[i + n_particle_begin[iS2]] + bmin2;
+                  }
+
+
+                  // Calculate stuff
+                  gx = p1->momentum(0,i1) - p2->momentum(0,i2);
+                  gy = p1->momentum(1,i1) - p2->momentum(1,i2);
+                  gz = p1->momentum(2,i1) - p2->momentum(2,i2);
+                  g_square = gx*gx + gy*gy + gz*gz;
+                  g_magnitude = sqrt( g_square );
+                  g_3 = g_square * g_magnitude;
+                  g_p = sqrt( gy*gy + gz*gz );
+                  if(g_p == 0.0 || g_3 == 0.0)
+                  {
+                      continue;
+                  }
+                  // the formula below the equation (101)
+                  s = A12 * time_coulomb / g_3;
+                  if(isOdd[n_cP])
+                  {
+                    int n_temp = npairs[n_cP] * 2 -1;
+                    s *= ( n_temp / (n_temp+1) );
+                  }
+
+                  // Pick the deflection angles according to Nanbu's theory
+                  // ref: improved modeing of relativistic collisions and collisional ionization in paritcle in cell codes
+                  cosX = cos_chi(s);
+                  if(cosX < -1.0)
+                  {
+                    cosX = -1.0;
+                    cout<<"cosX < -1.0"<<endl;
+                  }
+                  else if(cosX > 1.0)
+                  {
+                    cosX = 1.0;
+                    cout<<"cosX > 1.0"<<endl;
+                  }
+
+                  if(cosX*cosX > 1.0)
+                  {
+                    cout<<"cosX * cosX > 1.0"<<endl;
+                    continue;
+                  }
+                  sinX = sqrt( 1. - cosX*cosX );
+
+
+                  //!\todo make a faster rand by preallocating ??
+                  phi = twoPi * ((double)rand() / RAND_MAX);
+                  hx = g_p * cos(phi);
+                  hy = -( gx * gy * cos(phi) + g_magnitude * gz * sin(phi) ) / g_p;
+                  hz = -( gx * gz * cos(phi) - g_magnitude * gy * sin(phi) ) / g_p;
+
+                  // Apply the deflection
+
+                  double momentum1[3];
+                  double momentum2[3];
+
+                  momentum1[0] = p1->momentum(0,i1) - mr2 * ( gx * (1-cosX) + hx * sinX );
+                  momentum1[1] = p1->momentum(1,i1) - mr2 * ( gy * (1-cosX) + hy * sinX );
+                  momentum1[2] = p1->momentum(2,i1) - mr2 * ( gz * (1-cosX) + hz * sinX );
+
+                  momentum2[0] = p2->momentum(0,i2) + mr1 * ( gx * (1-cosX) + hx * sinX );
+                  momentum2[1] = p2->momentum(1,i2) + mr1 * ( gy * (1-cosX) + hy * sinX );
+                  momentum2[2] = p2->momentum(2,i2) + mr1 * ( gz * (1-cosX) + hz * sinX );
+
+                  p1->momentum(0,i1) = momentum1[0];
+                  p1->momentum(1,i1) = momentum1[1];
+                  p1->momentum(2,i1) = momentum1[2];
+
+                  p2->momentum(0,i2) = momentum2[0];
+                  p2->momentum(1,i2) = momentum2[1];
+                  p2->momentum(2,i2) = momentum2[2];
+
+              } // end loop on pairs of particles
+              n_particle_begin[iS1] += npairs[n_cP];
+              n_particle_begin[iS2] += npairs[n_cP];
+
+              //cout<<n_collisionPairs<<"  "<<n_cP<<endl;
+            }
+            //cout<<nbins<<"  "<<ibin<<endl;
+
+        } // end loop on bins
+    }
+
+}
+
+*/
+
+
+/*
 // non-relativistic, same weight case: Nanbu theory
 // the code corresponds to the ref: Probability theory of electron-molecule ion-molecule molecule-molecule and
 // coulomb collisions for particle modeling of materials processing plasmas and gases
@@ -331,6 +916,8 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
 
 }
 
+*/
+
 
 
 
@@ -441,20 +1028,7 @@ void Collisions1D_Coulomb::collide_relativistic(PicParams& params, SmileiMPI* sm
     sg2 = &species_group2;
 
 
-    bool debug = (debug_every > 0 && itime % debug_every == 0); // debug only every N timesteps
 
-    if( debug ) {
-        // Create H5 group for the current timestep
-        name.str("");
-        name << "t" << setfill('0') << setw(8) << itime;
-        did = H5Gcreate(fileId, name.str().c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-        // Prepare storage arrays
-        vector<unsigned int> outsize(2); outsize[0]=nbins; outsize[1]=1;
-        smean       = new Field2D(outsize);
-        logLmean    = new Field2D(outsize);
-        //temperature = new Field2D(outsize);
-        ncol        = new Field2D(outsize);
-    }
 
     // Loop on bins
     for (unsigned int ibin=0 ; ibin<nbins ; ibin++) {
@@ -557,12 +1131,7 @@ void Collisions1D_Coulomb::collide_relativistic(PicParams& params, SmileiMPI* sm
         coeff4 = pow( 4.0*const_pi/3.0 , 1./3. ) * coeff3;
         coeff5 = 1.0 / (4.0 * const_pi * const_ephi0 * pow(const_c,4));     //paraters in equation (17)
 
-        if( debug ) {
-            smean      ->data_2D[ibin][0] = 0.;
-            logLmean   ->data_2D[ibin][0] = 0.;
-            //temperature->data_2D[ibin][0] = 0.;
-            ncol       ->data_2D[ibin][0] = (double)npairs;
-        }
+
 
 
         // Now start the real loop on pairs of particles
@@ -697,43 +1266,13 @@ void Collisions1D_Coulomb::collide_relativistic(PicParams& params, SmileiMPI* sm
                 p2->momentum(2,i2) = -m12 * newpz_COM + COM_vz * term6;
             }
 
-            if( debug ) {
-                smean      ->data_2D[ibin][0] += s;
-                logLmean   ->data_2D[ibin][0] += logL;
-                //temperature->data_2D[ibin][0] += m1 * (sqrt(1.+pow(p1->momentum(0,i1),2)+pow(p1->momentum(1,i1),2)+pow(p1->momentum(2,i1),2))-1.);
-            }
+
 
         } // end loop on pairs of particles
 
-        if( debug && ncol->data_2D[ibin][0]>0.) {
-            smean      ->data_2D[ibin][0] /= ncol->data_2D[ibin][0];
-            logLmean   ->data_2D[ibin][0] /= ncol->data_2D[ibin][0];
-            //temperature->data_2D[ibin][0] /= ncol->data_2D[ibin][0];
-        }
 
     } // end loop on bins
 
-    if( debug ) {
-        name.str("");
-        name << "/t" << setfill('0') << setw(8) << itime << "/s";
-        H5::matrix_MPI(did, name.str(), smean      ->data_2D[0][0], (int)totbins, 1, (int)start, (int)nbins);
-        name.str("");
-        name << "/t" << setfill('0') << setw(8) << itime << "/coulomb_log";
-        H5::matrix_MPI(did, name.str(), logLmean   ->data_2D[0][0], (int)totbins, 1, (int)start, (int)nbins);
-        //name.str("");
-        //name << "/t" << setfill('0') << setw(8) << itime << "/temperature";
-        //H5::matrix_MPI(did, name.str(), temperature->data_2D[0][0], (int)totbins, 1, (int)start, (int)nbins);
-        if(debye_length_squared.size()>0) {
-            // We reuse the smean array for the debye length
-            for(unsigned int i=0; i<nbins; i++)
-                smean->data_2D[i][0] = sqrt(debye_length_squared[i]) * params.wavelength_SI/(2.*M_PI);
-            name.str("");
-            name << "/t" << setfill('0') << setw(8) << itime << "/debyelength";
-            H5::matrix_MPI(did, name.str(), smean->data_2D[0][0], (int)totbins, 1, (int)start, (int)nbins);
-        }
-        // Close the group
-        H5Gclose(did);
-    }
 
 }
 
@@ -752,7 +1291,11 @@ inline double Collisions1D_Coulomb::cos_chi(double s)
     double U = (double)rand() / RAND_MAX;
 
     if( s < 0.1 ) {
-        if ( U<0.0001 ) U=0.0001; // ensures cos_chi > 0
+        //if ( U<0.0001 ) U=0.0001; // ensures cos_chi > 0
+        while(U == 0 || 1. + s*log(U) <= 0.0)
+        {
+          U = (double)rand() / RAND_MAX;
+        }
         return 1. + s*log(U);
     }
     if( s < 3.  ) {
