@@ -74,12 +74,12 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
         // Loop on bins
         for (unsigned int ibin=0 ; ibin<nbins ; ibin++)
         {
-            cout<<"bins "<<nbins<<"  "<<ibin<<endl;
+            //cout<<"bins "<<nbins<<"  "<<ibin<<endl;
             // calculate n_particle[], density[], bmin[]
             density_all = 0;
             for(int i = 0; i < n_Species; i++)
             {
-              cout<<"n_Species "<<n_Species<<" "<<i<<endl;
+              //cout<<"n_Species "<<n_Species<<" "<<i<<endl;
               s1 = vecSpecies[ species_group1[i] ];
               double weight = s1->species_param.weight;
               n_particle[i] = s1->bmax[ibin] - s1->bmin[ibin];
@@ -94,7 +94,7 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
             }
             density_all_inv = 1.0 / density_all;
 
-            cout<<"11111"<<endl;
+            //cout<<"11111"<<endl;
             // calculate index[][]
             for(int i = 0; i < n_collisionPairs - n_Species; i ++)
             {
@@ -105,10 +105,10 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
               n_particle_begin[iS2] += n_indexes[i];
               isOdd[i] = false;
             }
-            cout<<"22222"<<endl;
+            //cout<<"22222"<<endl;
             for(int i = n_collisionPairs - n_Species; i < n_collisionPairs; i ++)
             {
-              cout<<"aaaa"<<"i" <<endl;
+              //cout<<"aaaa"<<"i" <<endl;
               int i_index = i - (n_collisionPairs - n_Species);
               iS1 = iSpec1[i];
               n_indexes[i] = n_particle[iS1] - n_particle_begin[iS1];
@@ -139,7 +139,7 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
               }
             }
 
-            cout<<"3333"<<endl;
+            //cout<<"3333"<<endl;
             for(int i = 0; i < n_Species; i++)
             {
               n_particle_begin[i] = 0;
@@ -148,19 +148,23 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
             // loop on collisionPairs
             for(int i = 0; i < n_collisionPairs; i++)
             {
-              cout<<"n_collisionPairs "<<n_collisionPairs<<"  "<<i<<endl;
+              //cout<<"n_collisionPairs "<<n_collisionPairs<<"  "<<i<<endl;
               iS1 = iSpec1[i];
               iS2 = iSpec2[i];
               s1 = vecSpecies[ species_group1[iS1] ];               s2 = vecSpecies[ species_group1[iS2] ];
               p1 = &(s1->particles);                                p2 = &(s2->particles);
 
+              if(log_coulomb[ibin] == 0.0)
+              {
+                continue;
+              }
               A12 = gamma2[i] * density_all * log_coulomb[ibin];
-              //cout<<"coulomb: "<<itime<<endl;
+
 
               // loop on collision pairs of particles
               for (unsigned int j = 0; j < n_indexes[i]; j++)
               {
-                  cout<<"n_indexes[i] "<<n_indexes[i]<<"  "<<j<<endl;
+                  //cout<<"n_indexes[i] "<<n_indexes[i]<<"  "<<j<<endl;
                   if(isIntra[i])
                   {
                       i1 = index[iS1][j + n_particle_begin[iS1]] + bmin[iS1];
@@ -225,13 +229,13 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
                   double momentum1[3];
                   double momentum2[3];
 
-                  momentum1[0] = p1->momentum(0,i1) - mr2[j] * ( gx * (1-cosX) + hx * sinX );
-                  momentum1[1] = p1->momentum(1,i1) - mr2[j] * ( gy * (1-cosX) + hy * sinX );
-                  momentum1[2] = p1->momentum(2,i1) - mr2[j] * ( gz * (1-cosX) + hz * sinX );
+                  momentum1[0] = p1->momentum(0,i1) - mr2[i] * ( gx * (1-cosX) + hx * sinX );
+                  momentum1[1] = p1->momentum(1,i1) - mr2[i] * ( gy * (1-cosX) + hy * sinX );
+                  momentum1[2] = p1->momentum(2,i1) - mr2[i] * ( gz * (1-cosX) + hz * sinX );
 
-                  momentum2[0] = p2->momentum(0,i2) + mr1[j] * ( gx * (1-cosX) + hx * sinX );
-                  momentum2[1] = p2->momentum(1,i2) + mr1[j] * ( gy * (1-cosX) + hy * sinX );
-                  momentum2[2] = p2->momentum(2,i2) + mr1[j] * ( gz * (1-cosX) + hz * sinX );
+                  momentum2[0] = p2->momentum(0,i2) + mr1[i] * ( gx * (1-cosX) + hx * sinX );
+                  momentum2[1] = p2->momentum(1,i2) + mr1[i] * ( gy * (1-cosX) + hy * sinX );
+                  momentum2[2] = p2->momentum(2,i2) + mr1[i] * ( gz * (1-cosX) + hz * sinX );
 
                   p1->momentum(0,i1) = momentum1[0];
                   p1->momentum(1,i1) = momentum1[1];
@@ -308,7 +312,7 @@ void Collisions1D_Coulomb::cal_collision_pairs(vector<Species*>& vecSpecies)
     gamma2[i] = 4.0 * const_pi / ( gamma1[i] * gamma1[i] );
   }
 
-  cout<<"collisionPairs"<<n_collisionPairs<<" "<<isIntra.size()<<" "<<iSpec1.size()<<endl;
+  //cout<<"collisionPairs"<<n_collisionPairs<<" "<<isIntra.size()<<" "<<iSpec1.size()<<endl;
 
 
 }
@@ -327,9 +331,12 @@ void Collisions1D_Coulomb::cal_log_coulomb(ElectroMagn* fields)
   {
     if( (*density_electron)( ibin + oversize[0] ) == 0.0 )
     {
-      continue;
+      debye_length[ibin] = 0.0;
     }
-    debye_length[ibin] = sqrt(const_ephi0 * (*T_electron)( ibin + oversize[0] ) / ( (*density_electron)( ibin + oversize[0] ) * const_e));
+    else
+    {
+      debye_length[ibin] = sqrt(const_ephi0 * (*T_electron)( ibin + oversize[0] ) / ( (*density_electron)( ibin + oversize[0] ) * const_e));
+    }
   }
 
   for(int i = 0; i < n_collisionPairs; i++)
@@ -356,7 +363,15 @@ void Collisions1D_Coulomb::cal_log_coulomb(ElectroMagn* fields)
       Vz = (*Vz1_s)(ibin + oversize[0]) - (*Vz2_s)(ibin + oversize[0]);
       // the formula below equation (96)
       g12_square = T1 + T2 + Vx*Vx + Vy*Vy + Vz*Vz;
-      log_coulomb[ibin] = log( gamma1[i] * g12_square * debye_length[ibin] );
+      if(debye_length[ibin] == 0.0 || g12_square == 0.0)
+      {
+        log_coulomb[ibin] = 0.0;
+      }
+      else
+      {
+        log_coulomb[ibin] = log( gamma1[i] * g12_square * debye_length[ibin] );
+      }
+
     }
   }
 
@@ -982,18 +997,18 @@ void Collisions1D_Coulomb::calculate_debye_length(PicParams& params, vector<Spec
             //if (debye_length_squared[ibin] < rmin2) debye_length_squared[ibin] = rmin2;
         }
 
-    }
+      }
 
-#ifdef  __DEBUG
-    // calculate and print average debye length
-    double mean_debye_length = 0.;
-    for (unsigned int ibin=0 ; ibin<nbins ; ibin++)
-        mean_debye_length += sqrt(debye_length_squared[ibin]);
-    mean_debye_length /= (double)nbins;
-    //DEBUG("Mean Debye length in code length units = " << scientific << setprecision(3) << mean_debye_length);
-    mean_debye_length *= params.wavelength_SI/(2.*M_PI); // switch to SI
-    DEBUG("Mean Debye length in meters = " << scientific << setprecision(3) << mean_debye_length );
-#endif
+  #ifdef  __DEBUG
+      // calculate and print average debye length
+      double mean_debye_length = 0.;
+      for (unsigned int ibin=0 ; ibin<nbins ; ibin++)
+          mean_debye_length += sqrt(debye_length_squared[ibin]);
+      mean_debye_length /= (double)nbins;
+      //DEBUG("Mean Debye length in code length units = " << scientific << setprecision(3) << mean_debye_length);
+      mean_debye_length *= params.wavelength_SI/(2.*M_PI); // switch to SI
+      DEBUG("Mean Debye length in meters = " << scientific << setprecision(3) << mean_debye_length );
+  #endif
 
 }
 
