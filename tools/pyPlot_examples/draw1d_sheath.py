@@ -31,14 +31,14 @@ import math
 
 
 
-font={	'family' : 'sans-serif',
+font={	'family' : 'serif',
 	'weight' : 'bold',
 	'size' : 8,
 	}
 
 #mpl.rcParams['text.usetex'] = True
 #mpl.rcParams['text.latex.unicode'] = True
-mpl.rcParams['font.family'] = 'sans-serif'
+mpl.rcParams['font.family'] = 'serif'
 #mpl.rcParams['mathtext.default'] = 'regular'
 #mpl.rcParams['mathtext.default'] = 'it'
 mpl.rcParams['mathtext.fontset'] = 'stix'
@@ -47,21 +47,24 @@ mpl.rcParams['mathtext.it'] = 'serif'
 #mpl.rcParams['pdf.fonttype'] = 3
 
 
-mpl.rcParams['font.size'] = 17
+mpl.rcParams['font.size'] = 18
 mpl.rcParams['axes.linewidth'] = 2.0
 #mpl.rcParams['font.weight'] = 'bold'
 
 mpl.rcParams['xtick.major.size'] = 2
 mpl.rcParams['ytick.major.size'] = 2
 
-mpl.rcParams['lines.linewidth'] = 2.0
+mpl.rcParams['lines.linewidth'] = 3.0
 
 #mpl.rcParams['grid.linestyle'] = ":"
 mpl.rcParams['grid.linestyle'] = ":"
 mpl.rcParams['grid.color'] = "black"
 
-def get_axis_limits(ax, x_scale=0, y_scale=1.18):
-    return ax.get_xlim()[1]*x_scale, ax.get_ylim()[1]*y_scale
+label_fontsize = 21
+
+def get_axis_limits(ax, x_scale=-0.095, y_scale=1.03):
+    return ax.get_xlim()[1]*x_scale, ax.get_ylim()[1] + ( ax.get_ylim()[1] - ax.get_ylim()[0] ) * (y_scale - 1.0)
+
 
 
 
@@ -71,7 +74,6 @@ fig.subplots_adjust(top=0.9,bottom=0.1,wspace=0.5,hspace=0.55)
 
 t = 19
 
-label_fontsize = 20
 
 
 
@@ -93,7 +95,7 @@ x = np.linspace(0, nx * dx, nx)
 
 xmin = x.min()
 xmax = x.max() * 0.01
-x_sheath = 0.15
+x_sheath = 0.1
 
 
 
@@ -106,9 +108,13 @@ val_1d = np.transpose(val[t, 0, 0, :])
 
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Electric potential $(V)$", color='#1f77b4')
 
-sp_temp1.set_ylabel(r"$\phi\ (V)$", color='#1f77b4', fontsize = label_fontsize)
+sp_temp1.set_ylabel(r"$\phi\ \mathrm{(V)}$", color='#1f77b4', fontsize = label_fontsize)
 sp_temp1.tick_params('y', colors='#1f77b4')
 
+major_ticks = np.arange(0, 91, 30)                                              
+#minor_ticks = np.arange(0, 31, 5)                                          
+sp_temp1.set_yticks(major_ticks)                                                       
+#sp_temp1.set_yticks(minor_ticks, minor=True)  
 
 
 #double y axis
@@ -120,7 +126,7 @@ val_1d = np.transpose(val[t, 0, 0, :])
 sp_temp2.yaxis.set_major_formatter(yformatter)
 cf_temp1=sp_temp2.plot(x, val_1d, label = "Electric field (x)", color='#ff7f0e')
 
-sp_temp2.set_ylabel(r"$E_x \ (V/m)$", color='#ff7f0e', fontsize = label_fontsize)
+sp_temp2.set_ylabel(r"$E_x \ \mathrm{(V/m)}$", color='#ff7f0e', fontsize = label_fontsize)
 sp_temp2.tick_params('y', colors='#ff7f0e')
 
 #lines1, labels1 = sp_temp1.get_legend_handles_labels()
@@ -137,7 +143,7 @@ sp_temp1.set_xlim((xmin, xmax))
 #sp_temp1.set_ylabel('Electric potential (V)')
 #sp_temp2.set_ylabel('Electric field (V/m)')
 
-sp_temp1.annotate('(a)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
+sp_temp1.annotate(r"$\mathbf{(a)}$", xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
 ##============rho======================================================
 sp_temp1=fig.add_subplot(3,1,2)
@@ -155,17 +161,21 @@ ymax = val_1d.max()
 val = f["/Fields/Rho_global_D1_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
-cf_temp1=sp_temp1.plot(x, val_1d, label = r'$D^+ ion$')
+cf_temp1=sp_temp1.plot(x, val_1d, label = r'$\mathrm{D^+}$ ion')
 
 sp_temp1.grid(True)
-sp_temp1.legend(loc = 1)
+sp_temp1.legend(loc = 1, framealpha=1)
 sp_temp1.set_xlim((xmin, xmax))
 sp_temp1.set_ylim((ymin, ymax))
 #sp_temp1.set_yticks(np.arange(0,y.max(),100))
 #sp_temp1.set_xlabel('x(mm)')
-sp_temp1.set_ylabel(r"$n\ (m^{-3})$", fontsize = label_fontsize)
+sp_temp1.set_ylabel(r"$n\ \mathrm{(m^{-3})}$", fontsize = label_fontsize)
 
-sp_temp1.annotate('(b)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
+major_ticks = np.arange(0, 1.01e19, 0.5e19)                                                                                      
+sp_temp1.set_yticks(major_ticks) 
+
+
+sp_temp1.annotate(r"$\mathbf{(b)}$", xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
 ##============ Temperature ======================================================
 sp_temp1=fig.add_subplot(3,1,3)
@@ -178,7 +188,7 @@ cf_temp1=sp_temp1.plot(x, val_1d, label = "Electron")
 val = f["/Fields/T_global_D1_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
-cf_temp1=sp_temp1.plot(x, val_1d, label = r'$D^+ ion$')
+cf_temp1=sp_temp1.plot(x, val_1d, label = r'$\mathrm{D^+}$ ion')
 
 ymin = 0.0
 ymax = val_1d.max()
@@ -187,14 +197,20 @@ sp_temp1.axvline(x = x_sheath, ymin = 0.0, ymax = 4.1, c="red",zorder=0, clip_on
 
 
 sp_temp1.grid(True)
-sp_temp1.legend(loc = 1)
+sp_temp1.legend(loc = 1, framealpha=1)
 sp_temp1.set_xlim((xmin, xmax))
-sp_temp1.set_ylim((ymin, ymax))
-#sp_temp1.set_yticks(np.arange(0,y.max(),100))
-sp_temp1.set_xlabel('x $(mm)$', fontsize = label_fontsize)
-sp_temp1.set_ylabel(r"$T\ (eV)$", fontsize = label_fontsize)
+sp_temp1.set_ylim((ymin, 90))
 
-sp_temp1.annotate('(c)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
+major_ticks = np.arange(0, 91, 30)                                              
+#minor_ticks = np.arange(0, 31, 5)                                          
+sp_temp1.set_yticks(major_ticks)                                                       
+#sp_temp1.set_yticks(minor_ticks, minor=True)  
+
+#sp_temp1.set_yticks(np.arange(0,y.max(),100))
+sp_temp1.set_xlabel(r"$x\ \mathrm{(mm)}$", fontsize = label_fontsize)
+sp_temp1.set_ylabel(r"$T\ \mathrm{(eV)}$", fontsize = label_fontsize)
+
+sp_temp1.annotate(r"$\mathbf{(c)}$", xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
 ##============ Velocity ======================================================
 '''

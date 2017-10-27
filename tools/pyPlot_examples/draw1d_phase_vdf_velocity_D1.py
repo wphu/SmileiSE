@@ -31,14 +31,14 @@ import math
 
 
 
-font={	'family' : 'sans-serif',
+font={	'family' : 'serif',
 	'weight' : 'bold',
 	'size' : 8,
 	}
 
 #mpl.rcParams['text.usetex'] = True
 #mpl.rcParams['text.latex.unicode'] = True
-mpl.rcParams['font.family'] = 'sans-serif'
+mpl.rcParams['font.family'] = 'serif'
 #mpl.rcParams['mathtext.default'] = 'regular'
 #mpl.rcParams['mathtext.default'] = 'it'
 mpl.rcParams['mathtext.fontset'] = 'stix'
@@ -47,7 +47,7 @@ mpl.rcParams['mathtext.it'] = 'serif'
 #mpl.rcParams['pdf.fonttype'] = 3
 
 
-mpl.rcParams['font.size'] = 20
+mpl.rcParams['font.size'] = 18
 mpl.rcParams['axes.linewidth'] = 2.0
 #mpl.rcParams['font.weight'] = 'bold'
 
@@ -60,8 +60,11 @@ mpl.rcParams['lines.linewidth'] = 3.0
 mpl.rcParams['grid.linestyle'] = ":"
 mpl.rcParams['grid.color'] = "black"
 
-def get_axis_limits(ax, x_scale=0, y_scale=1.18):
-    return ax.get_xlim()[1]*x_scale, ax.get_ylim()[1]*y_scale
+label_fontsize = 21
+
+def get_axis_limits(ax, x_scale=-0.095, y_scale=1.03):
+    print ax.get_xlim()[0], ax.get_xlim()[1]
+    return ax.get_xlim()[0] + (ax.get_xlim()[1] - ax.get_xlim()[0]) * x_scale, ax.get_ylim()[1] + ( ax.get_ylim()[1] - ax.get_ylim()[0] ) * (y_scale - 1.0)
 
 
 
@@ -78,10 +81,10 @@ print f.keys()
 
 v_number = 150
 # for electron
-#m_ov_2T = 9.109382616e-31 / (2.0 * 33 * 1.602e-19)
+m_ov_2T = 2.0 * 1.67262158e-27 / (2.0 * 64.5 * 1.602e-19)
 
 # for D+ ion
-m_ov_2T = 2.0 * 1.67262158e-27 / (2.0 * 33 * 1.602e-19)
+#m_ov_2T = 2.0 * 1.67262158e-27 / (2.0 * 60 * 1.602e-19)
 
 ##============ velocity distribution in x direction ================================
 sp_temp1 = fig.add_subplot(2,1,1)
@@ -198,26 +201,29 @@ cf_temp1=sp_temp1.plot(v_x, v_y, label = r'PIC-$v_z$')
 for i in np.arange(0, v_number):
 	v_y_maxwell[i] = math.sqrt(m_ov_2T/3.14) * math.exp( -m_ov_2T * v_x[i] * v_x[i] )
 
-cf_temp1=sp_temp1.plot(v_x, v_y_maxwell, label = 'Theory')
+cf_temp1=sp_temp1.plot(v_x, v_y_maxwell, label = r'Theory')
 
 sp_temp1.set_xlim((vmin, vmax))
-#sp_temp1.set_ylim((ymin, ymax))
+sp_temp1.set_ylim((0, 1.5e-5))
 
 sp_temp1.grid()
-sp_temp1.legend()
+sp_temp1.legend(framealpha=1)
 
 sp_temp1.xaxis.set_major_formatter(yformatter)
 sp_temp1.yaxis.set_major_formatter(yformatter)
 
-sp_temp1.set_xlabel('Velocity $(m/s)$')
+major_ticks = np.arange(0, 1.51e-5, 0.5e-5)                                                                                      
+sp_temp1.set_yticks(major_ticks)   
+
+sp_temp1.set_xlabel(r'Velocity (m/s)')
 #sp_temp1.set_ylabel(r'$F_M \ (v_x)$')
 sp_temp1.set_ylabel(r'$F_M$')
 
-sp_temp1.annotate('(a)', xy=get_axis_limits(sp_temp1, x_scale=-1.05), annotation_clip=False)
+sp_temp1.annotate(r"$\mathbf{(a)}$", xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
 
 v_number = 150
-##============ Speed distribution =====================================
+##==================================== Speed distribution =====================================
 sp_temp1 = fig.add_subplot(2,1,2)
 
 val = f["/D1/momentum0"]
@@ -274,40 +280,28 @@ for v_i in v:
 		v_y[i] = v_y[i] + 1
 v_y = 1.0 * v_y / (particle_number * v_step)
 
-cf_temp1=sp_temp1.plot(v_x, v_y, label = 'PIC')
-cf_temp1=sp_temp1.plot(v_x, v_y_maxwell, label = 'Theory')
+cf_temp1=sp_temp1.plot(v_x, v_y, label = r'PIC')
+cf_temp1=sp_temp1.plot(v_x, v_y_maxwell, label = r'Theory')
 
 sp_temp1.set_xlim((vmin, vmax))
-#sp_temp1.set_ylim((ymin, ymax))
+sp_temp1.set_ylim((0, 1.2e-5))
 
 sp_temp1.grid()
-sp_temp1.legend()
+sp_temp1.legend(framealpha=1)
 
 sp_temp1.xaxis.set_major_formatter(yformatter)
 sp_temp1.yaxis.set_major_formatter(yformatter)
 
-sp_temp1.set_xlabel('Speed $(m/s)$')
-sp_temp1.set_ylabel(r'$f_M \ (v)$')
+major_ticks = np.arange(0, 1.2e-5, 0.5e-5)                                                                                      
+sp_temp1.set_yticks(major_ticks)   
 
-sp_temp1.annotate('(b)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
+sp_temp1.set_xlabel(r'Speed (m/s)')
+sp_temp1.set_ylabel(r'$f_M$')
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+sp_temp1.annotate(r"$\mathbf{(b)}$", xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
 
 #plt.legend()
-fig.savefig("vdf_vx.pdf", dpi = 300)
+fig.savefig("vdf_vx_D1.pdf", dpi = 300)
 #plt.axis('equal')
 #plt.show()         #The command is OK

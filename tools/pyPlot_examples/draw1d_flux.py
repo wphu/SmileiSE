@@ -31,14 +31,14 @@ import math
 
 
 
-font={	'family' : 'sans-serif',
+font={	'family' : 'serif',
 	'weight' : 'bold',
 	'size' : 8,
 	}
 
 #mpl.rcParams['text.usetex'] = True
 #mpl.rcParams['text.latex.unicode'] = True
-mpl.rcParams['font.family'] = 'sans-serif'
+mpl.rcParams['font.family'] = 'serif'
 #mpl.rcParams['mathtext.default'] = 'regular'
 #mpl.rcParams['mathtext.default'] = 'it'
 mpl.rcParams['mathtext.fontset'] = 'stix'
@@ -47,21 +47,24 @@ mpl.rcParams['mathtext.it'] = 'serif'
 #mpl.rcParams['pdf.fonttype'] = 3
 
 
-mpl.rcParams['font.size'] = 16
+mpl.rcParams['font.size'] = 18
 mpl.rcParams['axes.linewidth'] = 2.0
 #mpl.rcParams['font.weight'] = 'bold'
 
 mpl.rcParams['xtick.major.size'] = 2
 mpl.rcParams['ytick.major.size'] = 2
 
-mpl.rcParams['lines.linewidth'] = 2.0
+mpl.rcParams['lines.linewidth'] = 3.0
 
 #mpl.rcParams['grid.linestyle'] = ":"
 mpl.rcParams['grid.linestyle'] = ":"
 mpl.rcParams['grid.color'] = "black"
 
-def get_axis_limits(ax, x_scale=0, y_scale=1.18):
-    return ax.get_xlim()[1]*x_scale, ax.get_ylim()[1]*y_scale
+label_fontsize = 21
+
+
+def get_axis_limits(ax, x_scale=-0.095, y_scale=1.03):
+    return ax.get_xlim()[1]*x_scale, ax.get_ylim()[1] + ( ax.get_ylim()[1] - ax.get_ylim()[0] ) * (y_scale - 1.0)
 
 
 	
@@ -75,7 +78,7 @@ fig.subplots_adjust(top=0.9,bottom=0.1,wspace=0.6,hspace=0.55)
 
 t = 19
 
-label_fontsize = 20
+
 dt = 1.0e-12 * 1000000 / 1.0e-6   # unit is us
 
 ##read data from file
@@ -111,7 +114,7 @@ sp_temp1=fig.add_subplot(3,1,1)
 sp_temp1.yaxis.set_major_formatter(yformatter)
 
 cf_temp1=sp_temp1.plot(x, val1_1d, label='Electron')
-cf_temp1=sp_temp1.plot(x, val2_1d, label=r'$D^+ ion$')
+cf_temp1=sp_temp1.plot(x, val2_1d, label=r'$\mathrm{D^+}$ ion')
 
 xmin = 0
 xmax = x.max()
@@ -119,15 +122,19 @@ ymin = 0.0
 ymax = 1.2 * max( val1_1d.max(), val2_1d.max() )
 
 sp_temp1.set_xlim((xmin, xmax))
-sp_temp1.set_ylim((ymin, ymax))
+#sp_temp1.set_ylim((ymin, ymax))
 sp_temp1.set_ylabel(r"$N_M$", fontsize = label_fontsize)
 sp_temp1.yaxis.set_label_coords(ylabel_x, 0.5)
+
+major_ticks = np.arange(0, 4.01e5, 2.0e5)                                                                                        
+sp_temp1.set_yticks(major_ticks) 
+
 
 #sp_temp1.ticklabel_format(style='sci')
 sp_temp1.grid(True)
 sp_temp1.legend(loc = 1)
 
-sp_temp1.annotate('(a)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
+sp_temp1.annotate(r'$\mathbf{(a)}$', xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
 ##============Particle flux======================================================
 val1 = f["/Diagnostic/particleFlux"]
@@ -153,14 +160,17 @@ ymin = 0.0
 ymax = 1.2 * max( val1_1d.max(), val2_1d.max() )
 
 sp_temp1.set_xlim((xmin, xmax))
-sp_temp1.set_ylim((ymin, ymax))
-sp_temp1.set_ylabel(r"$\Gamma\ (m^{-2}s^{-1})$", fontsize = label_fontsize)
+#sp_temp1.set_ylim((ymin, ymax))
+sp_temp1.set_ylabel(r"$\Gamma\ \mathrm{(m^{-2}s^{-1})}$", fontsize = label_fontsize)
 sp_temp1.yaxis.set_label_coords(ylabel_x, 0.5)
+
+major_ticks = np.arange(0, 4.01e23, 2.0e23)                                                                                        
+sp_temp1.set_yticks(major_ticks) 
 
 sp_temp1.grid(True)
 #sp_temp1.legend(loc = 1)
 
-sp_temp1.annotate('(b)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
+sp_temp1.annotate(r"$\mathbf{(b)}$", xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
 ##============Eenergy flux======================================================
 val1 = f["/Diagnostic/heatFlux"]
@@ -185,14 +195,17 @@ ymin = 0.0
 ymax = 1.2 * max( val1_1d.max(), val2_1d.max() )
 
 sp_temp1.set_xlim((xmin, xmax))
-sp_temp1.set_ylim((ymin, ymax))
-sp_temp1.set_xlabel(r"$t\ (\mu s)$", fontsize = label_fontsize)
-sp_temp1.set_ylabel(r"$q\ (Wm^{-2})$", fontsize = label_fontsize)
+#sp_temp1.set_ylim((ymin, ymax))
+sp_temp1.set_xlabel(r"$t\ \mathrm{(\mu s)}$", fontsize = label_fontsize)
+sp_temp1.set_ylabel(r"$q\ \mathrm{(Wm^{-2})}$", fontsize = label_fontsize)
 sp_temp1.yaxis.set_label_coords(ylabel_x, 0.5)
 sp_temp1.grid(True)
 #sp_temp1.legend(loc = 1)
 
-sp_temp1.annotate('(c)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
+major_ticks = np.arange(0, 1.51e7, 0.5e7)                                                                                        
+sp_temp1.set_yticks(major_ticks) 
+
+sp_temp1.annotate(r"$\mathbf{(c)}$", xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
 fig.savefig("flux.pdf")
 #fig.show()       #when the program finishes,the figure disappears

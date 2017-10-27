@@ -31,14 +31,14 @@ import math
 
 
 
-font={	'family' : 'sans-serif',
+font={	'family' : 'serif',
 	'weight' : 'bold',
 	'size' : 8,
 	}
 
 #mpl.rcParams['text.usetex'] = True
 #mpl.rcParams['text.latex.unicode'] = True
-mpl.rcParams['font.family'] = 'sans-serif'
+mpl.rcParams['font.family'] = 'serif'
 #mpl.rcParams['mathtext.default'] = 'regular'
 #mpl.rcParams['mathtext.default'] = 'it'
 mpl.rcParams['mathtext.fontset'] = 'stix'
@@ -54,24 +54,27 @@ mpl.rcParams['axes.linewidth'] = 2.0
 mpl.rcParams['xtick.major.size'] = 2
 mpl.rcParams['ytick.major.size'] = 2
 
-mpl.rcParams['lines.linewidth'] = 2.0
+mpl.rcParams['lines.linewidth'] = 3.0
 
 #mpl.rcParams['grid.linestyle'] = ":"
 mpl.rcParams['grid.linestyle'] = ":"
 mpl.rcParams['grid.color'] = "black"
 
-def get_axis_limits(ax, x_scale=0, y_scale=1.16):
-    return ax.get_xlim()[1]*x_scale, ax.get_ylim()[1]*y_scale
+label_fontsize = 21
+legend_fontsize = 15
+
+
+def get_axis_limits(ax, x_scale=-0.1, y_scale=1.03):
+    return ax.get_xlim()[0] + (ax.get_xlim()[1] - ax.get_xlim()[0]) * x_scale, ax.get_ylim()[1] + ( ax.get_ylim()[1] - ax.get_ylim()[0] ) * (y_scale - 1.0)
 
 
 
 ##inite the fig of matplotlib
-fig=plt.figure(figsize=(10,8))
+fig=plt.figure(figsize=(10,6))
 fig.subplots_adjust(top=0.9,bottom=0.1,wspace=0.5,hspace=0.5)
 
 t = 19
 
-label_fontsize = 20
 
 
 ##read data from file
@@ -87,11 +90,14 @@ print dims
 nx = dims[3]
 
 
-dx = 0.5e-2  # unit (mm)
+dx = 0.5e-5  # unit (m)
 x = np.linspace(0, nx * dx, nx)
 
+amplification_factor = 80.0
+x = x * amplification_factor
+
 xmin = x.min()
-xmax = x.max() * 0.1
+xmax = x.max() * 0.2
 ymin = 0.0
 
 
@@ -102,28 +108,34 @@ sp_temp1.yaxis.set_major_formatter(yformatter)
 val = f["/Fields/Rho_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
-cf_temp1=sp_temp1.plot(x, val_1d, label = r'$Electron$')
+cf_temp1=sp_temp1.plot(x, val_1d, label = r'$\mathrm{Electron}$')
 
 val = f["/Fields/Rho_global_D1_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
-cf_temp1=sp_temp1.plot(x, val_1d, label = r'$D^+ \ ion$')
+cf_temp1=sp_temp1.plot(x, val_1d, label = r'$\mathrm{D^+ \ ion}$')
 ymax = val_1d.max() * 1.1
 
 val = f["/Fields/Rho_global_D_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
-cf_temp1=sp_temp1.plot(x, val_1d, label = r'$D \ atom$')
+cf_temp1=sp_temp1.plot(x, val_1d, label = r'$\mathrm{D \ atom}$')
 
 sp_temp1.grid(True)
-sp_temp1.legend(loc = 1, framealpha = 1.0)
+sp_temp1.legend(loc = 1, framealpha = 1.0, fontsize = legend_fontsize)
 sp_temp1.set_xlim((xmin, xmax))
-sp_temp1.set_ylim((ymin))
+sp_temp1.set_ylim((ymin, 8.01e19))
+
+major_ticks = np.arange(0, 8.01e19, 2.0e19)                                              
+#minor_ticks = np.arange(0, 31, 5)                                          
+sp_temp1.set_yticks(major_ticks)                                                       
+#sp_temp1.set_yticks(minor_ticks, minor=True)  
+
 #sp_temp1.set_yticks(np.arange(0,y.max(),100))
 #sp_temp1.set_xlabel('x(mm)')
-sp_temp1.set_ylabel(r"$n\ (m^{-3})$", fontsize = label_fontsize)
+sp_temp1.set_ylabel(r"$n\ \mathrm{(m^{-3})}$", fontsize = label_fontsize)
 
-sp_temp1.annotate('(a)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
+sp_temp1.annotate(r"$\mathbf{(a)}$", xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
 ##============ Temperature ======================================================
 sp_temp1=fig.add_subplot(2,1,2)
@@ -142,6 +154,10 @@ ymax = val_1d.max() * 1.1
 val = f["/Fields/T_global_D_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
+for i in np.arange(0, val_1d.shape[0]):
+	if val_1d[i] > 20:
+		val_1d[i] = val_1d[i-1]
+
 cf_temp1=sp_temp1.plot(x, val_1d, label = "D")
 
 
@@ -150,12 +166,19 @@ ymin = 0
 sp_temp1.grid(True)
 #sp_temp1.legend(loc = 1)
 sp_temp1.set_xlim((xmin, xmax))
-sp_temp1.set_ylim((ymin, ymax))
-#sp_temp1.set_yticks(np.arange(0,y.max(),100))
-sp_temp1.set_xlabel(r"$x\ (mm)$")
-sp_temp1.set_ylabel(r"$T\ (eV)$", fontsize = label_fontsize)
+sp_temp1.set_ylim((ymin, 30.1))
 
-sp_temp1.annotate('(b)', xy=get_axis_limits(sp_temp1), annotation_clip=False)
+major_ticks = np.arange(0, 30.1, 10.0)                                              
+#minor_ticks = np.arange(0, 31, 5)                                          
+sp_temp1.set_yticks(major_ticks)                                                       
+#sp_temp1.set_yticks(minor_ticks, minor=True) 
+
+
+#sp_temp1.set_yticks(np.arange(0,y.max(),100))
+sp_temp1.set_xlabel(r"$x\ \mathrm{(mm)}$", fontsize = label_fontsize)
+sp_temp1.set_ylabel(r"$T\ \mathrm{(eV)}$", fontsize = label_fontsize)
+
+sp_temp1.annotate(r"$\mathbf{(b)}$", xy=get_axis_limits(sp_temp1), annotation_clip=False)
 
 fig.savefig("nT_D.pdf", dpi = 300)
 ##fig.show()       #when the program finishes,the figure disappears
