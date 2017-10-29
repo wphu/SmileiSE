@@ -210,6 +210,9 @@ protected:
     //! "Real" max limit of local domain (ghost data not concerned)
     std::vector<double> max_local;
 
+    bool isImplicit;
+    bool isSameWeight;
+
 };
 
 #endif

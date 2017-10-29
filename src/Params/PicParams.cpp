@@ -71,11 +71,13 @@ PicParams::PicParams(InputData &ifile) {
     wavelength_SI = 0.;
     ifile.extract("wavelength_SI",wavelength_SI);
 
+    isSameWeight = true;
 
     // method of PIC
     ifile.extract("method", method);
     if (method!="explicit" && method!="implicit") {
-        ERROR("Method " << method << " does not exist");
+        method = "explicit";
+        MESSAGE("default method is used: explicit ");
     }
 
     imp_theta = 0.1;

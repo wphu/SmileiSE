@@ -68,6 +68,7 @@ struct SpeciesStructure {
 
 
 
+
     //! thermalizing temperature [\f$m_e c^2\f$]
     std::vector<double> thermT;
     //! thermal velocity [\f$c\f$]
@@ -188,6 +189,9 @@ public:
 
     //! Method to find the numbers of requested species, sorted, and duplicates removed
     std::vector<unsigned int> FindSpecies(std::vector<std::string>);
+
+    // if species has the same weight
+    bool isSameWeight;
 
     // define the method of PIC: explicit or implicit
     std::string method;

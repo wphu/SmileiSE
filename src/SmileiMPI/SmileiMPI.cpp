@@ -78,6 +78,15 @@ void SmileiMPI::init( PicParams& params )
     max_local.resize(params.nDim_field, 0.);
     n_space_global.resize(params.nDim_field, 0);
     n_space_global_gather.resize(params.nDim_field, 0);
+
+    isImplicit = false;
+    if(params.method == "implicit")
+    {
+      isImplicit = true;
+    }
+
+    isSameWeight = true;
+    
 }
 
 
