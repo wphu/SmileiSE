@@ -470,26 +470,28 @@ MPI_Datatype SmileiMPI_Cart1D::createMPIparticles( Particles* particles, int nbr
 
     int nbrOfProp2(nbrOfProp);
     if (particles->isTestParticles) nbrOfProp2++;
+    int iProp = 0;
 
     MPI_Aint address[nbrOfProp2];
     MPI_Get_address( &(particles->position(0,0)), &(address[0]) );
     MPI_Get_address( &(particles->momentum(0,0)), &(address[1]) );
     MPI_Get_address( &(particles->momentum(1,0)), &(address[2]) );
     MPI_Get_address( &(particles->momentum(2,0)), &(address[3]) );
+    iProp = 4；
 
     if(isImplicit)
     {
-      MPI_Get_address( &(particles->al_imp(0,0)), &(address[4]) );
-      MPI_Get_address( &(particles->al_imp(1,0)), &(address[5]) );
-      MPI_Get_address( &(particles->al_imp(2,0)), &(address[6]) );
-      MPI_Get_address( &(particles->au_imp(0,0)), &(address[7]) );
-      MPI_Get_address( &(particles->au_imp(1,0)), &(address[8]) );
-      MPI_Get_address( &(particles->au_imp(2,0)), &(address[9]) );
+      MPI_Get_address( &(particles->al_imp(0,0)), &(address[iProp++]) );
+      MPI_Get_address( &(particles->al_imp(1,0)), &(address[iProp++]) );
+      MPI_Get_address( &(particles->al_imp(2,0)), &(address[iProp++]) );
+      MPI_Get_address( &(particles->au_imp(0,0)), &(address[iProp++]) );
+      MPI_Get_address( &(particles->au_imp(1,0)), &(address[iProp++]) );
+      MPI_Get_address( &(particles->au_imp(2,0)), &(address[iProp++]) );
     }
 
     if(!isSameWeight)
     {
-      MPI_Get_address( &(particles->weight(0)),     &(address[10]) );
+      MPI_Get_address( &(particles->weight(0)),     &(address[iProp++]) );
     }
 
     // atom and ion of same species are treated as two species, so the charges of one
@@ -497,7 +499,7 @@ MPI_Datatype SmileiMPI_Cart1D::createMPIparticles( Particles* particles, int nbr
     //MPI_Get_address( &(particles->charge(0)),     &(address[11]) );
     //MPI_Get_address( &(particles.position_old(0,0)), &address[6] )
     if (particles->isTestParticles)
-        MPI_Get_address( &(particles->id(0)),     &(address[nbrOfProp2-1]) );
+        MPI_Get_address( &(particles->id(0)),     &(address[iProp++]) );
 
     int nbr_parts[nbrOfProp2];
     MPI_Aint disp[nbrOfProp2];
