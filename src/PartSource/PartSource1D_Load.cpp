@@ -398,20 +398,6 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
             s1->initCharge(nPart, species1, iPart, s1->species_param.charge);
         }
 
-        // heat paritcles in source region
-        if(loadTemperature < loadTemperature_exceed)
-        {
-            for(int ibin=loadBin_start; ibin<=loadBin_end; ibin++)
-            {
-                nPart = count_of_particles_to_insert[ibin];
-                double temperature_heat = (loadTemperature_exceed - loadTemperature) * loadNumber / nPart;
-                s1->heat(nPart,iPart, temperature_heat, params);
-
-            }
-        }
-
-
-
     }
     else if(loadKind == "nq" && itime%loadStep == 0 && loadBin_end != loadBin_start)
     {
@@ -470,6 +456,18 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
 
             s1->initWeight_constant(nPart, species1, iPart, s1->species_param.weight);
             s1->initCharge(nPart, species1, iPart, s1->species_param.charge);
+        }
+
+        // heat paritcles in source region
+        if(loadTemperature < loadTemperature_exceed)
+        {
+            for(int ibin=loadBin_start; ibin<=loadBin_end; ibin++)
+            {
+                nPart = count_of_particles_to_insert[ibin];
+                double temperature_heat = (loadTemperature_exceed - loadTemperature) * loadNumber / nPart;
+                s1->heat(nPart,iPart, temperature_heat, params);
+
+            }
         }
     }
     delete [] indexes;
