@@ -170,6 +170,7 @@ PartSource1D (params, smpi)
     loadTemperature_init = loadTemperature;
     loadTemperature_exceed = 0.0;
     loadTemperature_upLimit_factor = 1.5;
+    loadNumber_heat = 0.0;
 
     // Parameters for "dn"
     nextTimeStep = 0;
@@ -401,11 +402,11 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
     }
     else if(loadKind == "nq" && loadBin_end != loadBin_start)
     {
+        s1 = vecSpecies[species1];
+        p1 = &(s1->particles);
+
     		if(itime%loadStep == 0)
     		{
-    			s1 = vecSpecies[species1];
-    			p1 = &(s1->particles);
-
     			cell_length.resize(params.nDim_particle);
     			max_jutt_cumul.resize(0);
     			temp[0] = loadTemperature;
@@ -418,6 +419,7 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
     			double loadNumber_temp;
     			loadRemTot += loadRem;
     			loadNumber_temp = loadNumber;
+          loadNumber_heat = loadNumber_temp;
     			if(loadRemTot > 1.0)
     			{
     				loadNumber_temp = loadNumber + 1;
@@ -468,7 +470,7 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
             for(int ibin=loadBin_start; ibin<=loadBin_end; ibin++)
             {
                 nPart = s1->bmax[ibin] - s1->bmin[ibin];
-                double temperature_heat = (loadTemperature_exceed - loadTemperature) * loadNumber / (nPart * loadStep);
+                double temperature_heat = (loadTemperature_exceed - loadTemperature) * loadNumber_heat / (nPart * loadStep);
                 s1->heat(nPart,iPart, temperature_heat, params);
 
             }

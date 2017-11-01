@@ -54,6 +54,7 @@ public:
     int loadStep;
     // Number of particles loaded in one cell at one loadStep
     int loadNumber;
+    double loadNumber_heat;
     // loadRem = loadStep * loadDn *... - loadNumber
     double loadRem;
     double loadRemTot;
