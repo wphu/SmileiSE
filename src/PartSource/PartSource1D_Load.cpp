@@ -399,72 +399,76 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
         }
 
     }
-    else if(loadKind == "nq" && itime%loadStep == 0 && loadBin_end != loadBin_start)
+    else if(loadKind == "nq" && loadBin_end != loadBin_start)
     {
-        s1 = vecSpecies[species1];
-        p1 = &(s1->particles);
+    		if(itime%loadStep == 0)
+    		{
+    			s1 = vecSpecies[species1];
+    			p1 = &(s1->particles);
 
-        cell_length.resize(params.nDim_particle);
-        max_jutt_cumul.resize(0);
-        temp[0] = loadTemperature;
-        temp[1] = loadTemperature;
-        temp[2] = loadTemperature;
-        vel[0] = mean_velocity[0];
-        vel[1] = mean_velocity[1];
-        vel[2] = mean_velocity[2];
+    			cell_length.resize(params.nDim_particle);
+    			max_jutt_cumul.resize(0);
+    			temp[0] = loadTemperature;
+    			temp[1] = loadTemperature;
+    			temp[2] = loadTemperature;
+    			vel[0] = mean_velocity[0];
+    			vel[1] = mean_velocity[1];
+    			vel[2] = mean_velocity[2];
 
-        double loadNumber_temp;
-        loadRemTot += loadRem;
-        loadNumber_temp = loadNumber;
-        if(loadRemTot > 1.0)
-        {
-            loadNumber_temp = loadNumber + 1;
-            loadRemTot -= 1.0;
-        }
+    			double loadNumber_temp;
+    			loadRemTot += loadRem;
+    			loadNumber_temp = loadNumber;
+    			if(loadRemTot > 1.0)
+    			{
+    				loadNumber_temp = loadNumber + 1;
+    				loadRemTot -= 1.0;
+    			}
 
-        for(int ibin = 0; ibin < count_of_particles_to_insert.size(); ibin++ )
-        {
-            count_of_particles_to_insert[ibin] = 0;
-            if(ibin >= loadBin_start && ibin <= loadBin_end)
-            {
+    			for(int ibin = 0; ibin < count_of_particles_to_insert.size(); ibin++ )
+    			{
+    				count_of_particles_to_insert[ibin] = 0;
+    				if(ibin >= loadBin_start && ibin <= loadBin_end)
+    				{
 
-                count_of_particles_to_insert[ibin] = loadNumber_temp;
-            }
-        }
-        //cout<<"number: "<<loadDensity * params.timestep / s1->species_param.weight<<endl;
+    					count_of_particles_to_insert[ibin] = loadNumber_temp;
+    				}
+    			}
+    			//cout<<"number: "<<loadDensity * params.timestep / s1->species_param.weight<<endl;
 
-        new_particles.clear();
-        for(int ibin = loadBin_start; ibin <= loadBin_end; ibin++ )
-        {
-            new_particles.create_particles(count_of_particles_to_insert[ibin]);
-        }
-        s1->insert_particles_to_bins(new_particles, count_of_particles_to_insert);
+    			new_particles.clear();
+    			for(int ibin = loadBin_start; ibin <= loadBin_end; ibin++ )
+    			{
+    				new_particles.create_particles(count_of_particles_to_insert[ibin]);
+    			}
+    			s1->insert_particles_to_bins(new_particles, count_of_particles_to_insert);
 
-        // re-initialize paritcles in source region
-        for(int ibin=loadBin_start; ibin<=loadBin_end; ibin++)
-        {
-            iPart = s1->bmax[ibin] - count_of_particles_to_insert[ibin];
-            nPart = count_of_particles_to_insert[ibin];
-            cell_length[0] = params.cell_length[0];
-            indexes[0] = smpi->getDomainLocalMin(0) + ibin*params.cell_length[0];
+    			// re-initialize paritcles in source region
+    			for(int ibin=loadBin_start; ibin<=loadBin_end; ibin++)
+    			{
+    				iPart = s1->bmax[ibin] - count_of_particles_to_insert[ibin];
+    				nPart = count_of_particles_to_insert[ibin];
+    				cell_length[0] = params.cell_length[0];
+    				indexes[0] = smpi->getDomainLocalMin(0) + ibin*params.cell_length[0];
 
-            s1->initPosition(nPart, iPart, indexes, params.nDim_particle,
-                         cell_length, s1->species_param.initPosition_type);
+    				s1->initPosition(nPart, iPart, indexes, params.nDim_particle,
+    							 cell_length, s1->species_param.initPosition_type);
 
-            s1->initMomentum(nPart,iPart, temp, vel,
-                         s1->species_param.initMomentum_type, max_jutt_cumul, params);
+    				s1->initMomentum(nPart,iPart, temp, vel,
+    							 s1->species_param.initMomentum_type, max_jutt_cumul, params);
 
-            s1->initWeight_constant(nPart, species1, iPart, s1->species_param.weight);
-            s1->initCharge(nPart, species1, iPart, s1->species_param.charge);
-        }
+    				s1->initWeight_constant(nPart, species1, iPart, s1->species_param.weight);
+    				s1->initCharge(nPart, species1, iPart, s1->species_param.charge);
+    			}
+    		}
 
-        // heat paritcles in source region
+
+		// heat paritcles in source region
         if(loadTemperature < loadTemperature_exceed)
         {
             for(int ibin=loadBin_start; ibin<=loadBin_end; ibin++)
             {
-                nPart = count_of_particles_to_insert[ibin];
-                double temperature_heat = (loadTemperature_exceed - loadTemperature) * loadNumber / nPart;
+                nPart = s1->bmax[ibin] - s1->bmin[ibin];
+                double temperature_heat = (loadTemperature_exceed - loadTemperature) * loadNumber / (nPart * loadStep);
                 s1->heat(nPart,iPart, temperature_heat, params);
 
             }
