@@ -469,6 +469,7 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
         {
             for(int ibin=loadBin_start; ibin<=loadBin_end; ibin++)
             {
+                iPart = s1->bmin[ibin];
                 nPart = s1->bmax[ibin] - s1->bmin[ibin];
                 double temperature_heat = (loadTemperature_exceed - loadTemperature) * loadNumber_heat / (nPart * loadStep);
                 s1->heat(nPart,iPart, temperature_heat, params);
