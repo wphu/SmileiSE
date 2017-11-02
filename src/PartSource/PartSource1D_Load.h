@@ -47,6 +47,7 @@ public:
     double loadTemperature;
     double loadTemperature_init;
     double loadTemperature_exceed;
+	double loadTemperature_heat;
     // load density per second [m-3 s-1]
     double loadDn;
     // load heat flux density = loadDn * loadTemperature
@@ -55,6 +56,7 @@ public:
     // Number of particles loaded in one cell at one loadStep
     int loadNumber;
     int loadNumber_heat;
+	double loadNumber_init;
     // loadRem = loadStep * loadDn *... - loadNumber
     double loadRem;
     double loadRemTot;

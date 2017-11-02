@@ -82,8 +82,10 @@ PartSource1D (params, smpi)
     else if(loadKind == "nq")
     {
         loadStep = 1.0 + loadNumber * params.species_param[species1].weight / (loadDn * params.timestep);
-        loadRem = loadDn * loadStep * params.timestep / params.species_param[species1].weight - loadNumber;
+        loadNumber_init = loadDn * loadStep * params.timestep / params.species_param[species1].weight;
         loadRemTot = 0.0;
+		loadNumber_heat = loadNumber_init;
+		loadNumber = loadNumber_heat;
         MESSAGE("loadStep = "<<loadStep);
 
         int mpiSize = smpi->getSize();
@@ -169,8 +171,8 @@ PartSource1D (params, smpi)
     source_density_pre = 0.0;
     loadTemperature_init = loadTemperature;
     loadTemperature_exceed = 0.0;
-    loadTemperature_upLimit_factor = 1.5;
-    loadNumber_heat = 0;
+	loadTemperature_heat = (loadTemperature_init * loadNumber_init - loadNumber * loadTemperature)
+							/ (loadNumber_heat * loadStep);
 
     // Parameters for "dn"
     nextTimeStep = 0;
@@ -204,10 +206,8 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
 
     if(loadKind == "nq")
     {
-        timeStep_checkFor_nq++;
-        if(timeStep_checkFor_nq == 2 * loadStep)
+        if(itime%loadStep == 0)
         {
-            timeStep_checkFor_nq = 0;
             Field1D* rho1D = static_cast<Field1D*>(fields->rho_s[ species_group_dependent[0] ]);
             source_density = (*rho1D)(index_source_middle);
             smpi->bcast_double(&source_density, 1, mpiRank_source_middle);
@@ -228,9 +228,13 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
                 loadTemperature = loadTemperature_exceed;
             }
 
+            double loadNumber_temp = loadDn * loadStep * params.timestep / params.species_param[species1].weight;
+			loadRemTot += loadNumber_temp;
+			loadNumber = loadRemTot;
+			loadRemTot -= loadNumber;
+			loadTemperature_heat = (loadTemperature_init * loadNumber_init - loadNumber * loadTemperature)
+									/ (loadNumber_heat * loadStep);
 
-            loadStep = 1.0 + loadNumber * params.species_param[species1].weight / (loadDn * params.timestep);
-            loadRem = loadDn * loadStep * params.timestep / params.species_param[species1].weight - loadNumber;
 
             if(loadTemperature/temperature_pre > 2.0 || loadTemperature/temperature_pre < 0.5)
             {
@@ -416,23 +420,13 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
     			vel[1] = mean_velocity[1];
     			vel[2] = mean_velocity[2];
 
-    			int loadNumber_temp;
-    			loadRemTot += loadRem;
-    			loadNumber_temp = loadNumber;
-    			if(loadRemTot > 1.0)
-    			{
-    				loadNumber_temp = loadNumber + 1;
-    				loadRemTot -= 1.0;
-    			}
-          loadNumber_heat = loadNumber_temp;
-
     			for(int ibin = 0; ibin < count_of_particles_to_insert.size(); ibin++ )
     			{
     				count_of_particles_to_insert[ibin] = 0;
     				if(ibin >= loadBin_start && ibin <= loadBin_end)
     				{
 
-    					count_of_particles_to_insert[ibin] = loadNumber_temp;
+    					count_of_particles_to_insert[ibin] = loadNumber;
     				}
     			}
     			//cout<<"number: "<<loadDensity * params.timestep / s1->species_param.weight<<endl;
@@ -465,20 +459,20 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
 
 
 		    // heat paritcles in source region
-        if(loadTemperature < loadTemperature_exceed)
-        {
-            for(int ibin=loadBin_start; ibin<=loadBin_end; ibin++)
-            {
-                iPart = s1->bmin[ibin];
-                nPart = s1->bmax[ibin] - s1->bmin[ibin];
-                if(loadNumber_heat > nPart)
-                {
-                  loadNumber_heat = nPart;
-                }
-                double temperature_heat = (loadTemperature_exceed - loadTemperature) / loadStep;
-                s1->heat(nPart, loadNumber_heat, iPart, temperature_heat, params);
-            }
-        }
+			for(int ibin=loadBin_start; ibin<=loadBin_end; ibin++)
+			{
+				iPart = s1->bmin[ibin];
+				nPart = s1->bmax[ibin] - s1->bmin[ibin];
+				if(loadNumber_heat > nPart)
+				{
+					s1->heat(nPart, nPart, iPart, loadTemperature_heat*loadNumber_heat/nPart, params);
+				}
+				else if(loadNumber_heat <= nPart && loadNumber_heat > 0)
+				{
+					s1->heat(nPart, loadNumber_heat, iPart, loadTemperature_heat, params);
+				}
+			}
+
     }
     delete [] indexes;
     delete [] temp;
