@@ -477,7 +477,7 @@ MPI_Datatype SmileiMPI_Cart1D::createMPIparticles( Particles* particles, int nbr
     MPI_Get_address( &(particles->momentum(0,0)), &(address[1]) );
     MPI_Get_address( &(particles->momentum(1,0)), &(address[2]) );
     MPI_Get_address( &(particles->momentum(2,0)), &(address[3]) );
-    iProp = 4；
+    iProp = 4;
 
     if(isImplicit)
     {

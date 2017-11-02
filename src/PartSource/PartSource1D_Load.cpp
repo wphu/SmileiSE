@@ -229,11 +229,11 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
             }
 
             double loadNumber_temp = loadDn * loadStep * params.timestep / params.species_param[species1].weight;
-			loadRemTot += loadNumber_temp;
-			loadNumber = loadRemTot;
-			loadRemTot -= loadNumber;
-			loadTemperature_heat = (loadTemperature_init * loadNumber_init - loadNumber * loadTemperature)
-									/ (loadNumber_heat * loadStep);
+            loadRemTot += loadNumber_temp;
+      			loadNumber = loadRemTot;
+      			loadRemTot -= loadNumber;
+      			loadTemperature_heat = (loadTemperature_init * loadNumber_init - loadNumber * loadTemperature)
+									                 / (loadNumber_heat * loadStep);
 
 
             if(loadTemperature/temperature_pre > 2.0 || loadTemperature/temperature_pre < 0.5)
@@ -463,7 +463,7 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
 			{
 				iPart = s1->bmin[ibin];
 				nPart = s1->bmax[ibin] - s1->bmin[ibin];
-				if(loadNumber_heat > nPart)
+				if(loadNumber_heat > nPart && nPart > 0)
 				{
 					s1->heat(nPart, nPart, iPart, loadTemperature_heat*loadNumber_heat/nPart, params);
 				}

@@ -508,6 +508,10 @@ void Species::heat(unsigned int nPart_bin, unsigned int nPart, unsigned int iPar
         momentum_magnitude = sqrt( particles.momentum(0,p) * particles.momentum(0,p)
                                  + particles.momentum(1,p) * particles.momentum(1,p)
                                  + particles.momentum(2,p) * particles.momentum(2,p) );
+        if(momentum_magnitude == 0.0)
+        {
+          continue;
+        }
         momentum_unit[0] = particles.momentum(0,p) / momentum_magnitude;
         momentum_unit[1] = particles.momentum(1,p) / momentum_magnitude;
         momentum_unit[2] = particles.momentum(2,p) / momentum_magnitude;

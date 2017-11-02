@@ -32,6 +32,8 @@ public:
             ERROR( "Geometry " << params.geometry << " not implemented" );
         }
 
+		smpi->init(params);
+		
         // Creation of a cartesian topology
         smpi->createTopology(params);
 
