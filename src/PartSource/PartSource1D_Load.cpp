@@ -170,7 +170,7 @@ PartSource1D (params, smpi)
     loadTemperature_init = loadTemperature;
     loadTemperature_exceed = 0.0;
     loadTemperature_upLimit_factor = 1.5;
-    loadNumber_heat = 0.0;
+    loadNumber_heat = 0;
 
     // Parameters for "dn"
     nextTimeStep = 0;
@@ -416,15 +416,15 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
     			vel[1] = mean_velocity[1];
     			vel[2] = mean_velocity[2];
 
-    			double loadNumber_temp;
+    			int loadNumber_temp;
     			loadRemTot += loadRem;
     			loadNumber_temp = loadNumber;
-          loadNumber_heat = loadNumber_temp;
     			if(loadRemTot > 1.0)
     			{
     				loadNumber_temp = loadNumber + 1;
     				loadRemTot -= 1.0;
     			}
+          loadNumber_heat = loadNumber_temp;
 
     			for(int ibin = 0; ibin < count_of_particles_to_insert.size(); ibin++ )
     			{
@@ -464,16 +464,19 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
     		}
 
 
-		// heat paritcles in source region
+		    // heat paritcles in source region
         if(loadTemperature < loadTemperature_exceed)
         {
             for(int ibin=loadBin_start; ibin<=loadBin_end; ibin++)
             {
                 iPart = s1->bmin[ibin];
                 nPart = s1->bmax[ibin] - s1->bmin[ibin];
-                double temperature_heat = (loadTemperature_exceed - loadTemperature) * loadNumber_heat / (nPart * loadStep);
-                s1->heat(nPart,iPart, temperature_heat, params);
-
+                if(loadNumber_heat > nPart)
+                {
+                  loadNumber_heat = nPart;
+                }
+                double temperature_heat = (loadTemperature_exceed - loadTemperature) / loadStep;
+                s1->heat(nPart, loadNumber_heat, iPart, temperature_heat, params);
             }
         }
     }

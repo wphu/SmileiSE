@@ -94,7 +94,7 @@ public:
 
     //! Method used to heat particles in a given cell
     // Zoom particle velocity while keeping direction not changed
-    void heat(unsigned int, unsigned int, double, PicParams&);
+    void heat(unsigned int, unsigned int, unsigned int, double, PicParams&);
 
 
 

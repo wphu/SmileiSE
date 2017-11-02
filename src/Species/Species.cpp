@@ -4,6 +4,7 @@
 
 #include <ctime>
 #include <cstdlib>
+#include <algorithm>
 
 #include <iostream>
 
@@ -488,14 +489,22 @@ void Species::initMomentum(unsigned int nPart, unsigned int iPart, double *temp,
 //   - at zero (init_momentum_type = cold)
 //   - using random distribution (init_momentum_type = maxwell-juettner)
 // ---------------------------------------------------------------------------------------------------------------------
-void Species::heat(unsigned int nPart, unsigned int iPart, double temp, PicParams& params)
+void Species::heat(unsigned int nPart_bin, unsigned int nPart, unsigned int iPart, double temp, PicParams& params)
 {
     double momentum_unit[3];
     double momentum_magnitude;
 
-
-    for (unsigned int p= iPart; p<iPart+nPart; p++)
+    vector<unsigned int> index;
+    index.resize(nPart_bin);
+    for(int i = 0; i < nPart_bin; i++)
     {
+      index[i] = i;
+    }
+    random_shuffle(index.begin(), index.end());
+
+    for ( int i = 0; i < nPart; i++)
+    {
+        unsigned int p = iPart + index[i];
         momentum_magnitude = sqrt( particles.momentum(0,p) * particles.momentum(0,p)
                                  + particles.momentum(1,p) * particles.momentum(1,p)
                                  + particles.momentum(2,p) * particles.momentum(2,p) );
