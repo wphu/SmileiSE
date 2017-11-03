@@ -248,11 +248,17 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
 			if(loadNumber < loadNumber_init)
 			{
 				loadTemperature_heat = (loadTemperature_init * loadNumber_init - loadNumber * loadTemperature)
-												 / (loadNumber_heat * loadStep);					
+												 / loadNumber_heat;	
+				if(loadTemperature_heat < 0.0)
+				{
+					loadTemperature_heat = 0.0;
+					loadTemperature = loadTemperature_init * loadNumber_init / loadNumber;
+
+				}
 			}
 			else
 			{
-				loadTemperature_heat = 0;
+				loadTemperature_heat = 0.0;
 				loadTemperature = loadTemperature_init * loadNumber_init / loadNumber;
 				
 			}
