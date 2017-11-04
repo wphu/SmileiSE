@@ -153,7 +153,7 @@ PicParams::PicParams(InputData &ifile) {
         ERROR("Dimension of sim_length ("<< sim_length.size() << ") != " << nDim_field << " for geometry " << geometry);
     }
 
-    zoom_collision = 1.0;
+    collision_zoom_factor = 1.0;
     ifile.extract("collision_zoom_factor", collision_zoom_factor);
 
     ifile.extract("region_collision_zoom",region_collision_zoom);
