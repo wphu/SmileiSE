@@ -38,8 +38,6 @@ PicParams::PicParams(InputData &ifile) {
     timesteps_restore = 1000000000;
     ifile.extract("timesteps_restore", timesteps_restore);
 
-    zoom_collision = 1.0;
-    ifile.extract("zoom_collision", zoom_collision);
 
     exit_after_dump=true;
     ifile.extract("exit_after_dump", exit_after_dump);
@@ -154,6 +152,17 @@ PicParams::PicParams(InputData &ifile) {
     if (sim_length.size()!=nDim_field) {
         ERROR("Dimension of sim_length ("<< sim_length.size() << ") != " << nDim_field << " for geometry " << geometry);
     }
+
+    zoom_collision = 1.0;
+    ifile.extract("collision_zoom_factor", collision_zoom_factor);
+
+    ifile.extract("region_collision_zoom",region_collision_zoom);
+    if(region_collision_zoom.size() == 0 && sim_length.size() == 1)
+    {
+      region_collision_zoom.push_back(0.0);
+      region_collision_zoom.push_back(sim_length[0]);
+    }
+
 
     bcType = "constant";
     ifile.extract("bcType", bcType);

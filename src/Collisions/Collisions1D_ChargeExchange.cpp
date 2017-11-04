@@ -109,6 +109,16 @@ void Collisions1D_ChargeExchange::collide(PicParams& params, SmileiMPI* smpi, El
     sigma_cr_max = maxCV(s1, s2);
     for (unsigned int ibin=0 ; ibin<nbins ; ibin++) {
 
+        if(  smpi->getDomainLocalMin(0) + (ibin+1) * params.cell_length[0] < params.region_collision_zoom[0]
+          || smpi->getDomainLocalMin(0) + ibin * params.cell_length[0] > params.region_collision_zoom[1] )
+        {
+            collision_zoom_factor = 1.0;
+        }
+        else
+        {
+            collision_zoom_factor = params.collision_zoom_factor;
+        }
+
         //>calculate the particle number of species1 in each cell, and the indexs of particles in the cell
         index1.resize( n1[ibin] );
 
@@ -133,7 +143,7 @@ void Collisions1D_ChargeExchange::collide(PicParams& params, SmileiMPI* smpi, El
         // ----------------------------------------------------
 
 
-        npairs_double = n1[ibin] * (1 - exp(-density2[ibin] * sigma_cr_max * timesteps_collision * timestep * params.zoom_collision) );
+        npairs_double = n1[ibin] * (1 - exp(-density2[ibin] * sigma_cr_max * timesteps_collision * timestep * collision_zoom_factor) );
         npairs = npairs_double;
         npairsRem[ibin] += ( npairs_double - npairs );
         if(npairsRem[ibin] >= 1.0)

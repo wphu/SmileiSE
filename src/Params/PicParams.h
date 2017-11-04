@@ -314,7 +314,9 @@ public:
     unsigned int timesteps_restore;
 
     // artificially change the collision frequency
-    double zoom_collision;
+    double collision_zoom_factor;
+
+    std::vector<double> region_collision_zoom;
 
 
     //! Human minutes to dump everything

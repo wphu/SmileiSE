@@ -307,6 +307,8 @@ public:
     string crossSection_fileName;
     vector< vector<double> > crossSection;
 
+    double collision_zoom_factor;
+
 
 
 

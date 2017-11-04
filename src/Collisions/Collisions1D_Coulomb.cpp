@@ -35,7 +35,8 @@ Collisions1D_Coulomb::Collisions1D_Coulomb(PicParams& params, vector<Species*>& 
 
     twoPi = 2.0 * const_pi;
     e_ov_ephi0 = const_e / const_ephi0;
-    time_coulomb = params.timesteps_coulomb * params.timestep * params.zoom_collision;
+    time_coulomb = params.timesteps_coulomb * params.timestep;
+    collision_zoom_factor = params.collision_zoom_factor;
 
     n_Species        = sg1.size();
     n_particle.resize(n_Species);
@@ -74,6 +75,16 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
         // Loop on bins
         for (unsigned int ibin=0 ; ibin<nbins ; ibin++)
         {
+            if(  smpi->getDomainLocalMin(0) + (ibin+1) * params.cell_length[0] < params.region_collision_zoom[0]
+              || smpi->getDomainLocalMin(0) + ibin * params.cell_length[0] > params.region_collision_zoom[1] )
+            {
+              collision_zoom_factor = 1.0;
+            }
+            else
+            {
+              collision_zoom_factor = params.collision_zoom_factor;
+            }
+
             //cout<<"bins "<<nbins<<"  "<<ibin<<endl;
             // calculate n_particle[], density[], bmin[]
             density_all = 0;
@@ -189,7 +200,7 @@ void Collisions1D_Coulomb::collide(PicParams& params, SmileiMPI* smpi, ElectroMa
                       continue;
                   }
                   // the formula below the equation (101)
-                  s = A12 * time_coulomb / g_3;
+                  s = A12 * time_coulomb * collision_zoom_factor / g_3;
                   if(isOdd[j])
                   {
                     int n_temp = n_indexes[i] * 2 -1;
