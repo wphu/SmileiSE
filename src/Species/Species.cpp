@@ -493,6 +493,7 @@ void Species::heat(unsigned int nPart_bin, unsigned int nPart, unsigned int iPar
 {
     double momentum_unit[3];
     double momentum_magnitude;
+    double momentum_magnitude_add;
 
     vector<unsigned int> index;
     index.resize(nPart_bin);
@@ -516,7 +517,8 @@ void Species::heat(unsigned int nPart_bin, unsigned int nPart, unsigned int iPar
         momentum_unit[1] = particles.momentum(1,p) / momentum_magnitude;
         momentum_unit[2] = particles.momentum(2,p) / momentum_magnitude;
 
-        momentum_magnitude += sqrt(3.0 * temp * params.const_e / species_param.mass);
+        momentum_magnitude_add = sqrt(3.0 * temp * params.const_e / species_param.mass + momentum_magnitude * momentum_magnitude) - momentum_magnitude;
+        momentum_magnitude += momentum_magnitude_add;
 
         particles.momentum(0,p) = momentum_unit[0] * momentum_magnitude;
         particles.momentum(1,p) = momentum_unit[1] * momentum_magnitude;
