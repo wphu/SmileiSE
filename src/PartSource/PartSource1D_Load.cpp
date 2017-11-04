@@ -493,15 +493,15 @@ void PartSource1D_Load::emitLoad(PicParams& params, SmileiMPI* smpi, vector<Spec
 				{
 					iPart = s1->bmin[ibin];
 					nPart = s1->bmax[ibin] - s1->bmin[ibin];
-					if(nPart > 0)
+					if(loadNumber_heat > nPart && nPart > 0)
 					{
 						//cout<<"heat  "<<loadTemperature_heat*loadNumber_heat/nPart<<endl;
 						s1->heat(nPart, nPart, iPart, loadTemperature_heat*loadNumber_heat/nPart, params);
 					}
-					//else if(loadNumber_heat <= nPart && loadNumber_heat > 0)
-					//{
-					//	s1->heat(nPart, loadNumber_heat, iPart, loadTemperature_heat, params);
-					//}
+					else if(loadNumber_heat <= nPart)
+					{
+						s1->heat(nPart, loadNumber_heat, iPart, loadTemperature_heat, params);
+					}
 				}
 				
 				
