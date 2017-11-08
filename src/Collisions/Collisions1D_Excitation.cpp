@@ -77,7 +77,7 @@ void Collisions1D_Excitation::collide(PicParams& params, SmileiMPI* smpi, Electr
     s1 = vecSpecies[(*sg1)[0]];      s2 = vecSpecies[(*sg2)[0]];
     p1 = &(s1->particles);           p2 = &(s2->particles);
     m1 = s1->species_param.mass;     m2 = s2->species_param.mass;
-    W1 = p1->weight(0);              W2 = p2->weight(0);
+    W1 = s1->species_param.weight;   W2 = s2->species_param.weight;
     bmin1 = s1->bmin;                bmin2 = s2->bmin;
     bmax1 = s1->bmax;                bmax2 = s2->bmax;
 

@@ -80,7 +80,7 @@ void Collisions1D_Ionization::collide(PicParams& params, SmileiMPI* smpi, Electr
     s1 = vecSpecies[(*sg1)[0]];      s2 = vecSpecies[(*sg2)[0]];        s3 = vecSpecies[(*sg3)[0]];
     p1 = &(s1->particles);           p2 = &(s2->particles);             p3 = &(s3->particles);
     m1 = s1->species_param.mass;     m2 = s2->species_param.mass;       m3 = s3->species_param.mass;
-    W1 = p1->weight(0);              W2 = p2->weight(0);                //W3 = p3->weight(0);
+    W1 = s1->species_param.weight;   W2 = s2->species_param.weight;     W3 = s3->species_param.weight;
     bmin1 = s1->bmin;                bmin2 = s2->bmin;                  bmin3 = s3->bmin;
     bmax1 = s1->bmax;                bmax2 = s2->bmax;                  bmax3 = s3->bmax;
 
