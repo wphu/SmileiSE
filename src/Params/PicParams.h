@@ -202,6 +202,8 @@ public:
     // theta of pushing particles for implicit method
     double imp_iteration_number;
 
+    std::string solver_type;
+
 
     //! defines the geometry of the simulation
     std::string geometry;

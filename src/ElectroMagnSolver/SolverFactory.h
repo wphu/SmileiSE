@@ -3,6 +3,7 @@
 
 #include "EF_Solver1D_TDMA.h"
 #include "EF_Solver1D_TDMA_imp.h"
+#include "EF_Solver1D_GeneralThomas.h"
 #include "MF_Solver1D_Yee.h"
 #include "MF_Solver2D_Yee.h"
 #include "MF_Solver2D_Cowan.h"
@@ -22,7 +23,15 @@ public:
             ifile.extract("nx_source_left", nx_source_left);
             if(params.method == "explicit")
             {
-                solver = new EF_Solver1D_TDMA(params, smpi, nx_source_left);
+                if(params.solver_type == "GeneralThomas")
+                {
+                  solver = new EF_Solver1D_GeneralThomas(params, smpi, nx_source_left);
+                }
+                else
+                {
+                  solver = new EF_Solver1D_TDMA(params, smpi, nx_source_left);
+                }
+
             }
             else if(params.method == "implicit")
             {
