@@ -2,6 +2,8 @@
 #include "Species.h"
 #include "SmileiMPI_Cart1D.h"
 #include "ElectroMagn.h"
+#include<iomanip>
+#include <fstream>
 
 
 Diagnostic1D::Diagnostic1D(PicParams& params, SmileiMPI* smpi, ElectroMagn* EMfields) :
@@ -16,6 +18,7 @@ Diagnostic(params)
 	angleDist.resize(n_species);
 	particleNumber.resize(n_species);
 	kineticEnergy.resize(n_species);
+	totalParticleEnergy.resize(n_species);
 	for(int ispec = 0; ispec < n_species; ispec++)
 	{
 		particleFlux[ispec].resize(2);
@@ -139,6 +142,8 @@ void Diagnostic1D::run( SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMa
 
 	// calculate velocity and temperature of each species
 	calVT(smpi, vecSpecies, EMfields, itime);
+
+	calTotalEnergy(smpi, vecSpecies, EMfields, itime);
 
 
 
@@ -304,5 +309,57 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 		kineticEnergy = energy_temp;
 	}
 
+
+}
+
+
+void Diagnostic1D::calTotalEnergy(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMagn* EMfields, int itime)
+{
+		Species *s1;
+		Particles *p1;
+		int i;
+		double totalElectricFieldEnergy_temp;
+		vector<double> totalParticleEnergy_temp;
+		totalParticleEnergy_temp.resize(n_species);
+
+		for(int iSpec = 0; iSpec < vecSpecies.size(); iSpec++)
+		{
+				s1 = vecSpecies[iSpec];
+				p1 = &(s1->particles);
+
+				m_ov_3e = s1->species_param.mass / ( const_e * 3.0 );
+				m_ov_2 = s1->species_param.mass / 2.0;
+
+				// reset particleNumber and kineticEnergy
+				totalParticleEnergy[iSpec] = 0.0;
+
+				for(int iPart = 0; iPart < p1->size(); iPart++)
+				{
+					// calculate total kineticEnergy
+					v_square = p1->momentum(0, iPart) * p1->momentum(0, iPart) + p1->momentum(1, iPart) * p1->momentum(1, iPart) + p1->momentum(2, iPart) * p1->momentum(2, iPart);
+					totalParticleEnergy[iSpec] += ( m_ov_2 * v_square );
+				}
+
+		}
+
+		Field1D* Ex1D = static_cast<Field1D*>(EMfields->Ex_[iSpec]);
+		for(int i = oversize[0]; i < Ex1D->dims_[0] - oversize[0]; i++)
+		{
+				totalElectricFieldEnergy += Ex1D(i) * Ex1D(i);
+		}
+
+		smpi->reduceDoubleVector(&totalParticleEnergy[0], &totalParticleEnergy_temp[0], n_species);
+		smpi->reduceDoubleVector(&totalElectricFieldEnergy, &totalElectricFieldEnergy_temp, 1);
+		totalParticleEnergy = totalParticleEnergy_temp;
+		totalElectricFieldEnergy = totalElectricFieldEnergy_temp;
+
+		if(smpi->isMaster())
+		{
+				ofstream outfile;
+				outfile.open("totalEnergy.txt", iso::app);
+				outfile<<setw(20)<<i<<totalElectricFieldEnergy<<totalParticleEnergy[0]<<totalParticleEnergy[1]
+							 <<totalParticleEnergy[0]+totalParticleEnergy[1]<<endl;
+				outfile.close();
+		}
 
 }

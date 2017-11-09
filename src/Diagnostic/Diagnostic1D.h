@@ -15,15 +15,22 @@ public :
 
     //! Runs the diag for all patches for local diags.
     virtual void run( SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMagn* EMfields, int itime ) ;
+    // calculate velocity and temperature of each species
+	 void calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMagn* EMfields, int itime);
+
+   // calculate total energy(particles and electric field)
+   void calTotalEnergy(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMagn* EMfields, int itime);
+
 
 	vector< vector<double> > particleFlux;             //particleFlux[ispec][iDirection]
 	vector< vector<double> > heatFlux;                 //heatFlux[ispec][iDirection]
     vector< vector< vector<double> > > angleDist;      //angleDist[ispec][iDirection][iAngle]
     vector< int > particleNumber;                      // particleNumber[ispec]
     vector< double > kineticEnergy;                    // kineticEnergy[ispec]
+    vector<double> totalParticleEnergy;
+    double totalElectricFieldEnergy;
 
-    // calculate velocity and temperature of each species
-	void calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMagn* EMfields, int itime);
+
 
     Field1D *ptclNum1D;
 
