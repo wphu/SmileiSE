@@ -19,7 +19,7 @@ PartBoundCond::PartBoundCond( PicParams& params, int ispec, SmileiMPI* smpi )
     // number of dimensions for the particle
     //!\todo (MG to JD) isn't it always 3?
     nDim_particle = params.nDim_particle;
-    
+
     // Absolute global values
     double x_min_global = 0;
     double x_max_global = params.cell_length[0]*(params.n_space_global[0]);
@@ -27,7 +27,7 @@ PartBoundCond::PartBoundCond( PicParams& params, int ispec, SmileiMPI* smpi )
     double y_max_global = params.cell_length[1]*(params.n_space_global[1]);
     double z_min_global = 0;
     double z_max_global = params.cell_length[2]*(params.n_space_global[2]);
-    
+
     // by default apply no bcs
     bc_west   = NULL;
     bc_east   = NULL;
@@ -35,15 +35,15 @@ PartBoundCond::PartBoundCond( PicParams& params, int ispec, SmileiMPI* smpi )
     bc_north  = NULL;
     bc_bottom = NULL;
     bc_up     = NULL;
-    
+
     // -----------------------------
     // Define limits of local domain
     // -----------------------------
-    
+
     // 1d3v or 2d3v or 3d3v
     x_min = max( x_min_global, smpi->getDomainLocalMin(0) );
     x_max = min( x_max_global, smpi->getDomainLocalMax(0) );
-    
+
     // 2d3v or 3d3v
     if ( nDim_particle > 1 ) {
         if ( (params.bc_em_type_y[0]=="periodic") || (params.bc_em_type_y[1]=="periodic") ) {
@@ -55,7 +55,7 @@ PartBoundCond::PartBoundCond( PicParams& params, int ispec, SmileiMPI* smpi )
             y_max = min( y_max_global, smpi->getDomainLocalMax(1) );
         }
     }
-    
+
     // 3d3v
     if ( nDim_particle > 2 ) {
         if ( (params.bc_em_type_z[0]=="periodic") || (params.bc_em_type_z[1]=="periodic") ) {
@@ -67,7 +67,7 @@ PartBoundCond::PartBoundCond( PicParams& params, int ispec, SmileiMPI* smpi )
             z_max = min( z_max_global, smpi->getDomainLocalMax(2) );
         }
     }
-    
+
     // Check for inconsistencies between EM and particle BCs
     if ( ((params.bc_em_type_x[0]=="periodic")&&(params.species_param[ispec].bc_part_type_west!="none"))
      ||  ((params.bc_em_type_x[1]=="periodic")&&(params.species_param[ispec].bc_part_type_east!="none")) ) {
@@ -85,13 +85,13 @@ PartBoundCond::PartBoundCond( PicParams& params, int ispec, SmileiMPI* smpi )
             }
         }
     }
-    
+
     // ----------------------------------------------
     // Define the kind of applied boundary conditions
     // ----------------------------------------------
-    
+
     bool thermCond = false;
-    
+
     // West
     if ( params.species_param[ispec].bc_part_type_west == "refl" ) {
         if (smpi->isWestern()) bc_west = &refl_particle;
@@ -101,6 +101,9 @@ PartBoundCond::PartBoundCond( PicParams& params, int ispec, SmileiMPI* smpi )
     }
     else if ( params.species_param[ispec].bc_part_type_west == "stop" ) {
         if (smpi->isWestern()) bc_west = &stop_particle;
+    }
+    else if ( params.species_param[ispec].bc_part_type_west == "periodic" ) {
+        if (smpi->isWestern()) bc_west = &periodic_particle;
     }
     else if ( params.species_param[ispec].bc_part_type_west == "thermalize" ) {
         thermCond = true;
@@ -112,7 +115,7 @@ PartBoundCond::PartBoundCond( PicParams& params, int ispec, SmileiMPI* smpi )
     else {
         ERROR( "West boundary condition undefined" );
     }
-    
+
     // East
     if ( params.species_param[ispec].bc_part_type_east == "refl" ) {
         if (smpi->isEastern()) bc_east = &refl_particle;
@@ -122,6 +125,9 @@ PartBoundCond::PartBoundCond( PicParams& params, int ispec, SmileiMPI* smpi )
     }
     else if ( params.species_param[ispec].bc_part_type_east == "stop" ) {
         if (smpi->isEastern()) bc_east = &stop_particle;
+    }
+    else if ( params.species_param[ispec].bc_part_type_east == "periodic" ) {
+        if (smpi->isEastern()) bc_east = &periodic_particle;
     }
     else if ( params.species_param[ispec].bc_part_type_east == "thermalize" ) {
         thermCond = true;
@@ -133,8 +139,8 @@ PartBoundCond::PartBoundCond( PicParams& params, int ispec, SmileiMPI* smpi )
     else {
         ERROR( "East boundary condition undefined" );
     }
-    
-    
+
+
     if ( nDim_particle > 1 ) {
         // South
         if ( params.species_param[ispec].bc_part_type_south == "refl" ) {
@@ -146,6 +152,9 @@ PartBoundCond::PartBoundCond( PicParams& params, int ispec, SmileiMPI* smpi )
         else if ( params.species_param[ispec].bc_part_type_south == "stop" ) {
             if (smpi->isSouthern()) bc_south = &stop_particle;
         }
+        else if ( params.species_param[ispec].bc_part_type_south == "periodic" ) {
+            if (smpi->isSouthern()) bc_south = &periodic_particle;
+        }
         else if ( params.species_param[ispec].bc_part_type_south == "thermalize" ) {
             thermCond = true;
             if (smpi->isSouthern()) bc_south = &thermalize_particle;
@@ -156,7 +165,7 @@ PartBoundCond::PartBoundCond( PicParams& params, int ispec, SmileiMPI* smpi )
         else {
             ERROR( "South boundary condition undefined : " << params.species_param[ispec].bc_part_type_south  );
         }
-        
+
         // North
         if ( params.species_param[ispec].bc_part_type_north == "refl" ) {
             if (smpi->isNorthern()) bc_north = &refl_particle;
@@ -166,6 +175,9 @@ PartBoundCond::PartBoundCond( PicParams& params, int ispec, SmileiMPI* smpi )
         }
         else if ( params.species_param[ispec].bc_part_type_north == "stop" ) {
             if (smpi->isNorthern()) bc_north = &stop_particle;
+        }
+        else if ( params.species_param[ispec].bc_part_type_north == "periodic" ) {
+            if (smpi->isNorthern()) bc_north = &periodic;
         }
         else if ( params.species_param[ispec].bc_part_type_north == "thermalize" ) {
             thermCond = true;
@@ -177,8 +189,8 @@ PartBoundCond::PartBoundCond( PicParams& params, int ispec, SmileiMPI* smpi )
         else {
             ERROR( "North boundary condition undefined : " << params.species_param[ispec].bc_part_type_north  );
         }
-        
-        
+
+
         if ( nDim_particle > 2 ) {
             if ( params.species_param[ispec].bc_part_type_bottom == "refl" ) {
                 if (z_min==z_min_global) bc_bottom = &refl_particle;
@@ -189,7 +201,10 @@ PartBoundCond::PartBoundCond( PicParams& params, int ispec, SmileiMPI* smpi )
             else if ( params.species_param[ispec].bc_part_type_bottom == "stop" ) {
                 if (z_min==z_min_global) bc_bottom = &stop_particle;
             }
-            
+            else if ( params.species_param[ispec].bc_part_type_bottom == "periodic" ) {
+                if (z_min==z_min_global) bc_bottom = &periodic_particle;
+            }
+
             if ( params.species_param[ispec].bc_part_type_up == "refl" ) {
                 if (z_min==z_min_global) bc_up = &refl_particle;
             }
@@ -199,11 +214,14 @@ PartBoundCond::PartBoundCond( PicParams& params, int ispec, SmileiMPI* smpi )
             else if ( params.species_param[ispec].bc_part_type_up == "stop" ) {
                 if (z_min==z_min_global) bc_up = &stop_particle;
             }
-            
+            else if ( params.species_param[ispec].bc_part_type_up == "periodic" ) {
+                if (z_min==z_min_global) bc_up = &periodic_particle;
+            }
+
         }//nDim_particle>2
-        
+
     }//nDim_particle>1
-    
+
     /* NOT USED ANYMORE AS WE USE THE ERFINV FCT FROM TOOLS/USERFUNCTIONS
     // ---------------------------------------------------------------------
     // Compute the tabulated inverse error function used in thermalizing bcs
@@ -212,7 +230,7 @@ PartBoundCond::PartBoundCond( PicParams& params, int ispec, SmileiMPI* smpi )
         erfinv::instance().prepare();
     }//thermCond
      */
-    
+
 }
 
 

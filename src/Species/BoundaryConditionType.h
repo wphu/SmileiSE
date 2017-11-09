@@ -49,6 +49,13 @@ inline int stop_particle( Particles &particles, int ipart, int direction, double
 
 }
 
+inline int periodic_particle( Particles &particles, int ipart, int direction, double limit_pos, SpeciesStructure &params, double &nrj_iPart) {
+    return 1;
+}
+
+
+
+
 //!\todo (MG) at the moment the particle is thermalize whether or not there is a plasma initially at the boundary.
 // ATTENTION: here the thermalization assumes a Maxwellian distribution, maybe we should add some checks on thermT (MG)!
 inline int thermalize_particle( Particles &particles, int ipart, int direction, double limit_pos, SpeciesStructure &params, double &nrj_iPart) {
