@@ -343,6 +343,7 @@ void Diagnostic1D::calTotalEnergy(SmileiMPI* smpi, vector<Species*>& vecSpecies,
 
 		}
 
+		totalElectricFieldEnergy = 0.0;
 		Field1D* Ex1D = static_cast<Field1D*>(EMfields->Ex_);
 		for(int i = oversize[0]; i < Ex1D->dims_[0] - oversize[0]; i++)
 		{
@@ -358,8 +359,8 @@ void Diagnostic1D::calTotalEnergy(SmileiMPI* smpi, vector<Species*>& vecSpecies,
 		{
 				ofstream outfile;
 				outfile.open("totalEnergy.txt", ios::app);
-				outfile<<setw(20)<<itime<<totalElectricFieldEnergy<<totalParticleEnergy[0]<<totalParticleEnergy[1]
-							 <<totalParticleEnergy[0]+totalParticleEnergy[1]<<endl;
+				outfile<<setw(15)<<itime<<setw(15)<<totalElectricFieldEnergy<<setw(15)<<totalParticleEnergy[0]<<setw(15)<<totalParticleEnergy[1]
+							 <<setw(15)<<totalParticleEnergy[0]+totalParticleEnergy[1]<<endl;
 				outfile.close();
 		}
 
