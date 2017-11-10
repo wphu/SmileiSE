@@ -23,6 +23,10 @@ EF_Solver1D_GeneralThomas::EF_Solver1D_GeneralThomas(PicParams &params, SmileiMP
         bc_x_left = 2;
         bc_e_derivative[0][0] = params.bc_em_value_x[0];
     }
+    else
+    {
+      bc_x_left = 0;
+    }
 
     if(params.bc_em_type_x[1] == "Dirichlet"){
         bc_x_right = 1;
@@ -31,6 +35,10 @@ EF_Solver1D_GeneralThomas::EF_Solver1D_GeneralThomas(PicParams &params, SmileiMP
     else if(params.bc_em_type_x[1] == "Neumann"){
         bc_x_right = 2;
         bc_e_derivative[0][1] = params.bc_em_value_x[1];
+    }
+    else
+    {
+      bc_x_right = 0;
     }
 
 
@@ -156,7 +164,7 @@ void EF_Solver1D_GeneralThomas::solve_GeneralThomas(Field* rho, Field* phi)
 
     h[nx-1] = (y[nx-1] - a[nx-1]*u[nx-2]) / ( a[nx-1] * ( q[nx-2] + t[nx-2] ) + b[nx-1] );
     g[nx-1] = c[nx-1] / ( a[nx-1] * ( g[nx-2] + t[nx-2] ) + b[nx-1] );
-    h[nx-2] = u[nx-2] + ( q[nx-2] + t[nx-2] ) / h[nx-1];
+    h[nx-2] = u[nx-2] + ( q[nx-2] + t[nx-2] ) * h[nx-1];
     g[nx-2] = ( q[nx-2] + t[nx-2] ) * g[nx-1];
     for(int i = nx - 3; i > 0; i--)
     {
@@ -168,6 +176,7 @@ void EF_Solver1D_GeneralThomas::solve_GeneralThomas(Field* rho, Field* phi)
     for(int i = 1; i <= nx-1; i++)
     {
       x[i] = h[i] + g[i] * x[0];
+      DEBUGEXEC(if (!std::isfinite(x[i])) ERROR("Not finite "<< i << " = " << h[i] << g[i] << x[0]));
     }
 
     for(int i = 0; i < nx; i++)
