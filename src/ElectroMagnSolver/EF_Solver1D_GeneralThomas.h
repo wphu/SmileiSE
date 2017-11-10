@@ -4,9 +4,13 @@
 #ifndef EF_SOLVER1D_GENERALTHOMAS_H
 #define EF_SOLVER1D_GENERALTHOMAS_H
 
+#include <vector>
+
 #include "Solver1D.h"
 #include "SmileiMPI_Cart1D.h"
 class ElectroMagn;
+
+using namespace std;
 
 //  --------------------------------------------------------------------------------------------------------------------
 //! Class Pusher
