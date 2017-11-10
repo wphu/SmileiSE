@@ -14,4 +14,6 @@ timestep(params.timestep)
 	B_magnitude = sqrt(B_magnitude);
 	sinPhi = params.externB[0] / B_magnitude;
 	cosPhi = sqrt(1.0 - sinPhi * sinPhi);
+
+	oversize = params.oversize;
 }

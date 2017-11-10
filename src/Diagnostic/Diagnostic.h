@@ -34,6 +34,8 @@ protected :
     double sinPhi, cosPhi;
 
     vector<double> sim_length;
+
+    vector<unsigned int> oversize;
 };
 
 #endif

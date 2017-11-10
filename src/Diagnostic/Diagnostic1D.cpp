@@ -2,9 +2,10 @@
 #include "Species.h"
 #include "SmileiMPI_Cart1D.h"
 #include "ElectroMagn.h"
-#include<iomanip>
+#include <iomanip>
 #include <fstream>
 
+using namespace std;
 
 Diagnostic1D::Diagnostic1D(PicParams& params, SmileiMPI* smpi, ElectroMagn* EMfields) :
 Diagnostic(params)
@@ -317,6 +318,7 @@ void Diagnostic1D::calTotalEnergy(SmileiMPI* smpi, vector<Species*>& vecSpecies,
 {
 		Species *s1;
 		Particles *p1;
+		double m_ov_2, v_square;
 		int i;
 		double totalElectricFieldEnergy_temp;
 		vector<double> totalParticleEnergy_temp;
@@ -327,7 +329,6 @@ void Diagnostic1D::calTotalEnergy(SmileiMPI* smpi, vector<Species*>& vecSpecies,
 				s1 = vecSpecies[iSpec];
 				p1 = &(s1->particles);
 
-				m_ov_3e = s1->species_param.mass / ( const_e * 3.0 );
 				m_ov_2 = s1->species_param.mass / 2.0;
 
 				// reset particleNumber and kineticEnergy
@@ -342,10 +343,10 @@ void Diagnostic1D::calTotalEnergy(SmileiMPI* smpi, vector<Species*>& vecSpecies,
 
 		}
 
-		Field1D* Ex1D = static_cast<Field1D*>(EMfields->Ex_[iSpec]);
+		Field1D* Ex1D = static_cast<Field1D*>(EMfields->Ex_);
 		for(int i = oversize[0]; i < Ex1D->dims_[0] - oversize[0]; i++)
 		{
-				totalElectricFieldEnergy += Ex1D(i) * Ex1D(i);
+				totalElectricFieldEnergy += (*Ex1D)(i) * (*Ex1D)(i);
 		}
 
 		smpi->reduceDoubleVector(&totalParticleEnergy[0], &totalParticleEnergy_temp[0], n_species);
@@ -356,8 +357,8 @@ void Diagnostic1D::calTotalEnergy(SmileiMPI* smpi, vector<Species*>& vecSpecies,
 		if(smpi->isMaster())
 		{
 				ofstream outfile;
-				outfile.open("totalEnergy.txt", iso::app);
-				outfile<<setw(20)<<i<<totalElectricFieldEnergy<<totalParticleEnergy[0]<<totalParticleEnergy[1]
+				outfile.open("totalEnergy.txt", ios::app);
+				outfile<<setw(20)<<itime<<totalElectricFieldEnergy<<totalParticleEnergy[0]<<totalParticleEnergy[1]
 							 <<totalParticleEnergy[0]+totalParticleEnergy[1]<<endl;
 				outfile.close();
 		}
