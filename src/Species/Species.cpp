@@ -1,7 +1,6 @@
 #include "Species.h"
 
 #include <cmath>
-
 #include <ctime>
 #include <cstdlib>
 #include <algorithm>

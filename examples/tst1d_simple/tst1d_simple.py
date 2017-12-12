@@ -10,27 +10,30 @@ import math
 
 method = 'explicit'
 
-l0 = 1.0e-5     # nu.norm_l is reference time, the value's unit before / is m (SI)
+l0 = 0.5e-5     # nu.norm_l is reference time, the value's unit before / is m (SI)
 Lsim = [500.*l0]	# length of the simulation
 
-t0 = 1.0e-12
-Tsim = 1000			# duration of the simulation
+t0 = 0.5e-12
+Tsim = 100			# duration of the simulation
+output_step = 10
+
+# number of MPI processes
+n_procs = 4
+
 
 
 #> number of timestep of incrementing averaged electromagnetic fields
-ntime_step_avg = 1000
+ntime_step_avg = 10
+
+ion_step = 1
 
 #> Timestep to output some fields into hdf5 file
-dump_step = 200000
+dump_step = int( Tsim / output_step )
 timesteps_restore = dump_step
 
-timesteps_collision = 20
 
-timesteps_coulomb = 40
 
-timesteps_DSMC = 40
 
-is_calVDF = 0
 # dim: Geometry of the simulation
 #      1d3v = cartesian grid with 1d in space + 3d in velocity
 #      2d3v = cartesian grid with 2d in space + 3d in velocity
@@ -39,7 +42,7 @@ is_calVDF = 0
 #
 dim = '1d3v'
 
-number_of_procs = [24]
+number_of_procs = [n_procs]
 
 #print sim_time / timestep
 # ELECTROMAGNETIC BOUNDARY CONDITIONS
@@ -50,10 +53,12 @@ number_of_procs = [24]
 #
 bc_em_type_x = ['Dirichlet', 'Dirichlet']
 #bc_em_type_x = ['Neumann', 'Dirichlet']
+
 bc_em_value_x = [0.0, 0.0]
 
-B = 0.0
-angle = 5.0 * math.pi / 180.0
+Bangle = 0.0
+B = 2.0
+angle = Bangle * math.pi / 180.0
 Bx = B * math.sin(angle)
 By = B * math.cos(angle)
 Bz = 0.0
@@ -71,25 +76,32 @@ vz = 0.0
 # this is used to randomize the random number generator
 random_seed = 0
 
+
 # order of interpolation
+#
 interpolation_order = 1
+projection_order = 2
+
 
 # SIMULATION BOX : for all space directions (use vector)
 # cell_length: length of the cell
 # sim_length: length of the simulation in units of the normalization wavelength
+#
 cell_length = [l0]
 sim_length  = Lsim
 
 # SIMULATION TIME
 # timestep: duration of the timestep
 # sim_time: duration of the simulation in units of the normalization period
+#
 timestep = t0
 n_time = Tsim
 
 
 
 
-# ================ DEFINE ALL SPECIES ====================================================
+
+# ================= DEFINE ALL SPECIES ===========================================
 # species_type       = string, given name to the species (e.g. ion, electron, positron, test ...)
 # initPosition_type  = string, "regular" or "random"
 # initMomentum_type  = string "cold", "maxwell-juettner" or "rectangular"
@@ -112,12 +124,13 @@ Species(
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 200,
-	n_part_per_cell_for_weight = 200,
+	#Pusher_type = 'GC0',
+	n_part_per_cell = 0,
+	n_part_per_cell_for_weight = 160,
 	c_part_max = 1.0,
 	mass = 9.109382616e-31,
 	charge = -1.6021766208e-19,
-	nb_density = 1.0e19,
+	nb_density = 2.0e19,
 	temperature = [20.0],
 	time_frozen = 0.,
 	bc_part_type_west  = 'supp',
@@ -129,14 +142,20 @@ Species(
 	initPosition_type = 'random',
 	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 200,
-	n_part_per_cell_for_weight = 200,
+	timestep_zoom = ion_step,
+	n_part_per_cell = 0,
+	n_part_per_cell_for_weight = 160,
 	c_part_max = 1.0,
 	mass = 2.0 * 1.67262158e-27,
 	charge = 1.6021766208e-19,
-	nb_density = 1.0e19,
+	nb_density = 2.0e19,
 	temperature = [20.0],
 	time_frozen = 0.0,
 	bc_part_type_west  = 'supp',
 	bc_part_type_east  = 'supp',
+
+	diameter = 2.751E-10,
+	ref_temperature = 273.,
+	visc_temp_index = 0.75,
+	vss_scat_inv = 1.
 )
