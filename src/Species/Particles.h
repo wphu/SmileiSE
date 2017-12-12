@@ -102,6 +102,21 @@ public:
     //! Overwrite particle part1->part1+N into part2->part2+N of dest_parts memory location. Erasing part2->part2+N
     void overwrite_part2D(int part1, Particles &dest_parts, int part2,int N);
 
+
+    //! Overwrite particle part1 into part2 memory location. Erasing part2
+    void overwrite_part3D(int part1,int part2);
+
+    //! Overwrite particle part1->part1+N into part2->part2+N memory location. Erasing part2->part2+N
+    void overwrite_part3D(int part1,int part2,int N);
+
+    //! Overwrite particle part1 into part2 of dest_parts memory location. Erasing part2
+    void overwrite_part3D(int part1, Particles &dest_parts, int part2);
+
+    //! Overwrite particle part1->part1+N into part2->part2+N of dest_parts memory location. Erasing part2->part2+N
+    void overwrite_part3D(int part1, Particles &dest_parts, int part2,int N);
+
+
+
     //! Move iPart at the end of vectors
     void push_to_end(int iPart );
 

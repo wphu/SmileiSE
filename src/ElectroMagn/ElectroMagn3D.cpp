@@ -280,28 +280,6 @@ void ElectroMagn3D::saveMagneticFields()
     Field3D* By3D_m = static_cast<Field3D*>(By_m);
     Field3D* Bz3D_m = static_cast<Field3D*>(Bz_m);
 
-    // Magnetic field Bx^(p,d)
-    for (unsigned int i=0 ; i<nx_p ; i++) {
-        for (unsigned int j=0 ; j<ny_p ; j++) {
-            (*Bx3D_m)(i,j)=(*Bx3D)(i,j);
-        }
-
-    // Magnetic field By^(d,p)
-        for (unsigned int j=0 ; j<ny_p ; j++) {
-            (*By3D_m)(i,j)=(*By3D)(i,j);
-        }
-
-    // Magnetic field Bz^(d,d)
-        for (unsigned int j=0 ; j<ny_p ; j++) {
-            (*Bz3D_m)(i,j)=(*Bz3D)(i,j);
-        }
-    }// end for j
-        for (unsigned int j=0 ; j<ny_p ; j++) {
-            (*By3D_m)(nx_p,j)=(*By3D)(nx_p,j);
-        }
-        for (unsigned int j=0 ; j<ny_p ; j++) {
-            (*Bz3D_m)(nx_p,j)=(*Bz3D)(nx_p,j);
-        }
 
 }//END saveMagneticFields
 
@@ -323,36 +301,6 @@ void ElectroMagn3D::solveMaxwellAmpere()
     Field3D* Jy3D = static_cast<Field3D*>(Jy_);
     Field3D* Jz3D = static_cast<Field3D*>(Jz_);
 
-    // Electric field Ex^(d,p)
-    for (unsigned int i=0 ; i<nx_p ; i++) {
-      //    for (unsigned int i=0 ; i<nx_p ; i++) {
-        for (unsigned int j=0 ; j<ny_p ; j++) {
-            (*Ex3D)(i,j) += -timestep*(*Jx3D)(i,j) + dt_ov_dy * ( (*Bz3D)(i,j+1) - (*Bz3D)(i,j) );
-        }// end for j
-        //    }// end for i
-
-    // Electric field Ey^(p,d)
-
-    //    for (unsigned int i=0 ; i<nx_p ; i++) {
-        for (unsigned int j=0 ; j<ny_p ; j++) {
-            (*Ey3D)(i,j) += -timestep*(*Jy3D)(i,j) - dt_ov_dx * ( (*Bz3D)(i+1,j) - (*Bz3D)(i,j) );
-        }// end for j
-    //} // end for i
-
-    // Electric field Ez^(p,p)
-    //for (unsigned int i=0 ;  i<nx_p ; i++) {
-        for (unsigned int j=0 ; j<ny_p ; j++) {
-            (*Ez3D)(i,j) += -timestep*(*Jz3D)(i,j)
-            +               dt_ov_dx * ( (*By3D)(i+1,j) - (*By3D)(i,j) )
-            -               dt_ov_dy * ( (*Bx3D)(i,j+1) - (*Bx3D)(i,j) );
-        } // end for j
-    }// end for i
-
-
-
-      for (unsigned int j=0 ; j<ny_p ; j++) {
-          (*Ex3D)(nx_p,j) += -timestep*(*Jx3D)(nx_p,j) + dt_ov_dy * ( (*Bz3D)(nx_p,j+1) - (*Bz3D)(nx_p,j) );
-      }
 
 
 }//END solveMaxwellAmpere
@@ -371,34 +319,6 @@ void ElectroMagn3D::centerMagneticFields()
     Field3D* By3D_m = static_cast<Field3D*>(By_m);
     Field3D* Bz3D_m = static_cast<Field3D*>(Bz_m);
 
-    // Magnetic field Bx^(p,d)
-    for (unsigned int i=0 ; i<nx_p ; i++) {
-        for (unsigned int j=0 ; j<ny_p ; j++) {
-            (*Bx3D_m)(i,j) = ( (*Bx3D)(i,j) + (*Bx3D_m)(i,j) )*0.5;
-        }
-
-
-    // Magnetic field By^(d,p)
-
-        for (unsigned int j=0 ; j<ny_p ; j++) {
-            (*By3D_m)(i,j) = ( (*By3D)(i,j) + (*By3D_m)(i,j) )*0.5;
-        }
-
-
-    // Magnetic field Bz^(d,d)
-        for (unsigned int j=0 ; j<ny_p ; j++) {
-            (*Bz3D_m)(i,j) = ( (*Bz3D)(i,j) + (*Bz3D_m)(i,j) )*0.5;
-        } // end for j
-      } // end for i
-
-
-      for (unsigned int j=0 ; j<ny_p ; j++) {
-          (*By3D_m)(nx_p,j) = ( (*By3D)(nx_p,j) + (*By3D_m)(nx_p,j) )*0.5;
-      }
-      for (unsigned int j=0 ; j<ny_p ; j++) {
-          (*Bz3D_m)(nx_p,j) = ( (*Bz3D)(nx_p,j) + (*Bz3D_m)(nx_p,j) )*0.5;
-      } // end for j
-
 
 }//END centerMagneticFields
 
@@ -414,7 +334,8 @@ void ElectroMagn3D::incrementAvgFields(unsigned int time_step)
         rho_global_avg->put_to(0.0);
         phi_global_avg->put_to(0.0);
         Ex_global_avg->put_to(0.0);
-        for (unsigned int ispec=0; ispec<n_species; ispec++) {
+        for (unsigned int ispec=0; ispec<n_species; ispec++)
+        {
             rho_s_avg[ispec]->put_to(0.0);
         }//END loop on species ispec
     }

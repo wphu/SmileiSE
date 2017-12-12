@@ -664,6 +664,138 @@ void Particles::overwrite_part1D(int part1, Particles &dest_parts, int part2, in
             dest_parts.Id[part2+j] = Id[part1+j];
 }
 
+
+
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Move particle part1 into part2 memory location, erasing part2.
+// ---------------------------------------------------------------------------------------------------------------------
+void Particles::overwrite_part3D(int part1, int part2)
+{
+    Position    [0][part2] = Position    [0][part1];
+    Position    [1][part2] = Position    [1][part1];
+    Position    [2][part2] = Position    [2][part1];
+    Position_old[0][part2] = Position_old[0][part1];
+    Position_old[1][part2] = Position_old[1][part1];
+    Position_old[2][part2] = Position_old[2][part1];
+    Momentum    [0][part2] = Momentum    [0][part1];
+    Momentum    [1][part2] = Momentum    [1][part1];
+    Momentum    [2][part2] = Momentum    [2][part1];
+
+    Al_imp    [0][part2] = Al_imp    [0][part1];
+    Al_imp    [1][part2] = Al_imp    [1][part1];
+    Al_imp    [2][part2] = Al_imp    [2][part1];
+    Au_imp    [0][part2] = Au_imp    [0][part1];
+    Au_imp    [1][part2] = Au_imp    [1][part1];
+    Au_imp    [2][part2] = Au_imp    [2][part1];
+
+    Charge         [part2] = Charge         [part1];
+    Weight         [part2] = Weight         [part1];
+
+    if (isTestParticles)
+        Id[part2] = Id[part1];
+
+}
+
+
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Move particle part1->part1+N into part2->part2+N memory location erasing part2->part2+N.
+// ---------------------------------------------------------------------------------------------------------------------
+void Particles::overwrite_part3D(int part1, int part2, int N)
+{
+    unsigned int sizepart,sizecharge;
+    sizepart = N*sizeof(Position[0][0]);
+    sizecharge = N*sizeof(Charge[0]);
+
+    memcpy( &Position    [0][part2] , &Position    [0][part1] , sizepart  );
+    memcpy( &Position    [1][part2] , &Position    [1][part1] , sizepart  );
+    memcpy( &Position    [2][part2] , &Position    [2][part1] , sizepart  );
+    memcpy( &Position_old[0][part2] , &Position_old[0][part1] , sizepart  );
+    memcpy( &Position_old[1][part2] , &Position_old[1][part1] , sizepart  );
+    memcpy( &Position_old[2][part2] , &Position_old[2][part1] , sizepart  );
+    memcpy( &Momentum    [0][part2] , &Momentum    [0][part1] , sizepart  );
+    memcpy( &Momentum    [1][part2] , &Momentum    [1][part1] , sizepart  );
+    memcpy( &Momentum    [2][part2] , &Momentum    [2][part1] , sizepart  );
+
+    memcpy( &Al_imp    [0][part2] , &Al_imp    [0][part1] , sizepart  );
+    memcpy( &Al_imp    [1][part2] , &Al_imp    [1][part1] , sizepart  );
+    memcpy( &Al_imp    [2][part2] , &Al_imp    [2][part1] , sizepart  );
+    memcpy( &Au_imp    [0][part2] , &Au_imp    [0][part1] , sizepart  );
+    memcpy( &Au_imp    [1][part2] , &Au_imp    [1][part1] , sizepart  );
+    memcpy( &Au_imp    [2][part2] , &Au_imp    [2][part1] , sizepart  );
+
+    memcpy( &Charge         [part2] , &Charge         [part1] , sizecharge);
+    memcpy( &Weight         [part2] , &Weight         [part1] , sizepart  );
+
+    if (isTestParticles)
+        memcpy(&Id[part2]          ,  &Id[part1]              , sizecharge)    ;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Move particle part1 into part2 memory location of dest vector, erasing part2.
+// ---------------------------------------------------------------------------------------------------------------------
+void Particles::overwrite_part3D(int part1, Particles &dest_parts, int part2)
+{
+    dest_parts.Position    [0][part2] = Position    [0][part1];
+    dest_parts.Position    [1][part2] = Position    [1][part1];
+    dest_parts.Position    [2][part2] = Position    [2][part1];
+    dest_parts.Position_old[0][part2] = Position_old[0][part1];
+    dest_parts.Position_old[1][part2] = Position_old[1][part1];
+    dest_parts.Position_old[2][part2] = Position_old[2][part1];
+    dest_parts.Momentum    [0][part2] = Momentum    [0][part1];
+    dest_parts.Momentum    [1][part2] = Momentum    [1][part1];
+    dest_parts.Momentum    [2][part2] = Momentum    [2][part1];
+
+    dest_parts.Al_imp    [0][part2] = Al_imp    [0][part1];
+    dest_parts.Al_imp    [1][part2] = Al_imp    [1][part1];
+    dest_parts.Al_imp    [2][part2] = Al_imp    [2][part1];
+    dest_parts.Au_imp    [0][part2] = Au_imp    [0][part1];
+    dest_parts.Au_imp    [1][part2] = Au_imp    [1][part1];
+    dest_parts.Au_imp    [2][part2] = Au_imp    [2][part1];
+
+    dest_parts.Charge         [part2] = Charge         [part1];
+    dest_parts.Weight         [part2] = Weight         [part1];
+
+    if (isTestParticles)
+        dest_parts.Id[part2] = Id[part1];
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Move particle part1->part1+N into part2->part2+N memory location of dest vector, erasing part2->part2+N.
+// ---------------------------------------------------------------------------------------------------------------------
+void Particles::overwrite_part3D(int part1, Particles &dest_parts, int part2, int N)
+{
+    unsigned int sizepart,sizecharge;
+    sizepart = N*sizeof(Position[0][0]);
+    sizecharge = N*sizeof(Charge[0]);
+
+    memcpy( &dest_parts.Position    [0][part2] , &Position    [0][part1] , sizepart  );
+    memcpy( &dest_parts.Position    [1][part2] , &Position    [1][part1] , sizepart  );
+    memcpy( &dest_parts.Position    [2][part2] , &Position    [2][part1] , sizepart  );
+    memcpy( &dest_parts.Position_old[0][part2] , &Position_old[0][part1] , sizepart  );
+    memcpy( &dest_parts.Position_old[1][part2] , &Position_old[1][part1] , sizepart  );
+    memcpy( &dest_parts.Position_old[2][part2] , &Position_old[2][part1] , sizepart  );
+    memcpy( &dest_parts.Momentum    [0][part2] , &Momentum    [0][part1] , sizepart  );
+    memcpy( &dest_parts.Momentum    [1][part2] , &Momentum    [1][part1] , sizepart  );
+    memcpy( &dest_parts.Momentum    [2][part2] , &Momentum    [2][part1] , sizepart  );
+
+    memcpy( &dest_parts.Al_imp    [0][part2] , &Al_imp    [0][part1] , sizepart  );
+    memcpy( &dest_parts.Al_imp    [1][part2] , &Al_imp    [1][part1] , sizepart  );
+    memcpy( &dest_parts.Al_imp    [2][part2] , &Al_imp    [2][part1] , sizepart  );
+    memcpy( &dest_parts.Au_imp    [0][part2] , &Au_imp    [0][part1] , sizepart  );
+    memcpy( &dest_parts.Au_imp    [1][part2] , &Au_imp    [1][part1] , sizepart  );
+    memcpy( &dest_parts.Au_imp    [2][part2] , &Au_imp    [2][part1] , sizepart  );
+
+    memcpy( &dest_parts.Charge         [part2] , &Charge         [part1] , sizecharge);
+    memcpy( &dest_parts.Weight         [part2] , &Weight         [part1] , sizepart  );
+
+    if (isTestParticles)
+        memcpy(&dest_parts.Id[part2],  &Id[part1], sizecharge);
+}
+
+
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Exchange N particles part1->part1+N & part2->part2+N memory location
 // ---------------------------------------------------------------------------------------------------------------------

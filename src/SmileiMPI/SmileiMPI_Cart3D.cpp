@@ -688,6 +688,7 @@ void SmileiMPI_Cart3D::createType( PicParams& params )
 
 void SmileiMPI_Cart3D::sumField( Field* field )
 {
+/*
     std::vector<unsigned int> n_elem = field->dims_;
     std::vector<unsigned int> isDual = field->isDual_;
     Field3D* f3D =  static_cast<Field3D*>(field);
@@ -713,9 +714,9 @@ void SmileiMPI_Cart3D::sumField( Field* field )
 
     int istart, ix, iy;
 
-    /********************************************************************************/
+
     // Send/Recv in a buffer data to sum
-    /********************************************************************************/
+
     for (int iDim=0 ; iDim<ndims_ ; iDim++) {
 
         MPI_Datatype ntype = ntypeSum_[iDim][isDual[0]][isDual[1]];
@@ -756,9 +757,9 @@ void SmileiMPI_Cart3D::sumField( Field* field )
         // Synchro before summing, to not sum with data ever sum
         // Merge loops, Sum direction by direction permits to not communicate with diagonal neighbors
         barrier();
-        /********************************************************************************/
+
         // Sum data on each process, same operation on both side
-        /********************************************************************************/
+
 
         for (int iNeighbor=0 ; iNeighbor<nbNeighbors_ ; iNeighbor++) {
             istart = ( (iNeighbor+1)%2 ) * ( n_elem[iDim]- oversize2[iDim] ) + (1-(iNeighbor+1)%2) * ( 0 );
@@ -776,7 +777,7 @@ void SmileiMPI_Cart3D::sumField( Field* field )
         barrier();
 
     } // END for iDim
-
+*/
 } // END sumField
 
 
@@ -826,8 +827,9 @@ void SmileiMPI_Cart3D::scatterGrid( Grid* grid )
 void SmileiMPI_Cart3D::gatherRho( Field* field_global ,Field* field  )
 {
 
+/*
     int procs_rk;
-    int iGlobal, jGlobal;
+    int iGlobal, jGlobal, kGlobal;
     int iGlobal_gather;
     int nx, ny;
 
@@ -858,7 +860,7 @@ void SmileiMPI_Cart3D::gatherRho( Field* field_global ,Field* field  )
                     iGlobal_gather = send_disp[procs_rk] + i * dims_gather[procs_rk*2+1] + j;
                     //if(iGlobal >= ii || jGlobal >= jj) cout<<"error "<<iGlobal<<" "<<iProcs<<" "<<dims_gather[0]<<" "<<oversize[0]<<endl;
 
-                    f3D_global->data_3D[iGlobal][jGlobal] += field_global_gather[iGlobal_gather];
+                    f3D_global->data_3D[iGlobal][jGlobal][kGlobal] += field_global_gather[iGlobal_gather];
 
                     //if(f3D_global->data_3D[iGlobal][jGlobal] != 0.0) cout<<"ereeee"; //<<f3D_global->data_3D[iGlobal][jGlobal]<<endl;
 
@@ -899,14 +901,14 @@ void SmileiMPI_Cart3D::gatherRho( Field* field_global ,Field* field  )
 
     }
 
-
+*/
 
 } // END gatherRho
 
 
 void SmileiMPI_Cart3D::gatherField( Field* field_global ,Field* field  )
 {
-
+/*
     int procs_rk;
     int iGlobal, jGlobal;
     int iGlobal_gather;
@@ -980,7 +982,7 @@ void SmileiMPI_Cart3D::gatherField( Field* field_global ,Field* field  )
 
     }
 
-
+*/
 
 } // END gatherField
 
@@ -988,7 +990,7 @@ void SmileiMPI_Cart3D::gatherField( Field* field_global ,Field* field  )
 
 void SmileiMPI_Cart3D::scatterField( Field* field_global ,Field* field )
 {
-
+/*
     int procs_rk;
     int iGlobal, jGlobal;
     int iGlobal_gather;
@@ -1037,6 +1039,6 @@ void SmileiMPI_Cart3D::scatterField( Field* field_global ,Field* field )
     }
     MPI_Scatterv(field_global_gather, &send_cnt[0], &send_disp[0], MPI_DOUBLE, f3D->data_, recv_cnt[smilei_rk], MPI_DOUBLE, 0, SMILEI_COMM_3D);
 
-
+*/
 
 } // END scatterField
