@@ -17,7 +17,7 @@ LIBS = $(LIB_SuperLU) $(LIB_Blas)
 
 
 
-CFLAGS += -D__VERSION=\"$(VERSION)\" -D__COMMITDATE=\""$(COMMITDATE)"\" -I${HDF5_DIR}/include -std=c++0x
+CFLAGS += -D__VERSION=\"$(VERSION)\" -D__COMMITDATE=\""$(COMMITDATE)"\" -I${HDF5_DIR}/include -std=c++11
 LDFLAGS += -lm -L${HDF5_DIR}/lib -lhdf5 -lz
 
 CFLAGS += -I$(SuperLU_DIR)/SRC
