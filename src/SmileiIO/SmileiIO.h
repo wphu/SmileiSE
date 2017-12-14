@@ -90,7 +90,6 @@ public:
 
         std::vector<hid_t>          dataset_id;
         std::vector<std::string>    dataset_stringName;
-        std::vector<const char*>    dataset_name;
         std::vector<double*>        dataset_data;
 
         //> data dimensions to be outputed: t, z, y, x

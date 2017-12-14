@@ -12,7 +12,7 @@ VERSION:="$(DESCRIBE)-$(BRANCH)"
 #SuperLU_DIR = /home/wp/codes/science/SuperLU_4.3
 LIB_Blas = $(SuperLU_DIR)/lib/blas_linux.a
 LIB_SuperLU = $(SuperLU_DIR)/lib/libsuperlu.a
-##LIBS = $(LIB_Blas) -L$(SuperLU_DIR)/lib -lsuperlu_4.3
+##LIBS = $(LIB_Blas) -L$(SuperLU_DIR)/lib -lsuperlu
 LIBS = $(LIB_SuperLU) $(LIB_Blas)
 
 

@@ -121,7 +121,7 @@ void SmileiIO_Cart1D::createPartsPattern( PicParams& params, SmileiMPI* smpi, El
 void SmileiIO_Cart1D::createDiagsPattern( PicParams& params, SmileiMPI* smpi, Diagnostic1D* diag1D )
 {
     string diagName;
-    const char* name;
+    const char* h5_name;
     hid_t dataset_id;
 
     // =======set stride and block, and close dataset and group=================
@@ -139,32 +139,27 @@ void SmileiIO_Cart1D::createDiagsPattern( PicParams& params, SmileiMPI* smpi, Di
     // dataset name
     diagName = "particleFlux";
     diagsGroup.dataset_stringName.push_back(diagName);
-    name = diagsGroup.dataset_stringName.back().c_str();
-    diagsGroup.dataset_name.push_back(name);
+
 
     // dataset name
     diagName = "heatFlux";
     diagsGroup.dataset_stringName.push_back(diagName);
-    name = diagsGroup.dataset_stringName.back().c_str();
-    diagsGroup.dataset_name.push_back(name);
+
 
     // dataset name
     diagName = "angleDist";
     diagsGroup.dataset_stringName.push_back(diagName);
-    name = diagsGroup.dataset_stringName.back().c_str();
-    diagsGroup.dataset_name.push_back(name);
+
 
     // dataset name
     diagName = "particleNumber";
     diagsGroup.dataset_stringName.push_back(diagName);
-    name = diagsGroup.dataset_stringName.back().c_str();
-    diagsGroup.dataset_name.push_back(name);
+
 
     // dataset name
     diagName = "kineticEnergy";
     diagsGroup.dataset_stringName.push_back(diagName);
-    name = diagsGroup.dataset_stringName.back().c_str();
-    diagsGroup.dataset_name.push_back(name);
+
 
 
     if(!is_restart)
@@ -179,7 +174,8 @@ void SmileiIO_Cart1D::createDiagsPattern( PicParams& params, SmileiMPI* smpi, Di
         diagsGroup.dims_global[0] = params.n_time / params.dump_step;
 
         diagsGroup.dataspace_id = H5Screate_simple(4, diagsGroup.dims_global, NULL);
-        dataset_id = H5Dcreate2(diagsGroup.group_id, diagsGroup.dataset_name[iDiag], H5T_NATIVE_DOUBLE, diagsGroup.dataspace_id,
+        h5_name = diagsGroup.dataset_stringName[iDiag].c_str();
+        dataset_id = H5Dcreate2(diagsGroup.group_id, h5_name, H5T_NATIVE_DOUBLE, diagsGroup.dataspace_id,
                                       H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
         diagsGroup.dataset_id.push_back(dataset_id);
         H5Dclose( diagsGroup.dataset_id[iDiag] );
@@ -194,7 +190,8 @@ void SmileiIO_Cart1D::createDiagsPattern( PicParams& params, SmileiMPI* smpi, Di
 
         iDiag++;
         diagsGroup.dataspace_id = H5Screate_simple(4, diagsGroup.dims_global, NULL);
-        dataset_id = H5Dcreate2(diagsGroup.group_id, diagsGroup.dataset_name[iDiag], H5T_NATIVE_DOUBLE, diagsGroup.dataspace_id,
+        h5_name = diagsGroup.dataset_stringName[iDiag].c_str();
+        dataset_id = H5Dcreate2(diagsGroup.group_id, h5_name, H5T_NATIVE_DOUBLE, diagsGroup.dataspace_id,
                                       H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
         diagsGroup.dataset_id.push_back(dataset_id);
         H5Dclose( diagsGroup.dataset_id[iDiag] );
@@ -210,7 +207,8 @@ void SmileiIO_Cart1D::createDiagsPattern( PicParams& params, SmileiMPI* smpi, Di
 
         iDiag++;
         diagsGroup.dataspace_id = H5Screate_simple(4, diagsGroup.dims_global, NULL);
-        dataset_id = H5Dcreate2(diagsGroup.group_id, diagsGroup.dataset_name[iDiag], H5T_NATIVE_DOUBLE, diagsGroup.dataspace_id,
+        h5_name = diagsGroup.dataset_stringName[iDiag].c_str();
+        dataset_id = H5Dcreate2(diagsGroup.group_id, h5_name, H5T_NATIVE_DOUBLE, diagsGroup.dataspace_id,
                                       H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
         diagsGroup.dataset_id.push_back(dataset_id);
         H5Dclose( diagsGroup.dataset_id[iDiag] );
@@ -225,7 +223,8 @@ void SmileiIO_Cart1D::createDiagsPattern( PicParams& params, SmileiMPI* smpi, Di
 
         iDiag++;
         diagsGroup.dataspace_id = H5Screate_simple(4, diagsGroup.dims_global, NULL);
-        dataset_id = H5Dcreate2(diagsGroup.group_id, diagsGroup.dataset_name[iDiag], H5T_NATIVE_INT, diagsGroup.dataspace_id,
+        h5_name = diagsGroup.dataset_stringName[iDiag].c_str();
+        dataset_id = H5Dcreate2(diagsGroup.group_id, h5_name, H5T_NATIVE_INT, diagsGroup.dataspace_id,
                                       H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
         diagsGroup.dataset_id.push_back(dataset_id);
         H5Dclose( diagsGroup.dataset_id[iDiag] );
@@ -240,7 +239,8 @@ void SmileiIO_Cart1D::createDiagsPattern( PicParams& params, SmileiMPI* smpi, Di
 
         iDiag++;
         diagsGroup.dataspace_id = H5Screate_simple(4, diagsGroup.dims_global, NULL);
-        dataset_id = H5Dcreate2(diagsGroup.group_id, diagsGroup.dataset_name[iDiag], H5T_NATIVE_DOUBLE, diagsGroup.dataspace_id,
+        h5_name = diagsGroup.dataset_stringName[iDiag].c_str();
+        dataset_id = H5Dcreate2(diagsGroup.group_id, h5_name, H5T_NATIVE_DOUBLE, diagsGroup.dataspace_id,
                                       H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
         diagsGroup.dataset_id.push_back(dataset_id);
         H5Dclose( diagsGroup.dataset_id[iDiag] );
@@ -248,7 +248,7 @@ void SmileiIO_Cart1D::createDiagsPattern( PicParams& params, SmileiMPI* smpi, Di
 
         diagsGroup.status = H5Gclose( diagsGroup.group_id );
     }
-    diagsGroup.dataset_id.resize( diagsGroup.dataset_name.size() );
+    diagsGroup.dataset_id.resize( diagsGroup.dataset_stringName.size() );
 }
 
 
@@ -352,7 +352,7 @@ void SmileiIO_Cart1D::calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* f
 //! write potential, rho and so on into hdf5 file every some timesteps
 void SmileiIO_Cart1D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, Diagnostic* diag, int itime)
 {
-
+    const char* h5_name;
     Diagnostic1D* diag1D = static_cast<Diagnostic1D*>(diag);
     if(params.is_calVDF)
     {
@@ -368,9 +368,10 @@ void SmileiIO_Cart1D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fi
 
         // =============write fields============================================
         fieldsGroup.group_id = H5Gopen(global_file_id_, "/Fields", H5P_DEFAULT);
-        for(int i = 0; i < fieldsGroup.dataset_name.size(); i++)
+        for(int i = 0; i < fieldsGroup.dataset_stringName.size(); i++)
         {
-            fieldsGroup.dataset_id[i] = H5Dopen( fieldsGroup.group_id, fieldsGroup.dataset_name[i], H5P_DEFAULT);
+            h5_name = fieldsGroup.dataset_stringName[i].c_str();
+            fieldsGroup.dataset_id[i] = H5Dopen( fieldsGroup.group_id, h5_name, H5P_DEFAULT);
         }
 
         fieldsGroup.offset[0] = ndims_t;
@@ -404,9 +405,10 @@ void SmileiIO_Cart1D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fi
 
         // ==============write particle velocity distribution function=========================
         ptclsGroup.group_id = H5Gopen(global_file_id_, "/VDF", H5P_DEFAULT);
-        for(int i = 0; i < ptclsGroup.dataset_name.size(); i++)
+        for(int i = 0; i < ptclsGroup.dataset_stringName.size(); i++)
         {
-            ptclsGroup.dataset_id[i] = H5Dopen( ptclsGroup.group_id, ptclsGroup.dataset_name[i], H5P_DEFAULT);
+            h5_name = ptclsGroup.dataset_stringName[i].c_str();
+            ptclsGroup.dataset_id[i] = H5Dopen( ptclsGroup.group_id, h5_name, H5P_DEFAULT);
         }
 
         ptclsGroup.offset[0] = ndims_t;
@@ -438,9 +440,10 @@ void SmileiIO_Cart1D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fi
         // ==============write Diagnostic: particleFlux, heatFlux and angleDist============
         // ==============particleNumber, kineticEnergy                         ============
         diagsGroup.group_id = H5Gopen(global_file_id_, "/Diagnostic", H5P_DEFAULT);
-        for(int i = 0; i < diagsGroup.dataset_name.size(); i++)
+        for(int i = 0; i < diagsGroup.dataset_stringName.size(); i++)
         {
-            diagsGroup.dataset_id[i] = H5Dopen( diagsGroup.group_id, diagsGroup.dataset_name[i], H5P_DEFAULT);
+            h5_name = diagsGroup.dataset_stringName[i].c_str();
+            diagsGroup.dataset_id[i] = H5Dopen( diagsGroup.group_id, h5_name, H5P_DEFAULT);
         }
 
         for(int ispec = 0; ispec < diag1D->n_species; ispec++)

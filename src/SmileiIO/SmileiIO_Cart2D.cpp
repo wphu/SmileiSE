@@ -212,6 +212,7 @@ void SmileiIO_Cart2D::calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* f
 //! write potential, rho and so on into hdf5 file every some timesteps
 void SmileiIO_Cart2D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, Diagnostic* diag, int itime)
 {
+    const char* h5_name;
     Diagnostic2D* diag2D = static_cast<Diagnostic2D*>(diag);
     if(params.is_calVDF)
     {
@@ -229,15 +230,17 @@ void SmileiIO_Cart2D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fi
             global_file_id_  = H5Fopen( global_file_name_.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
 
             fieldsGroup.group_id = H5Gopen(global_file_id_, "/Fields", H5P_DEFAULT);
-            for(int i = 0; i < fieldsGroup.dataset_name.size(); i++)
+            for(int i = 0; i < fieldsGroup.dataset_stringName.size(); i++)
             {
-                fieldsGroup.dataset_id[i] = H5Dopen( fieldsGroup.group_id, fieldsGroup.dataset_name[i], H5P_DEFAULT);
+                h5_name = fieldsGroup.dataset_stringName[i].c_str();
+                fieldsGroup.dataset_id[i] = H5Dopen( fieldsGroup.group_id, h5_name, H5P_DEFAULT);
             }
 
             ptclsGroup.group_id = H5Gopen(global_file_id_, "/VDF", H5P_DEFAULT);
-            for(int i = 0; i < ptclsGroup.dataset_name.size(); i++)
+            for(int i = 0; i < ptclsGroup.dataset_stringName.size(); i++)
             {
-                ptclsGroup.dataset_id[i] = H5Dopen( ptclsGroup.group_id, ptclsGroup.dataset_name[i], H5P_DEFAULT);
+                h5_name = ptclsGroup.dataset_stringName[i].c_str();
+                ptclsGroup.dataset_id[i] = H5Dopen( ptclsGroup.group_id, h5_name, H5P_DEFAULT);
             }
 
             fieldsGroup.offset[0] = ndims_t;
