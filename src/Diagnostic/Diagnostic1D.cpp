@@ -144,7 +144,7 @@ void Diagnostic1D::run( SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroMa
 	// calculate velocity and temperature of each species
 	calVT(smpi, vecSpecies, EMfields, itime);
 
-	calTotalEnergy(smpi, vecSpecies, EMfields, itime);
+	//calTotalEnergy(smpi, vecSpecies, EMfields, itime);
 
 
 

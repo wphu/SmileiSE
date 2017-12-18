@@ -1,12 +1,12 @@
 from template import *
 
 
-t = 3
+t = 7
 	
 n0 = 1.0e19
 Ex0 = 1.0e6
 
-x_step = 2
+x_step = 20
 	
 amplification_factor = 80.0
 

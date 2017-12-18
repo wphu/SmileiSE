@@ -11,25 +11,29 @@ import math
 method = 'explicit'
 
 l0 = 0.5e-5     # nu.norm_l is reference time, the value's unit before / is m (SI)
-t0 = 1.0e-12
+Lsim = [500.*l0]	# length of the simulation
 
-Lsim = [100.*l0]	# length of the simulation
-Tsim = 20000000			# duration of the simulation
+t0 = 0.5e-12
+Tsim = 100			# duration of the simulation
+output_step = 10
+
+# number of MPI processes
+n_procs = 4
+
+
 
 #> number of timestep of incrementing averaged electromagnetic fields
-ntime_step_avg = 1000
+ntime_step_avg = 10
+
+ion_step = 1
 
 #> Timestep to output some fields into hdf5 file
-dump_step = 200000
+dump_step = int( Tsim / output_step )
 timesteps_restore = dump_step
 
-timesteps_collision = 20
 
-timesteps_coulomb = 40
 
-timesteps_DSMC = 40
 
-is_calVDF = 1
 # dim: Geometry of the simulation
 #      1d3v = cartesian grid with 1d in space + 3d in velocity
 #      2d3v = cartesian grid with 2d in space + 3d in velocity
@@ -38,9 +42,46 @@ is_calVDF = 1
 #
 dim = '1d3v'
 
+number_of_procs = [n_procs]
+
+#print sim_time / timestep
+# ELECTROMAGNETIC BOUNDARY CONDITIONS
+# bc_em_type_x/y/z : boundary conditions used for EM fields
+#                    periodic = periodic BC (using MPI topology)
+#                    silver-muller = injecting/absorbing BC
+#                    reflective = consider the ghost-cells as a perfect conductor
+#
+bc_em_type_x = ['Dirichlet', 'Dirichlet']
+#bc_em_type_x = ['Neumann', 'Dirichlet']
+
+bc_em_value_x = [0.0, 0.0]
+
+Bangle = 0.0
+B = 2.0
+angle = Bangle * math.pi / 180.0
+Bx = B * math.sin(angle)
+By = B * math.cos(angle)
+Bz = 0.0
+externB = [Bx, By, Bz]
+
+ion_sound_velocity = 0.0   #math.sqrt( (20.0 * 1.6021766208e-19) / (2.0 * 1.67262158e-27) )
+vx = ion_sound_velocity * math.sin(angle)
+vy = ion_sound_velocity * math.cos(angle)
+vz = 0.0
+
+
+
+
+# RANDOM seed
+# this is used to randomize the random number generator
+random_seed = 0
+
+
 # order of interpolation
 #
 interpolation_order = 1
+projection_order = 1
+
 
 # SIMULATION BOX : for all space directions (use vector)
 # cell_length: length of the cell
@@ -55,40 +96,6 @@ sim_length  = Lsim
 #
 timestep = t0
 n_time = Tsim
-#print sim_time / timestep
-# ELECTROMAGNETIC BOUNDARY CONDITIONS
-# bc_em_type_x/y/z : boundary conditions used for EM fields
-#                    periodic = periodic BC (using MPI topology)
-#                    silver-muller = injecting/absorbing BC
-#                    reflective = consider the ghost-cells as a perfect conductor
-#
-bc_em_type_x = ['Dirichlet', 'Dirichlet']
-#bc_em_type_x = ['Neumann', 'Dirichlet']
-
-bc_em_value_x = [0.0, 0.0]
-
-B = 0.0
-angle = 5.0 * math.pi / 180.0
-Bx = B * math.sin(angle)
-By = B * math.cos(angle)
-Bz = 0.0
-externB = [Bx, By, Bz]
-
-ion_sound_velocity = 0.0   #math.sqrt( (20.0 * 1.6021766208e-19) / (2.0 * 1.67262158e-27) )
-vx = ion_sound_velocity * math.sin(angle)
-vy = ion_sound_velocity * math.cos(angle)
-vz = 0.0
-
-
-#Topology:
-#number_of_procs: Number of MPI processes in each direction.
-#clrw: width of a cluster in number of cell. Warning: clrw must divide nspace_win_x.
-number_of_procs = [24]
-
-
-# RANDOM seed
-# this is used to randomize the random number generator
-random_seed = 0
 
 
 
@@ -154,22 +161,7 @@ Species(
 # =============== Collisions ================
 
 Collisions(
-	species1 = ["e"],
-	species2 = ["e"],
-	#coulomb_log = 1,
-	collisions_type = "coulomb"
-)
-
-Collisions(
-	species1 = ["D1"],
-	species2 = ["D1"],
-	#coulomb_log = 1,
-	collisions_type = "coulomb"
-)
-
-Collisions(
-	species1 = ["e"],
-	species2 = ["D1"],
+	species1 = ["e", "D1"],
 	#coulomb_log = 1,
 	collisions_type = "coulomb"
 )

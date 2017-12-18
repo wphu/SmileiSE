@@ -99,7 +99,7 @@ n_time = Tsim
 
 
 
-# DEFINE ALL SPECIES
+# ================ DEFINE ALL SPECIES ====================================================
 # species_type       = string, given name to the species (e.g. ion, electron, positron, test ...)
 # initPosition_type  = string, "regular" or "random"
 # initMomentum_type  = string "cold", "maxwell-juettner" or "rectangular"
@@ -117,90 +117,89 @@ n_time = Tsim
 # Predefined functions: constant, trapezoidal, gaussian, polygonal, cosine
 #
 
-
-
-
-
 Species(
-	species_type = 'H',
+	species_type = 'e',
 	initPosition_type = 'random',
-	initMomentum_type = 'rectangular',
+	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
 	n_part_per_cell = 200,
 	n_part_per_cell_for_weight = 200,
 	c_part_max = 1.0,
-	mass = 1.0 * 1.67262158e-27,
-	charge = 0.0,
+	mass = 9.109382616e-31,
+	charge = -1.6021766208e-19,
 	nb_density = 1.0e19,
 	temperature = [20.0],
-	mean_velocity = [vx, vy, vz],
+	time_frozen = 0.,
+	bc_part_type_west  = 'refl',
+	bc_part_type_east  = 'refl',
+)
+
+Species(
+	species_type = 'D1',
+	initPosition_type = 'random',
+	initMomentum_type = 'maxwell',
+	ionization_model = 'none',
+	n_part_per_cell = 200,
+	n_part_per_cell_for_weight = 200,
+	c_part_max = 1.0,
+	mass = 2.0 * 1.67262158e-27,
+	charge = 1.6021766208e-19,
+	nb_density = 1.0e19,
+	temperature = [20.0],
 	time_frozen = 0.0,
 	bc_part_type_west  = 'refl',
 	bc_part_type_east  = 'refl',
-
-	# The molecule and atom diameters are from the following refs:
-	# Bird' book: page 410
-	# The mathematical theory of non-uniform gases: page238, page237, page228,
-	diameter = 2.745E-10,
-	ref_temperature = 273.,
-	visc_temp_index = 0.75,
-	vss_scat_inv = 1.
 )
 
+Species(
+	species_type = 'D1_temp',
+	initPosition_type = 'random',
+	initMomentum_type = 'maxwell',
+	ionization_model = 'none',
+	n_part_per_cell = 0,
+	n_part_per_cell_for_weight = 200,
+	c_part_max = 1.0,
+	mass = 2.0 * 1.67262158e-27,
+	charge = 1.6021766208e-19,
+	nb_density = 1.0e19,
+	temperature = [20.0],
+	time_frozen = 0.0,
+	bc_part_type_west  = 'refl',
+	bc_part_type_east  = 'refl',
+)
 
 Species(
 	species_type = 'D',
 	initPosition_type = 'random',
-	initMomentum_type = 'rectangular',
+	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 200,
+	n_part_per_cell = 50,
 	n_part_per_cell_for_weight = 200,
 	c_part_max = 1.0,
 	mass = 2.0 * 1.67262158e-27,
 	charge = 0.0,
 	nb_density = 1.0e19,
 	temperature = [20.0],
-	mean_velocity = [vx, vy, vz],
 	time_frozen = 0.0,
 	bc_part_type_west  = 'refl',
 	bc_part_type_east  = 'refl',
-
-	diameter = 2.751E-10,
-	ref_temperature = 273.,
-	visc_temp_index = 0.75,
-	vss_scat_inv = 1.
 )
 
 
-Species(
-	species_type = 'C',
-	initPosition_type = 'random',
-	initMomentum_type = 'rectangular',
-	ionization_model = 'none',
-	n_part_per_cell = 200,
-	n_part_per_cell_for_weight = 200,
-	c_part_max = 1.0,
-	mass = 1.993e-26,
-	charge = 0.0,
-	nb_density = 1.0e19,
-	temperature = [20.0],
-	mean_velocity = [vx, vy, vz],
-	time_frozen = 0.0,
-	bc_part_type_west  = 'refl',
-	bc_part_type_east  = 'refl',
-
-	diameter = 3.784E-10,
-	ref_temperature = 273.,
-	visc_temp_index = 0.75,
-	vss_scat_inv = 1.
-)
-
-
-
-# Collisions
+# ======================= Collisions ====================================
 
 Collisions(
-	species1 = ["H", "D"],
-	species2 = ["C" ],
-	collisions_type = "DSMC"
+	collisions_type = "Ionization",
+	species1 = ["e"],
+	species2 = ["D"],
+	species3 = ["D1_temp"],
+	crossSection_fileName = "Ionization_D_to_D+1.dat"
+)
+
+
+Collisions(
+	collisions_type = "Excitation",
+	species1 = ["e"],
+	species2 = ["D"],
+	crossSection_fileName = "Ionization_D_to_D+1.dat"
 )

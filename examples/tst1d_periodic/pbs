@@ -1,6 +1,6 @@
 #PBS -S /bin/bash
-#PBS -N tst1d_DSMC
-#PBS -l nodes=1:ppn=4
+#PBS -N tst1d_periodic
+#PBS -l nodes=1:ppn=24
 #PBS -m b
 #PBS -m e
 #PBS -m a
@@ -17,5 +17,4 @@ echo "end time"; date
 ##do your job
 cd $PBS_O_WORKDIR
 
-##/opt/openmpi/bin/mpirun -machinefile mfile -n 9 ./ion_extra2parlu
-mpiexec -n 4 ../../src/smilei tst1d_DSMC.py
+mpiexec -n 24 ../../src/smilei tst1d_periodic.py

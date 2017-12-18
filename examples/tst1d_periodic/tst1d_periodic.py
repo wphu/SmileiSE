@@ -9,29 +9,48 @@
 import math
 
 method = 'explicit'
+solver_type = "GeneralThomas"
 
-l0 = 0.5e-5     # nu.norm_l is reference time, the value's unit before / is m (SI)
+l0 = 0.5e-6     # nu.norm_l is reference time, the value's unit before / is m (SI)
 Lsim = [500.*l0]	# length of the simulation
 
-t0 = 0.5e-12
-Tsim = 100			# duration of the simulation
+t0 = 0.5e-14
+us = int( 1.0e-6 / t0 )
+Tsim = 50000			# duration of the simulation
 output_step = 10
 
-# number of MPI processes
-n_procs = 4
+# number of processes
+n_procs = 5
+
+B = 0.0
+Bangle = 90.0
+
+#source parameters
+source_dn = 100.0e25/10.0
+source_temp = 120.0
+source_density = 1.0e19
+
+
 
 
 
 #> number of timestep of incrementing averaged electromagnetic fields
-ntime_step_avg = 10
-
-ion_step = 1
+ntime_step_avg = 1
 
 #> Timestep to output some fields into hdf5 file
 dump_step = int( Tsim / output_step )
+
+timesteps_collision = 40
+
+timesteps_coulomb = 40
+
+timesteps_DSMC = 40
+
 timesteps_restore = dump_step
 
+collision_zoom_factor = 100.0
 
+ion_step = 1
 
 
 # dim: Geometry of the simulation
@@ -51,13 +70,12 @@ number_of_procs = [n_procs]
 #                    silver-muller = injecting/absorbing BC
 #                    reflective = consider the ghost-cells as a perfect conductor
 #
-bc_em_type_x = ['Dirichlet', 'Dirichlet']
+bc_em_type_x = ['periodic', 'periodic']
 #bc_em_type_x = ['Neumann', 'Dirichlet']
 
 bc_em_value_x = [0.0, 0.0]
 
-Bangle = 0.0
-B = 2.0
+
 angle = Bangle * math.pi / 180.0
 Bx = B * math.sin(angle)
 By = B * math.cos(angle)
@@ -99,7 +117,9 @@ n_time = Tsim
 
 
 
-# DEFINE ALL SPECIES
+
+
+# ================= DEFINE ALL SPECIES ===========================================
 # species_type       = string, given name to the species (e.g. ion, electron, positron, test ...)
 # initPosition_type  = string, "regular" or "random"
 # initMomentum_type  = string "cold", "maxwell-juettner" or "rectangular"
@@ -117,53 +137,40 @@ n_time = Tsim
 # Predefined functions: constant, trapezoidal, gaussian, polygonal, cosine
 #
 
-
-
-
-
 Species(
-	species_type = 'H',
+	species_type = 'e',
 	initPosition_type = 'random',
-	initMomentum_type = 'rectangular',
+	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 200,
-	n_part_per_cell_for_weight = 200,
+	#Pusher_type = 'GC0',
+	n_part_per_cell = 100,
+	n_part_per_cell_for_weight = 100,
 	c_part_max = 1.0,
-	mass = 1.0 * 1.67262158e-27,
-	charge = 0.0,
+	mass = 9.109382616e-31,
+	charge = -1.6021766208e-19,
 	nb_density = 1.0e19,
 	temperature = [20.0],
-	mean_velocity = [vx, vy, vz],
-	time_frozen = 0.0,
-	bc_part_type_west  = 'refl',
-	bc_part_type_east  = 'refl',
-
-	# The molecule and atom diameters are from the following refs:
-	# Bird' book: page 410
-	# The mathematical theory of non-uniform gases: page238, page237, page228,
-	diameter = 2.745E-10,
-	ref_temperature = 273.,
-	visc_temp_index = 0.75,
-	vss_scat_inv = 1.
+	time_frozen = 0.,
+	bc_part_type_west  = 'periodic',
+	bc_part_type_east  = 'periodic',
 )
 
-
 Species(
-	species_type = 'D',
+	species_type = 'D1',
 	initPosition_type = 'random',
-	initMomentum_type = 'rectangular',
+	initMomentum_type = 'maxwell',
 	ionization_model = 'none',
-	n_part_per_cell = 200,
-	n_part_per_cell_for_weight = 200,
+	timestep_zoom = ion_step,
+	n_part_per_cell = 100,
+	n_part_per_cell_for_weight = 100,
 	c_part_max = 1.0,
 	mass = 2.0 * 1.67262158e-27,
-	charge = 0.0,
+	charge = 1.6021766208e-19,
 	nb_density = 1.0e19,
 	temperature = [20.0],
-	mean_velocity = [vx, vy, vz],
 	time_frozen = 0.0,
-	bc_part_type_west  = 'refl',
-	bc_part_type_east  = 'refl',
+	bc_part_type_west  = 'periodic',
+	bc_part_type_east  = 'periodic',
 
 	diameter = 2.751E-10,
 	ref_temperature = 273.,
@@ -172,35 +179,10 @@ Species(
 )
 
 
-Species(
-	species_type = 'C',
-	initPosition_type = 'random',
-	initMomentum_type = 'rectangular',
-	ionization_model = 'none',
-	n_part_per_cell = 200,
-	n_part_per_cell_for_weight = 200,
-	c_part_max = 1.0,
-	mass = 1.993e-26,
-	charge = 0.0,
-	nb_density = 1.0e19,
-	temperature = [20.0],
-	mean_velocity = [vx, vy, vz],
-	time_frozen = 0.0,
-	bc_part_type_west  = 'refl',
-	bc_part_type_east  = 'refl',
-
-	diameter = 3.784E-10,
-	ref_temperature = 273.,
-	visc_temp_index = 0.75,
-	vss_scat_inv = 1.
-)
-
-
-
-# Collisions
-
+'''
 Collisions(
-	species1 = ["H", "D"],
-	species2 = ["C" ],
-	collisions_type = "DSMC"
+	species1 = ["e", "D1"],
+	#coulomb_log = 1,
+	collisions_type = "coulomb"
 )
+'''

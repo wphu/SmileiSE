@@ -1,5 +1,5 @@
 SMILEICXX     ?= mpic++
-HDF5_DIR ?=
+HDF5_ROOT_DIR ?=
 
 PYTHONCONFIG ?= python-config
 ##################################################
@@ -11,14 +11,14 @@ VERSION:="$(DESCRIBE)-$(BRANCH)"
 
 #SuperLU_DIR = /home/wp/codes/science/SuperLU_4.3
 LIB_Blas = $(SuperLU_DIR)/lib/blas_linux.a
-LIB_SuperLU = $(SuperLU_DIR)/lib/libsuperlu.a
+LIB_SuperLU = $(SuperLU_DIR)/lib/libsuperlu_4.3.a
 ##LIBS = $(LIB_Blas) -L$(SuperLU_DIR)/lib -lsuperlu
 LIBS = $(LIB_SuperLU) $(LIB_Blas)
 
 
 
-CFLAGS += -D__VERSION=\"$(VERSION)\" -D__COMMITDATE=\""$(COMMITDATE)"\" -I${HDF5_DIR}/include -std=c++11
-LDFLAGS += -lm -L${HDF5_DIR}/lib -lhdf5 -lz
+CFLAGS += -D__VERSION=\"$(VERSION)\" -D__COMMITDATE=\""$(COMMITDATE)"\" -I${HDF5_ROOT_DIR}/include -std=c++11
+LDFLAGS += -lm -L${HDF5_ROOT_DIR}/lib -lhdf5 -lz
 
 CFLAGS += -I$(SuperLU_DIR)/SRC
 LDFLAGS += $(LIBS) -lm
@@ -38,7 +38,7 @@ default: $(EXEC)
 
 help:
 	@echo 'Usage                 : make [clean] [openmp={gnu|intel}] [config=debug]'
-	@echo 'Environment variables : SMILEICXX (c++ compiler) HDF5_DIR (HDF5 dir with /include and /lib)'
+	@echo 'Environment variables : SMILEICXX (c++ compiler) HDF5_ROOT_DIR (HDF5 dir with /include and /lib)'
 
 
 # these are kept for backward compatibility and might be removed (see make help)

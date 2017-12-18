@@ -1,6 +1,6 @@
 #PBS -S /bin/bash
 #PBS -N tst2d_simple
-#PBS -l nodes=1:ppn=20
+#PBS -l nodes=1:ppn=4
 #PBS -m b
 #PBS -m e
 #PBS -m a
@@ -17,5 +17,5 @@ echo "end time"; date
 ##do your job
 cd $PBS_O_WORKDIR
 
-##/opt/openmpi/bin/mpirun -machinefile mfile -n 9 ./ion_extra2parlu
-mpiexec -genv I_MPI_DEVICE rdssm -n 20 ../../src/smilei tst2d_simple.py
+
+mpiexec -n 4 ../../src/smilei tst2d_simple.py

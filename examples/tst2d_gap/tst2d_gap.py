@@ -93,7 +93,7 @@ vz = 0.0
 #Topology:
 #number_of_procs: Number of MPI processes in each direction.
 #clrw: width of a cluster in number of cell. Warning: clrw must divide nspace_win_x.
-number_of_procs = [4, 4]
+number_of_procs = [4, 6]
 
 
 # RANDOM seed

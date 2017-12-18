@@ -11,26 +11,28 @@ import math
 method = 'explicit'
 
 l0 = 0.5e-5     # nu.norm_l is reference time, the value's unit before / is m (SI)
-Lsim = [1000.*l0]	# length of the simulation
+Lsim = [500.*l0]	# length of the simulation
 
-t0 = 1.0e-12
-Tsim = 100000			# duration of the simulation
+t0 = 0.5e-12
+Tsim = 100			# duration of the simulation
+output_step = 10
+
+# number of MPI processes
+n_procs = 4
+
 
 
 #> number of timestep of incrementing averaged electromagnetic fields
-ntime_step_avg = 1000
+ntime_step_avg = 10
+
+ion_step = 1
 
 #> Timestep to output some fields into hdf5 file
-dump_step = 200000
+dump_step = int( Tsim / output_step )
 timesteps_restore = dump_step
 
-timesteps_collision = 20
 
-timesteps_coulomb = 40
 
-timesteps_DSMC = 40
-
-is_calVDF = 0
 
 # dim: Geometry of the simulation
 #      1d3v = cartesian grid with 1d in space + 3d in velocity
@@ -40,7 +42,7 @@ is_calVDF = 0
 #
 dim = '1d3v'
 
-number_of_procs = [24]
+number_of_procs = [n_procs]
 
 #print sim_time / timestep
 # ELECTROMAGNETIC BOUNDARY CONDITIONS
@@ -77,6 +79,7 @@ random_seed = 0
 # order of interpolation
 #
 interpolation_order = 1
+projection_order = 1
 
 # SIMULATION BOX : for all space directions (use vector)
 # cell_length: length of the cell
@@ -153,32 +156,13 @@ Species(
 )
 
 
-Species(
-	species_type = 'T1',
-	initPosition_type = 'random',
-	initMomentum_type = 'maxwell',
-	ionization_model = 'none',
-	n_part_per_cell = 0,
-	n_part_per_cell_for_weight = 200,
-	c_part_max = 1.0,
-	mass = 3 * 1.67262158e-27,
-	charge = 1.6021766208e-19,
-	nb_density = 0.5e19,
-	temperature = [20.0],
-	time_frozen = 0.0,
-	bc_part_type_west  = 'supp',
-	bc_part_type_east  = 'supp',
-)
-
-
-
 
 # PartSource
 # species1    = list of strings, the names of the first species that performPSI
 # species2    = list of strings, the names of the second species that performPSI
 #               (can be the same as species1)
 
-nx_source_left = 100
+nx_source_left = 200
 
 PartSource(
 	species1 = ["e"],
