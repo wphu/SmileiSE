@@ -1,6 +1,6 @@
 #PBS -S /bin/bash
 #PBS -N tst1d_MCC
-#PBS -l nodes=1:ppn=4
+#PBS -l nodes=1:ppn=5
 #PBS -m b
 #PBS -m e
 #PBS -m a
@@ -17,4 +17,4 @@ echo "end time"; date
 ##do your job
 cd $PBS_O_WORKDIR
 
-mpiexec -n 4 ../../src/smilei tst1d_MCC.py
+mpiexec -n 5 ../../src/smilei tst1d_MCC.py

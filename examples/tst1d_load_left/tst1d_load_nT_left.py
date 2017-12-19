@@ -9,29 +9,29 @@
 import math
 
 method = 'explicit'
+solver_type = "GeneralThomas"
 
 l0 = 0.5e-5     # nu.norm_l is reference time, the value's unit before / is m (SI)
 Lsim = [500.*l0]	# length of the simulation
 
 t0 = 0.5e-12
-Tsim = 100			# duration of the simulation
+ns = int( 1.0e-9 / t0 )
+Tsim = 30 * ns			# duration of the simulation
 output_step = 10
 
-# number of MPI processes
-n_procs = 4
+# number of processes
+n_procs = 5
 
 
 
 #> number of timestep of incrementing averaged electromagnetic fields
-ntime_step_avg = 10
-
-ion_step = 1
+ntime_step_avg = ns
 
 #> Timestep to output some fields into hdf5 file
 dump_step = int( Tsim / output_step )
-timesteps_restore = dump_step
 
 
+ion_step = 1
 
 
 # dim: Geometry of the simulation
@@ -54,18 +54,18 @@ number_of_procs = [n_procs]
 bc_em_type_x = ['Dirichlet', 'Dirichlet']
 #bc_em_type_x = ['Neumann', 'Dirichlet']
 
-bc_em_value_x = [0.0, 0.0]
+bc_em_value_x = [60.0, 0.0]
 
-B = 0.0
-angle = 5.0 * math.pi / 180.0
-Bx = B * math.sin(angle)
-By = B * math.cos(angle)
+
+
+Bx = 0.0
+By = 0.0
 Bz = 0.0
 externB = [Bx, By, Bz]
 
 ion_sound_velocity = 0.0   #math.sqrt( (20.0 * 1.6021766208e-19) / (2.0 * 1.67262158e-27) )
-vx = ion_sound_velocity * math.sin(angle)
-vy = ion_sound_velocity * math.cos(angle)
+vx = 0.0
+vy = 0.0
 vz = 0.0
 
 
@@ -80,6 +80,7 @@ random_seed = 0
 #
 interpolation_order = 1
 projection_order = 1
+
 
 # SIMULATION BOX : for all space directions (use vector)
 # cell_length: length of the cell
@@ -174,7 +175,7 @@ PartSource(
 	mean_velocity = [vx, vy ,vz],
 	#loadDn = 2.0e25,
 	loadPos_start 	= 0.0,
-	loadPos_end 	= 100.0*l0,
+	loadPos_end 	= nx_source_left * l0,
 
 
 
@@ -191,6 +192,6 @@ PartSource(
 	mean_velocity = [vx, vy ,vz],
 	#loadDn = 2.0e25,
 	loadPos_start 	= 0.0,
-	loadPos_end 	= 100.0*l0,
+	loadPos_end 	= nx_source_left * l0,
 
 )

@@ -6,7 +6,7 @@
 #PBS -m a
 #PBS -o outfile
 #PBS -e errfile
-##PBS -l walltime=2000:00:00
+#PBS -l walltime=2000:00:00
 ##PBS -q batch
 
 echo "begin time"; date

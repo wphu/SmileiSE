@@ -22,16 +22,6 @@ output_step = 10
 # number of processes
 n_procs = 5
 
-B = 0.0
-Bangle = 90.0
-
-#source parameters
-source_dn = 100.0e25/10.0
-source_temp = 120.0
-source_density = 1.0e19
-
-
-
 
 
 #> number of timestep of incrementing averaged electromagnetic fields
@@ -40,15 +30,6 @@ ntime_step_avg = 1
 #> Timestep to output some fields into hdf5 file
 dump_step = int( Tsim / output_step )
 
-timesteps_collision = 40
-
-timesteps_coulomb = 40
-
-timesteps_DSMC = 40
-
-timesteps_restore = dump_step
-
-collision_zoom_factor = 100.0
 
 ion_step = 1
 
@@ -76,15 +57,15 @@ bc_em_type_x = ['periodic', 'periodic']
 bc_em_value_x = [0.0, 0.0]
 
 
-angle = Bangle * math.pi / 180.0
-Bx = B * math.sin(angle)
-By = B * math.cos(angle)
+
+Bx = 0.0
+By = 0.0
 Bz = 0.0
 externB = [Bx, By, Bz]
 
 ion_sound_velocity = 0.0   #math.sqrt( (20.0 * 1.6021766208e-19) / (2.0 * 1.67262158e-27) )
-vx = ion_sound_velocity * math.sin(angle)
-vy = ion_sound_velocity * math.cos(angle)
+vx = 0.0
+vy = 0.0
 vz = 0.0
 
 
@@ -177,12 +158,3 @@ Species(
 	visc_temp_index = 0.75,
 	vss_scat_inv = 1.
 )
-
-
-'''
-Collisions(
-	species1 = ["e", "D1"],
-	#coulomb_log = 1,
-	collisions_type = "coulomb"
-)
-'''

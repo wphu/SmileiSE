@@ -1,7 +1,7 @@
 from template import *
 
 
-t = 7
+t = 1
 	
 n0 = 1.0e19
 Ex0 = 1.0e6

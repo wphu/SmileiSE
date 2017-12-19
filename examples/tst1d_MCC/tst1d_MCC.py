@@ -9,30 +9,32 @@
 import math
 
 method = 'explicit'
+solver_type = "GeneralThomas"
 
-l0 = 0.5e-5     # nu.norm_l is reference time, the value's unit before / is m (SI)
+l0 = 0.5e-6     # nu.norm_l is reference time, the value's unit before / is m (SI)
 Lsim = [500.*l0]	# length of the simulation
 
-t0 = 0.5e-12
-Tsim = 100			# duration of the simulation
+t0 = 0.5e-14
+us = int( 1.0e-6 / t0 )
+Tsim = us			# duration of the simulation
 output_step = 10
 
-# number of MPI processes
-n_procs = 4
+# number of processes
+n_procs = 5
 
 
 
 #> number of timestep of incrementing averaged electromagnetic fields
-ntime_step_avg = 10
-
-ion_step = 1
+ntime_step_avg = 1
 
 #> Timestep to output some fields into hdf5 file
 dump_step = int( Tsim / output_step )
-timesteps_restore = dump_step
 
 
+ion_step = 1
 
+timesteps_collision = 40
+collision_zoom_factor = 1.0
 
 # dim: Geometry of the simulation
 #      1d3v = cartesian grid with 1d in space + 3d in velocity
@@ -51,22 +53,21 @@ number_of_procs = [n_procs]
 #                    silver-muller = injecting/absorbing BC
 #                    reflective = consider the ghost-cells as a perfect conductor
 #
-bc_em_type_x = ['Dirichlet', 'Dirichlet']
+bc_em_type_x = ['periodic', 'periodic']
 #bc_em_type_x = ['Neumann', 'Dirichlet']
 
 bc_em_value_x = [0.0, 0.0]
 
-Bangle = 0.0
-B = 2.0
-angle = Bangle * math.pi / 180.0
-Bx = B * math.sin(angle)
-By = B * math.cos(angle)
+
+
+Bx = 0.0
+By = 0.0
 Bz = 0.0
 externB = [Bx, By, Bz]
 
 ion_sound_velocity = 0.0   #math.sqrt( (20.0 * 1.6021766208e-19) / (2.0 * 1.67262158e-27) )
-vx = ion_sound_velocity * math.sin(angle)
-vy = ion_sound_velocity * math.cos(angle)
+vx = 0.0
+vy = 0.0
 vz = 0.0
 
 
@@ -130,8 +131,8 @@ Species(
 	nb_density = 1.0e19,
 	temperature = [20.0],
 	time_frozen = 0.,
-	bc_part_type_west  = 'refl',
-	bc_part_type_east  = 'refl',
+	bc_part_type_west  = 'periodic',
+	bc_part_type_east  = 'periodic',
 )
 
 Species(
@@ -147,8 +148,8 @@ Species(
 	nb_density = 1.0e19,
 	temperature = [20.0],
 	time_frozen = 0.0,
-	bc_part_type_west  = 'refl',
-	bc_part_type_east  = 'refl',
+	bc_part_type_west  = 'periodic',
+	bc_part_type_east  = 'periodic',
 )
 
 Species(
@@ -164,8 +165,8 @@ Species(
 	nb_density = 1.0e19,
 	temperature = [20.0],
 	time_frozen = 0.0,
-	bc_part_type_west  = 'refl',
-	bc_part_type_east  = 'refl',
+	bc_part_type_west  = 'periodic',
+	bc_part_type_east  = 'periodic',
 )
 
 Species(
@@ -181,8 +182,8 @@ Species(
 	nb_density = 1.0e19,
 	temperature = [20.0],
 	time_frozen = 0.0,
-	bc_part_type_west  = 'refl',
-	bc_part_type_east  = 'refl',
+	bc_part_type_west  = 'periodic',
+	bc_part_type_east  = 'periodic',
 )
 
 
@@ -193,7 +194,7 @@ Collisions(
 	species1 = ["e"],
 	species2 = ["D"],
 	species3 = ["D1_temp"],
-	crossSection_fileName = "Ionization_D_to_D+1.dat"
+	crossSection_fileName = "crossSection/Ionization_D_to_D+1.dat"
 )
 
 
@@ -201,5 +202,5 @@ Collisions(
 	collisions_type = "Excitation",
 	species1 = ["e"],
 	species2 = ["D"],
-	crossSection_fileName = "Ionization_D_to_D+1.dat"
+	crossSection_fileName = "crossSection/Ionization_D_to_D+1.dat"
 )

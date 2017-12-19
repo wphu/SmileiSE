@@ -16,7 +16,7 @@ Lsim = [5000.*l0]	# length of the simulation
 t0 = 0.5e-12
 us = int( 1.0e-6 / t0 )
 Tsim = 5 * us			# duration of the simulation
-output_step = 20
+output_step = 10
 
 # number of processes
 n_procs = 24
@@ -26,13 +26,13 @@ B = 2.0
 Bangle = 90.0
 
 #source parameters
-source_dn = 100.0e25/10.0
+source_dn = 10.0e25
 source_temp = 120.0
 source_density = 1.0e19
 
 # parameters of recycling
 isRecycling = False
-cr = 0.9
+cr = 0.8
 temp_recycling = 2.0 #eV
 
 # parameters of Carbon flux
@@ -50,13 +50,10 @@ dump_step = int( Tsim / output_step )
 
 timesteps_collision = 40
 
-timesteps_coulomb = 40
-
-timesteps_DSMC = 40
 
 timesteps_restore = dump_step
 
-zoom_collision = 100.0
+collision_zoom_factor = 100.0
 
 ion_step = 1
 
