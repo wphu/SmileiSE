@@ -9,7 +9,6 @@
 import math
 
 method = 'explicit'
-solver_type = "GeneralThomas"
 
 l0 = 0.5e-5     # nu.norm_l is reference time, the value's unit before / is m (SI)
 Lsim = [500.*l0]	# length of the simulation
@@ -63,8 +62,8 @@ By = 0.0
 Bz = 0.0
 externB = [Bx, By, Bz]
 
-ion_sound_velocity = 0.0   #math.sqrt( (20.0 * 1.6021766208e-19) / (2.0 * 1.67262158e-27) )
-vx = 0.0
+ion_sound_velocity = math.sqrt( (20.0 * 1.6021766208e-19) / (2.0 * 1.67262158e-27) )
+vx = ion_sound_velocity
 vy = 0.0
 vz = 0.0
 
@@ -132,7 +131,8 @@ Species(
 	charge = -1.6021766208e-19,
 	nb_density = 1.0e19,
 	temperature = [20.0],
-	mean_velocity = [0.0, 0.0, 0.0],
+	mean_velocity = [vx, vy, vz],
+	#mean_velocity = [0.0, 0.0, 0.0],
 	time_frozen = 0.,
 	bc_part_type_west  = 'supp',
 	bc_part_type_east  = 'supp',

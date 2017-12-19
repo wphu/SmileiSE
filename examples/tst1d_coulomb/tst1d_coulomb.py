@@ -15,8 +15,8 @@ l0 = 0.5e-6     # nu.norm_l is reference time, the value's unit before / is m (S
 Lsim = [500.*l0]	# length of the simulation
 
 t0 = 0.5e-14
-us = int( 1.0e-6 / t0 )
-Tsim = us			# duration of the simulation
+ns = int( 1.0e-9 / t0 )
+Tsim = 50 * ns			# duration of the simulation
 output_step = 10
 
 # number of processes

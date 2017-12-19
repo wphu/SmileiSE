@@ -2,12 +2,12 @@ from template import *
 
 
 t = 3
-	
+
 n0 = 1.0e19
 Ex0 = 1.0e6
 
-x_step = 2
-	
+x_step = 1
+
 amplification_factor = 80.0
 
 
@@ -56,9 +56,9 @@ line0=ax0.plot(x_less, val_1d, label = r"$\phi$", color='#1f77b4')
 ax0.set_ylabel(r"$\phi\ \mathrm{(V)}$", color='#1f77b4', fontsize = label_fontsize)
 ax0.tick_params('y', colors='#1f77b4')
 
-major_ticks = np.arange(0, 91, 30)                                                                                        
-ax0.set_yticks(major_ticks)                                                       
- 
+major_ticks = np.arange(0, 91, 30)
+ax0.set_yticks(major_ticks)
+
 
 
 
@@ -117,8 +117,8 @@ height0_ax_inset0 = val0_1d.max() * 0.7
 ax_inset0 = inset_axes(ax0, width = "60%", height = "80%" , bbox_to_anchor = (x0_ax_inset0, y0_ax_inset0, width0_ax_inset0, height0_ax_inset0), bbox_transform = ax0.transData)
 
 x_mm = x * 1.0e3 / amplification_factor
-val0_1d = val0_1d 
-val1_1d = val1_1d 
+val0_1d = val0_1d
+val1_1d = val1_1d
 ax_inset0.plot(x_mm, val0_1d)
 ax_inset0.plot(x_mm, val1_1d, linestyle = linestyles[1])
 
@@ -138,7 +138,7 @@ for tick in ax_inset0.yaxis.get_major_ticks():
 ax0.legend(loc = 1, framealpha=1)
 ax0.set_xlim((xmin, xmax))
 ax0.set_ylim((0.0, 1.1))
-major_ticks = np.arange(0, 1.1, 0.5)                                                                                      
+major_ticks = np.arange(0, 1.1, 0.5)
 ax0.set_yticks(major_ticks)
 ax0.set_ylabel(r"$n\ \mathrm{(10^{19}m^{-3})}$", fontsize = label_fontsize)
 
@@ -174,8 +174,8 @@ ax0.set_xlim((xmin, xmax))
 ax0.set_ylim((ymin, 91))
 
 
-major_ticks = np.arange(0, 91, 30)                                                                                      
-ax0.set_yticks(major_ticks)                                                       
+major_ticks = np.arange(0, 91, 30)
+ax0.set_yticks(major_ticks)
 
 ax0.set_xlabel(r"$x\ \mathrm{(m)}$", fontsize = label_fontsize)
 ax0.set_ylabel(r"$T\ \mathrm{(eV)}$", fontsize = label_fontsize)
