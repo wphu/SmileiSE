@@ -47,11 +47,9 @@ ntime_step_avg = 100000
 
 #> Timestep to output some fields into hdf5 file
 dump_step = int( Tsim / output_step )
+timesteps_restore = dump_step
 
 timesteps_collision = 40
-
-
-timesteps_restore = dump_step
 
 collision_zoom_factor = 100.0
 

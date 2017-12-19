@@ -12,7 +12,7 @@ method = 'explicit'
 solver_type = "GeneralThomas"
 
 l0 = 0.5e-6     # nu.norm_l is reference time, the value's unit before / is m (SI)
-Lsim = [500.*l0]	# length of the simulation
+Lsim = [100.*l0]	# length of the simulation
 
 t0 = 0.5e-14
 ns = int( 1.0e-9 / t0 )
@@ -29,7 +29,7 @@ ntime_step_avg = 1
 
 #> Timestep to output some fields into hdf5 file
 dump_step = int( Tsim / output_step )
-
+timesteps_restore = dump_step
 
 ion_step = 1
 

@@ -28,7 +28,7 @@ ntime_step_avg = ns
 
 #> Timestep to output some fields into hdf5 file
 dump_step = int( Tsim / output_step )
-
+timesteps_restore = dump_step
 
 ion_step = 1
 
