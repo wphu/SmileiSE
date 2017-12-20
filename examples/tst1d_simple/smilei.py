@@ -401,21 +401,22 @@ l0 = 0.5e-5     # nu.norm_l is reference time, the value's unit before / is m (S
 Lsim = [500.*l0]	# length of the simulation
 
 t0 = 0.5e-12
-Tsim = 100			# duration of the simulation
-output_step = 10
+ns = int(1.0e-9 / t0)
+Tsim = 5 * ns			# duration of the simulation
+number_output = 5
 
 # number of MPI processes
-n_procs = 4
+n_procs = 24
 
 
 
 #> number of timestep of incrementing averaged electromagnetic fields
-ntime_step_avg = 10
+ntime_step_avg = ns
 
 ion_step = 1
 
 #> Timestep to output some fields into hdf5 file
-dump_step = int( Tsim / output_step )
+dump_step = int( Tsim / number_output )
 timesteps_restore = dump_step
 
 
@@ -443,8 +444,8 @@ bc_em_type_x = ['Dirichlet', 'Dirichlet']
 
 bc_em_value_x = [0.0, 0.0]
 
-Bangle = 0.0
-B = 2.0
+Bangle = 90.0
+B = 0.0
 angle = Bangle * math.pi / 180.0
 Bx = B * math.sin(angle)
 By = B * math.cos(angle)
@@ -517,7 +518,7 @@ Species(
 	c_part_max = 1.0,
 	mass = 9.109382616e-31,
 	charge = -1.6021766208e-19,
-	nb_density = 2.0e19,
+	nb_density = 1.0e19,
 	temperature = [20.0],
 	time_frozen = 0.,
 	bc_part_type_west  = 'supp',
@@ -535,7 +536,7 @@ Species(
 	c_part_max = 1.0,
 	mass = 2.0 * 1.67262158e-27,
 	charge = 1.6021766208e-19,
-	nb_density = 2.0e19,
+	nb_density = 1.0e19,
 	temperature = [20.0],
 	time_frozen = 0.0,
 	bc_part_type_west  = 'supp',

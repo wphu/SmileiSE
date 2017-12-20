@@ -1,61 +1,35 @@
-SMILEICXX     ?= mpic++
-HDF5_ROOT_DIR ?=
-
-PYTHONCONFIG ?= python-config
+SMILEICXX		?= mpic++
+HDF5_ROOT_DIR	?=
+SuperLU_DIR		?=
+PYTHONCONFIG	?= python-config
 ##################################################
+
 DESCRIBE:=$(shell git describe 2>/dev/null || echo '??')
 BRANCH:=$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || echo '??')
 COMMITDATE:=$(shell git show -s --pretty="%ci" 2>/dev/null || echo '??')
-
 VERSION:="$(DESCRIBE)-$(BRANCH)"
 
-#SuperLU_DIR = /home/wp/codes/science/SuperLU_4.3
-LIB_Blas = $(SuperLU_DIR)/lib/blas_linux.a
+CFLAGS += -D__VERSION=\"$(VERSION)\" -D__COMMITDATE=\""$(COMMITDATE)"\"
+
+####################################################
+LIB_Blas	= $(SuperLU_DIR)/lib/blas_linux.a
 LIB_SuperLU = $(SuperLU_DIR)/lib/libsuperlu_4.3.a
-##LIBS = $(LIB_Blas) -L$(SuperLU_DIR)/lib -lsuperlu
-LIBS = $(LIB_SuperLU) $(LIB_Blas)
+LIBS 		= $(LIB_SuperLU) $(LIB_Blas)
 
 
+CFLAGS 		+= -std=c++11
+CFLAGS 		+= -I${HDF5_ROOT_DIR}/include
+LDFLAGS 	+= -lm -L${HDF5_ROOT_DIR}/lib -lhdf5 -lz
 
-CFLAGS += -D__VERSION=\"$(VERSION)\" -D__COMMITDATE=\""$(COMMITDATE)"\" -I${HDF5_ROOT_DIR}/include -std=c++11
-LDFLAGS += -lm -L${HDF5_ROOT_DIR}/lib -lhdf5 -lz
+CFLAGS 		+= -I$(SuperLU_DIR)/SRC
+LDFLAGS 	+= $(LIBS) -lm
 
-CFLAGS += -I$(SuperLU_DIR)/SRC
-LDFLAGS += $(LIBS) -lm
-
-ifneq (,$(findstring poincare,$(HOSTNAME)))
-    LDFLAGS += -lgpfs -lz -L/gpfslocal/pub/python/anaconda/Anaconda-2.1.0/lib
-endif
-
+####################################################
 #add subdirs
-DIRS = $(shell find * -type d)
+DIRS 		= $(shell find * -type d)
 #add include directives for subdirs
-CFLAGS += $(DIRS:%=-I%)
+CFLAGS 		+= $(DIRS:%=-I%)
 
-EXEC = smilei
-
-default: $(EXEC)
-
-help:
-	@echo 'Usage                 : make [clean] [openmp={gnu|intel}] [config=debug]'
-	@echo 'Environment variables : SMILEICXX (c++ compiler) HDF5_ROOT_DIR (HDF5 dir with /include and /lib)'
-
-
-# these are kept for backward compatibility and might be removed (see make help)
-release:
-	make
-
-openmpgnu:
-	make openmp=gnu
-
-openmpintel:
-	make openmp=intel
-
-debug:
-	make config=debug
-
-scalasca:
-	make config=scalasca
 
 
 PYSCRIPTS := $(shell find Python -name \*.py)
@@ -67,10 +41,9 @@ OBJS := $(SRCS:.cpp=.o)
 DEPS := $(SRCS:.cpp=.d)
 
 
-CFLAGS+=$(shell $(PYTHONCONFIG) --includes)
-
+CFLAGS		+=$(shell $(PYTHONCONFIG) --includes)
 PATH_Python = $(shell $(PYTHONCONFIG) --prefix)
-LDFLAGS += -L${PATH_Python}/lib $(shell $(PYTHONCONFIG) --ldflags)
+LDFLAGS 	+= -L${PATH_Python}/lib $(shell $(PYTHONCONFIG) --ldflags)
 
 
 ifeq ($(config),debug)
@@ -89,6 +62,21 @@ ifeq ($(config),scalasca)
 	CFLAGS += -openmp -D_OMP
     SMILEICXX = scalasca -instrument mpic++
 endif
+
+
+###############################################################
+EXEC		= smilei
+default: $(EXEC)
+
+help:
+	@echo 'Usage                 : make [clean] [openmp={gnu|intel}] [config=debug]'
+	@echo 'Environment variables : SMILEICXX (c++ compiler) HDF5_ROOT_DIR (HDF5 dir with /include and /lib)'
+
+release:
+	make
+
+debug:
+	make config=debug
 
 clean:
 	rm -f $(OBJS) $(DEPS) $(PYHEADERS) $(EXEC)
