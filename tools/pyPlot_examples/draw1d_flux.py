@@ -1,6 +1,6 @@
 from template import *
 
-t = 19
+t = 0
 dt = 0.5e-12 * 500000 / 1.0e-6   # unit is us
 
 N0 = 1.0e5
@@ -55,8 +55,8 @@ ax0.set_xlim((xmin, xmax))
 ax0.set_ylabel(r"$N_\mathrm{M}\ (10^5)$", fontsize = label_fontsize)
 ax0.yaxis.set_label_coords(ylabel_x, 0.5)
 
-major_ticks = np.arange(0, 4.01, 2.0)                                                                                        
-ax0.set_yticks(major_ticks) 
+major_ticks = np.arange(0, 4.01, 2.0)
+ax0.set_yticks(major_ticks)
 
 
 ax0.grid(True)
@@ -91,8 +91,8 @@ ax0.set_xlim((xmin, xmax))
 ax0.set_ylabel(r"$\Gamma\ \mathrm{(10^{23}m^{-2}s^{-1})}$", fontsize = label_fontsize)
 ax0.yaxis.set_label_coords(ylabel_x, 0.5)
 
-major_ticks = np.arange(0, 4.01, 2.0)                                                                                        
-ax0.set_yticks(major_ticks) 
+major_ticks = np.arange(0, 4.01, 2.0)
+ax0.set_yticks(major_ticks)
 
 ax0.grid(True)
 
@@ -128,8 +128,8 @@ ax0.yaxis.set_label_coords(ylabel_x, 0.5)
 ax0.grid(True)
 #ax0.legend(loc = 1)
 
-major_ticks = np.arange(0, 1.51, 0.5)                                                                                        
-ax0.set_yticks(major_ticks) 
+major_ticks = np.arange(0, 1.51, 0.5)
+ax0.set_yticks(major_ticks)
 
 ax0.annotate(r"$\mathbf{(c)}$", xy=get_axis_limits(ax0), annotation_clip=False)
 
