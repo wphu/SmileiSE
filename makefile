@@ -5,19 +5,17 @@ VERSION:="$(shell git describe 2>/dev/null || echo '??')"
 default: release
 
 release:
-	make -C src
+	$(MAKE) -C src
 
 openmpgnu:
-	make -C src openmp=gnu
+	$(MAKE) -C src openmp=gnu
 
 openmpintel:
-	make -C src openmp=intel
+	$(MAKE) -C src openmp=intel
 
 debug:
-	make -C src config=debug
+	$(MAKE) -C src config=debug
 
-scalasca:
-	make -C src config=scalasca
 
 clean:
 	make -C src clean
@@ -25,4 +23,3 @@ clean:
 
 doc:
 	make -C doc all
-
