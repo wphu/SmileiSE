@@ -80,7 +80,7 @@ extern int debug_level;
 #define DEBUG4(...) DEBUG3(__VA_ARGS__,DEBUG2,DEBUG1,)
 #define DEBUG(...) DEBUG4(__VA_ARGS__)(__VA_ARGS__)
 
-#define ERROR(__txt) {int __rk; MPI_Comm_rank( MPI_COMM_WORLD, &__rk ); __header("ERROR proc "<<__rk, __txt); MPI_Finalize(); raise(SIGSEGV);}
+#define ERROR(__txt) {int __rk; MPI_Comm_rank( MPI_COMM_WORLD, &__rk ); __header("ERROR proc "<<__rk, __txt); MPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);}
 
 #define DEBUGEXEC(...) __VA_ARGS__
 #define RELEASEEXEC(...)
@@ -93,7 +93,7 @@ extern int debug_level;
 #define DEBUGEXEC(...)
 #define RELEASEEXEC(...) __VA_ARGS__
 
-#define ERROR(__txt) {__header("ERROR", __txt); MPI_Finalize(); exit(EXIT_FAILURE);}
+#define ERROR(__txt) {__header("ERROR", __txt); MPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);}
 
 #define HEREIAM(...)
 

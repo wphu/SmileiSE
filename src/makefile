@@ -52,16 +52,6 @@ else
 	CFLAGS += -O3#  -xHost -ipo
 endif
 
-ifeq ($(openmp),gnu)
-	CFLAGS += -fopenmp -D_OMP
-else ifeq ($(openmp),intel)
-	CFLAGS += -openmp -D_OMP
-endif
-
-ifeq ($(config),scalasca)
-	CFLAGS += -openmp -D_OMP
-    SMILEICXX = scalasca -instrument mpic++
-endif
 
 
 ###############################################################
