@@ -6,6 +6,8 @@
 #           SmileiComponent, Species, Laser, Collisions, DiagProbe, DiagParticles,
 #           DiagScalar, DiagPhase or ExtField
 #
+print("begin...")
+
 import math
 
 method = 'explicit'
@@ -29,9 +31,8 @@ ntime_step_avg = ns
 ion_step = 1
 
 #> Timestep to output some fields into hdf5 file
-dump_step = int( Tsim / number_output )
-timesteps_restore = dump_step
-
+#dump_step = int( Tsim / number_output )
+#timesteps_restore = dump_step
 
 
 
@@ -120,6 +121,8 @@ n_time = Tsim
 # Predefined functions: constant, trapezoidal, gaussian, polygonal, cosine
 #
 
+print("1111")
+
 Species(
 	species_type = 'e',
 	initPosition_type = 'random',
@@ -137,6 +140,8 @@ Species(
 	bc_part_type_west  = 'supp',
 	bc_part_type_east  = 'supp',
 )
+
+print("2222")
 
 Species(
 	species_type = 'D1',

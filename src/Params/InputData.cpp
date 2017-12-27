@@ -72,13 +72,15 @@ py_namelist(NULL)
     }
 }
 
-InputData::~InputData() {
+InputData::~InputData()
+{
     if (Py_IsInitialized())
         Py_Finalize();
 }
 
 //! Run string as python script and add to namelist
-void InputData::pyRunScript(string command, string name) {
+void InputData::pyRunScript(string command, string name)
+{
     PyTools::checkPyError();
     namelist+=command;
     if (name.size()>0)  MESSAGE(1,"Passing to python " << name);

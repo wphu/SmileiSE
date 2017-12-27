@@ -17,7 +17,7 @@ class SmileiComponentType(type):
     # Functions to define the iterator
     def __iter__(self):
         return self
-    def next(self):
+    def __next__(self):
         if self.current >= len(self._list):
             raise StopIteration
         self.current += 1
@@ -47,16 +47,16 @@ class SmileiComponentType(type):
             return "["+", ".join(l)+"]"
 
 
-class SmileiComponent(object):
+class SmileiComponent(object, metaclass = SmileiComponentType):
     """Smilei component generic class"""
-    __metaclass__ = SmileiComponentType
+    metaclass = SmileiComponentType
 
     # This constructor is used always for all child classes
     def __init__(self, **kwargs):
         if kwargs is not None: # add all kwargs as internal class variables
-            for key, value in kwargs.iteritems():
+            for key, value in kwargs.items():
                 if key=="_list":
-                    print "Python warning: in "+type(self).__name__+": cannot have argument named '_list'. Discarding."
+                    print("Python warning: in "+type(self).__name__+": cannot have argument named '_list'. Discarding.")
                 else:
                     setattr(self, key, value)
         type(self)._list.append(self) # add the current object to the static list "list"
@@ -243,7 +243,7 @@ class ExtField(SmileiComponent):
 
 # default simulation values
 output_script = "smilei.py"
-dump_step = 0
+#dump_step = 0
 dump_minutes = 0.0
 exit_after_dump = True
 restart = False
@@ -256,6 +256,7 @@ interpolation_order = 2
 res_time = None
 res_space = []
 timestep = None
+timesteps_collision = None
 cell_length = []
 sim_time = None
 sim_length = []

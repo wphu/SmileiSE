@@ -76,7 +76,8 @@ int main (int argc, char* argv[])
     TITLE("Input data info");
     // Read the namelists file (no check!)
     InputData input_data(smpiData,namelists);
-
+    smpiData->barrier();
+    
     // Read simulation & diagnostics parameters
     PicParams params(input_data);
     smpiData->init(params);

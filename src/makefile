@@ -1,7 +1,7 @@
 SMILEICXX		?= mpic++
 HDF5_ROOT_DIR	?=
 SuperLU_DIR		?=
-PYTHONCONFIG	?= python-config
+PYTHONCONFIG	?= python3-config
 ##################################################
 
 DESCRIBE:=$(shell git describe 2>/dev/null || echo '??')
@@ -19,10 +19,10 @@ LIBS 		= $(LIB_SuperLU) $(LIB_Blas)
 
 CFLAGS 		+= -std=c++11
 CFLAGS 		+= -I${HDF5_ROOT_DIR}/include
-LDFLAGS 	+= -lm -L${HDF5_ROOT_DIR}/lib -lhdf5 -lz
+LDFLAGS 	+= -L${HDF5_ROOT_DIR}/lib -lhdf5 -lz
 
 CFLAGS 		+= -I$(SuperLU_DIR)/SRC
-LDFLAGS 	+= $(LIBS) -lm
+LDFLAGS 	+= $(LIBS)
 
 ####################################################
 #add subdirs

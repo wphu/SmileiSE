@@ -13,7 +13,6 @@ using namespace std;
 // ---------------------------------------------------------------------------------------------------------------------
 PicParams::PicParams(InputData &ifile) {
 
-
     // --------------
     // Stop & Restart
     // --------------
@@ -32,12 +31,11 @@ PicParams::PicParams(InputData &ifile) {
     timesteps_coulomb = 1;
     ifile.extract("timesteps_coulomb", timesteps_coulomb);
 
-    timesteps_DSMC = 1000000000000;
+    timesteps_DSMC = 1000000000;
     ifile.extract("timesteps_DSMC", timesteps_DSMC);
 
     timesteps_restore = 1000000000;
     ifile.extract("timesteps_restore", timesteps_restore);
-
 
     exit_after_dump=true;
     ifile.extract("exit_after_dump", exit_after_dump);
@@ -77,6 +75,7 @@ PicParams::PicParams(InputData &ifile) {
         method = "explicit";
         MESSAGE("default method is used: explicit ");
     }
+
 
     imp_theta = 0.1;
     ifile.extract("imp_theta", imp_theta);

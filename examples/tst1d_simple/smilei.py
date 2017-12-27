@@ -17,7 +17,7 @@ class SmileiComponentType(type):
     # Functions to define the iterator
     def __iter__(self):
         return self
-    def next(self):
+    def __next__(self):
         if self.current >= len(self._list):
             raise StopIteration
         self.current += 1
@@ -47,16 +47,16 @@ class SmileiComponentType(type):
             return "["+", ".join(l)+"]"
 
 
-class SmileiComponent(object):
+class SmileiComponent(object, metaclass = SmileiComponentType):
     """Smilei component generic class"""
-    __metaclass__ = SmileiComponentType
+    metaclass = SmileiComponentType
 
     # This constructor is used always for all child classes
     def __init__(self, **kwargs):
         if kwargs is not None: # add all kwargs as internal class variables
-            for key, value in kwargs.iteritems():
+            for key, value in kwargs.items():
                 if key=="_list":
-                    print "Python warning: in "+type(self).__name__+": cannot have argument named '_list'. Discarding."
+                    print("Python warning: in "+type(self).__name__+": cannot have argument named '_list'. Discarding.")
                 else:
                     setattr(self, key, value)
         type(self)._list.append(self) # add the current object to the static list "list"
@@ -243,7 +243,7 @@ class ExtField(SmileiComponent):
 
 # default simulation values
 output_script = "smilei.py"
-dump_step = 0
+#dump_step = 0
 dump_minutes = 0.0
 exit_after_dump = True
 restart = False
@@ -256,6 +256,7 @@ interpolation_order = 2
 res_time = None
 res_space = []
 timestep = None
+timesteps_collision = None
 cell_length = []
 sim_time = None
 sim_length = []
@@ -393,6 +394,8 @@ def cosine(base, amplitude=1.,
 #           SmileiComponent, Species, Laser, Collisions, DiagProbe, DiagParticles,
 #           DiagScalar, DiagPhase or ExtField
 #
+print("begin...")
+
 import math
 
 method = 'explicit'
@@ -416,9 +419,8 @@ ntime_step_avg = ns
 ion_step = 1
 
 #> Timestep to output some fields into hdf5 file
-dump_step = int( Tsim / number_output )
-timesteps_restore = dump_step
-
+#dump_step = int( Tsim / number_output )
+#timesteps_restore = dump_step
 
 
 
@@ -507,6 +509,8 @@ n_time = Tsim
 # Predefined functions: constant, trapezoidal, gaussian, polygonal, cosine
 #
 
+print("1111")
+
 Species(
 	species_type = 'e',
 	initPosition_type = 'random',
@@ -524,6 +528,8 @@ Species(
 	bc_part_type_west  = 'supp',
 	bc_part_type_east  = 'supp',
 )
+
+print("2222")
 
 Species(
 	species_type = 'D1',
@@ -553,21 +559,21 @@ Species(
     here we check if the namelist is clean and without errors
 """
 
-import gc 
+import gc
 gc.collect()
 
 def _smilei_check():
     """Do checks over the script"""
-    
+
     # Verify classes were not overriden
     for CheckClassName,CheckClass in {"SmileiComponent":SmileiComponent,"Species":Species,
             "Laser":Laser,"Collisions":Collisions,"DiagProbe":DiagProbe,"DiagParticles":DiagParticles,
-            "DiagScalar":DiagScalar,"DiagPhase":DiagPhase,"ExtField":ExtField}.iteritems():
+            "DiagScalar":DiagScalar,"DiagPhase":DiagPhase,"ExtField":ExtField}.items():
         try:
             if not CheckClass.verify: raise
         except:
             raise Exception("ERROR in the namelist: it seems that the name `"+CheckClassName+"` has been overriden")
-    
+
     # Check species for undefined/duplicate species_type
     all_species=[]
     for spec in Species:
@@ -577,7 +583,7 @@ def _smilei_check():
             raise Exception("ERROR in the namelist: there is duplicate species_type")
         else:
             all_species.append(spec.species_type)
-    
+
 # this function will be called after initialising the simulation, just before entering the time loop
 # if it returns false, the code will call a Py_Finalize();
 def _keep_python_running():
@@ -588,9 +594,6 @@ def _keep_python_running():
 
 # Prevent creating new components (by mistake)
 def _noNewComponents(cls, *args, **kwargs):
-    print "Please do not create a new "+cls.__name__
+    print("Please do not create a new "+cls.__name__)
     return None
 SmileiComponent.__new__ = staticmethod(_noNewComponents)
-
-
-

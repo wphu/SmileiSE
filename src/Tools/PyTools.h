@@ -21,57 +21,57 @@ private:
         }
         return false;
     }
-    
+
     //! convert Python object to short int
     static bool pyconvert(PyObject* py_val, short int &val) {
-        if (py_val && PyInt_Check(py_val)) {
-            val=(short int) PyInt_AsLong(py_val);
+        if (py_val && PyLong_Check(py_val)) {
+            val=(short int) PyLong_AsLong(py_val);
             return true;
         }
         return false;
     }
-    
+
     //! convert Python object to unsigned int
     static bool pyconvert(PyObject* py_val, unsigned int &val) {
-        if (py_val && PyInt_Check(py_val)) {
-            val=(unsigned int) PyInt_AsLong(py_val);
+        if (py_val && PyLong_Check(py_val)) {
+            val=(unsigned int) PyLong_AsLong(py_val);
             return true;
         }
         return false;
     }
-    
+
     //! convert Python object to int
     static bool pyconvert(PyObject* py_val, int &val) {
-        if (py_val && PyInt_Check(py_val)) {
-            val=(int) PyInt_AsLong(py_val);
+        if (py_val && PyLong_Check(py_val)) {
+            val=(int) PyLong_AsLong(py_val);
             return true;
         }
         return false;
     }
-    
+
     //! convert Python object to double
     static bool pyconvert(PyObject* py_val, double &val) {
         if(py_val) {
             if (PyFloat_Check(py_val)) {
                 val = PyFloat_AsDouble(py_val);
                 return true;
-            } else if (PyInt_Check(py_val)) {
-                val=(double) PyInt_AsLong(py_val);
+            } else if (PyLong_Check(py_val)) {
+                val=(double) PyLong_AsLong(py_val);
                 return true;
             }
         }
         return false;
     }
-    
+
     //! convert Python object to string
     static bool pyconvert(PyObject* py_val, std::string &val) {
-        if (py_val && PyString_Check(py_val)) {
-            val=std::string(PyString_AsString(py_val));
+        if (py_val && PyUnicode_Check(py_val)) {
+            val=std::string(PyUnicode_AsUTF8(py_val));
             return true;
         }
         return false;
     }
-    
+
     //! check error and display message
     static double get_py_result(PyObject* pyresult) {
         checkPyError();
@@ -96,7 +96,7 @@ public:
         bool retval=pyconvert(py_vec, val);
         return retval;
     }
-    
+
     //! convert vector of Python objects to vector of C++ values
     template <typename T>
     static bool convert(std::vector<PyObject*> py_vec, std::vector<T> &val) {
@@ -108,35 +108,35 @@ public:
         }
         return retval;
     }
-    
+
     //! check if there has been a python error
     static void checkPyError(bool exitOnError=false) {
         if (PyErr_Occurred()) {
             PyObject *type, *value, *traceback;
             PyErr_Fetch(&type, &value, &traceback);
             PyErr_Clear();
-            
+
             std::string message;
             if (type) {
                 type = PyObject_Str(type);
-                message += PyString_AsString(type);
+                message += PyUnicode_AsUTF8(type);
             }
             if (value) {
                 value = PyObject_Str(value);
                 message += ": ";
-                message += PyString_AsString(value);
+                message += PyUnicode_AsUTF8(value);
             }
             Py_XDECREF(type);
             Py_XDECREF(value);
             Py_XDECREF(traceback);
             if (exitOnError) {
-                ERROR(message);
+                ERROR("checkPyError " << message);
             } else {
                 MESSAGE(1,"[Python] " << message);
             }
         }
     }
-    
+
     static void runPyFunction(std::string name) {
         PyObject* myFunction = PyObject_GetAttrString(PyImport_AddModule("__main__"),name.c_str());
         if (myFunction) {
@@ -162,8 +162,8 @@ public:
         }
         return retval;
     }
-    
-    //! get python function one variable    
+
+    //! get python function one variable
     template <typename T=double>
     static T runPyFunction(PyObject *pyFunction, double x1) {
         PyObject *pyresult = PyObject_CallFunction(pyFunction, const_cast<char *>("d"), x1);
@@ -171,7 +171,7 @@ public:
         Py_XDECREF(pyresult);
         return retval;
     }
-    
+
     //! get python function two variables
     template <typename T=double>
     static T runPyFunction(PyObject *pyFunction, double x1, double x2) {
@@ -180,7 +180,7 @@ public:
         Py_XDECREF(pyresult);
         return retval;
     }
-    
+
     //! get python function three variables
     template <typename T=double>
     static T runPyFunction(PyObject *pyFunction, double x1, double x2, double x3) {
