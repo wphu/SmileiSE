@@ -133,13 +133,13 @@ public:
     //! Cell_length (copy from picparams)
     std::vector<double> cell_length;
 
-    inline void clearExchList(int tid) {
-	    indexes_of_particles_to_exchange_per_thd[tid].clear();
+    inline void clearExchList() {
+	    indexes_of_particles_to_exchange.clear();
     }
-    inline void addPartInExchList(int tid, int iPart) {
-        indexes_of_particles_to_exchange_per_thd[tid].push_back(iPart);
+    inline void addPartInExchList(int iPart) {
+        indexes_of_particles_to_exchange.push_back(iPart);
     }
-    std::vector< std::vector<int> > indexes_of_particles_to_exchange_per_thd;
+    std::vector<int> indexes_of_particles_to_exchange;
 
     //Copy of the species parameters from picparams
     SpeciesStructure species_param;

@@ -418,18 +418,18 @@ void ElectroMagn1D::restartRhoJs(int ispec, bool currents)
     Field1D* Jz1D_s  = static_cast<Field1D*>(Jz_s[ispec]);
     Field1D* rho1D_s = static_cast<Field1D*>(rho_s[ispec]);
 
-#pragma omp for schedule(static)
-    for (unsigned int ix=0 ; ix<dimPrim[0] ; ix++) {
+    for (unsigned int ix=0 ; ix<dimPrim[0] ; ix++)
+    {
         (*rho1D_s)(ix) = 0.0;
     }
     if (currents){
         // put longitudinal current to zero on the dual grid
-#pragma omp for schedule(static)
-        for (unsigned int ix=0 ; ix<dimDual[0] ; ix++) {
+        for (unsigned int ix=0 ; ix<dimDual[0] ; ix++)
+        {
             (*Jx1D_s)(ix)  = 0.0;
         }
-#pragma omp for schedule(static)
-        for (unsigned int ix=0 ; ix<dimPrim[0] ; ix++) {
+        for (unsigned int ix=0 ; ix<dimPrim[0] ; ix++)
+        {
             // all fields are defined on the primal grid
             (*Jy1D_s)(ix)  = 0.0;
             (*Jz1D_s)(ix)  = 0.0;

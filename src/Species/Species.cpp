@@ -147,14 +147,6 @@ min_loc(smpi->getDomainLocalMin(0))
     // define limits for BC and functions applied and for domain decomposition
     partBoundCond = new PartBoundCond( params, ispec, smpi);
 
-    unsigned int nthds(1);
-#pragma omp parallel shared(nthds)
-    {
-#ifdef _OMP
-        nthds = omp_get_num_threads();
-#endif
-    }
-    indexes_of_particles_to_exchange_per_thd.resize(nthds);
     indexes_of_particles_to_perform_psi.resize(2 * params.nDim_particle);
     //ener_tot = 0.;
     nrj_bc_lost = 0.;
@@ -576,10 +568,10 @@ void Species::dynamics(double time_dual, unsigned int ispec, ElectroMagn* EMfiel
     // number of particles for this Species
     unsigned int nParticles = getNbrOfParticles();
     // Reset list of particles to exchange
-    int tid(0);
+
     int iDirection=-1;
 
-    clearExchList(tid);
+    clearExchList();
 
     //ener_tot  = 0.;
     //ener_lost = 0.;
@@ -613,7 +605,7 @@ void Species::dynamics(double time_dual, unsigned int ispec, ElectroMagn* EMfiel
                 // apply returns 0 if iPart is no more in the domain local
                 // if omp, create a list per thread
                 if ( !partBoundCond->apply( particles, iPart, params.species_param[ispec], ener_iPart, iDirection ) ) {
-                    addPartInExchList( tid, iPart );
+                    addPartInExchList( iPart );
                     if(iDirection >= 0){
                         addPartInPsiList( iDirection, iPart );
                     }
@@ -675,10 +667,10 @@ void Species::dynamics_imp_firstPush(double time_dual, unsigned int ispec, Elect
     // number of particles for this Species
     unsigned int nParticles = getNbrOfParticles();
     // Reset list of particles to exchange
-    int tid(0);
+
     int iDirection=-1;
 
-    clearExchList(tid);
+    clearExchList();
 
     //ener_tot  = 0.;
     //ener_lost = 0.;
@@ -712,7 +704,7 @@ void Species::dynamics_imp_firstPush(double time_dual, unsigned int ispec, Elect
                 // apply returns 0 if iPart is no more in the domain local
                 // if omp, create a list per thread
                 if ( !partBoundCond->apply( particles, iPart, params.species_param[ispec], ener_iPart, iDirection ) ) {
-                    addPartInExchList( tid, iPart );
+                    addPartInExchList( iPart );
                     if(iDirection >= 0){
                         addPartInPsiList( iDirection, iPart );
                     }
@@ -772,10 +764,10 @@ void Species::dynamics_imp_secondPush(double time_dual, unsigned int ispec, Elec
     // number of particles for this Species
     unsigned int nParticles = getNbrOfParticles();
     // Reset list of particles to exchange
-    int tid(0);
+
     int iDirection=-1;
 
-    clearExchList(tid);
+    clearExchList();
 
     //ener_tot  = 0.;
     //ener_lost = 0.;
@@ -808,7 +800,7 @@ void Species::dynamics_imp_secondPush(double time_dual, unsigned int ispec, Elec
                 // apply returns 0 if iPart is no more in the domain local
                 // if omp, create a list per thread
                 if ( !partBoundCond->apply( particles, iPart, params.species_param[ispec], ener_iPart, iDirection ) ) {
-                    addPartInExchList( tid, iPart );
+                    addPartInExchList( iPart );
                     if(iDirection >= 0){
                         addPartInPsiList( iDirection, iPart );
                     }
@@ -865,15 +857,10 @@ void Species::dynamics_EM(double time_dual, unsigned int ispec, ElectroMagn* EMf
     // number of particles for this Species
     unsigned int nParticles = getNbrOfParticles();
     // Reset list of particles to exchange
-    int tid(0);
+
     int iDirection=-1;
-    std::vector<double> nrj_lost_per_thd(1, 0.);
-#ifdef _OMP
-    tid = omp_get_thread_num();
-    int nthds = omp_get_num_threads();
-    nrj_lost_per_thd.resize(nthds, 0.);
-#endif
-    clearExchList(tid);
+
+    clearExchList();
 
     //ener_tot  = 0.;
     //ener_lost = 0.;
@@ -922,8 +909,7 @@ void Species::dynamics_EM(double time_dual, unsigned int ispec, ElectroMagn* EMf
                 // apply returns 0 if iPart is no more in the domain local
                 // if omp, create a list per thread
                 if ( !partBoundCond->apply( particles, iPart, params.species_param[ispec], ener_iPart, iDirection ) ) {
-                    addPartInExchList( tid, iPart );
-                    nrj_lost_per_thd[tid] += params.species_param[ispec].mass * ener_iPart;
+                    addPartInExchList( iPart );
                     if(iDirection >= 0){
                         addPartInPsiList( iDirection, iPart );
                     }
@@ -948,13 +934,9 @@ void Species::dynamics_EM(double time_dual, unsigned int ispec, ElectroMagn* EMf
                     for (i = 0; i < b_dim0 ; i++) {
                         //! \todo Should we care about primal - dual sizes here ?
                         iloc = ibin*clrw + i ;
-#pragma omp atomic
                         (*EMfields->Jx_s[ispec]) (iloc) +=  b_Jx[i];
-#pragma omp atomic
                         (*EMfields->Jy_s[ispec]) (iloc) +=  b_Jy[i];
-#pragma omp atomic
                         (*EMfields->Jz_s[ispec]) (iloc) +=  b_Jz[i];
-#pragma omp atomic
                         (*EMfields->rho_s[ispec])(iloc) += b_rho[i];
                     }
                 } // End if (ndim == 1)
@@ -963,13 +945,9 @@ void Species::dynamics_EM(double time_dual, unsigned int ispec, ElectroMagn* EMf
                         iloc = ibin*clrw + i ;
                         //! \todo Here b_dim0 is the dual size. Make sure no problems arise when i == b_dim0-1 for primal arrays.
                         for (j = 0; j < b_dim1 ; j++) {
-#pragma omp atomic
                             (*EMfields->Jx_s[ispec]) (iloc*(f_dim1  )+j) +=  b_Jx[i*b_dim1+j];   //  primal along y
-#pragma omp atomic
                             (*EMfields->Jy_s[ispec]) (iloc*(f_dim1+1)+j) +=  b_Jy[i*b_dim1+j];   //+1 because dual along y
-#pragma omp atomic
                             (*EMfields->Jz_s[ispec]) (iloc*(f_dim1  )+j) +=  b_Jz[i*b_dim1+j];   // primal along y
-#pragma omp atomic
                             (*EMfields->rho_s[ispec])(iloc*(f_dim1  )+j) += b_rho[i*b_dim1+j];   // primal along y
                         }
                     }
@@ -987,13 +965,9 @@ void Species::dynamics_EM(double time_dual, unsigned int ispec, ElectroMagn* EMf
                         iloc = ibin*clrw + i ;
                         //! \todo Here b_dim0 is the dual size. Make sure no problems arise when i == b_dim0-1 for primal arrays.
                         for (j = 0; j < b_dim1 ; j++) {
-#pragma omp atomic
                             (*EMfields->Jx_s[ispec]) (iloc*(f_dim1  )+j) +=  b_Jx[i*b_dim1+j];   //  primal along y
-#pragma omp atomic
                             (*EMfields->Jy_s[ispec]) (iloc*(f_dim1+1)+j) +=  b_Jy[i*b_dim1+j];   //+1 because dual along y
-#pragma omp atomic
                             (*EMfields->Jz_s[ispec]) (iloc*(f_dim1  )+j) +=  b_Jz[i*b_dim1+j];   // primal along y
-#pragma omp atomic
                             (*EMfields->rho_s[ispec])(iloc*(f_dim1  )+j) += b_rho[i*b_dim1+j];   // primal along y
                         }
                     }
@@ -1020,8 +994,6 @@ void Species::dynamics_EM(double time_dual, unsigned int ispec, ElectroMagn* EMf
 
         free(b_Jx);
 
-        for (unsigned int ithd=0 ; ithd<nrj_lost_per_thd.size() ; ithd++)
-            nrj_bc_lost += nrj_lost_per_thd[ithd];
     }
     else if (!particles.isTestParticles) { // immobile particle (at the moment only project density)
 
@@ -1229,11 +1201,11 @@ void Species::movingWindow_x(unsigned int shift, SmileiMPI *smpi, PicParams& par
 
     // Send particles of first bin on process rank-1
     // If no rank-1 -> particles deleted
-    clearExchList(0);
+    clearExchList();
 
     for (unsigned int ibin = 0 ; ibin < 1 ; ibin++)
         for (int iPart=bmin[ibin] ; iPart<bmax[ibin]; iPart++ ) {
-            addPartInExchList( 0, iPart );
+            addPartInExchList( iPart );
             nrj_mw_lost += particles.weight(iPart)*(particles.lor_fac(iPart)-1.0);
         }
 
@@ -1625,8 +1597,8 @@ void Species::calDepCharge(ElectroMagn* EMfields, PicParams& params, SmileiMPI* 
     double depCharge_temp[3][2];
     for ( int iDim = 0 ; iDim<(int)params.nDim_particle ; iDim++ )
     {
-        for (int i=0 ; i<indexes_of_particles_to_exchange_per_thd[0].size() ; i++) {
-            iPart = indexes_of_particles_to_exchange_per_thd[0][i];
+        for (int i=0 ; i<indexes_of_particles_to_exchange.size() ; i++) {
+            iPart = indexes_of_particles_to_exchange[i];
             if ( particles.position(iDim,iPart) < smpi->getDomainLocalMin(iDim) ) {
                 depCharge_temp[iDim][0] += ( particles.charge(iPart) + particles.weight(iPart) );
             }

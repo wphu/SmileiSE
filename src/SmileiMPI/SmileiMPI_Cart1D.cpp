@@ -216,249 +216,219 @@ void SmileiMPI_Cart1D::exchangeParticles(Species* species, int ispec, PicParams&
     // Computed from indexes_of_particles_to_exchange computed during particles' BC
     // ------------------------------------------------------------------------------
 
-    std::vector< std::vector<int> >* indexes_of_particles_to_exchange_per_thd = &species->indexes_of_particles_to_exchange_per_thd;
-    //std::vector<int>                 indexes_of_particles_to_exchange;
+    indexes_of_particles_to_exchange.clear();
+    indexes_of_particles_to_exchange = species->indexes_of_particles_to_exchange;
 
-#pragma omp single
+    sort( indexes_of_particles_to_exchange.begin(), indexes_of_particles_to_exchange.end() );
+
+    n_part_send = indexes_of_particles_to_exchange.size();
+
+
+    for (i=0 ; i<n_part_send ; i++) {
+        iPart = indexes_of_particles_to_exchange[i];
+        if      ( cuParticles.position(0,iPart) < min_local[0]) {
+            buff_index_send[0].push_back( indexes_of_particles_to_exchange[i] );
+        }
+        else if ( cuParticles.position(0,iPart) >= max_local[0]) {
+            buff_index_send[1].push_back( indexes_of_particles_to_exchange[i] );
+        }
+    } // END for iPart = f(i)
+
+    Particles partVectorSend[1][2];
+    partVectorSend[0][0].initialize(0, params, ispec);
+    partVectorSend[0][1].initialize(0, params, ispec);
+    Particles partVectorRecv[1][2];
+    partVectorRecv[0][0].initialize(0, params, ispec);
+    partVectorRecv[0][1].initialize(0, params, ispec);
+
+    /********************************************************************************/
+    // Exchange particles
+    /********************************************************************************/
+    // Loop over neighbors in a direction
+
+    // iDim = 0
+    // Send to neighbor_[0][iNeighbor] / Recv from neighbor_[0][(iNeighbor+1)%2] :
+    // MPI_COMM_SIZE = 2 :  neighbor_[0][0]  |  Current process  |  neighbor_[0][1]
+    // Rank = 0 : iNeighbor = 0 : neighbor_[0][0] = NONE : neighbor_[0][(0+1)%2 = 1
+    //            iNeighbor = 1 : neighbor_[0][1] = 1    : neighbor_[0][(1+1)%2 = NONE
+    // Rank = 1 : iNeighbor = 0 : neighbor_[0][0] = 0    : neighbor_[0][(0+1)%2 = NONE
+    //            iNeighbor = 1 : neighbor_[0][1] = NONE : neighbor_[0][(1+1)%2 = 0
+
+    ///********************************************************************************/
+    //// Exchange number of particles to exchange to establish or not a communication
+    ///********************************************************************************/
+
+    for (int iNeighbor=0 ; iNeighbor<nbNeighbors_ ; iNeighbor++) {
+        n_part_send = buff_index_send[iNeighbor].size();
+        if ( (neighbor_[0][0]!=MPI_PROC_NULL) && (neighbor_[0][1]!=MPI_PROC_NULL) ) {
+            //Send-receive
+            MPI_Sendrecv( &n_part_send, 1, MPI_INT, neighbor_[0][iNeighbor], 0, &buff_index_recv_sz[(iNeighbor+1)%2], 1, MPI_INT, neighbor_[0][(iNeighbor+1)%2], 0, SMILEI_COMM_1D,&Stat);
+        } else if (neighbor_[0][iNeighbor]!=MPI_PROC_NULL) {
+            //Send
+            MPI_Send( &n_part_send, 1, MPI_INT, neighbor_[0][iNeighbor], 0, SMILEI_COMM_1D);
+        } else if (neighbor_[0][(iNeighbor+1)%2]!=MPI_PROC_NULL) {
+            //Receive
+            MPI_Recv( &buff_index_recv_sz[(iNeighbor+1)%2], 1, MPI_INT, neighbor_[0][(iNeighbor+1)%2], 0, SMILEI_COMM_1D, &Stat);
+        }
+    }
+
+    /********************************************************************************/
+    // Define buffers to exchange buff_index_send[iNeighbor].size();
+    /********************************************************************************/
+    //! \todo Define this as a main parameter for the code so that it needs not be defined all the time
+
+    /********************************************************************************/
+    // Proceed to effective Particles' communications
+    /********************************************************************************/
+
+    //Number of properties per particles = nDim_Particles + 3 + 6 + 1
+    int nbrOfProp = 4;
+    if(!isSameWeight)
     {
-        indexes_of_particles_to_exchange.clear();
+      // particles->weight(0)
+      nbrOfProp++;
     }
-#pragma omp barrier
-
-    for (tid=0 ; tid < tnum ; tid++){
-        tmp += ((*indexes_of_particles_to_exchange_per_thd)[tid]).size(); //Compute the position where to start copying
-    }
-
-    if (tnum == (int)indexes_of_particles_to_exchange_per_thd->size()-1){ //If last thread
-        indexes_of_particles_to_exchange.resize( tmp + ((*indexes_of_particles_to_exchange_per_thd)[tnum]).size());
-    }
-#pragma omp barrier
-    //Copy the list per_thread to the global list
-    //One thread at a time (works)
-#pragma omp master
+    if(isImplicit)
     {
-        for (tid=0 ; tid < (int)indexes_of_particles_to_exchange_per_thd->size() ; tid++) {
-            memcpy(&indexes_of_particles_to_exchange[k], &((*indexes_of_particles_to_exchange_per_thd)[tid])[0],((*indexes_of_particles_to_exchange_per_thd)[tid]).size()*sizeof(int));
-            k += ((*indexes_of_particles_to_exchange_per_thd)[tid]).size();
-        }
-        // All threads together (doesn't work)
-        /*if (((*indexes_of_particles_to_exchange_per_thd)[tnum]).size() > 0){
-         //cout << "tmp = "<<tmp << endl;
-         //cout << "tnum = "<< tnum << endl;
-         memcpy(&indexes_of_particles_to_exchange[tmp], &((*indexes_of_particles_to_exchange_per_thd)[tnum])[0],((*indexes_of_particles_to_exchange_per_thd)[tnum]).size()*sizeof(int));
-         }*/
-        //#pragma omp master
-        //{
-        sort( indexes_of_particles_to_exchange.begin(), indexes_of_particles_to_exchange.end() );
+      // particles->al_imp, particles->au_imp
+      nbrOfProp += 6;
+    }
 
-        n_part_send = indexes_of_particles_to_exchange.size();
+    MPI_Datatype typePartSend, typePartRecv;
 
-
-        for (i=0 ; i<n_part_send ; i++) {
-            iPart = indexes_of_particles_to_exchange[i];
-            if      ( cuParticles.position(0,iPart) < min_local[0]) {
-                buff_index_send[0].push_back( indexes_of_particles_to_exchange[i] );
-            }
-            else if ( cuParticles.position(0,iPart) >= max_local[0]) {
-                buff_index_send[1].push_back( indexes_of_particles_to_exchange[i] );
-            }
-        } // END for iPart = f(i)
-
-        Particles partVectorSend[1][2];
-        partVectorSend[0][0].initialize(0, params, ispec);
-        partVectorSend[0][1].initialize(0, params, ispec);
-        Particles partVectorRecv[1][2];
-        partVectorRecv[0][0].initialize(0, params, ispec);
-        partVectorRecv[0][1].initialize(0, params, ispec);
-
-        /********************************************************************************/
-        // Exchange particles
-        /********************************************************************************/
-        // Loop over neighbors in a direction
-
-        // iDim = 0
-        // Send to neighbor_[0][iNeighbor] / Recv from neighbor_[0][(iNeighbor+1)%2] :
-        // MPI_COMM_SIZE = 2 :  neighbor_[0][0]  |  Current process  |  neighbor_[0][1]
-        // Rank = 0 : iNeighbor = 0 : neighbor_[0][0] = NONE : neighbor_[0][(0+1)%2 = 1
-        //            iNeighbor = 1 : neighbor_[0][1] = 1    : neighbor_[0][(1+1)%2 = NONE
-        // Rank = 1 : iNeighbor = 0 : neighbor_[0][0] = 0    : neighbor_[0][(0+1)%2 = NONE
-        //            iNeighbor = 1 : neighbor_[0][1] = NONE : neighbor_[0][(1+1)%2 = 0
-
-        ///********************************************************************************/
-        //// Exchange number of particles to exchange to establish or not a communication
-        ///********************************************************************************/
-
-        for (int iNeighbor=0 ; iNeighbor<nbNeighbors_ ; iNeighbor++) {
-            n_part_send = buff_index_send[iNeighbor].size();
-            if ( (neighbor_[0][0]!=MPI_PROC_NULL) && (neighbor_[0][1]!=MPI_PROC_NULL) ) {
-                //Send-receive
-                MPI_Sendrecv( &n_part_send, 1, MPI_INT, neighbor_[0][iNeighbor], 0, &buff_index_recv_sz[(iNeighbor+1)%2], 1, MPI_INT, neighbor_[0][(iNeighbor+1)%2], 0, SMILEI_COMM_1D,&Stat);
-            } else if (neighbor_[0][iNeighbor]!=MPI_PROC_NULL) {
-                //Send
-                MPI_Send( &n_part_send, 1, MPI_INT, neighbor_[0][iNeighbor], 0, SMILEI_COMM_1D);
-            } else if (neighbor_[0][(iNeighbor+1)%2]!=MPI_PROC_NULL) {
-                //Receive
-                MPI_Recv( &buff_index_recv_sz[(iNeighbor+1)%2], 1, MPI_INT, neighbor_[0][(iNeighbor+1)%2], 0, SMILEI_COMM_1D, &Stat);
-            }
-        }
-
-        /********************************************************************************/
-        // Define buffers to exchange buff_index_send[iNeighbor].size();
-        /********************************************************************************/
-        //! \todo Define this as a main parameter for the code so that it needs not be defined all the time
-
-        /********************************************************************************/
-        // Proceed to effective Particles' communications
-        /********************************************************************************/
-
-        //Number of properties per particles = nDim_Particles + 3 + 6 + 1
-        int nbrOfProp = 4;
-        if(!isSameWeight)
-        {
-          // particles->weight(0)
-          nbrOfProp++;
-        }
-        if(isImplicit)
-        {
-          // particles->al_imp, particles->au_imp
-          nbrOfProp += 6;
-        }
-
-        MPI_Datatype typePartSend, typePartRecv;
-
-        for (int iNeighbor=0 ; iNeighbor<nbNeighbors_ ; iNeighbor++) {
-            n_part_send = buff_index_send[iNeighbor].size();
-            n_part_recv = buff_index_recv_sz[(iNeighbor+1)%2];
-            if ( (neighbor_[0][0]!=MPI_PROC_NULL) && (neighbor_[0][1]!=MPI_PROC_NULL) && (n_part_send!=0) && (n_part_recv!=0) ) {
-                //Send-receive
-                double x_max = params.cell_length[0]*( params.n_space_global[0] );
-                for (int iPart=0 ; iPart<n_part_send ; iPart++) {
-                    // Enabled periodicity in X
-                    if ( ( iNeighbor==0 ) &&  (coords_[0] == 0 ) &&( cuParticles.position(0,buff_index_send[iNeighbor][iPart]) < 0. ) ) {
-                        cuParticles.position(0,buff_index_send[iNeighbor][iPart])     += x_max;
-                    }
-                    else if ( ( iNeighbor==1 ) &&  (coords_[0] == number_of_procs[0]-1 ) && ( cuParticles.position(0,buff_index_send[iNeighbor][iPart]) >= x_max ) ) {
-                        cuParticles.position(0,buff_index_send[iNeighbor][iPart])     -= x_max;
-                    }
-                    cuParticles.cp_particle(buff_index_send[iNeighbor][iPart], partVectorSend[0][iNeighbor]);
+    for (int iNeighbor=0 ; iNeighbor<nbNeighbors_ ; iNeighbor++) {
+        n_part_send = buff_index_send[iNeighbor].size();
+        n_part_recv = buff_index_recv_sz[(iNeighbor+1)%2];
+        if ( (neighbor_[0][0]!=MPI_PROC_NULL) && (neighbor_[0][1]!=MPI_PROC_NULL) && (n_part_send!=0) && (n_part_recv!=0) ) {
+            //Send-receive
+            double x_max = params.cell_length[0]*( params.n_space_global[0] );
+            for (int iPart=0 ; iPart<n_part_send ; iPart++) {
+                // Enabled periodicity in X
+                if ( ( iNeighbor==0 ) &&  (coords_[0] == 0 ) &&( cuParticles.position(0,buff_index_send[iNeighbor][iPart]) < 0. ) ) {
+                    cuParticles.position(0,buff_index_send[iNeighbor][iPart])     += x_max;
                 }
-
-                typePartSend = createMPIparticles( &(partVectorSend[0][iNeighbor]), nbrOfProp );
-
-                partVectorRecv[0][(iNeighbor+1)%2].initialize( n_part_recv, params, ispec );
-                typePartRecv = createMPIparticles( &(partVectorRecv[0][(iNeighbor+1)%2]), nbrOfProp );
-
-                MPI_Sendrecv(&((partVectorSend[0][iNeighbor      ]).position(0,0)),        1, typePartSend, neighbor_[0][iNeighbor      ], 0,
-                             &((partVectorRecv[0][(iNeighbor+1)%2]).position(0,0)),        1, typePartRecv, neighbor_[0][(iNeighbor+1)%2], 0, SMILEI_COMM_1D, &Stat);
-                MPI_Type_free( &typePartSend );
-                MPI_Type_free( &typePartRecv );
-
-            } else if ( (neighbor_[0][iNeighbor]!=MPI_PROC_NULL) && (n_part_send!=0) ) {
-                //Send
-                partVectorSend[0][iNeighbor].reserve(n_part_send, 1);
-                double x_max = params.cell_length[0]*( params.n_space_global[0] );
-                for (int iPart=0 ; iPart<n_part_send ; iPart++) {
-                    // Enabled periodicity in X
-                    if ( ( iNeighbor==0 ) &&  (coords_[0] == 0 ) &&( cuParticles.position(0,buff_index_send[iNeighbor][iPart]) < 0. ) ) {
-                        cuParticles.position(0,buff_index_send[iNeighbor][iPart])     += x_max;
-                    }
-                    else if ( ( iNeighbor==1 ) &&  (coords_[0] == number_of_procs[0]-1 ) && ( cuParticles.position(0,buff_index_send[iNeighbor][iPart]) >= x_max ) ) {
-                        cuParticles.position(0,buff_index_send[iNeighbor][iPart])     -= x_max;
-                    }
-                    cuParticles.cp_particle(buff_index_send[iNeighbor][iPart], partVectorSend[0][iNeighbor]);
+                else if ( ( iNeighbor==1 ) &&  (coords_[0] == number_of_procs[0]-1 ) && ( cuParticles.position(0,buff_index_send[iNeighbor][iPart]) >= x_max ) ) {
+                    cuParticles.position(0,buff_index_send[iNeighbor][iPart])     -= x_max;
                 }
-                typePartSend = createMPIparticles( &(partVectorSend[0][iNeighbor]), nbrOfProp );
-                MPI_Send( &((partVectorSend[0][iNeighbor]).position(0,0)), 1, typePartSend, neighbor_[0][iNeighbor], 0, SMILEI_COMM_1D);
-                MPI_Type_free( &typePartSend );
-
-            } else if ( (neighbor_[0][(iNeighbor+1)%2]!=MPI_PROC_NULL) && (n_part_recv!=0) ) {
-                //Receive
-                partVectorRecv[0][(iNeighbor+1)%2].initialize( buff_index_recv_sz[(iNeighbor+1)%2], params, ispec );
-                typePartRecv = createMPIparticles( &(partVectorRecv[0][(iNeighbor+1)%2]), nbrOfProp );
-                MPI_Recv( &((partVectorRecv[0][(iNeighbor+1)%2]).position(0,0)), 1, typePartRecv,  neighbor_[0][(iNeighbor+1)%2], 0, SMILEI_COMM_1D, &Stat );
-                MPI_Type_free( &typePartRecv );
-
+                cuParticles.cp_particle(buff_index_send[iNeighbor][iPart], partVectorSend[0][iNeighbor]);
             }
-        }
 
-        /********************************************************************************/
-        // Delete Particles included in buff_send/buff_recv
-        /********************************************************************************/
-        // Push lost particles at the end of bins
-        //! \todo For loop on bins, can use openMP here.
-        for (unsigned int ibin = 0 ; ibin < (*cubmax).size() ; ibin++ ) {
-            //        DEBUG(ibin << " bounds " << (*cubmin)[ibin] << " " << (*cubmax)[ibin]);
-            ii = indexes_of_particles_to_exchange.size()-1;
-            if (ii >= 0) { // Push lost particles to the end of the bin
+            typePartSend = createMPIparticles( &(partVectorSend[0][iNeighbor]), nbrOfProp );
+
+            partVectorRecv[0][(iNeighbor+1)%2].initialize( n_part_recv, params, ispec );
+            typePartRecv = createMPIparticles( &(partVectorRecv[0][(iNeighbor+1)%2]), nbrOfProp );
+
+            MPI_Sendrecv(&((partVectorSend[0][iNeighbor      ]).position(0,0)),        1, typePartSend, neighbor_[0][iNeighbor      ], 0,
+                         &((partVectorRecv[0][(iNeighbor+1)%2]).position(0,0)),        1, typePartRecv, neighbor_[0][(iNeighbor+1)%2], 0, SMILEI_COMM_1D, &Stat);
+            MPI_Type_free( &typePartSend );
+            MPI_Type_free( &typePartRecv );
+
+        } else if ( (neighbor_[0][iNeighbor]!=MPI_PROC_NULL) && (n_part_send!=0) ) {
+            //Send
+            partVectorSend[0][iNeighbor].reserve(n_part_send, 1);
+            double x_max = params.cell_length[0]*( params.n_space_global[0] );
+            for (int iPart=0 ; iPart<n_part_send ; iPart++) {
+                // Enabled periodicity in X
+                if ( ( iNeighbor==0 ) &&  (coords_[0] == 0 ) &&( cuParticles.position(0,buff_index_send[iNeighbor][iPart]) < 0. ) ) {
+                    cuParticles.position(0,buff_index_send[iNeighbor][iPart])     += x_max;
+                }
+                else if ( ( iNeighbor==1 ) &&  (coords_[0] == number_of_procs[0]-1 ) && ( cuParticles.position(0,buff_index_send[iNeighbor][iPart]) >= x_max ) ) {
+                    cuParticles.position(0,buff_index_send[iNeighbor][iPart])     -= x_max;
+                }
+                cuParticles.cp_particle(buff_index_send[iNeighbor][iPart], partVectorSend[0][iNeighbor]);
+            }
+            typePartSend = createMPIparticles( &(partVectorSend[0][iNeighbor]), nbrOfProp );
+            MPI_Send( &((partVectorSend[0][iNeighbor]).position(0,0)), 1, typePartSend, neighbor_[0][iNeighbor], 0, SMILEI_COMM_1D);
+            MPI_Type_free( &typePartSend );
+
+        } else if ( (neighbor_[0][(iNeighbor+1)%2]!=MPI_PROC_NULL) && (n_part_recv!=0) ) {
+            //Receive
+            partVectorRecv[0][(iNeighbor+1)%2].initialize( buff_index_recv_sz[(iNeighbor+1)%2], params, ispec );
+            typePartRecv = createMPIparticles( &(partVectorRecv[0][(iNeighbor+1)%2]), nbrOfProp );
+            MPI_Recv( &((partVectorRecv[0][(iNeighbor+1)%2]).position(0,0)), 1, typePartRecv,  neighbor_[0][(iNeighbor+1)%2], 0, SMILEI_COMM_1D, &Stat );
+            MPI_Type_free( &typePartRecv );
+
+        }
+    }
+
+    /********************************************************************************/
+    // Delete Particles included in buff_send/buff_recv
+    /********************************************************************************/
+    // Push lost particles at the end of bins
+    //! \todo For loop on bins, can use openMP here.
+    for (unsigned int ibin = 0 ; ibin < (*cubmax).size() ; ibin++ ) {
+        //        DEBUG(ibin << " bounds " << (*cubmin)[ibin] << " " << (*cubmax)[ibin]);
+        ii = indexes_of_particles_to_exchange.size()-1;
+        if (ii >= 0) { // Push lost particles to the end of the bin
+            iPart = indexes_of_particles_to_exchange[ii];
+            while (iPart >= (*cubmax)[ibin] && ii > 0) {
+                ii--;
                 iPart = indexes_of_particles_to_exchange[ii];
-                while (iPart >= (*cubmax)[ibin] && ii > 0) {
-                    ii--;
-                    iPart = indexes_of_particles_to_exchange[ii];
-                }
-                while (iPart == (*cubmax)[ibin]-1 && iPart >= (*cubmin)[ibin] && ii > 0) {
-                    (*cubmax)[ibin]--;
-                    ii--;
-                    iPart = indexes_of_particles_to_exchange[ii];
-                }
-                while (iPart >= (*cubmin)[ibin] && ii > 0) {
-                    cuParticles.overwrite_part1D((*cubmax)[ibin]-1, iPart );
-                    (*cubmax)[ibin]--;
-                    ii--;
-                    iPart = indexes_of_particles_to_exchange[ii];
-                }
-                if (iPart >= (*cubmin)[ibin] && iPart < (*cubmax)[ibin]) { //On traite la dernière particule (qui peut aussi etre la premiere)
-                    cuParticles.overwrite_part1D((*cubmax)[ibin]-1, iPart );
-                    (*cubmax)[ibin]--;
+            }
+            while (iPart == (*cubmax)[ibin]-1 && iPart >= (*cubmin)[ibin] && ii > 0) {
+                (*cubmax)[ibin]--;
+                ii--;
+                iPart = indexes_of_particles_to_exchange[ii];
+            }
+            while (iPart >= (*cubmin)[ibin] && ii > 0) {
+                cuParticles.overwrite_part1D((*cubmax)[ibin]-1, iPart );
+                (*cubmax)[ibin]--;
+                ii--;
+                iPart = indexes_of_particles_to_exchange[ii];
+            }
+            if (iPart >= (*cubmin)[ibin] && iPart < (*cubmax)[ibin]) { //On traite la dernière particule (qui peut aussi etre la premiere)
+                cuParticles.overwrite_part1D((*cubmax)[ibin]-1, iPart );
+                (*cubmax)[ibin]--;
+            }
+        }
+    }
+    //Shift the bins in memory
+    //Warning: this loop must be executed sequentially. Do not use openMP here.
+    for (int unsigned ibin = 1 ; ibin < (*cubmax).size() ; ibin++ ) { //First bin don't need to be shifted
+        ii = (*cubmin)[ibin]-(*cubmax)[ibin-1]; // Shift the bin in memory by ii slots.
+        iPart = min(ii,(*cubmax)[ibin]-(*cubmin)[ibin]); // Number of particles we have to shift = min (Nshift, Nparticle in the bin)
+        if(iPart > 0) cuParticles.overwrite_part1D((*cubmax)[ibin]-iPart,(*cubmax)[ibin-1],iPart);
+        (*cubmax)[ibin] -= ii;
+        (*cubmin)[ibin] = (*cubmax)[ibin-1];
+    }
+
+
+    // Delete useless Particles
+    //Theoretically, not even necessary to do anything as long you use bmax as the end of your iterator on particles.
+    //Nevertheless, you might want to free memory and have the actual number of particles
+    //really equal to the size of the vector. So we do:
+    cuParticles.erase_particle_trail((*cubmax).back());
+    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+    /********************************************************************************/
+    // Clean lists of indexes of particle to exchange per neighbor
+    /********************************************************************************/
+    for (int i=0 ; i<nbNeighbors_ ; i++)
+        buff_index_send[i].clear();
+    /********************************************************************************/
+    // Copy newly arrived particles back to the vector
+    /********************************************************************************/
+    for (int iNeighbor=0 ; iNeighbor<nbNeighbors_ ; iNeighbor++) {
+
+        n_part_recv = buff_index_recv_sz[(iNeighbor+1)%2];
+        if ( (neighbor_[0][(iNeighbor+1)%2]!=MPI_PROC_NULL) && (n_part_recv!=0) ) {
+            if (iNeighbor == 0) { // Copy particles coming from the right at the end of Particles Array
+                n_particles = species->getNbrOfParticles();
+                partVectorRecv[0][(iNeighbor+1)%2].cp_particles(n_part_recv, cuParticles,n_particles);
+                (*cubmax)[(*cubmax).size()-1] += n_part_recv ;
+            } else {// Copy particles coming from the left at the beginning of Particles Array
+                //New particles are inserted at the end of bin 0 instead of begining to minimize data movement.
+                partVectorRecv[0][(iNeighbor+1)%2].cp_particles(n_part_recv, cuParticles,(*cubmax)[0]);
+                (*cubmax)[0] += n_part_recv ;
+                for (unsigned int ibin=1 ; ibin < (*cubmax).size() ; ibin++ ) {
+                    (*cubmax)[ibin] += n_part_recv ;
+                    (*cubmin)[ibin] = (*cubmax)[ibin-1] ;
                 }
             }
         }
-        //Shift the bins in memory
-        //Warning: this loop must be executed sequentially. Do not use openMP here.
-        for (int unsigned ibin = 1 ; ibin < (*cubmax).size() ; ibin++ ) { //First bin don't need to be shifted
-            ii = (*cubmin)[ibin]-(*cubmax)[ibin-1]; // Shift the bin in memory by ii slots.
-            iPart = min(ii,(*cubmax)[ibin]-(*cubmin)[ibin]); // Number of particles we have to shift = min (Nshift, Nparticle in the bin)
-            if(iPart > 0) cuParticles.overwrite_part1D((*cubmax)[ibin]-iPart,(*cubmax)[ibin-1],iPart);
-            (*cubmax)[ibin] -= ii;
-            (*cubmin)[ibin] = (*cubmax)[ibin-1];
-        }
+    }
 
-
-        // Delete useless Particles
-        //Theoretically, not even necessary to do anything as long you use bmax as the end of your iterator on particles.
-        //Nevertheless, you might want to free memory and have the actual number of particles
-        //really equal to the size of the vector. So we do:
-        cuParticles.erase_particle_trail((*cubmax).back());
-        //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
-        /********************************************************************************/
-        // Clean lists of indexes of particle to exchange per neighbor
-        /********************************************************************************/
-        for (int i=0 ; i<nbNeighbors_ ; i++)
-            buff_index_send[i].clear();
-        /********************************************************************************/
-        // Copy newly arrived particles back to the vector
-        /********************************************************************************/
-        for (int iNeighbor=0 ; iNeighbor<nbNeighbors_ ; iNeighbor++) {
-
-            n_part_recv = buff_index_recv_sz[(iNeighbor+1)%2];
-            if ( (neighbor_[0][(iNeighbor+1)%2]!=MPI_PROC_NULL) && (n_part_recv!=0) ) {
-                if (iNeighbor == 0) { // Copy particles coming from the right at the end of Particles Array
-                    n_particles = species->getNbrOfParticles();
-                    partVectorRecv[0][(iNeighbor+1)%2].cp_particles(n_part_recv, cuParticles,n_particles);
-                    (*cubmax)[(*cubmax).size()-1] += n_part_recv ;
-                } else {// Copy particles coming from the left at the beginning of Particles Array
-                    //New particles are inserted at the end of bin 0 instead of begining to minimize data movement.
-                    partVectorRecv[0][(iNeighbor+1)%2].cp_particles(n_part_recv, cuParticles,(*cubmax)[0]);
-                    (*cubmax)[0] += n_part_recv ;
-                    for (unsigned int ibin=1 ; ibin < (*cubmax).size() ; ibin++ ) {
-                        (*cubmax)[ibin] += n_part_recv ;
-                        (*cubmin)[ibin] = (*cubmax)[ibin-1] ;
-                    }
-                }
-            }
-        }
-    } // END omp master
     //DEBUG( 2, "\tProcess " << smilei_rk << " : " << species->getNbrOfParticles() << " Particles of species " << ispec );
 } // END exchangeParticles
 

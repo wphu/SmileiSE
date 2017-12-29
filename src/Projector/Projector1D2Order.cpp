@@ -87,11 +87,8 @@ void Projector1D2Order::operator() (Field* rho, Particles &particles, int ipart,
     i -= index_domain_begin;
 
     // 2nd order projection for the total density
-    //#pragma omp atomic
     (*rho1D)( i-1)  += 0.5 * (xjmxi2-xjmxi+0.25) * rho_j;
-    //#pragma omp atomic
     (*rho1D)( i  )  += (0.75-xjmxi2)             * rho_j ;
-    //#pragma omp atomic
     (*rho1D)( i+1)  += 0.5 * (xjmxi2+xjmxi+0.25) * rho_j;
 
 } // END Project global current charge
@@ -124,11 +121,8 @@ void Projector1D2Order::operator() (Field* rho, Particles &particles, int ipart)
     i -= index_domain_begin;
 
     // 2nd order projection for the total density
-    //#pragma omp atomic
     (*rho1D)( i-1)  += 0.5 * (xjmxi2-xjmxi+0.25) * rho_j;
-    //#pragma omp atomic
     (*rho1D)( i  )  += (0.75-xjmxi2)             * rho_j ;
-    //#pragma omp atomic
     (*rho1D)( i+1)  += 0.5 * (xjmxi2+xjmxi+0.25) * rho_j;
 
 } // END Project global current charge
