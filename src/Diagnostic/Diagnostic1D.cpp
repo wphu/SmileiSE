@@ -155,7 +155,7 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 {
 	Species *s1;
 	Particles *p1;
-	int i;
+	int i_temp;
 	double xjn,xjmxi;
 	double m_ov_3e;
 	double m_ov_2;
@@ -215,15 +215,15 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 			{
 				//Locate particle on the grid
 				xjn    = p1->position(0, iPart) * dx_inv_;  	// normalized distance to the first node
-				i      = floor(xjn);                   		// index of the central node
-				xjmxi  = xjn - (double)i;              		// normalized distance to the nearest grid point
+				i_temp      = floor(xjn);                   		// index of the central node
+				xjmxi  = xjn - (double)i_temp;              		// normalized distance to the nearest grid point
 
-				i -= index_domain_begin;
-				(*ptclNum1D)(i) 	+= 1.0;
-				(*Vx1D_s)(i) 		+= p1->momentum(0, iPart);
-				(*Vy1D_s)(i) 		+= p1->momentum(1, iPart);
-				(*Vz1D_s)(i) 		+= p1->momentum(2, iPart);
-				(*Vp1D_s)(i) 		+= (p1->momentum(0, iPart) * sinPhi + p1->momentum(1, iPart) * cosPhi);
+				i_temp -= index_domain_begin;
+				(*ptclNum1D)(i_temp) 	+= 1.0;
+				(*Vx1D_s)(i_temp) 		+= p1->momentum(0, iPart);
+				(*Vy1D_s)(i_temp) 		+= p1->momentum(1, iPart);
+				(*Vz1D_s)(i_temp) 		+= p1->momentum(2, iPart);
+				(*Vp1D_s)(i_temp) 		+= (p1->momentum(0, iPart) * sinPhi + p1->momentum(1, iPart) * cosPhi);
 
 				// calculate total kineticEnergy
 				v_square = p1->momentum(0, iPart) * p1->momentum(0, iPart) + p1->momentum(1, iPart) * p1->momentum(1, iPart) + p1->momentum(2, iPart) * p1->momentum(2, iPart);
@@ -245,17 +245,17 @@ void Diagnostic1D::calVT(SmileiMPI* smpi, vector<Species*>& vecSpecies, ElectroM
 			{
 				//Locate particle on the grid
 				xjn    = p1->position(0, iPart) * dx_inv_;  	// normalized distance to the first node
-				i      = floor(xjn);                   		// index of the central node
-				xjmxi  = xjn - (double)i;              		// normalized distance to the nearest grid point
+				i_temp      = floor(xjn);                   		// index of the central node
+				xjmxi  = xjn - (double)i_temp;              		// normalized distance to the nearest grid point
 
-				i -= index_domain_begin;
+				i_temp -= index_domain_begin;
 				//vx = p1->momentum(0, iPart);
 				//vy = p1->momentum(1, iPart);
 				//vz = p1->momentum(2, iPart);
-				vx = p1->momentum(0, iPart) - (*Vx1D_s)(i);
-				vy = p1->momentum(1, iPart) - (*Vy1D_s)(i);
-				vz = p1->momentum(2, iPart) - (*Vz1D_s)(i);
-				(*T1D_s)(i) 		+= ( vx * vx + vy * vy + vz * vz );
+				vx = p1->momentum(0, iPart) - (*Vx1D_s)(i_temp);
+				vy = p1->momentum(1, iPart) - (*Vy1D_s)(i_temp);
+				vz = p1->momentum(2, iPart) - (*Vz1D_s)(i_temp);
+				(*T1D_s)(i_temp) 		+= ( vx * vx + vy * vy + vz * vz );
 			}
 			for(int i = 0; i < ptclNum1D->dims_[0]; i++)
 			{

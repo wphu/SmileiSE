@@ -584,9 +584,9 @@ void Species::dynamics(double time_dual, unsigned int ispec, ElectroMagn* EMfiel
         double gf = 1.0;
 
         psi_particles.clear();
-        for(int iDirection=0; iDirection<indexes_of_particles_to_perform_psi.size(); iDirection++)
+        for(int iD=0; iD<indexes_of_particles_to_perform_psi.size(); iD++)
         {
-             indexes_of_particles_to_perform_psi[iDirection].clear();
+             indexes_of_particles_to_perform_psi[iD].clear();
         }
         for (ibin = 0 ; ibin < (unsigned int)bmin.size() ; ibin++) {
             for (iPart=(unsigned int)bmin[ibin] ; iPart<(unsigned int)bmax[ibin]; iPart++ ) {
@@ -619,11 +619,11 @@ void Species::dynamics(double time_dual, unsigned int ispec, ElectroMagn* EMfiel
 
         // copy PSI particles to psi_particles, because after MPi particle exchanging
         // the PSI particles will be erased
-        for(int iDirection=0; iDirection<indexes_of_particles_to_perform_psi.size(); iDirection++)
+        for(int iD=0; iD<indexes_of_particles_to_perform_psi.size(); iD++)
         {
-            for(int iPart=0; iPart<indexes_of_particles_to_perform_psi[iDirection].size(); iPart++)
+            for(int iPart=0; iPart<indexes_of_particles_to_perform_psi[iD].size(); iPart++)
             {
-                int iPart_psi = indexes_of_particles_to_perform_psi[iDirection][iPart];
+                int iPart_psi = indexes_of_particles_to_perform_psi[iD][iPart];
                 particles.cp_particle(iPart_psi, psi_particles);
             }
         }
@@ -683,9 +683,9 @@ void Species::dynamics_imp_firstPush(double time_dual, unsigned int ispec, Elect
         double gf = 1.0;
 
         psi_particles.clear();
-        for(int iDirection=0; iDirection<indexes_of_particles_to_perform_psi.size(); iDirection++)
+        for(int iD=0; iD<indexes_of_particles_to_perform_psi.size(); iD++)
         {
-             indexes_of_particles_to_perform_psi[iDirection].clear();
+             indexes_of_particles_to_perform_psi[iD].clear();
         }
         for (ibin = 0 ; ibin < (unsigned int)bmin.size() ; ibin++) {
             for (iPart=(unsigned int)bmin[ibin] ; iPart<(unsigned int)bmax[ibin]; iPart++ ) {
@@ -718,11 +718,11 @@ void Species::dynamics_imp_firstPush(double time_dual, unsigned int ispec, Elect
 
         // copy PSI particles to psi_particles, because after MPi particle exchanging
         // the PSI particles will be erased
-        for(int iDirection=0; iDirection<indexes_of_particles_to_perform_psi.size(); iDirection++)
+        for(int iD=0; iD<indexes_of_particles_to_perform_psi.size(); iD++)
         {
-            for(int iPart=0; iPart<indexes_of_particles_to_perform_psi[iDirection].size(); iPart++)
+            for(int iPart=0; iPart<indexes_of_particles_to_perform_psi[iD].size(); iPart++)
             {
-                int iPart_psi = indexes_of_particles_to_perform_psi[iDirection][iPart];
+                int iPart_psi = indexes_of_particles_to_perform_psi[iD][iPart];
                 particles.cp_particle(iPart_psi, psi_particles);
             }
         }
@@ -779,9 +779,9 @@ void Species::dynamics_imp_secondPush(double time_dual, unsigned int ispec, Elec
     if (time_dual>species_param.time_frozen) { // moving particle
         double gf = 1.0;
 
-        for(int iDirection=0; iDirection<indexes_of_particles_to_perform_psi.size(); iDirection++)
+        for(int iD=0; iD<indexes_of_particles_to_perform_psi.size(); iD++)
         {
-             indexes_of_particles_to_perform_psi[iDirection].clear();
+             indexes_of_particles_to_perform_psi[iD].clear();
         }
         for (ibin = 0 ; ibin < (unsigned int)bmin.size() ; ibin++) {
             for (iPart=(unsigned int)bmin[ibin] ; iPart<(unsigned int)bmax[ibin]; iPart++ ) {
@@ -814,11 +814,11 @@ void Species::dynamics_imp_secondPush(double time_dual, unsigned int ispec, Elec
 
         // copy PSI particles to psi_particles, because after MPi particle exchanging
         // the PSI particles will be erased
-        for(int iDirection=0; iDirection<indexes_of_particles_to_perform_psi.size(); iDirection++)
+        for(int iD=0; iD<indexes_of_particles_to_perform_psi.size(); iD++)
         {
-            for(int iPart=0; iPart<indexes_of_particles_to_perform_psi[iDirection].size(); iPart++)
+            for(int iPart=0; iPart<indexes_of_particles_to_perform_psi[iD].size(); iPart++)
             {
-                int iPart_psi = indexes_of_particles_to_perform_psi[iDirection][iPart];
+                int iPart_psi = indexes_of_particles_to_perform_psi[iD][iPart];
                 particles.cp_particle(iPart_psi, psi_particles);
             }
         }
