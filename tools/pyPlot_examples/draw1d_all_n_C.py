@@ -8,13 +8,11 @@ x_step = 20
 
 ##read data from file
 f=h5.File("ref/data_global.h5")
-print f.keys()
 
 group = f['/Fields']
 dims = group.attrs['dims_global']
 dims = dims[...]
 
-print dims
 
 nx = dims[3]
 
@@ -81,10 +79,10 @@ ax0.legend(loc = 1, framealpha=1, fontsize = legend_fontsize)
 ax0.set_xlim((xmin, xmax))
 #ax0.set_ylim((0.0, 30.0))
 
-major_ticks = np.arange(0, 1.2, 0.5)                                              
-#minor_ticks = np.arange(0, 31, 5)                                          
-ax0.set_yticks(major_ticks)                                                       
-#ax0.set_yticks(minor_ticks, minor=True)  
+major_ticks = np.arange(0, 1.2, 0.5)
+#minor_ticks = np.arange(0, 31, 5)
+ax0.set_yticks(major_ticks)
+#ax0.set_yticks(minor_ticks, minor=True)
 
 ax0.set_ylabel(r"$n_\mathrm{e} \ \mathrm{(m^{-3})}$", fontsize = label_fontsize)
 
@@ -139,10 +137,10 @@ ax0.set_xlim((xmin, xmax))
 #ax0.set_ylim((0.0, 90.0))
 ax0.set_ylabel(r"$n_{\mathrm{D^+}} \ \mathrm{(10^{19}m^{-3})}$", fontsize = label_fontsize)
 
-major_ticks = np.arange(0, 1.2, 0.5)                                              
-#minor_ticks = np.arange(0, 31, 5)                                          
-ax0.set_yticks(major_ticks)                                                       
-#ax0.set_yticks(minor_ticks, minor=True)  
+major_ticks = np.arange(0, 1.2, 0.5)
+#minor_ticks = np.arange(0, 31, 5)
+ax0.set_yticks(major_ticks)
+#ax0.set_yticks(minor_ticks, minor=True)
 
 ax0.annotate(r"$\mathbf{(b)}$", xy=get_axis_limits(ax0), annotation_clip=False)
 
@@ -197,10 +195,10 @@ ax0.grid(True)
 ax0.set_xlim((xmin, xmax))
 #ax0.set_ylim((0.0, 90.0))
 
-major_ticks = np.arange(0, 2.1, 0.5)                                              
-#minor_ticks = np.arange(0, 31, 5)                                          
-ax0.set_yticks(major_ticks)                                                       
-#ax0.set_yticks(minor_ticks, minor=True)  
+major_ticks = np.arange(0, 2.1, 0.5)
+#minor_ticks = np.arange(0, 31, 5)
+ax0.set_yticks(major_ticks)
+#ax0.set_yticks(minor_ticks, minor=True)
 
 
 #legend1=ax0.legend(loc=(.6,.76),fontsize=16)
@@ -217,5 +215,3 @@ fig.savefig("all_n_C.pdf", dpi = 300)
 ##fig.show()       #when the program finishes,the figure disappears
 #plt.axis('equal')
 #plt.show()         #The command is OK
-
-

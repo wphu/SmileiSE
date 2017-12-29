@@ -77,13 +77,11 @@ label_fontsize = 20
 
 ##read data from file
 f=h5.File("ref/data_global.h5")
-print f.keys()
 
 group = f['/Fields']
 dims = group.attrs['dims_global']
 dims = dims[...]
 
-print dims
 
 nx = dims[3]
 
@@ -112,8 +110,7 @@ val = f["/Fields/Rho_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Ref")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 ##============ Case1 ======
 
@@ -123,8 +120,7 @@ val = f["/Fields/Rho_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Recycling coefficient = 0.2")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 ##============ Case2 ======
 f=h5.File("Re0.4/data_global.h5")
@@ -133,8 +129,7 @@ val = f["/Fields/Rho_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Recycling coefficient = 0.4")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 
 ##============ Case3 ========
@@ -144,8 +139,7 @@ val = f["/Fields/Rho_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Recycling coefficient = 0.6")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 
 sp_temp1.grid(True)
@@ -165,8 +159,7 @@ val = f["/Fields/T_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Ref")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 ##============ Case1 ==========
 
@@ -176,8 +169,7 @@ val = f["/Fields/T_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Recycling coefficient = 0.2")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 ##============ Case2 =========
 f=h5.File("Re0.4/data_global.h5")
@@ -186,8 +178,7 @@ val = f["/Fields/T_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Recycling coefficient = 0.4")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 
 ##============ Case3 ========
@@ -197,8 +188,7 @@ val = f["/Fields/T_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Recycling coefficient = 0.6")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 
 sp_temp1.grid(True)
@@ -217,8 +207,7 @@ val = f["/Fields/Phi_global_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Ref")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 ##============ Case1 ============
 
@@ -228,8 +217,7 @@ val = f["/Fields/Phi_global_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Recycling 0.2")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 ##============ Case2 ============
 f=h5.File("Re0.4/data_global.h5")
@@ -238,8 +226,7 @@ val = f["/Fields/Phi_global_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Recycling 0.4")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 
 ##============ Case3 ============
@@ -249,8 +236,7 @@ val = f["/Fields/Phi_global_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Recycling 0.6")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 
 sp_temp1.grid(True)
@@ -268,12 +254,3 @@ fig.savefig("all_nTP_D.pdf", dpi = 300)
 ##fig.show()       #when the program finishes,the figure disappears
 #plt.axis('equal')
 #plt.show()         #The command is OK
-
-
-##1d plot=============================
-##ax1=fig.add_subplot(2,1,1)
-#flux=f["/1d/pflux"]
-#flux=flux[...]
-
-#line1,=ax1.plot(flux[0,:],flux[1,:])
-#line2,=ax1.plot(flux[0,:],flux[2,:])

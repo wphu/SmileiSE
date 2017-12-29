@@ -37,10 +37,7 @@ norm_U = norm_E*norm_l
 
 
 if __name__ == '__main__':
-	print "norm_U = ", norm_U
-	print "norm_n = ", norm_n
-	print "norm_E = ", norm_E
-	print "norm_temp = ", norm_temp
-
-
-##print const.physical_constants.viewkeys()
+	print( "norm_U = ", norm_U )
+	print( "norm_n = ", norm_n )
+	print( "norm_E = ", norm_E )
+	print( "norm_temp = ", norm_temp )

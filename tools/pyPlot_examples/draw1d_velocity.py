@@ -6,13 +6,10 @@ V1 = 1.0e5
 
 ##read data from file
 f=h5.File("data_global.h5")
-print f.keys()
 
 group = f['/Fields']
 dims = group.attrs['dims_global']
 dims = dims[...]
-
-print dims
 
 nx = dims[3]
 
@@ -24,7 +21,7 @@ xmin = x.min()
 xmax = x.max()
 
 # ion sound speed
-Va1 = math.sqrt( 90.3 * 1.602e-19 / (2.0 * 1.67262158e-27) ) 
+Va1 = math.sqrt( 90.3 * 1.602e-19 / (2.0 * 1.67262158e-27) )
 Va2 = math.sqrt( 120.0 * 1.602e-19 / (2.0 * 1.67262158e-27) )
 
 ##inite the fig of matplotlib
@@ -67,7 +64,7 @@ ax0.yaxis.set_major_formatter(yformatter)
 val = f["/Fields/Vparallel_global_D1_avg"]
 val = val[...] / V1
 val_1d = np.transpose(val[t, 0, 0, :])
-val1_1d = val_1d 
+val1_1d = val_1d
 line0=ax0.plot(x, val1_1d, label = "D+1", linestyle = linestyles[0])
 
 Va1 = Va1 / V1
@@ -83,8 +80,8 @@ ax0.set_ylim((ymin, ymax))
 ax0.set_xlabel(r"$x\ \mathrm{(mm)}$", fontsize = label_fontsize)
 ax0.set_ylabel(r"$V_{\mathrm{D^+}}\ \mathrm{(10^5m/s)}$", fontsize = label_fontsize)
 
-major_ticks = np.arange(0, -1.2, -0.5)                                                                                      
-ax0.set_yticks(major_ticks)   
+major_ticks = np.arange(0, -1.2, -0.5)
+ax0.set_yticks(major_ticks)
 
 ax0.annotate(r"$\mathbf{(b)}$", xy=get_axis_limits(ax0), annotation_clip=False)
 

@@ -8,13 +8,11 @@ x_step = 20
 
 ##read data from file
 f=h5.File("data_global.h5")
-print f.keys()
 
 group = f['/Fields']
 dims = group.attrs['dims_global']
 dims = dims[...]
 
-print dims
 
 nx = dims[3]
 
@@ -82,10 +80,10 @@ ax0.legend(loc = 1, framealpha = 1.0, fontsize = legend_fontsize)
 ax0.set_xlim((xmin, xmax))
 ax0.set_ylim((ymin))
 
-major_ticks = np.arange(0, 2.1, 0.5)                                              
-#minor_ticks = np.arange(0, 31, 5)                                          
-ax0.set_yticks(major_ticks)                                                       
-#ax0.set_yticks(minor_ticks, minor=True)  
+major_ticks = np.arange(0, 2.1, 0.5)
+#minor_ticks = np.arange(0, 31, 5)
+ax0.set_yticks(major_ticks)
+#ax0.set_yticks(minor_ticks, minor=True)
 
 #ax0.set_yticks(np.arange(0,y.max(),100))
 #ax0.set_xlabel('x(mm)')
@@ -144,10 +142,10 @@ ax0.grid(True)
 ax0.set_xlim((xmin, xmax))
 ax0.set_ylim((ymin, 66))
 
-major_ticks = np.arange(0, 71.0, 20.0)                                              
-#minor_ticks = np.arange(0, 31, 5)                                          
-ax0.set_yticks(major_ticks)                                                       
-#ax0.set_yticks(minor_ticks, minor=True)  
+major_ticks = np.arange(0, 71.0, 20.0)
+#minor_ticks = np.arange(0, 31, 5)
+ax0.set_yticks(major_ticks)
+#ax0.set_yticks(minor_ticks, minor=True)
 
 
 #ax0.set_yticks(np.arange(0,y.max(),100))

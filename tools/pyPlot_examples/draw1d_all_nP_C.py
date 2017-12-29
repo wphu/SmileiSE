@@ -70,13 +70,11 @@ t = 10
 
 ##read data from file
 f=h5.File("ref_L-/data_global.h5")
-print f.keys()
 
 group = f['/Fields']
 dims = group.attrs['dims_global']
 dims = dims[...]
 
-print dims
 
 nx = dims[3]
 
@@ -104,8 +102,7 @@ val = f["/Fields/Rho_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Ref")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 ##============ Case1 ======================================================
 
@@ -115,8 +112,7 @@ val = f["/Fields/Rho_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = r'$C flux = 0.5\times 10^{22}m^{-2}s^{-1}$')
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 ##============ Case2 ======================================================
 f=h5.File("InjectC1.0/data_global.h5")
@@ -125,8 +121,7 @@ val = f["/Fields/Rho_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = r'$C flux = 1.0\times 10^{22}m^{-2}s^{-1}$')
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 
 ##============ Case3 ======================================================
@@ -136,8 +131,6 @@ val = f["/Fields/Rho_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = r'$C flux = 1.5\times 10^{22}m^{-2}s^{-1}$')
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
 
 
 sp_temp1.grid(True)
@@ -156,8 +149,6 @@ val = f["/Fields/Phi_global_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Ref")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
 
 ##============ Case1 ======================================================
 
@@ -167,8 +158,6 @@ val = f["/Fields/Phi_global_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "InjectC 0.1")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
 
 ##============ Case2 ======================================================
 f=h5.File("InjectC1.0/data_global.h5")
@@ -177,8 +166,6 @@ val = f["/Fields/Phi_global_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "InjectC 0.5")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
 
 
 ##============ Case3 ======================================================
@@ -188,8 +175,6 @@ val = f["/Fields/Phi_global_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "InjectC 1.0")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
 
 
 sp_temp1.grid(True)

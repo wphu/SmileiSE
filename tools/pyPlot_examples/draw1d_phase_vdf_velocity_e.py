@@ -4,7 +4,6 @@ f0 = 1.0e-7
 
 ##read data from file
 f=h5.File("restore/Restore0_global.h5")
-print f.keys()
 
 
 v_number = 150
@@ -148,8 +147,8 @@ ax0.legend(framealpha=1)
 ax0.xaxis.set_major_formatter(yformatter)
 ax0.yaxis.set_major_formatter(yformatter)
 
-major_ticks = np.arange(0, 2.3, 1.0)                                                                                      
-ax0.set_yticks(major_ticks)   
+major_ticks = np.arange(0, 2.3, 1.0)
+ax0.set_yticks(major_ticks)
 
 ax0.set_xlabel(r'Velocity (m/s)')
 ax0.set_ylabel(r'$F_M\ \mathrm{(10^{-7})}$')
@@ -230,8 +229,8 @@ ax0.legend(framealpha=1)
 ax0.xaxis.set_major_formatter(yformatter)
 ax0.yaxis.set_major_formatter(yformatter)
 
-major_ticks = np.arange(0, 3.2, 1.0)                                                                                      
-ax0.set_yticks(major_ticks)   
+major_ticks = np.arange(0, 3.2, 1.0)
+ax0.set_yticks(major_ticks)
 
 ax0.set_xlabel(r'Speed (m/s)')
 ax0.set_ylabel(r'$f_M\ \mathrm{(10^{-7})}$')

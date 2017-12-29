@@ -74,13 +74,10 @@ t = 19
 
 ##read data from file
 f=h5.File("ref/data_global.h5")
-print f.keys()
 
 group = f['/Fields']
 dims = group.attrs['dims_global']
 dims = dims[...]
-
-print dims
 
 nx = dims[3]
 
@@ -94,7 +91,7 @@ xmax = x.max() * 0.1
 
 # ion sound speed
 Va1 = math.sqrt( (30.0 + 80.0)  * 1.602e-19 / (2.0 * 1.67262158e-27) )
-Va2 = math.sqrt( (30.0 + 80.0)  * 1.602e-19 / (2.0 * 1.67262158e-27) ) 
+Va2 = math.sqrt( (30.0 + 80.0)  * 1.602e-19 / (2.0 * 1.67262158e-27) )
 
 x1=2500
 x2=2000
@@ -111,8 +108,7 @@ val = f["/Fields/Vparallel_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Ref")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 ##============ Case1 ======
 
@@ -122,8 +118,7 @@ val = f["/Fields/Vparallel_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Coulomb zoom 20")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 ##============ Case2 ======
 f=h5.File("ref_zoom40/data_global.h5")
@@ -132,8 +127,7 @@ val = f["/Fields/Vparallel_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Coulomb zoom 40")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 '''
 ##============ Case3 ========
@@ -143,8 +137,7 @@ val = f["/Fields/Vparallel_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Coulomb zoom 60")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 '''
 ##============ Case4 ========
 f=h5.File("ref_zoom80/data_global.h5")
@@ -153,8 +146,7 @@ val = f["/Fields/Vparallel_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Coulomb zoom 80")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 ##============ Case5 ========
 f=h5.File("ref_zoom100/data_global.h5")
@@ -163,8 +155,7 @@ val = f["/Fields/Vparallel_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Coulomb zoom 100")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 
 
@@ -185,8 +176,7 @@ val = f["/Fields/Vparallel_global_D1_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Ref")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 ##============ Case1 ==========
 
@@ -196,8 +186,7 @@ val = f["/Fields/Vparallel_global_D1_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Coulomb zoom 20")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 ##============ Case2 =========
 f=h5.File("ref_zoom40/data_global.h5")
@@ -206,8 +195,7 @@ val = f["/Fields/Vparallel_global_D1_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Coulomb zoom 40")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 '''
 ##============ Case3 ========
@@ -217,8 +205,7 @@ val = f["/Fields/Vparallel_global_D1_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Coulomb zoom 60")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 '''
 ##============ Case4 ========
 f=h5.File("ref_zoom80/data_global.h5")
@@ -227,8 +214,7 @@ val = f["/Fields/Vparallel_global_D1_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Coulomb zoom 80")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 ##============ Case5 ========
 f=h5.File("ref_zoom100/data_global.h5")
@@ -237,8 +223,7 @@ val = f["/Fields/Vparallel_global_D1_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
 cf_temp1=sp_temp1.plot(x, val_1d, label = "Coulomb zoom 100")
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x1], val_1d[x2], val_1d[x3]
+
 
 
 # Plot ion sound speed

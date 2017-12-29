@@ -10,7 +10,6 @@ hFlux0 = 1.0e7
 
 ##read data from file
 f=h5.File("data_global.h5")
-print f.keys()
 
 group = f['/Fields']
 
@@ -19,7 +18,6 @@ val1 = f["/Diagnostic/particleNumber"]
 val1 = val1[...]
 nx = (val1.shape)[0]
 x = np.linspace(0,nx*dt,nx)
-print nx
 
 ##inite the fig of matplotlib
 fig=plt.figure(figsize=(10,8))
@@ -73,7 +71,7 @@ val2 = f["/Diagnostic/particleFlux"]
 val2 = val2[...] / pFlux0
 val2_1d = np.transpose(val2[:, 0, 1, 0])
 pflux_D1 = val2_1d[t]
-print 'particle flux D1: ', val2_1d[t]
+print( 'particle flux D1: ', val2_1d[t] )
 
 
 ax0=fig.add_subplot(3,1,2)
@@ -106,8 +104,8 @@ val1_1d = np.transpose(val1[:, 0, 0, 0])
 val2 = f["/Diagnostic/heatFlux"]
 val2 = val2[...] / hFlux0
 val2_1d = np.transpose(val2[:, 0, 1, 0])
-print 'total heat flux: ', val1_1d[t] + val2_1d[t]
-print 'ionization heat flux: ', pflux_D1 * 15.5 * 1.062e-19
+print( 'total heat flux: ', val1_1d[t] + val2_1d[t] )
+print( 'ionization heat flux: ', pflux_D1 * 15.5 * 1.062e-19 )
 
 ax0=fig.add_subplot(3,1,3)
 

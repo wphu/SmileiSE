@@ -70,13 +70,11 @@ t = 10
 
 ##read data from file
 f=h5.File("ref_L-/data_global.h5")
-print f.keys()
 
 group = f['/Fields']
 dims = group.attrs['dims_global']
 dims = dims[...]
 
-print dims
 
 nx = dims[3]
 

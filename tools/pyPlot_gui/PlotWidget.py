@@ -107,7 +107,6 @@ class MyStaticMplCanvas2D(MyMplCanvas):
 
         val = self.dset[...]
         val_2d = np.transpose(val[time, 0, :, :])
-        #print "aaa", val.shape, dset.shape
 
         nx = val_2d.shape[0]
         ny = val_2d.shape[1]

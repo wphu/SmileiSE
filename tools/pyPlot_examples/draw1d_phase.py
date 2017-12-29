@@ -66,7 +66,6 @@ t = 1
 
 ##read data from file
 f=h5.File("restore/Restore0_global.h5")
-print f.keys()
 
 
 t0 = 1.0e-11

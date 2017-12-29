@@ -44,8 +44,8 @@ class ApplicationWindow(QMainWindow):
             dset = self.f["/Fields/Phi_global_avg"]
         except:
             dset = self.f["/Fields/Rho_global"]
-            print "the data is 2d !!!"
-        print "Attention: the dataset must be 4 dimensions"
+            print( "the data is 2d !!!" )
+        print( "Attention: the dataset must be 4 dimensions" )
 
         self.tree_widget = HDFTreeWidget(self.main_widget)
         self.tree_model = HDFTreeModel([])

@@ -311,7 +311,7 @@ class HDFTreeModel(QtCore.QAbstractItemModel):
                              self.rootItem.childCount(),
                              self.rootItem.childCount()+1)
         fd = h5.File(str(path), mode=mode)
-        # print('****', fd)
+
         if mode == 'r':
             fileItem = HDFTreeItem(fd, parent=self.rootItem)
         else:

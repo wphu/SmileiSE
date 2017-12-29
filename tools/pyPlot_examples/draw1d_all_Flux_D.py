@@ -8,13 +8,11 @@ t = 19
 
 ##read data from file
 f=h5.File("ref/data_global.h5")
-print f.keys()
 
 group = f['/Fields']
 dims = group.attrs['dims_global']
 dims = dims[...]
 
-print dims
 
 nx = dims[3]
 
@@ -119,7 +117,7 @@ y2[4] = val2_1d[t]
 
 hFlux = y1 + y2
 hFlux_norm  = hFlux[0]	# used to normalize hFlux
-print "hFlux: ", hFlux_norm
+print( "hFlux: ", hFlux_norm )
 hFlux = hFlux / hFlux_norm
 
 
@@ -201,7 +199,7 @@ y2[4] = val2_1d[t]
 #pFlux = y1 + y2
 pFlux = y2
 pFlux_norm  = pFlux[0]	# used to normalize pFlux
-print "pFlux: ", pFlux_norm
+print( "pFlux: ", pFlux_norm )
 pFlux = pFlux / pFlux_norm
 
 
@@ -213,10 +211,10 @@ cf_temp2=sp_temp1.plot(x, hFlux, marker = '^', label = r'Total heat flux', lines
 
 sp_temp1.set_ylim((0, 1.02))
 
-major_ticks = np.arange(0, 1.02, 0.2)                                              
-#minor_ticks = np.arange(0, 31, 5)                                          
-sp_temp1.set_yticks(major_ticks)                                                       
-#sp_temp1.set_yticks(minor_ticks, minor=True)  
+major_ticks = np.arange(0, 1.02, 0.2)
+#minor_ticks = np.arange(0, 31, 5)
+sp_temp1.set_yticks(major_ticks)
+#sp_temp1.set_yticks(minor_ticks, minor=True)
 
 
 

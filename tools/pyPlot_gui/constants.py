@@ -18,11 +18,11 @@ x=e_e/(e_m*c*c)
 y=ephi0*e_m*omiga0*omiga0/(e_e*e_e)
 
 
-print x
-print c
-print e_m
-print e_e
-print omiga0
+print( x )
+print( c )
+print( e_m )
+print( e_e )
+print( omiga0 )
 
-print 1e19/y
+print( 1e19/y )
 ##print const.physical_constants.viewkeys()

@@ -8,13 +8,11 @@ x_step = 20
 
 ##read data from file
 f=h5.File("data_global.h5")
-print f.keys()
 
 group = f['/Fields']
 dims = group.attrs['dims_global']
 dims = dims[...]
 
-print dims
 
 nx = dims[3]
 
@@ -62,8 +60,8 @@ ax0.legend(loc = 1, framealpha = 1.0, fontsize = legend_fontsize)
 ax0.set_xlim((xmin, xmax))
 ax0.set_ylim((ymin, 8.01))
 
-major_ticks = np.arange(0, 8.01, 2.0)                                              
-ax0.set_yticks(major_ticks)                                                       
+major_ticks = np.arange(0, 8.01, 2.0)
+ax0.set_yticks(major_ticks)
 
 
 ax0.set_ylabel(r"$n\ \mathrm{(10^{19}m^{-3})}$", fontsize = label_fontsize)
@@ -102,8 +100,8 @@ ax0.grid(True)
 ax0.set_xlim((xmin, xmax))
 ax0.set_ylim((ymin, 30.1))
 
-major_ticks = np.arange(0, 30.1, 10.0)                                              
-ax0.set_yticks(major_ticks)                                                       
+major_ticks = np.arange(0, 30.1, 10.0)
+ax0.set_yticks(major_ticks)
 
 
 #ax0.set_yticks(np.arange(0,y.max(),100))
@@ -116,6 +114,3 @@ fig.savefig("nT_D.pdf", dpi = 300)
 ##fig.show()       #when the program finishes,the figure disappears
 #plt.axis('equal')
 #plt.show()         #The command is OK
-
-
-

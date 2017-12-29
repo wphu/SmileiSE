@@ -8,13 +8,10 @@ Ex0 = 1.0e6
 
 ##read data from file
 f=h5.File("data_global.h5")
-print f.keys()
 
 group = f['/Fields']
 dims = group.attrs['dims_global']
 dims = dims[...]
-
-print dims
 
 nx = dims[3]
 
@@ -42,8 +39,8 @@ line0=ax0.plot(x, val_1d, label = r"$\phi$", color='#1f77b4', linestyle = linest
 ax0.set_ylabel(r"$\phi\ \mathrm{(V)}$", color='#1f77b4', fontsize = label_fontsize)
 ax0.tick_params('y', colors='#1f77b4')
 
-major_ticks = np.arange(0, 91, 30)                                                                                      
-ax0.set_yticks(major_ticks)                                                       
+major_ticks = np.arange(0, 91, 30)
+ax0.set_yticks(major_ticks)
 
 
 
@@ -98,8 +95,8 @@ ax0.set_ylim((ymin, ymax))
 
 ax0.set_ylabel(r"$n\ \mathrm{(10^{19}m^{-3})}$", fontsize = label_fontsize)
 
-major_ticks = np.arange(0, 1.01, 0.5)                                                                                      
-ax0.set_yticks(major_ticks) 
+major_ticks = np.arange(0, 1.01, 0.5)
+ax0.set_yticks(major_ticks)
 
 
 ax0.annotate(r"$\mathbf{(b)}$", xy=get_axis_limits(ax0), annotation_clip=False)
@@ -128,8 +125,8 @@ ax0.legend(loc = 1, framealpha=1)
 ax0.set_xlim((xmin, xmax))
 ax0.set_ylim((ymin, 90))
 
-major_ticks = np.arange(0, 91, 30)                                                                                       
-ax0.set_yticks(major_ticks)                                                       
+major_ticks = np.arange(0, 91, 30)
+ax0.set_yticks(major_ticks)
 
 
 

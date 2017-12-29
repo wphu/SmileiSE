@@ -122,7 +122,7 @@ class HDFTreeWidget(QTreeView):
             item = self.model().getItem(index)
             filename = item.h5node.file.filename
             if self.model().closeFile(index):
-                 print "one file is closed!"
+                 print( "one file is closed!" )
 
 
 if __name__ == '__main__':

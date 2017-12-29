@@ -14,13 +14,10 @@ const_e = 1.602e-19
 
 ##read data from file
 f=h5.File("ref/data_global.h5")
-print f.keys()
 
 group = f['/Fields']
 dims = group.attrs['dims_global']
 dims = dims[...]
-
-print dims
 
 nx = dims[3]
 
@@ -220,29 +217,24 @@ P0[4] = -P0[4] / (0.5 * Te0[4] * math.log( (2.0*const_pi*mass_e/mass_i)*(1.0+Ti0
 V0[4] = -V0[4] / math.sqrt( const_e * ( Te0[4] + Ti0[4] ) / mass_i )
 
 
-
-print P0
-print V0
-
-
 sp_temp1.yaxis.set_major_formatter(yformatter)
 cf_temp1=sp_temp1.plot(x_axis, P0, marker = '8', label = r'$\mathrm{Normalized\ potential}$', linestyle = linestyles[0])
 cf_temp1=sp_temp1.plot(x_axis, V0, marker = '^', label = r'$\mathrm{Normalized\ D^+\ ion\ velocity}$', linestyle = linestyles[1])
 
 sp_temp1.set_ylim((0.6, 1.3))
-major_ticks = np.arange(0.6, 1.3, 0.2)                                              
-#minor_ticks = np.arange(0, 31, 5)                                          
-sp_temp1.set_yticks(major_ticks)                                                       
-#sp_temp1.set_yticks(minor_ticks, minor=True)  
+major_ticks = np.arange(0.6, 1.3, 0.2)
+#minor_ticks = np.arange(0, 31, 5)
+sp_temp1.set_yticks(major_ticks)
+#sp_temp1.set_yticks(minor_ticks, minor=True)
 
 
 
 
 
-#major_ticks = np.arange(0.2, 1.02, 0.2)                                              
-#minor_ticks = np.arange(0, 31, 5)                                          
-#sp_temp1.set_yticks(major_ticks)                                                       
-#sp_temp1.set_yticks(minor_ticks, minor=True)  
+#major_ticks = np.arange(0.2, 1.02, 0.2)
+#minor_ticks = np.arange(0, 31, 5)
+#sp_temp1.set_yticks(major_ticks)
+#sp_temp1.set_yticks(minor_ticks, minor=True)
 
 
 
