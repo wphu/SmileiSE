@@ -1,7 +1,7 @@
-SMILEICXX		?= mpic++
-HDF5_ROOT_DIR	?=
+SMILEICXX		= mpicxx
+HDF5_DIR		?=
 SuperLU_DIR		?=
-PYTHONCONFIG	?= python3-config
+PYTHONCONFIG	= python3-config
 ##################################################
 
 DESCRIBE:=$(shell git describe 2>/dev/null || echo '??')
@@ -12,14 +12,14 @@ VERSION:="$(DESCRIBE)-$(BRANCH)"
 CFLAGS += -D__VERSION=\"$(VERSION)\" -D__COMMITDATE=\""$(COMMITDATE)"\"
 
 ####################################################
-LIB_Blas	= $(SuperLU_DIR)/lib/blas_linux.a
+LIB_Blas	= $(SuperLU_DIR)/lib/libblas.a
 LIB_SuperLU = $(SuperLU_DIR)/lib/libsuperlu_4.3.a
 LIBS 		= $(LIB_SuperLU) $(LIB_Blas)
 
 
 CFLAGS 		+= -std=c++11
-CFLAGS 		+= -I${HDF5_ROOT_DIR}/include
-LDFLAGS 	+= -L${HDF5_ROOT_DIR}/lib -lhdf5 -lz
+CFLAGS 		+= -I${HDF5_DIR}/include
+LDFLAGS 	+= -L${HDF5_DIR}/lib -lhdf5 -lz
 
 CFLAGS 		+= -I$(SuperLU_DIR)/SRC
 LDFLAGS 	+= $(LIBS)
