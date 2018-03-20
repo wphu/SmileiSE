@@ -57,10 +57,10 @@ public:
     // store Particles to restart
     virtual void endStoreP(PicParams& params, SmileiMPI* smpi, vector<Species*>& vecSpecies, int itime );
 
-    string global_file_name_;
+    string data_file_name;
 
     // Id of "Fields_global.h5", contains global fields, such as potential, rho ...
-    hid_t       global_file_id_;
+    hid_t       data_file_id;
     herr_t      status;
 
     double* data_;
@@ -84,7 +84,7 @@ public:
         // memspace_id is temporary to write subset of a dataset, descript the structure of the subset
         hid_t       memspace_id;
         // ndims_ is used to output the dimensitons as attribute
-        int ndims_[4];
+        int ndims_[3];
         // aDims is for For attribute
         hsize_t     aDims;
 
@@ -95,7 +95,7 @@ public:
         //> data dimensions to be outputed: t, z, y, x
         //> [1] = 1 for 2d; [1] = [2] = 1 for 1d
         // For different dataset, the dims_global may be different
-        hsize_t     dims_global[4];
+        hsize_t     dims_global[3];
 
         //> parameters for outputing fields in one timestep, used by H5Sselect_hyperslab hdf5 method
         /*
@@ -104,10 +104,10 @@ public:
         The stride array allows you to sample elements along a dimension. For example, a stride of one (or NULL) will select every element along a dimension, a stride of two will select every other element, and a stride of three will select an element after every two elements.
         The block array determines the size of the element block selected from a dataspace. If the block size is one or NULL then the block size is a single element in that dimension
         */
-        hsize_t     count[4];              /* size of subset in the file */
-        hsize_t     offset[4];             /* subset offset in the file */
-        hsize_t     stride[4];
-        hsize_t     block[4];
+        hsize_t     count[3];              /* size of subset in the file */
+        hsize_t     offset[3];             /* subset offset in the file */
+        hsize_t     stride[3];
+        hsize_t     block[3];
     };
 
     H5Group fieldsGroup;

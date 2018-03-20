@@ -25,7 +25,6 @@ SmileiIO::SmileiIO( PicParams& params, SmileiMPI* smpi )
     // Fields_global.h5
     is_restart = 0;
     stepStart  = 0;
-    global_file_name_ = "data_global.h5";
     restore_file_dir_ = "restore";
 
 }
@@ -33,7 +32,7 @@ SmileiIO::SmileiIO( PicParams& params, SmileiMPI* smpi )
 SmileiIO::~SmileiIO()
 {
     // Management of global IO file
-    //H5Fclose( global_file_id_ );
+    //H5Fclose( data_file_id );
 }
 
 
@@ -48,6 +47,7 @@ void SmileiIO::addField(Field* field)
 void SmileiIO::createFieldsGroup( ElectroMagn* fields )
 {
     const char* h5_name;
+    int data_dims = 3;
 
     // ============ Create fieldsGroup ============================================
     //addField(fields->rho_global);
@@ -67,47 +67,13 @@ void SmileiIO::createFieldsGroup( ElectroMagn* fields )
         addField(fields->T_s_global_avg[i]);
 
     }
-
-    if(!is_restart)
-    {
-        fieldsGroup.group_id = H5Gcreate(global_file_id_, "/Fields", H5P_DEFAULT, H5P_DEFAULT,H5P_DEFAULT);
-        // ============Create hdf5 struct for fieldsGroup===================================
-        for(int i = 0; i < fieldsGroup.dataset_stringName.size(); i++)
-        {
-            // Create hdf5 datasets under "/Fields" group
-            fieldsGroup.dataspace_id = H5Screate_simple(4, fieldsGroup.dims_global, NULL);
-
-            h5_name = fieldsGroup.dataset_stringName[i].c_str();
-            hid_t id = H5Dcreate2(fieldsGroup.group_id, h5_name, H5T_NATIVE_DOUBLE, fieldsGroup.dataspace_id,
-                                          H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-            fieldsGroup.dataset_id.push_back(id);
-            H5Dclose( fieldsGroup.dataset_id[i] );
-            H5Sclose( fieldsGroup.dataspace_id );
-        }
-        //exit(0);
-
-        // ==============Create and write the attribute data ================================
-        //> dataspace is to descript the structure of data: the number of data dimension and the size of each dimension
-        //> the first parameter rank=1: is the number of dimensions used in the dataspace
-        fieldsGroup.dataspace_id = H5Screate_simple(1, &(fieldsGroup.aDims), NULL);
-        fieldsGroup.attribute_id = H5Acreate2 (fieldsGroup.group_id, "dims_global", H5T_STD_I32BE, fieldsGroup.dataspace_id,
-                                     H5P_DEFAULT, H5P_DEFAULT);
-        fieldsGroup.status = H5Awrite(fieldsGroup.attribute_id, H5T_NATIVE_INT, fieldsGroup.ndims_);
-        H5Aclose( fieldsGroup.attribute_id );
-        H5Sclose( fieldsGroup.dataspace_id );
-
-
-        H5Gclose( fieldsGroup.group_id );
-    }
-    else
-    {
-        fieldsGroup.dataset_id.resize( fieldsGroup.dataset_stringName.size() );
-    }
+    fieldsGroup.dataset_id.resize( fieldsGroup.dataset_stringName.size() );
 }
 
 void SmileiIO::createPartsGroup( vector<Species*>& vecSpecies )
 {
     const char* h5_name;
+    int data_dims = 3;
     Species *s;
     Particles *p;
     // ==============Create "VDF" group ================================
@@ -129,11 +95,11 @@ void SmileiIO::createPartsGroup( vector<Species*>& vecSpecies )
 
     if(!is_restart)
     {
-        ptclsGroup.group_id = H5Gcreate(global_file_id_, "/VDF", H5P_DEFAULT, H5P_DEFAULT,H5P_DEFAULT);
+        ptclsGroup.group_id = H5Gcreate(data_file_id, "/VDF", H5P_DEFAULT, H5P_DEFAULT,H5P_DEFAULT);
         // ==============Create hdf5 struct for "VDF" group ================================
         for(int i = 0; i < ptclsGroup.dataset_stringName.size(); i++)
         {
-            ptclsGroup.dataspace_id = H5Screate_simple(4, ptclsGroup.dims_global, NULL);
+            ptclsGroup.dataspace_id = H5Screate_simple(data_dims, ptclsGroup.dims_global, NULL);
             h5_name = ptclsGroup.dataset_stringName[i].c_str();
             hid_t id = H5Dcreate2(ptclsGroup.group_id, h5_name, H5T_NATIVE_DOUBLE, ptclsGroup.dataspace_id,
                                           H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);

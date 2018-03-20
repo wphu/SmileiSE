@@ -4,10 +4,10 @@
 #PBS -m b
 #PBS -m e
 #PBS -m a
-#PBS -o outfile
-#PBS -e errfile
-#PBS -l walltime=2000:00:00
-##PBS -q batch
+#PBS -o data/outfile
+#PBS -e data/errfile
+##PBS -l walltime=2000:00:00
+#PBS -q long
 
 echo "begin time"; date
 echo "job run on :"; hostname
@@ -17,4 +17,4 @@ echo "end time"; date
 ##do your job
 cd $PBS_O_WORKDIR
 
-mpiexec -genv I_MPI_DEVICE rdssm -n 24 ../../src/smilei tst1d_simple.py
+mpiexec -n 24 ../../src/smilei data/input.py

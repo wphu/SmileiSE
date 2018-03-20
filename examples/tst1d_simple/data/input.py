@@ -6,7 +6,6 @@
 #           SmileiComponent, Species, Laser, Collisions, DiagProbe, DiagParticles,
 #           DiagScalar, DiagPhase or ExtField
 #
-print("begin...")
 
 import math
 
@@ -121,7 +120,6 @@ n_time = Tsim
 # Predefined functions: constant, trapezoidal, gaussian, polygonal, cosine
 #
 
-print("1111")
 
 Species(
 	species_type = 'e',
@@ -141,7 +139,6 @@ Species(
 	bc_part_type_east  = 'supp',
 )
 
-print("2222")
 
 Species(
 	species_type = 'D1',

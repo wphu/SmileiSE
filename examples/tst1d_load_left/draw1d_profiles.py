@@ -6,19 +6,17 @@ t = 7
 n0 = 1.0e19
 Ex0 = 1.0e6
 
-x_step = 1
+x_step = 20
 
 amplification_factor = 80.0
 
 
 ##read data from file
 f=h5.File("data_global.h5")
-print f.keys()
 
 group = f['/Fields']
 dims = group.attrs['dims_global']
 dims = dims[...]
-print dims
 nx = dims[3]
 
 
@@ -47,8 +45,8 @@ ax0=fig.add_subplot(3,1,1)
 val = f["/Fields/Phi_global_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
-print "potential max: ", val_1d.max()
-print "potential: ",val_1d[x0], val_1d[x1]
+print( "potential max: ", val_1d.max() )
+print( "potential: ",val_1d[x0], val_1d[x1] )
 val_1d = val_1d[::x_step]
 
 line0=ax0.plot(x_less, val_1d, label = r"$\phi$", color='#1f77b4')
@@ -92,7 +90,7 @@ ax0=fig.add_subplot(3,1,2)
 val = f["/Fields/Rho_global_e_avg"]
 val = val[...] / n0
 val_1d = np.transpose(val[t, 0, 0, :])
-print "Electron density: ",val_1d[x0], val_1d[x1]
+print( "Electron density: ",val_1d[x0], val_1d[x1] )
 val0_1d = val_1d
 val_1d = val_1d[::x_step]
 line0=ax0.plot(x_less, val_1d, label = r"Electron")
@@ -150,7 +148,7 @@ ax0=fig.add_subplot(3,1,3)
 val = f["/Fields/T_global_e_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
-print "Electron Temperature: ",val_1d[x0], val_1d[x1]
+print( "Electron Temperature: ",val_1d[x0], val_1d[x1] )
 val_1d = val_1d[::x_step]
 line0=ax0.plot(x_less, val_1d, label = "Electron")
 
@@ -160,7 +158,7 @@ ax0.grid(True)
 val = f["/Fields/T_global_D1_avg"]
 val = val[...]
 val_1d = np.transpose(val[t, 0, 0, :])
-print "D+1 ion temperature: ",val_1d[x0], val_1d[x1]
+print( "D+1 ion temperature: ",val_1d[x0], val_1d[x1] )
 val_1d = val_1d[::x_step]
 line0=ax0.plot(x_less, val_1d, label = r'$\mathrm{D^+}$ ion', linestyle = linestyles[1])
 

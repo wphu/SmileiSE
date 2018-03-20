@@ -49,8 +49,8 @@ def get_axis_limits(ax, x_scale=0.0, y_scale=1.08):
     return ax.get_xlim()[0] + (ax.get_xlim()[1] - ax.get_xlim()[0]) * x_scale, ax.get_ylim()[1] + ( ax.get_ylim()[1] - ax.get_ylim()[0] ) * (y_scale - 1.0)
 
 yformatter = ScalarFormatter()
-yformatter.set_powerlimits((-3,3))	
-	
+yformatter.set_powerlimits((-3,3))
+
 label_fontsize = 21
 legend_fontsize = 15
 inset_label_fontsize = 15
@@ -66,5 +66,4 @@ ylabel_x = -0.058
 # contants
 const_e = 1.602e-19
 
-print "template.py is imported!"
-
+print("template.py is imported!")

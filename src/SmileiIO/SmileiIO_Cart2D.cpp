@@ -23,17 +23,7 @@ SmileiIO_Cart2D::SmileiIO_Cart2D( PicParams& params, SmileiMPI* smpi, ElectroMag
     reloadP(params, smpi, vecSpecies);
     if(smpi->isMaster())
     {
-        if(!is_restart)
-        {
-            global_file_id_  = H5Fcreate( global_file_name_.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-        }
-        else
-        {
-            global_file_id_  = H5Fopen( global_file_name_.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
-        }
-        createFieldsPattern(params, smpi, fields);
-        createPartsPattern(params, smpi, fields, vecSpecies);
-        status = H5Fclose(global_file_id_);
+        createPartsPattern(params, fields, vecSpecies);
     }
 
 }
@@ -43,36 +33,32 @@ SmileiIO_Cart2D::~SmileiIO_Cart2D()
 }
 
 //> create hdf5 file, datespace, dateset and so on
-void SmileiIO_Cart2D::createFieldsPattern( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields )
+void SmileiIO_Cart2D::createFieldsPattern( PicParams& params, ElectroMagn* fields )
 {
 
-    fieldsGroup.dims_global[3] = params.n_space_global[1] + 1;
-    fieldsGroup.dims_global[2] = params.n_space_global[0] + 1;
-    fieldsGroup.dims_global[1] = 1;
-    fieldsGroup.dims_global[0] = params.n_time / params.dump_step;
+    fieldsGroup.dims_global[2] = params.n_space_global[1] + 1;
+    fieldsGroup.dims_global[1] = params.n_space_global[0] + 1;
+    fieldsGroup.dims_global[0] = 1;
+ 
 
     fieldsGroup.ndims_[0] = fieldsGroup.dims_global[0];
     fieldsGroup.ndims_[1] = fieldsGroup.dims_global[1];
     fieldsGroup.ndims_[2] = fieldsGroup.dims_global[2];
-    fieldsGroup.ndims_[3] = fieldsGroup.dims_global[3];
 
     fieldsGroup.offset[0] = 0;
     fieldsGroup.offset[1] = 0;
     fieldsGroup.offset[2] = 0;
-    fieldsGroup.offset[3] = 0;
 
     fieldsGroup.stride[0] = 1;
     fieldsGroup.stride[1] = 1;
     fieldsGroup.stride[2] = 1;
-    fieldsGroup.stride[3] = 1;
 
     fieldsGroup.block[0] = 1;
     fieldsGroup.block[1] = 1;
     fieldsGroup.block[2] = 1;
-    fieldsGroup.block[3] = 1;
 
     // For attribute
-    fieldsGroup.aDims = 4;
+    fieldsGroup.aDims = 3;
 
     createFieldsGroup(fields);
 
@@ -82,7 +68,7 @@ void SmileiIO_Cart2D::createFieldsPattern( PicParams& params, SmileiMPI* smpi, E
 
 
 
-void SmileiIO_Cart2D::createPartsPattern( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies )
+void SmileiIO_Cart2D::createPartsPattern( PicParams& params, ElectroMagn* fields, vector<Species*>& vecSpecies )
 {
     // For particles, size ofdims_global should be 5: dims_global[nx][ny][nz][nvelocity][ntime]
     // But to be simple, the size is set 4, nz dimension is deleted.
@@ -213,6 +199,7 @@ void SmileiIO_Cart2D::calVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* f
 void SmileiIO_Cart2D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, Diagnostic* diag, int itime)
 {
     const char* h5_name;
+    int data_dims = 3;
     Diagnostic2D* diag2D = static_cast<Diagnostic2D*>(diag);
     if(params.is_calVDF)
     {
@@ -225,18 +212,22 @@ void SmileiIO_Cart2D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fi
         {
 
             ndims_t = itime / params.dump_step - 1;
+            long long ndims_t_temp = ndims_t;
+            // create file at current output step
+            data_file_name = "data/data" + to_string(ndims_t_temp);
+            data_file_id = H5Fcreate( data_file_name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
-            // reopen attribute, dataset, dataspace, group, and so on
-            global_file_id_  = H5Fopen( global_file_name_.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
+            // create data patterns
+            createFieldsPattern(params, fields);
 
-            fieldsGroup.group_id = H5Gopen(global_file_id_, "/Fields", H5P_DEFAULT);
+            fieldsGroup.group_id = H5Gopen(data_file_id, "/Fields", H5P_DEFAULT);
             for(int i = 0; i < fieldsGroup.dataset_stringName.size(); i++)
             {
                 h5_name = fieldsGroup.dataset_stringName[i].c_str();
                 fieldsGroup.dataset_id[i] = H5Dopen( fieldsGroup.group_id, h5_name, H5P_DEFAULT);
             }
 
-            ptclsGroup.group_id = H5Gopen(global_file_id_, "/VDF", H5P_DEFAULT);
+            ptclsGroup.group_id = H5Gopen(data_file_id, "/VDF", H5P_DEFAULT);
             for(int i = 0; i < ptclsGroup.dataset_stringName.size(); i++)
             {
                 h5_name = ptclsGroup.dataset_stringName[i].c_str();
@@ -259,7 +250,7 @@ void SmileiIO_Cart2D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fi
             //>write fields
             for(int i = 0; i < fieldsGroup.dataset_id.size(); i++)
             {
-                fieldsGroup.memspace_id = H5Screate_simple (4, fieldsGroup.count, NULL);
+                fieldsGroup.memspace_id = H5Screate_simple (data_dims, fieldsGroup.count, NULL);
                 fieldsGroup.dataspace_id = H5Dget_space (fieldsGroup.dataset_id[i]);
                 // H5Sselect_hyperslab: define the selection of subset in the dataspace
                 fieldsGroup.status = H5Sselect_hyperslab (fieldsGroup.dataspace_id, H5S_SELECT_SET, fieldsGroup.offset,
@@ -283,7 +274,7 @@ void SmileiIO_Cart2D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fi
             // write particle velocity distribution function
             for(int i = 0; i < ptclsGroup.dataset_id.size(); i++)
             {
-                ptclsGroup.memspace_id = H5Screate_simple (4, ptclsGroup.count, NULL);
+                ptclsGroup.memspace_id = H5Screate_simple (data_dims, ptclsGroup.count, NULL);
                 ptclsGroup.dataspace_id = H5Dget_space (ptclsGroup.dataset_id[i]);
                 ptclsGroup.status = H5Sselect_hyperslab (ptclsGroup.dataspace_id, H5S_SELECT_SET, ptclsGroup.offset,
                                                   ptclsGroup.stride, ptclsGroup.count, ptclsGroup.block);
@@ -301,7 +292,7 @@ void SmileiIO_Cart2D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fi
             }
             ptclsGroup.status = H5Gclose( ptclsGroup.group_id );
 
-            status = H5Fclose(global_file_id_);
+            status = H5Fclose(data_file_id);
         }
     }
 

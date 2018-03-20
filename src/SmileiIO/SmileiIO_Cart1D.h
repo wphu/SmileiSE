@@ -28,14 +28,14 @@ public:
     virtual void write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies, Diagnostic* diag, int itime);
 
     //! Build memory and file space for // HDF5 write/read
-    void createFieldsPattern( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields );
+    void createFieldsPattern( PicParams& params, ElectroMagn* fields );
 
 
     // Create particles h5 file pattern
-    void createPartsPattern( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies );
+    void createPartsPattern( PicParams& params, ElectroMagn* fields, vector<Species*>& vecSpecies );
 
     // Create particles h5 file pattern
-    void createDiagsPattern( PicParams& params, SmileiMPI* smpi, Diagnostic1D* diag1D );
+    void createDiagsPattern( PicParams& params, Diagnostic1D* diag1D );
 
     void initVDF( PicParams& params, SmileiMPI* smpi, ElectroMagn* fields, vector<Species*>& vecSpecies );
     // calculate velocity distribution function
