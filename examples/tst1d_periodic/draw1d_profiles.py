@@ -1,7 +1,15 @@
 from template import *
+from collect import collect
 
+import sys
 
-t = 7
+itime = 0
+if len(sys.argv) == 2:
+	t = int(sys.argv[1])
+elif len(sys.argv) > 2:
+	print("error: should have one argument, as time step")
+else:
+	t = itime
 
 n0 = 1.0e19
 Ex0 = 1.0e6
@@ -11,13 +19,8 @@ x_step = 20
 amplification_factor = 80.0
 
 
-##read data from file
-f=h5.File("data_global.h5")
-
-group = f['/Fields']
-dims = group.attrs['dims_global']
-dims = dims[...]
-nx = dims[3]
+data_temp = collect("Fields", "Phi_global_avg")
+nx = data_temp.shape[3]
 
 
 dx = 0.5e-5  # unit (m)
@@ -42,8 +45,7 @@ fig.subplots_adjust(top=0.9,bottom=0.1,wspace=0.5,hspace=0.55)
 ##============potential======================================================
 ax0=fig.add_subplot(3,1,1)
 
-val = f["/Fields/Phi_global_avg"]
-val = val[...]
+val = collect("Fields", "Phi_global_avg")
 val_1d = np.transpose(val[t, 0, 0, :])
 print( "potential max: ", val_1d.max() )
 print( "potential: ",val_1d[x0], val_1d[x1] )
@@ -62,8 +64,8 @@ ax0.set_yticks(major_ticks)
 
 #double y axis
 ax0_twinx = ax0.twinx()
-val = f["/Fields/Ex_global_avg"]
-val = val[...] / Ex0
+val = collect("Fields", "Ex_global_avg")
+val = val / Ex0
 val_1d = np.transpose(val[t, 0, 0, :])
 val_1d = val_1d[::x_step]
 
@@ -87,8 +89,8 @@ ax0.annotate(r"$\mathbf{(a)}$", xy=get_axis_limits(ax0), annotation_clip=False)
 ##============rho======================================================
 ax0=fig.add_subplot(3,1,2)
 
-val = f["/Fields/Rho_global_e_avg"]
-val = val[...] / n0
+val = collect("Fields", "Rho_global_e_avg")
+val = val / n0
 val_1d = np.transpose(val[t, 0, 0, :])
 print( "Electron density: ",val_1d[x0], val_1d[x1] )
 val0_1d = val_1d
@@ -96,10 +98,8 @@ val_1d = val_1d[::x_step]
 line0=ax0.plot(x_less, val_1d, label = r"Electron")
 
 
-
-
-val = f["/Fields/Rho_global_D1_avg"]
-val = val[...] / n0
+val = collect("Fields", "Rho_global_D1_avg")
+val = val / n0
 val_1d = np.transpose(val[t, 0, 0, :])
 val1_1d = val_1d
 val_1d = val_1d[::x_step]
@@ -145,8 +145,7 @@ ax0.annotate(r"$\mathbf{(b)}$", xy=get_axis_limits(ax0), annotation_clip=False)
 ##============ Temperature ======================================================
 ax0=fig.add_subplot(3,1,3)
 
-val = f["/Fields/T_global_e_avg"]
-val = val[...]
+val = collect("Fields", "T_global_e_avg")
 val_1d = np.transpose(val[t, 0, 0, :])
 print( "Electron Temperature: ",val_1d[x0], val_1d[x1] )
 val_1d = val_1d[::x_step]
@@ -155,8 +154,7 @@ line0=ax0.plot(x_less, val_1d, label = "Electron")
 
 ax0.grid(True)
 
-val = f["/Fields/T_global_D1_avg"]
-val = val[...]
+val = collect("Fields", "T_global_D1_avg")
 val_1d = np.transpose(val[t, 0, 0, :])
 print( "D+1 ion temperature: ",val_1d[x0], val_1d[x1] )
 val_1d = val_1d[::x_step]
@@ -181,8 +179,8 @@ ax0.set_ylabel(r"$T\ \mathrm{(eV)}$", fontsize = label_fontsize)
 ax0.annotate(r"$\mathbf{(c)}$", xy=get_axis_limits(ax0), annotation_clip=False)
 
 
-
-fig.savefig("Profiles.pdf", dpi = 300)
+pdf_file_name = "Profiles" + str(t) + ".pdf"
+fig.savefig(pdf_file_name, dpi = 300)
 ##fig.show()       #when the program finishes,the figure disappears
 #plt.axis('equal')
 #plt.show()         #The command is OK

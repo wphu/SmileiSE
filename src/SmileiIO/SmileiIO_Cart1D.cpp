@@ -351,7 +351,7 @@ void SmileiIO_Cart1D::write( PicParams& params, SmileiMPI* smpi, ElectroMagn* fi
         long long ndims_t_temp = ndims_t;
 
         // create file at current output step
-        data_file_name = "data/data" + to_string(ndims_t_temp);
+        data_file_name = "data/data" + to_string(ndims_t_temp) + ".h5";
         data_file_id = H5Fcreate( data_file_name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
         // =============write fields============================================

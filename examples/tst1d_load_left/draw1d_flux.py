@@ -1,4 +1,5 @@
 from template import *
+from collect import collect
 
 t = 0
 dt = 0.5e-12 * 500000 / 1.0e-6   # unit is us
@@ -8,14 +9,8 @@ pFlux0 = 1.0e23
 hFlux0 = 1.0e7
 
 
-##read data from file
-f=h5.File("data_global.h5")
+val1 = collect("Diagnostic", "particleNumber")
 
-group = f['/Fields']
-
-
-val1 = f["/Diagnostic/particleNumber"]
-val1 = val1[...]
 nx = (val1.shape)[0]
 x = np.linspace(0,nx*dt,nx)
 
@@ -25,13 +20,13 @@ fig.subplots_adjust(top=0.9,bottom=0.1,wspace=0.6,hspace=0.55)
 
 
 #============Total particle number=======================================
-val1 = f["/Diagnostic/particleNumber"]
-val1 = val1[...] /N0
+val1 = collect("Diagnostic", "particleNumber")
+val1 = val1 / N0
 val1_1d = np.transpose(val1[:, 0, 0, 0])
 
 
-val2 = f["/Diagnostic/particleNumber"]
-val2 = val2[...] / N0
+val2 = collect("Diagnostic", "particleNumber")
+val2 = val2 / N0
 val2_1d = np.transpose(val2[:, 0, 0, 1])
 
 
@@ -63,12 +58,12 @@ ax0.legend(loc = 4, framealpha=1)
 ax0.annotate(r'$\mathbf{(a)}$', xy=get_axis_limits(ax0), annotation_clip=False)
 
 ##============Particle flux======================================================
-val1 = f["/Diagnostic/particleFlux"]
-val1 = val1[...] / pFlux0
+val1 = collect("Diagnostic", "particleFlux")
+val1 = val1 / pFlux0
 val1_1d = np.transpose(val1[:, 0, 0, 0])
 
-val2 = f["/Diagnostic/particleFlux"]
-val2 = val2[...] / pFlux0
+val2 = collect("Diagnostic", "particleFlux")
+val2 = val2 / pFlux0
 val2_1d = np.transpose(val2[:, 0, 1, 0])
 pflux_D1 = val2_1d[t]
 print( 'particle flux D1: ', val2_1d[t] )
@@ -97,12 +92,12 @@ ax0.grid(True)
 ax0.annotate(r"$\mathbf{(b)}$", xy=get_axis_limits(ax0), annotation_clip=False)
 
 ##============Eenergy flux======================================================
-val1 = f["/Diagnostic/heatFlux"]
-val1 = val1[...] / hFlux0
+val1 = collect("Diagnostic", "heatFlux")
+val1 = val1 / hFlux0
 val1_1d = np.transpose(val1[:, 0, 0, 0])
 
-val2 = f["/Diagnostic/heatFlux"]
-val2 = val2[...] / hFlux0
+val2 = collect("Diagnostic", "heatFlux")
+val2 = val2 / hFlux0
 val2_1d = np.transpose(val2[:, 0, 1, 0])
 print( 'total heat flux: ', val1_1d[t] + val2_1d[t] )
 print( 'ionization heat flux: ', pflux_D1 * 15.5 * 1.062e-19 )

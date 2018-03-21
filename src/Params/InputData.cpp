@@ -63,6 +63,7 @@ py_namelist(NULL)
 
     // Now the string "namelist" contains all the python files concatenated
     // It is written as a file: smilei.py
+    /*!!!!!!!!!!!!!!!!!!!!!!!!
     if (smpi->isMaster()) {
         ofstream out_namelist("smilei.py");
         if (out_namelist.is_open()) {
@@ -70,6 +71,7 @@ py_namelist(NULL)
             out_namelist.close();
         }
     }
+    */
 }
 
 InputData::~InputData()
